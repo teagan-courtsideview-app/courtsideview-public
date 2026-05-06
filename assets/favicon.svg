@@ -1,4 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="#0a0e14"/>
-  <text x="32" y="44" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-weight="800" font-size="38" fill="#2ECC71" font-style="italic">V</text>
+  <g transform="translate(8 8) scale(0.75)">
+    <circle cx="32" cy="32" r="28" fill="#2ECC71" stroke="#0F6B3A" stroke-width="2.5"/>
+    <g fill="none" stroke="#0F6B3A" stroke-width="2.2" stroke-linecap="round">
+      <path d="M 32 4 C 22 18, 22 46, 32 60"/>
+      <path d="M 32 4 C 42 18, 42 46, 32 60"/>
+      <path d="M 4 32 C 18 22, 46 22, 60 32"/>
+      <path d="M 4 32 C 18 42, 46 42, 60 32"/>
+    </g>
+  </g>
 </svg>
