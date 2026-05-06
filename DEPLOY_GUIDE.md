@@ -120,7 +120,7 @@ Squarespace currently points the domain at its own site. You need to **remove**:
 - The existing **CNAME** for `www` pointing to `ext-cust.squarespace.com` (or similar).
 
 Don't touch:
-- ✅ MX records (those are your Google Workspace email — leaving them alone keeps `info@houseofturnberry.com` working).
+- ✅ MX records (those are your Google Workspace email — leaving them alone keeps `teagan@courtsideviewapp.com` working).
 - ✅ TXT records for SPF / DKIM / Google site verification.
 
 ### 4c. Add the Vercel records
@@ -150,13 +150,13 @@ http://www.courtsideviewapp.com/         → upgrades to https
 
 Run through this checklist:
 - [ ] Landing page loads with hero, features, footer
-- [ ] "Notify Me at Launch" opens email to info@houseofturnberry.com
+- [ ] "Notify Me at Launch" opens email to teagan@courtsideviewapp.com
 - [ ] Privacy link in nav and footer goes to `/privacy`
 - [ ] Privacy page matches the dark CourtsideView aesthetic
 - [ ] Favicon shows the green italic V on a dark tile in the browser tab
 - [ ] Sharing the URL on iMessage / Slack shows the OG preview card
 - [ ] Mobile (resize browser to ~375px wide): hero stacks correctly, phone mockup is centered, footer stacks vertically
-- [ ] Send `info@houseofturnberry.com` a test email to confirm Google Workspace email still flows (you didn't touch MX, but it's worth a sanity check)
+- [ ] Send `teagan@courtsideviewapp.com` a test email to confirm Google Workspace email still flows (you didn't touch MX, but it's worth a sanity check)
 
 ---
 
