@@ -12,15 +12,15 @@
     <meta property="og:url" content="https://www.courtsideviewapp.com/">
     <meta property="og:title" content="CourtsideView | #1 Volleyball App">
     <meta property="og:description" content="Real-time scores & stats. Real proud parents. The ultimate courtside companion.">
-    <meta property="og:image" content="https://www.courtsideviewapp.com/assets/og-image.svg">
+    <meta property="og:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="CourtsideView | #1 Volleyball App">
     <meta name="twitter:description" content="Real-time scores & stats. Real proud parents.">
-    <meta name="twitter:image" content="https://www.courtsideviewapp.com/assets/og-image.svg">
+    <meta name="twitter:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
 
     <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-    <link rel="apple-touch-icon" href="/assets/favicon.svg">
+    <link rel="icon" type="image/png" href="/assets/volleyball.png">
+    <link rel="apple-touch-icon" href="/assets/volleyball.png">
 
     <link rel="canonical" href="https://www.courtsideviewapp.com/">
 
@@ -34,7 +34,8 @@
         .hero-gradient { background: radial-gradient(circle at top right, rgba(46, 204, 113, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(46, 204, 113, 0.05), transparent 40%); }
         .wordmark { font-weight: 800; letter-spacing: -0.04em; display: inline-flex; align-items: center; gap: 0.5rem; }
         .wordmark .view { font-style: italic; color: #2ECC71; }
-        .wordmark .ball { width: 1.1em; height: 1.1em; flex-shrink: 0; }
+        .wordmark .ball { width: 1.4em; height: 1.4em; flex-shrink: 0; object-fit: contain; }
+        .phone-screen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body class="text-white selection:bg-green-500 selection:text-black">
@@ -42,22 +43,7 @@
         <!-- Navigation -->
         <nav class="container mx-auto px-6 py-8 flex justify-between items-center">
             <a href="/" class="wordmark text-2xl md:text-3xl tracking-tighter" aria-label="CourtsideView home">
-                <svg class="ball" viewBox="0 0 64 64" aria-hidden="true">
-                    <defs>
-                        <radialGradient id="navVbHi" cx="38%" cy="32%" r="60%">
-                            <stop offset="0%" stop-color="#6FE39A" stop-opacity="0.55"/>
-                            <stop offset="60%" stop-color="#2ECC71" stop-opacity="0"/>
-                        </radialGradient>
-                    </defs>
-                    <circle cx="32" cy="32" r="28" fill="#2ECC71" stroke="#0F6B3A" stroke-width="2.5"/>
-                    <circle cx="32" cy="32" r="28" fill="url(#navVbHi)"/>
-                    <g fill="none" stroke="#0F6B3A" stroke-width="2.2" stroke-linecap="round">
-                        <path d="M 32 4 C 22 18, 22 46, 32 60"/>
-                        <path d="M 32 4 C 42 18, 42 46, 32 60"/>
-                        <path d="M 4 32 C 18 22, 46 22, 60 32"/>
-                        <path d="M 4 32 C 18 42, 46 42, 60 32"/>
-                    </g>
-                </svg>
+                <img class="ball" src="/assets/volleyball.png" alt="" aria-hidden="true">
                 <span>Courtside<span class="view">View</span></span>
             </a>
             <div class="hidden md:flex space-x-8 text-sm font-semibold text-gray-400">
@@ -93,13 +79,7 @@
             <!-- Phone Mockup Container -->
             <div class="lg:w-1/2 relative flex justify-center">
                 <div class="w-72 md:w-80 h-[600px] bg-black rounded-[3rem] border-[12px] border-zinc-800 shadow-2xl overflow-hidden relative z-10">
-                    <div class="h-full w-full bg-[#0a0e14] flex flex-col items-center justify-center p-8 text-center">
-                         <div class="w-16 h-16 bg-green-500 rounded-2xl mb-4 flex items-center justify-center">
-                            <svg class="w-10 h-10 text-black" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-                         </div>
-                         <h2 class="wordmark text-2xl mb-2 text-white"><span>Courtside<span class="view">View</span></span></h2>
-                         <p class="text-gray-500 text-sm italic">Screen preview loading…</p>
-                    </div>
+                    <img class="phone-screen" src="/assets/app-splash.png" alt="CourtsideView app splash screen">
                 </div>
                 <div class="absolute inset-0 bg-green-500/20 blur-[100px] -z-0"></div>
             </div>
