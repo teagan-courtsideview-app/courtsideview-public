@@ -34,8 +34,8 @@
         .hero-gradient { background: radial-gradient(circle at top right, rgba(46, 204, 113, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(46, 204, 113, 0.05), transparent 40%); }
         .wordmark { font-weight: 800; letter-spacing: -0.04em; display: inline-flex; align-items: center; gap: 0.5rem; }
         .wordmark .view { font-style: italic; color: #2ECC71; }
-        .wordmark .ball { width: 0.95em; height: 0.95em; flex-shrink: 0; object-fit: contain; transform: translateY(0.05em); }
-        .phone-screen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .wordmark .ball { width: 1.1em; height: 1.1em; flex-shrink: 0; object-fit: contain; }
+        .phone-screen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
     </style>
 </head>
 <body class="text-white selection:bg-green-500 selection:text-black">
@@ -78,7 +78,7 @@
             </div>
             <!-- Phone Mockup Container -->
             <div class="lg:w-1/2 relative flex justify-center">
-                <div class="w-72 md:w-80 h-[600px] bg-black rounded-[3rem] border-[12px] border-zinc-800 shadow-2xl overflow-hidden relative z-10">
+                <div class="w-72 md:w-80 aspect-[9/19.5] bg-black rounded-[3rem] border-[12px] border-zinc-800 shadow-2xl overflow-hidden relative z-10">
                     <img class="phone-screen" src="/assets/app-splash.png" alt="CourtsideView app splash screen">
                 </div>
                 <div class="absolute inset-0 bg-green-500/20 blur-[100px] -z-0"></div>
