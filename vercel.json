@@ -3,10 +3,10 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/v", "destination": "/v/index.html" },
-    { "source": "/v/", "destination": "/v/index.html" },
-    { "source": "/v/:shareId", "destination": "/v/index.html" },
-    { "source": "/v/:shareId/", "destination": "/v/index.html" }
+    { "source": "/v", "destination": "/fanview.html" },
+    { "source": "/v/", "destination": "/fanview.html" },
+    { "source": "/v/:shareId", "destination": "/fanview.html" },
+    { "source": "/v/:shareId/", "destination": "/fanview.html" }
   ],
   "headers": [
     {
