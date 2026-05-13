@@ -1,12 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/v", "destination": "/fanview.html" },
-    { "source": "/v/", "destination": "/fanview.html" },
-    { "source": "/v/:shareId", "destination": "/fanview.html" },
-    { "source": "/v/:shareId/", "destination": "/fanview.html" }
+    { "source": "/v/(.*)", "destination": "/fanview.html" },
+    { "source": "/privacy", "destination": "/privacy.html" }
   ],
   "headers": [
     {
