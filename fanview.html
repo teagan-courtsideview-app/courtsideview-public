@@ -174,8 +174,12 @@
       const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
       const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
 
+      // persistSession + autoRefresh ON so the anonymous JWT we get
+      // below survives across page reloads and the Realtime WebSocket
+      // picks it up. Spectator visits are short-lived so the storage
+      // cost is negligible (one JWT in localStorage).
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-        auth: { persistSession: false, autoRefreshToken: false },
+        auth: { persistSession: true, autoRefreshToken: true },
       });
 
       // Extract shareId from /v/<shareId> path.
@@ -297,6 +301,19 @@
           return;
         }
 
+        // Authenticate the spectator. Supabase Realtime requires a JWT
+        // on the socket — without it the channel subscribes silently
+        // but never receives broadcast frames. Anonymous sign-in gives
+        // us a real auth.users row + JWT without any user interaction.
+        // (Anonymous sign-ins must be enabled in Supabase Auth → Providers.)
+        const { error: authError } = await supabase.auth.signInAnonymously();
+        if (authError) {
+          console.warn('FanView anonymous sign-in failed:', authError);
+          // Continue anyway — the initial REST fetch may still work via
+          // the publishable anon key, so the user at least sees the
+          // current snapshot. Live updates won't arrive though.
+        }
+
         const { data, error } = await supabase
           .from('matches')
           .select(
@@ -343,7 +360,38 @@
           render();
         });
 
-        channel.subscribe();
+        // Postgres-changes fallback: even if broadcast frames are
+        // throttled or dropped, an INSERT into `match_events` for this
+        // match will refresh us via REST so we converge eventually.
+        channel.on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'match_events',
+            filter: `match_id=eq.${matchRow.id}`,
+          },
+          async () => {
+            const { data: fresh } = await supabase
+              .from('matches')
+              .select(
+                'id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete'
+              )
+              .eq('share_id', shareId)
+              .eq('is_published', true)
+              .maybeSingle();
+            if (fresh) {
+              matchRow = fresh;
+              render();
+            }
+          },
+        );
+
+        channel.subscribe((status, err) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            console.warn('FanView channel status:', status, err);
+          }
+        });
       }
 
       boot().catch((err) => {
