@@ -9,99 +9,84 @@
 </head>
 <body class="bg-white text-[#111827]">
   <div class="max-w-[420px] mx-auto min-h-screen flex flex-col">
-    <!-- Header -->
     <div class="px-6 pt-8 pb-4 flex items-center justify-between border-b">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-[#22C55E] rounded-2xl flex items-center justify-center">
-          <span class="text-white text-2xl font-black">CV</span>
-        </div>
-        <div>
-          <div class="font-semibold text-xl tracking-tight">CourtsideView</div>
-          <div class="text-[11px] text-[#6B7280] -mt-1">LIVE</div>
-        </div>
+        <div class="w-9 h-9 bg-[#22C55E] rounded-2xl flex items-center justify-center"><span class="text-white text-2xl font-black">CV</span></div>
+        <div><div class="font-semibold text-xl tracking-tight">CourtsideView</div><div class="text-[11px] text-[#6B7280] -mt-1">LIVE</div></div>
       </div>
-      <div class="flex items-center gap-2">
-        <div id="status-pill" class="px-3 py-1 rounded-3xl bg-[#DCFCE7] text-[#166534] text-sm font-medium flex items-center gap-1.5">
-          <div class="w-2 h-2 bg-[#22C55E] rounded-full animate-pulse"></div>
-          <span id="status-text">LIVE</span>
-        </div>
+      <div id="status-pill" class="px-3 py-1 rounded-3xl bg-[#DCFCE7] text-[#166534] text-sm font-medium flex items-center gap-1.5">
+        <div class="w-2 h-2 bg-[#22C55E] rounded-full animate-pulse"></div>
+        <span id="status-text">LIVE</span>
       </div>
     </div>
 
-    <!-- Scoreboard -->
     <div class="px-6 pt-6">
       <div class="bg-white border border-[#E5E7EB] rounded-3xl p-6 shadow-sm">
         <div class="flex items-center justify-between mb-6">
           <div class="text-center flex-1">
-            <div id="home-name" class="text-[#6B7280] text-sm font-medium tracking-[0.5px]">HOME</div>
-            <div id="home-score" class="text-[72px] leading-none font-bold text-[#111827] tabular-nums">0</div>
+            <div id="home-name" class="text-[#6B7280] text-sm font-medium">HOME</div>
+            <div id="home-score" class="text-[72px] leading-none font-bold tabular-nums">0</div>
           </div>
           <div class="px-4 text-center">
             <div class="text-[10px] text-[#9CA3AF] mb-1">SET</div>
             <div id="current-set" class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-[#22C55E] text-white text-xl font-black">1</div>
           </div>
           <div class="text-center flex-1">
-            <div id="away-name" class="text-[#6B7280] text-sm font-medium tracking-[0.5px]">AWAY</div>
-            <div id="away-score" class="text-[72px] leading-none font-bold text-[#111827] tabular-nums">0</div>
+            <div id="away-name" class="text-[#6B7280] text-sm font-medium">AWAY</div>
+            <div id="away-score" class="text-[72px] leading-none font-bold tabular-nums">0</div>
           </div>
         </div>
         <div id="set-strip" class="flex gap-2 justify-center text-xs text-[#6B7280]"></div>
       </div>
     </div>
 
-    <!-- Live Activity -->
-    <div class="flex-1 px-6 pt-6 pb-8">
+    <div class="flex-1 px-6 pt-6 pb-4">
       <div class="flex items-center justify-between mb-3 px-1">
         <div class="text-sm font-semibold text-[#374151]">LIVE ACTIVITY</div>
-        <button onclick="manualRefresh()" class="text-xs px-3 py-1 bg-[#F3F4F6] hover:bg-[#E5E7EB] rounded-2xl text-[#374151] transition-colors">REFRESH</button>
+        <button onclick="manualRefresh()" class="text-xs px-3 py-1 bg-[#F3F4F6] hover:bg-[#E5E7EB] rounded-2xl text-[#374151]">REFRESH</button>
       </div>
-      <div id="feed" class="space-y-2 text-sm max-h-[420px] overflow-auto pr-1"></div>
-      <div id="empty-feed" class="hidden text-center py-8 text-[#9CA3AF] text-sm">Match starting… no events yet</div>
+      <div id="feed" class="space-y-2 text-sm max-h-[300px] overflow-auto pr-1"></div>
+      <div id="empty-feed" class="hidden text-center py-8 text-[#9CA3AF] text-sm">Match starting…</div>
       <div id="last-updated" class="text-[10px] text-[#9CA3AF] text-center mt-4"></div>
+      
+      <!-- DEBUG PANEL -->
+      <details class="mt-6 text-xs bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-3">
+        <summary class="cursor-pointer text-[#6B7280] font-medium">DEBUG (tap to expand)</summary>
+        <pre id="debug" class="mt-2 text-[10px] text-[#374151] overflow-auto max-h-[200px]"></pre>
+      </details>
     </div>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
     const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true }
-    });
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
 
     let currentShareId = null;
     let lastState = null;
     let pollInterval = null;
 
+    function updateDebug(row) {
+      document.getElementById('debug').textContent = JSON.stringify(row, null, 2);
+    }
+
     function getScore(row) {
       const s = row.state || {};
       return {
-        home: s.homeScore ?? row.home_score ?? 0,
-        away: s.awayScore ?? row.away_score ?? 0,
-        set: s.currentSet ?? row.current_set ?? 1
+        home: s.homeScore ?? row.home_score ?? row.state?.homeScore ?? 0,
+        away: s.awayScore ?? row.away_score ?? row.state?.awayScore ?? 0,
+        set: s.currentSet ?? row.current_set ?? row.state?.currentSet ?? 1
       };
     }
 
     function renderMatch(row) {
+      updateDebug(row);
       const scores = getScore(row);
       document.getElementById('home-score').textContent = scores.home;
       document.getElementById('away-score').textContent = scores.away;
       document.getElementById('current-set').textContent = scores.set;
       document.getElementById('home-name').textContent = (row.home_name || 'HOME').toUpperCase();
       document.getElementById('away-name').textContent = (row.away_name || 'AWAY').toUpperCase();
-
-      const strip = document.getElementById('set-strip');
-      strip.innerHTML = '';
-      if (row.state?.setScores) {
-        row.state.setScores.forEach((s, i) => {
-          const el = document.createElement('div');
-          el.className = 'px-2.5 py-1 bg-[#F3F4F6] rounded-xl text-xs border border-[#E5E7EB]';
-          el.textContent = `S${i+1} ${s[0]}-${s[1]}`;
-          strip.appendChild(el);
-        });
-      }
-
-      renderEvents(row.events || []);
       document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
 
       if (row.is_complete) {
@@ -110,35 +95,10 @@
       }
     }
 
-    function renderEvents(events) {
-      const container = document.getElementById('feed');
-      const empty = document.getElementById('empty-feed');
-      if (!events.length) {
-        container.innerHTML = '';
-        empty.classList.remove('hidden');
-        return;
-      }
-      empty.classList.add('hidden');
-      container.innerHTML = events.slice().reverse().map(ev => `
-        <div class="flex items-start gap-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl px-4 py-3">
-          <div class="text-[#9CA3AF] text-xs w-9 shrink-0 pt-0.5">#${ev.sequence || ''}</div>
-          <div class="flex-1">
-            <div class="font-medium text-[#111827]">${ev.event_type}</div>
-            ${ev.payload?.playerName ? `<div class="text-[#6B7280] text-xs">${ev.payload.playerName}</div>` : ''}
-          </div>
-          <div class="text-[#9CA3AF] text-xs pt-0.5">${new Date(ev.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-        </div>
-      `).join('');
-    }
-
     async function loadInitial(shareId) {
-      console.log('[FanView] Loading initial for', shareId);
+      console.log('[FanView] loadInitial', shareId);
       const { data, error } = await supabase.from('matches').select('*').eq('share_id', shareId).single();
-      if (error || !data) {
-        console.error('[FanView] Load error', error);
-        document.getElementById('feed').innerHTML = `<div class="text-red-500 text-sm p-4">Match not found.</div>`;
-        return;
-      }
+      if (error || !data) { console.error(error); return; }
       currentShareId = shareId;
       renderMatch(data);
       lastState = data;
@@ -148,12 +108,12 @@
 
     function subscribeToChanges(shareId) {
       supabase.channel(`match:${shareId}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'matches', filter: `share_id=eq.${shareId}` }, (payload) => {
-          console.log('[FanView] postgres_changes UPDATE', payload.new);
-          renderMatch(payload.new);
-          lastState = payload.new;
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'matches', filter: `share_id=eq.${shareId}` }, (p) => {
+          console.log('[FanView] UPDATE', p.new);
+          renderMatch(p.new);
+          lastState = p.new;
         })
-        .subscribe((status) => console.log('[FanView] Subscription status:', status));
+        .subscribe((s) => console.log('[FanView] sub status', s));
     }
 
     function startPolling(shareId) {
@@ -162,25 +122,20 @@
         if (!currentShareId) return;
         const { data } = await supabase.from('matches').select('*').eq('share_id', currentShareId).single();
         if (data && JSON.stringify(data) !== JSON.stringify(lastState)) {
-          console.log('[FanView] Poll update applied');
+          console.log('[FanView] poll update');
           renderMatch(data);
           lastState = data;
         }
-      }, 3000);
+      }, 2000);
     }
 
-    function manualRefresh() {
-      if (currentShareId) loadInitial(currentShareId);
-    }
+    function manualRefresh() { if (currentShareId) loadInitial(currentShareId); }
 
     (async () => {
       const path = window.location.pathname;
       const match = path.match(/\/v\/([a-f0-9-]+)/);
       const shareId = match ? match[1] : null;
-      if (!shareId) {
-        document.body.innerHTML = `<div class="p-8 text-center text-red-500">Invalid link</div>`;
-        return;
-      }
+      if (!shareId) return;
       await supabase.auth.signInAnonymously().catch(() => {});
       await loadInitial(shareId);
     })();
