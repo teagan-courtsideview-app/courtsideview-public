@@ -360,32 +360,45 @@
           render();
         });
 
-        // Postgres-changes fallback: even if broadcast frames are
-        // throttled or dropped, an INSERT into `match_events` for this
-        // match will refresh us via REST so we converge eventually.
+        // Primary live-update path: postgres_changes on the matches
+        // row. The coach updates matches.state on every score, so this
+        // fires once per scored point. Reliable because it's a real DB
+        // row change — no broadcast auth weirdness.
         channel.on(
           'postgres_changes',
           {
-            event: 'INSERT',
+            event: 'UPDATE',
             schema: 'public',
-            table: 'match_events',
-            filter: `match_id=eq.${matchRow.id}`,
+            table: 'matches',
+            filter: `share_id=eq.${shareId}`,
           },
-          async () => {
-            const { data: fresh } = await supabase
-              .from('matches')
-              .select(
-                'id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete'
-              )
-              .eq('share_id', shareId)
-              .eq('is_published', true)
-              .maybeSingle();
-            if (fresh) {
-              matchRow = fresh;
-              render();
-            }
+          (payload) => {
+            const updated = payload.new;
+            if (!updated) return;
+            matchRow = { ...matchRow, ...updated };
+            render();
           },
         );
+
+        // Polling fallback — if WebSocket disconnects, browser tab
+        // backgrounds, or postgres_changes drops a frame, we still
+        // catch up within ~5 seconds. Cheap because it's just a single
+        // SELECT against an indexed share_id.
+        const pollInterval = setInterval(async () => {
+          const { data: fresh } = await supabase
+            .from('matches')
+            .select(
+              'id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete'
+            )
+            .eq('share_id', shareId)
+            .eq('is_published', true)
+            .maybeSingle();
+          if (fresh) {
+            matchRow = { ...matchRow, ...fresh };
+            render();
+          }
+        }, 5000);
+        window.addEventListener('beforeunload', () => clearInterval(pollInterval));
 
         channel.subscribe((status, err) => {
           if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
