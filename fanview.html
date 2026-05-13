@@ -67,6 +67,19 @@
         white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; }
       .footer-hint { text-align: center; color: var(--ink-dim); font-size: 12px; padding: 20px; }
       .footer-hint a { color: var(--green); text-decoration: none; font-weight: 600; }
+      .video-wrap { position: relative; margin-bottom: 20px; display: none; }
+      .video-wrap.on { display: block; }
+      .video-frame { position: relative; padding-bottom: 56.25%; height: 0;
+        overflow: hidden; border-radius: 20px; background: #000;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+      .video-frame iframe { position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%; border: 0; }
+      .video-live-pill { position: absolute; top: 12px; left: 12px; z-index: 2;
+        background: var(--red); color: #fff; font-size: 11px; font-weight: 800;
+        letter-spacing: 1.2px; padding: 4px 10px; border-radius: 999px;
+        display: inline-flex; align-items: center; gap: 6px; }
+      .video-live-pill .dot { width: 6px; height: 6px; border-radius: 50%;
+        background: #fff; animation: pulse 1.4s ease-in-out infinite; }
     </style>
   </head>
   <body>
@@ -79,6 +92,14 @@
       <div id="loading" class="status">Loading match…</div>
       <div id="errorBox" class="status err" style="display:none"></div>
       <main id="board" style="display:none">
+        <div id="videoWrap" class="video-wrap">
+          <div class="video-frame">
+            <span id="videoLivePill" class="video-live-pill"><span class="dot"></span>LIVE</span>
+            <iframe id="videoFrame"
+              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+          </div>
+        </div>
         <div class="meta-row" id="setLine">MATCH</div>
         <div class="team-tally" id="teamTally"></div>
         <div class="scoreboard">
@@ -141,6 +162,36 @@
       }
       function escapeHtml(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
       function pick(state, k, fallback) { return (state && typeof state[k] === 'number') ? state[k] : fallback; }
+      function extractYouTubeId(input) {
+        if (!input) return null;
+        const t = String(input).trim();
+        if (/^[A-Za-z0-9_-]{11}$/.test(t)) return t;
+        const m = t.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+        return m ? m[1] : null;
+      }
+      function renderVideo(row) {
+        const vw = $('videoWrap');
+        const vf = $('videoFrame');
+        const pill = $('videoLivePill');
+        const url = row && row.video_url;
+        const type = row && row.video_type;
+        if (!url || (type !== 'youtube' && type !== 'youtube_live')) {
+          vw.classList.remove('on');
+          if (vf.src) vf.src = '';
+          return;
+        }
+        const id = extractYouTubeId(url);
+        if (!id) {
+          vw.classList.remove('on');
+          if (vf.src) vf.src = '';
+          return;
+        }
+        const newSrc = 'https://www.youtube.com/embed/' + encodeURIComponent(id) +
+          '?autoplay=1&playsinline=1&rel=0&modestbranding=1';
+        if (vf.src !== newSrc) vf.src = newSrc;
+        vw.classList.add('on');
+        pill.style.display = row.is_complete ? 'none' : 'inline-flex';
+      }
       let matchRow = null;
       let shareId = null;
       function render() {
@@ -151,6 +202,8 @@
         const currentSet = pick(s,'currentSet', 1);
         const homeSets = pick(s,'homeSetsWon', pick(s,'myTeamSetsWon', 0));
         const awaySets = pick(s,'awaySetsWon', pick(s,'opponentSetsWon', 0));
+        const totalSets = pick(s,'totalSets', matchRow.format === 'bo5' ? 5 : 3);
+        const setTarget = pick(s,'setTarget', setsTarget(matchRow.format, currentSet));
         $('homeName').textContent = (matchRow.home_name || 'Home').toUpperCase();
         $('awayName').textContent = (matchRow.away_name || 'Away').toUpperCase();
         $('homeDot').style.backgroundColor = matchRow.home_color || '#0F8A4F';
@@ -167,7 +220,6 @@
           $('homeScore').style.color = 'var(--ink-muted)';
           $('awayScore').style.color = 'var(--ink-muted)';
         }
-        const totalSets = matchRow.format === 'bo5' ? 5 : 3;
         if (matchRow.is_complete) {
           $('setLine').textContent = 'MATCH COMPLETE';
           $('livePill').classList.remove('on');
@@ -179,15 +231,16 @@
           '<span style="color:' + readableTextColor(matchRow.home_color) + '">' + escapeHtml(matchRow.home_name || 'Home') + '</span>' +
           '<span class="dim"> ' + homeSets + ' </span><span class="dim">—</span><span class="dim"> ' + awaySets + ' </span>' +
           '<span style="color:' + readableTextColor(matchRow.away_color) + '">' + escapeHtml(matchRow.away_name || 'Away') + '</span>';
-        $('targetLine').textContent = matchRow.is_complete ? '' : ('Playing to ' + setsTarget(matchRow.format, currentSet));
+        $('targetLine').textContent = matchRow.is_complete ? '' : ('Playing to ' + setTarget);
         $('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
         $('debugBox').textContent = JSON.stringify(matchRow, null, 2);
+        renderVideo(matchRow);
         showBoard();
       }
       async function fetchMatch() {
         const { data, error } = await supabase
           .from('matches')
-          .select('id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete')
+          .select('id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete, video_url, video_type')
           .eq('share_id', shareId)
           .eq('is_published', true)
           .maybeSingle();
@@ -225,7 +278,10 @@
         setInterval(async () => {
           const fresh = await fetchMatch();
           if (!fresh) return;
-          if (JSON.stringify(fresh.state) !== JSON.stringify(matchRow.state ?? {})) {
+          const stateChanged = JSON.stringify(fresh.state) !== JSON.stringify(matchRow.state ?? {});
+          const videoChanged = fresh.video_url !== matchRow.video_url || fresh.video_type !== matchRow.video_type;
+          const completeChanged = fresh.is_complete !== matchRow.is_complete;
+          if (stateChanged || videoChanged || completeChanged) {
             console.log('[FanView] poll update');
             matchRow = fresh;
             render();
