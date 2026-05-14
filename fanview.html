@@ -271,6 +271,7 @@
       const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
       const FANVIEW_EXPIRE_MS = 15 * 60 * 1000;
+      const PRESENCE_INTERVAL_MS = 15000;
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true },
       });
@@ -362,6 +363,57 @@
           ? 'Broadcast ended. No video was recorded or stored.'
           : 'Live video only. CourtsideView does not record or store this broadcast.';
         line.style.display = 'block';
+      }
+      function getViewerId() {
+        const key = 'courtsideview_fanview_viewer_id';
+        try {
+          const existing = sessionStorage.getItem(key);
+          if (existing) return existing;
+          const generated = crypto.randomUUID
+            ? crypto.randomUUID().replace(/-/g, '')
+            : Math.random().toString(36).slice(2) + Date.now().toString(36);
+          sessionStorage.setItem(key, generated);
+          return generated;
+        } catch {
+          return Math.random().toString(36).slice(2) + Date.now().toString(36);
+        }
+      }
+      let presenceTimer = null;
+      let presenceShareId = null;
+      const viewerId = getViewerId();
+      async function sendPresence(method = 'POST', keepalive = false) {
+        if (!presenceShareId || !viewerId) return;
+        try {
+          await fetch(`${LIVE_WORKER_URL}/presence/${encodeURIComponent(presenceShareId)}`, {
+            method,
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ viewerId }),
+            cache: 'no-store',
+            keepalive,
+          });
+        } catch {
+          // Presence is a nice-to-have signal only; it should never block FanView.
+        }
+      }
+      function startPresence(row) {
+        const shouldTrack = !!row && row.video_type === 'cloudflare_realtime' && !row.is_complete && !isFanViewExpired(row);
+        if (!shouldTrack) {
+          stopPresence();
+          return;
+        }
+        if (presenceShareId === row.share_id && presenceTimer) return;
+        stopPresence();
+        presenceShareId = row.share_id;
+        void sendPresence();
+        presenceTimer = setInterval(() => {
+          void sendPresence();
+        }, PRESENCE_INTERVAL_MS);
+      }
+      function stopPresence() {
+        if (presenceTimer) clearInterval(presenceTimer);
+        presenceTimer = null;
+        if (presenceShareId) void sendPresence('DELETE');
+        presenceShareId = null;
       }
       let cloudflareViewer = { streamId: null, pc: null, retry: null, connected: false };
       function setVideoStatus(title, body = '', visible = true) {
@@ -633,6 +685,7 @@
         renderCourt(s);
         renderVideo(matchRow);
         updatePrivacyLine(matchRow);
+        startPresence(matchRow);
         showBoard();
       }
       async function fetchMatch() {
@@ -689,6 +742,19 @@
           }
         }, 2000);
       }
+      window.addEventListener('pagehide', () => {
+        if (!presenceShareId || !viewerId) return;
+        try {
+          fetch(`${LIVE_WORKER_URL}/presence/${encodeURIComponent(presenceShareId)}`, {
+            method: 'DELETE',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ viewerId }),
+            keepalive: true,
+          });
+        } catch {
+          // The heartbeat TTL will clean this up if the browser drops pagehide.
+        }
+      });
       boot().catch((err) => { console.error('[FanView] boot failed', err); showError('Something went wrong loading this match.'); });
     </script>
   </body>

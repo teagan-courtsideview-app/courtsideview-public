@@ -63,6 +63,17 @@
         font-weight: 800; padding: 6px 8px; cursor: pointer; }
       button:disabled { opacity: 0.5; cursor: default; }
       .hint { color: var(--dim); font-size: 12px; line-height: 1.4; margin: 14px 4px 0; text-align: center; }
+      .viewer-row { display: flex; align-items: center; justify-content: center; gap: 8px;
+        color: var(--muted); font-size: 13px; font-weight: 800; margin-top: 12px; }
+      .viewer-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink);
+        box-shadow: 0 0 0 4px rgba(255,79,147,0.12); }
+      .viewer-count strong { color: var(--ink); }
+      .join-toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom));
+        transform: translate(-50%, 18px); z-index: 20; opacity: 0; pointer-events: none;
+        background: rgba(23,30,39,0.94); color: var(--ink); border: 1px solid var(--border);
+        border-radius: 999px; padding: 12px 16px; font-size: 14px; font-weight: 900;
+        box-shadow: 0 18px 44px rgba(0,0,0,0.38); transition: opacity 180ms ease, transform 180ms ease; }
+      .join-toast.on { opacity: 1; transform: translate(-50%, 0); }
       @media (max-width: 430px) {
         body { padding-left: 12px; padding-right: 12px; }
         .mark { font-size: 26px; }
@@ -98,6 +109,10 @@
             <video id="preview" muted autoplay playsinline></video>
             <div id="status" class="status">Tap <strong>Start camera</strong>. You are not live until you tap <strong>Go live</strong>.</div>
           </div>
+          <div class="viewer-row" aria-live="polite">
+            <span class="viewer-dot"></span>
+            <span id="viewerCount" class="viewer-count"><strong>0</strong> watching</span>
+          </div>
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
             <button id="broadcastBtn" class="primary" disabled>Go live</button>
@@ -109,9 +124,11 @@
         </section>
       </div>
     </main>
+    <div id="joinToast" class="join-toast" role="status" aria-live="polite">Someone joined FanView</div>
 
     <script type="module">
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
+      const VIEWER_POLL_MS = 5000;
       const streamId = getStreamId();
       const preview = document.getElementById('preview');
       const cameraBtn = document.getElementById('cameraBtn');
@@ -123,10 +140,16 @@
       const statePill = document.getElementById('statePill');
       const pageTitle = document.getElementById('pageTitle');
       const pageLead = document.getElementById('pageLead');
+      const viewerCountEl = document.getElementById('viewerCount');
+      const joinToast = document.getElementById('joinToast');
       let media = null;
       let pc = null;
       let live = false;
       let intentionalStop = false;
+      let lastViewerCount = null;
+      let lastJoinedAt = null;
+      let viewerPollTimer = null;
+      let toastTimer = null;
 
       function getStreamId() {
         const match = window.location.pathname.match(/^\/live\/([^/?#]+)/);
@@ -159,6 +182,54 @@
         broadcastBtn.textContent = label;
         broadcastBtn.disabled = !media;
         stopBtn.disabled = true;
+      }
+      function viewerLabel(count) {
+        return count === 1 ? 'watching' : 'watching';
+      }
+      function setViewerCount(count) {
+        viewerCountEl.replaceChildren();
+        const strong = document.createElement('strong');
+        strong.textContent = String(count);
+        viewerCountEl.append(strong, ` ${viewerLabel(count)}`);
+      }
+      function showJoinToast() {
+        joinToast.classList.add('on');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          joinToast.classList.remove('on');
+        }, 2600);
+      }
+      async function refreshViewerPresence() {
+        if (!streamId) return;
+        try {
+          const response = await fetch(`${LIVE_WORKER_URL}/status/${encodeURIComponent(streamId)}`, {
+            cache: 'no-store',
+          });
+          if (!response.ok) return;
+          const status = await response.json();
+          const count = typeof status.viewerCount === 'number' ? status.viewerCount : 0;
+          const joinedAt = typeof status.lastJoinedAt === 'string' ? status.lastJoinedAt : null;
+          setViewerCount(count);
+          if (
+            lastViewerCount !== null &&
+            (count > lastViewerCount || (count >= lastViewerCount && joinedAt !== lastJoinedAt)) &&
+            joinedAt &&
+            joinedAt !== lastJoinedAt
+          ) {
+            showJoinToast();
+          }
+          lastViewerCount = count;
+          lastJoinedAt = joinedAt;
+        } catch {
+          // Viewer count is informational only; keep broadcasting controls stable.
+        }
+      }
+      function startViewerPolling() {
+        if (!streamId || viewerPollTimer) return;
+        void refreshViewerPresence();
+        viewerPollTimer = setInterval(() => {
+          void refreshViewerPresence();
+        }, VIEWER_POLL_MS);
       }
       async function copyFanViewLink() {
         await navigator.clipboard.writeText(fanViewUrl());
@@ -319,6 +390,8 @@
         shareBtn.disabled = true;
         previewBtn.disabled = true;
         setStatus([{ text: 'Missing FanView share ID. Open this page from the CourtsideView FanView modal.' }], 'ERROR');
+      } else {
+        startViewerPolling();
       }
     </script>
   </body>
