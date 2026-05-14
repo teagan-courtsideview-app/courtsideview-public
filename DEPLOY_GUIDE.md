@@ -81,7 +81,7 @@ When the deploy finishes, Vercel gives you a URL like `courtsideview-public-xxxx
 - ✅ Landing page loads
 - ✅ `/privacy` loads
 - ✅ Favicon shows in the browser tab
-- ✅ "Notify Me at Launch" button opens your mail client
+- ✅ "Request Invite" form saves emails to the Supabase waitlist after the waitlist migration is applied
 
 ---
 
@@ -150,7 +150,8 @@ http://www.courtsideviewapp.com/         → upgrades to https
 
 Run through this checklist:
 - [ ] Landing page loads with hero, features, footer
-- [ ] "Notify Me at Launch" opens email to teagan@courtsideviewapp.com
+- [ ] `supabase/migrations/20260514165000_create_waitlist.sql` has been applied to Supabase
+- [ ] "Request Invite" accepts a test email and creates a `public.waitlist` row
 - [ ] Privacy link in nav and footer goes to `/privacy`
 - [ ] Privacy page matches the dark CourtsideView aesthetic
 - [ ] Favicon shows the green italic V on a dark tile in the browser tab

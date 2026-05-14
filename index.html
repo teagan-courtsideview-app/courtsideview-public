@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CourtsideView | #1 Volleyball App for Players & Fans</title>
-    <meta name="description" content="Real-time scores & stats for volleyball. Track kills, aces, blocks and hit % live. Made by VB for VB. Coming 2026.">
+    <title>CourtsideView | Volleyball Score & Stat Tracker Early Access</title>
+    <meta name="description" content="Request early access to CourtsideView, the volleyball scorekeeping and stat tracking app for live scores, rosters, rotations, and match-day stats.">
     <meta name="theme-color" content="#0a0e14">
 
     <!-- Open Graph / social -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.courtsideviewapp.com/">
-    <meta property="og:title" content="CourtsideView | #1 Volleyball App">
-    <meta property="og:description" content="Real-time scores & stats. Real proud parents. The ultimate courtside companion.">
+    <meta property="og:title" content="CourtsideView | Volleyball Score & Stat Tracker">
+    <meta property="og:description" content="Request early access for live volleyball scores, player stats, rosters, and match-day tracking built for parents, coaches, and players.">
     <meta property="og:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CourtsideView | #1 Volleyball App">
-    <meta name="twitter:description" content="Real-time scores & stats. Real proud parents.">
+    <meta name="twitter:title" content="CourtsideView | Volleyball Score & Stat Tracker">
+    <meta name="twitter:description" content="Request early access for live volleyball scores, player stats, rosters, and match-day tracking.">
     <meta name="twitter:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
 
     <!-- Favicons -->
@@ -36,7 +36,35 @@
         .wordmark .view { font-style: italic; color: #2ECC71; }
         .wordmark .ball { width: 1.1em; height: 1.1em; flex-shrink: 0; object-fit: contain; }
         .phone-screen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+        .cta-button { background: #f5c542; color: #08110c; box-shadow: 0 14px 35px rgba(245, 197, 66, 0.22); }
+        .cta-button:hover { background: #ffd866; }
+        .cta-button:disabled { cursor: not-allowed; opacity: 0.68; transform: none; }
     </style>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "MobileApplication",
+            "name": "CourtsideView",
+            "applicationCategory": "SportsApplication",
+            "operatingSystem": "iOS, Android",
+            "description": "Volleyball scorekeeping and stat tracking app for live scores, rosters, rotations, and match-day stats.",
+            "featureList": [
+                "Live volleyball scorekeeping",
+                "Player stat tracking",
+                "Rotation and lineup tracking",
+                "Roster management",
+                "FanView live score sharing",
+                "Post-match reports"
+            ],
+            "url": "https://www.courtsideviewapp.com/",
+            "offers": {
+                "@type": "Offer",
+                "availability": "https://schema.org/PreOrder",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }
+    </script>
 </head>
 <body class="text-white selection:bg-green-500 selection:text-black">
     <div class="hero-gradient min-h-screen">
@@ -55,24 +83,43 @@
         <main class="container mx-auto px-6 pt-12 pb-24 flex flex-col lg:flex-row items-center gap-16">
             <div class="lg:w-1/2 space-y-8 text-center lg:text-left">
                 <div class="inline-block px-4 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-xs font-bold uppercase tracking-widest">
-                    Made by VB for VB
+                    Early Access Opening Soon
                 </div>
                 <h1 class="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
-                    #1 Volleyball App for <span class="text-green-500">players &amp; fans!</span>
+                    Be first to track volleyball like <span class="text-green-500">the sideline sees it.</span>
                 </h1>
                 <p class="text-xl text-gray-400 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                    Real-time scores &amp; stats. Real proud parents. All for players and fans. The ultimate courtside companion.
+                    Request an invite for real-time volleyball scores, player stats, rosters, and match-day tracking built for parents, coaches, and players who want every point to count.
                 </p>
 
                 <div class="space-y-4">
-                    <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto lg:mx-0">
-                        <a href="mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20Early%20Access&body=Please%20add%20me%20to%20the%20CourtsideView%20early%20access%20list."
-                           class="flex-1 bg-green-500 hover:bg-green-400 text-black font-extrabold px-8 py-4 rounded-xl transition transform hover:-translate-y-1 active:scale-95 text-lg text-center">
-                            Notify Me at Launch
-                        </a>
-                    </div>
+                    <form id="waitlist-form" class="max-w-xl mx-auto lg:mx-0" novalidate>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <label class="sr-only" for="waitlist-email">Email address</label>
+                            <input
+                                id="waitlist-email"
+                                name="email"
+                                type="email"
+                                autocomplete="email"
+                                required
+                                placeholder="Enter your email"
+                                class="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/10 px-5 py-4 text-base font-semibold text-white placeholder:text-gray-500 outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+                            >
+                            <button
+                                id="waitlist-submit"
+                                type="submit"
+                                class="cta-button font-extrabold px-8 py-4 rounded-xl transition transform hover:-translate-y-1 active:scale-95 text-lg text-center"
+                            >
+                                Request Invite
+                            </button>
+                        </div>
+                        <p id="waitlist-status" class="mt-3 min-h-5 text-sm font-semibold text-gray-400" role="status" aria-live="polite">Early-access spots open in small waves. No spam. No selling your email.</p>
+                        <p class="mt-1 text-xs text-gray-500">
+                            By requesting an invite, you agree to receive CourtsideView launch updates. <a href="/privacy" class="text-green-500 hover:text-green-400">Privacy Policy</a>
+                        </p>
+                    </form>
                     <p class="text-sm text-green-500/80 font-semibold uppercase tracking-widest">
-                        Coming Soon 2026 • Limited Early Access
+                        Founding users get first invites, launch updates, and a chance to shape the stat-tracking flow.
                     </p>
                 </div>
             </div>
@@ -87,28 +134,46 @@
 
         <!-- Features Grid -->
         <section class="container mx-auto px-6 py-24 border-t border-white/5">
-            <h2 class="text-3xl font-bold mb-12 text-center lg:text-left">Engineered for the Game</h2>
+            <h2 class="text-3xl font-bold mb-12 text-center lg:text-left">Built for the Pace of Volleyball</h2>
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="glass p-8 rounded-3xl space-y-4">
                     <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     </div>
                     <h3 class="text-xl font-bold text-green-500">Live Scores &amp; Stats</h3>
-                    <p class="text-gray-400">Dive deep into individual player stats like Kills, Aces, Blocks, and calculate Hit % in real-time.</p>
+                    <p class="text-gray-400">Track points, kills, aces, blocks, and hitting percentage in real time so the story of the match is never rebuilt from memory.</p>
                 </div>
                 <div class="glass p-8 rounded-3xl space-y-4">
                     <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     </div>
-                    <h3 class="text-xl font-bold text-green-500">Seamless Roster</h3>
-                    <p class="text-gray-400">Manage your entire team roster, numbers, and positions effortlessly from the setup screen.</p>
+                    <h3 class="text-xl font-bold text-green-500">Roster &amp; Rotation Ready</h3>
+                    <p class="text-gray-400">Set up players, numbers, and positions before match day, then keep the action moving once the first serve is in the air.</p>
                 </div>
                 <div class="glass p-8 rounded-3xl space-y-4">
                     <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
                     <h3 class="text-xl font-bold text-green-500">Ready for Match Day</h3>
-                    <p class="text-gray-400">Take a 2-minute tour to master key gestures so you're ready when it matters most.</p>
+                    <p class="text-gray-400">A quick guided tour helps new users learn the core gestures before the whistle, so scorekeeping feels natural when rallies get fast.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Early Access Callouts -->
+        <section class="container mx-auto px-6 pb-24">
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="border border-white/10 rounded-2xl p-5 bg-white/[0.02]">
+                    <p class="font-bold text-white mb-2">Small Waves</p>
+                    <p class="text-gray-400">Early access opens in phases so feedback comes from real match-day use.</p>
+                </div>
+                <div class="border border-white/10 rounded-2xl p-5 bg-white/[0.02]">
+                    <p class="font-bold text-white mb-2">Founding Feedback</p>
+                    <p class="text-gray-400">First invites help shape the fastest flow for scores, stats, and rotations.</p>
+                </div>
+                <div class="border border-white/10 rounded-2xl p-5 bg-white/[0.02]">
+                    <p class="font-bold text-white mb-2">Built for 2026</p>
+                    <p class="text-gray-400">Join before launch to be in the first group notified when spots open.</p>
                 </div>
             </div>
         </section>
@@ -122,5 +187,70 @@
             </div>
         </footer>
     </div>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false,
+            },
+        });
+
+        const form = document.getElementById('waitlist-form');
+        const emailInput = document.getElementById('waitlist-email');
+        const submitButton = document.getElementById('waitlist-submit');
+        const status = document.getElementById('waitlist-status');
+
+        const setStatus = (message, tone = 'neutral') => {
+            status.textContent = message;
+            status.className = 'mt-3 min-h-5 text-sm font-semibold ' + (
+                tone === 'success'
+                    ? 'text-green-400'
+                    : tone === 'error'
+                        ? 'text-red-300'
+                        : 'text-gray-400'
+            );
+        };
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = emailInput.value.trim().toLowerCase();
+            emailInput.value = email;
+            if (!emailInput.checkValidity() || !email) {
+                setStatus('Enter a valid email address.', 'error');
+                emailInput.focus();
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Requesting...';
+            setStatus('Saving your early-access request...');
+
+            const { error } = await supabase
+                .from('waitlist')
+                .insert({ email, source: 'web' });
+
+            if (error) {
+                if (error.code === '23505') {
+                    setStatus("You're already on the early-access list. We'll keep you posted.", 'success');
+                    form.reset();
+                } else {
+                    console.error('[waitlist] insert failed', error);
+                    setStatus('Could not join right now. Email teagan@courtsideviewapp.com and we will add you manually.', 'error');
+                }
+            } else {
+                setStatus("You're on the early-access list. We'll send invite updates as spots open.", 'success');
+                form.reset();
+            }
+
+            submitButton.disabled = false;
+            submitButton.textContent = 'Request Invite';
+        });
+    </script>
 </body>
 </html>
