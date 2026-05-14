@@ -21,6 +21,8 @@
         --muted: #aab3c0;
         --dim: #707b89;
         --green: #22c55e;
+        --pink: #ff4f93;
+        --pink-dark: #e83f82;
         --red: #ef4444;
         --border: rgba(255,255,255,0.12);
       }
@@ -52,8 +54,13 @@
         font-size: 16px; font-weight: 900; letter-spacing: 0.2px; text-align: center;
         text-decoration: none; cursor: pointer; }
       .primary { color: #fff; background: var(--green); }
+      .fanview-primary { color: #fff; background: var(--pink); }
+      .fanview-primary:active { background: var(--pink-dark); }
       .danger { color: #fff; background: var(--red); }
       .secondary { color: var(--ink); background: rgba(255,255,255,0.12); border: 1px solid var(--border); }
+      .preview-link { appearance: none; border: 0; background: transparent; color: var(--muted);
+        text-decoration: underline; text-underline-offset: 3px; font-size: 13px;
+        font-weight: 800; padding: 6px 8px; cursor: pointer; }
       button:disabled { opacity: 0.5; cursor: default; }
       .hint { color: var(--dim); font-size: 12px; line-height: 1.4; margin: 14px 4px 0; text-align: center; }
       @media (max-width: 430px) {
@@ -83,8 +90,8 @@
       </header>
       <div class="stage">
         <section class="hero">
-          <h1>Start Live Video</h1>
-          <p class="lead">Use this phone as the camera. Family will watch inside the FanView link while scores and rotations update.</p>
+          <h1 id="pageTitle">Start Live Video</h1>
+          <p id="pageLead" class="lead">Use this phone as the camera. Share the FanView link so family can watch while scores and rotations update.</p>
         </section>
         <section>
           <div class="video-shell">
@@ -94,8 +101,9 @@
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
             <button id="broadcastBtn" class="primary" disabled>Go live</button>
+            <button id="shareBtn" class="fanview-primary">Share FanView link</button>
             <button id="stopBtn" class="danger" disabled>Stop broadcast</button>
-            <a id="fanLink" class="button secondary" href="#">Open FanView</a>
+            <button id="previewBtn" class="preview-link">Preview FanView</button>
           </div>
           <p class="hint">Keep this page open while broadcasting. Locking the phone or switching apps may pause video.</p>
         </section>
@@ -108,29 +116,62 @@
       const preview = document.getElementById('preview');
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
+      const shareBtn = document.getElementById('shareBtn');
       const stopBtn = document.getElementById('stopBtn');
-      const fanLink = document.getElementById('fanLink');
+      const previewBtn = document.getElementById('previewBtn');
       const statusEl = document.getElementById('status');
       const statePill = document.getElementById('statePill');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageLead = document.getElementById('pageLead');
       let media = null;
       let pc = null;
       let live = false;
       let intentionalStop = false;
 
-      fanLink.href = streamId ? `/v/${encodeURIComponent(streamId)}` : '/';
-
       function getStreamId() {
         const match = window.location.pathname.match(/^\/live\/([^/?#]+)/);
         return match ? decodeURIComponent(match[1]) : null;
+      }
+      function fanViewUrl() {
+        return streamId ? `${window.location.origin}/v/${encodeURIComponent(streamId)}` : window.location.origin;
       }
       function setStatus(text, state = 'READY') {
         statusEl.innerHTML = text;
         statePill.textContent = state;
       }
+      function setPageCopy(title, lead) {
+        pageTitle.textContent = title;
+        pageLead.textContent = lead;
+      }
       function resetBroadcastControls(label = 'Go live') {
         broadcastBtn.textContent = label;
         broadcastBtn.disabled = !media;
         stopBtn.disabled = true;
+      }
+      async function copyFanViewLink() {
+        await navigator.clipboard.writeText(fanViewUrl());
+        setStatus('<strong>FanView link copied.</strong> Send it to family so they can watch from their own phone.', statePill.textContent || 'READY');
+      }
+      async function shareFanViewLink() {
+        ensureStreamId();
+        const url = fanViewUrl();
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Watch on FanView',
+              text: 'Follow the match live on CourtsideView.',
+              url,
+            });
+            return;
+          } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') return;
+          }
+        }
+        try {
+          await copyFanViewLink();
+        } catch {
+          setStatus(`<strong>Copy this FanView link:</strong> ${url}`, statePill.textContent || 'READY');
+        }
       }
       function ensureStreamId() {
         if (!streamId) throw new Error('Missing FanView share ID in the URL.');
@@ -156,7 +197,8 @@
         broadcastBtn.disabled = false;
         cameraBtn.textContent = 'Camera ready';
         broadcastBtn.textContent = 'Go live';
-        setStatus('<strong>Camera ready.</strong> You are not live yet. Tap <strong>Go live</strong> when the match is about to begin.', 'READY');
+        setPageCopy('Start Live Video', 'You are not live yet. Share the FanView link now, then go live when ready.');
+        setStatus('<strong>Camera ready.</strong> You are not live yet. Share the link, then tap <strong>Go live</strong>.', 'CAMERA READY');
       }
       async function startBroadcast() {
         ensureStreamId();
@@ -189,7 +231,8 @@
         broadcastBtn.disabled = true;
         broadcastBtn.textContent = 'Live now';
         stopBtn.disabled = false;
-        setStatus('<strong>You are live.</strong> Family can now watch from the FanView link. Keep this phone awake and pointed at the court.', 'LIVE');
+        setPageCopy('Broadcasting Live', 'You are live. Keep this page open and share the FanView link so family can watch.');
+        setStatus('<strong>You are live.</strong> Keep this phone awake and use <strong>Share FanView link</strong> to invite viewers.', 'LIVE');
       }
       async function stopBroadcast() {
         intentionalStop = true;
@@ -212,6 +255,7 @@
         broadcastBtn.textContent = 'Go live again';
         broadcastBtn.disabled = true;
         stopBtn.disabled = true;
+        setPageCopy('Start Live Video', 'Video has stopped, but the FanView link still works for score updates.');
         setStatus('<strong>You have stopped the broadcast.</strong> The game and score updates are still active. Start camera to go live again.', 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
@@ -235,12 +279,21 @@
       stopBtn.addEventListener('click', () => {
         void stopBroadcast();
       });
+      shareBtn.addEventListener('click', () => {
+        void shareFanViewLink();
+      });
+      previewBtn.addEventListener('click', () => {
+        const shouldOpen = window.confirm('Previewing FanView may pause your broadcast if this browser leaves the camera page. Stay here unless you are testing on a second device. Open preview?');
+        if (shouldOpen) window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
+      });
       window.addEventListener('pagehide', () => {
         if (live) void stopBroadcast();
       });
       if (!streamId) {
         cameraBtn.disabled = true;
         broadcastBtn.disabled = true;
+        shareBtn.disabled = true;
+        previewBtn.disabled = true;
         setStatus('Missing FanView share ID. Open this page from the CourtsideView FanView modal.', 'ERROR');
       }
     </script>
