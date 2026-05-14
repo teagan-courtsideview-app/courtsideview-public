@@ -120,6 +120,11 @@
         border: 1px solid #DADAD3; box-shadow: 0 8px 28px rgba(10,14,26,0.12); }
       .video-frame iframe { position: absolute; inset: 0;
         width: 100%; height: 100%; border: 0; }
+      .video-frame video { position: absolute; inset: 0;
+        width: 100%; height: 100%; border: 0; object-fit: cover; display: none; }
+      .video-status { position: absolute; inset: auto 12px 12px; z-index: 2;
+        background: rgba(10,14,26,0.78); color: #fff; border: 1px solid rgba(255,255,255,0.14);
+        border-radius: 14px; padding: 10px 12px; font-size: 12px; line-height: 1.35; display: none; }
       .video-live-pill { position: absolute; top: 12px; left: 12px; z-index: 2;
         background: rgba(220,38,38,0.96); color: #fff; font-size: 11px; font-weight: 800;
         letter-spacing: 1.2px; padding: 4px 10px; border-radius: 999px;
@@ -170,6 +175,8 @@
               <iframe id="videoFrame"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
+              <video id="liveVideo" autoplay playsinline controls muted></video>
+              <div id="videoStatus" class="video-status"></div>
             </div>
           </div>
           <section class="score-column">
@@ -220,6 +227,7 @@
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
       const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
       const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
+      const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true },
       });
@@ -282,16 +290,94 @@
         const m = t.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
         return m ? m[1] : null;
       }
+      let cloudflareViewer = { streamId: null, pc: null, retry: null };
+      function setVideoStatus(text, visible = true) {
+        const box = $('videoStatus');
+        box.textContent = text;
+        box.style.display = visible ? 'block' : 'none';
+      }
+      function stopCloudflareViewer() {
+        if (cloudflareViewer.retry) clearTimeout(cloudflareViewer.retry);
+        cloudflareViewer.retry = null;
+        if (cloudflareViewer.pc) cloudflareViewer.pc.close();
+        cloudflareViewer = { streamId: null, pc: null, retry: null };
+        $('liveVideo').srcObject = null;
+        $('liveVideo').style.display = 'none';
+      }
+      function createPeerConnection() {
+        return new RTCPeerConnection({
+          iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }],
+          bundlePolicy: 'max-bundle',
+        });
+      }
+      async function startCloudflareViewer(streamId) {
+        if (!streamId || cloudflareViewer.streamId === streamId) return;
+        stopCloudflareViewer();
+        cloudflareViewer.streamId = streamId;
+        await connectCloudflareViewer(streamId);
+      }
+      async function connectCloudflareViewer(streamId) {
+        const video = $('liveVideo');
+        const pc = createPeerConnection();
+        cloudflareViewer.pc = pc;
+        const media = new MediaStream();
+        video.srcObject = media;
+        video.style.display = 'block';
+        pc.addTransceiver('video', { direction: 'recvonly' });
+        pc.addTransceiver('audio', { direction: 'recvonly' });
+        pc.addEventListener('track', ({ track }) => {
+          media.addTrack(track);
+          setVideoStatus('', false);
+        });
+        try {
+          setVideoStatus('Waiting for live video…');
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          const response = await fetch(`${LIVE_WORKER_URL}/play/${encodeURIComponent(streamId)}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/sdp' },
+            body: offer.sdp || '',
+          });
+          if (response.status === 404) throw new Error('Live video has not started yet.');
+          if (!response.ok) throw new Error(await response.text());
+          const answer = await response.text();
+          await pc.setRemoteDescription({ type: 'answer', sdp: answer });
+          setVideoStatus('', false);
+        } catch (err) {
+          pc.close();
+          if (cloudflareViewer.streamId !== streamId) return;
+          setVideoStatus(err instanceof Error ? err.message : 'Waiting for live video…');
+          cloudflareViewer.retry = setTimeout(() => {
+            if (cloudflareViewer.streamId === streamId) void connectCloudflareViewer(streamId);
+          }, 5000);
+        }
+      }
       function renderVideo(row) {
         const vw = $('videoWrap');
         const vf = $('videoFrame');
+        const lv = $('liveVideo');
         const pill = $('videoLivePill');
         const url = row && row.video_url;
         const type = row && row.video_type;
+        if (type === 'cloudflare_realtime') {
+          document.querySelector('.container').classList.add('has-video');
+          vw.classList.add('on');
+          vf.style.display = 'none';
+          if (vf.src) vf.src = '';
+          pill.style.display = row.is_complete ? 'none' : 'inline-flex';
+          if (row.is_complete) {
+            stopCloudflareViewer();
+            setVideoStatus('Live video ended.');
+          } else {
+            void startCloudflareViewer(row.share_id);
+          }
+          return;
+        }
         if (!url || (type !== 'youtube' && type !== 'youtube_live')) {
           document.querySelector('.container').classList.remove('has-video');
           vw.classList.remove('on');
           if (vf.src) vf.src = '';
+          stopCloudflareViewer();
           return;
         }
         const id = extractYouTubeId(url);
@@ -299,11 +385,15 @@
           document.querySelector('.container').classList.remove('has-video');
           vw.classList.remove('on');
           if (vf.src) vf.src = '';
+          stopCloudflareViewer();
           return;
         }
         const newSrc = 'https://www.youtube.com/embed/' + encodeURIComponent(id) +
           '?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1';
         if (vf.src !== newSrc) vf.src = newSrc;
+        vf.style.display = 'block';
+        lv.style.display = 'none';
+        stopCloudflareViewer();
         document.querySelector('.container').classList.add('has-video');
         vw.classList.add('on');
         pill.style.display = row.is_complete ? 'none' : 'inline-flex';
@@ -402,7 +492,7 @@
           '<span style="color:' + readableTextColor(matchRow.away_color) + '">' + escapeHtml(matchRow.away_name || 'Away') + '</span>';
         $('targetLine').textContent = matchRow.is_complete ? '' : ('Playing to ' + setTarget);
         $('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
-        $('board').querySelector('.score-column').classList.toggle('no-video', !(matchRow.video_url && (matchRow.video_type === 'youtube' || matchRow.video_type === 'youtube_live')));
+        $('board').querySelector('.score-column').classList.toggle('no-video', !(matchRow.video_url && (matchRow.video_type === 'youtube' || matchRow.video_type === 'youtube_live' || matchRow.video_type === 'cloudflare_realtime')));
         renderLatestAction(s);
         renderCourt(s);
         renderVideo(matchRow);
