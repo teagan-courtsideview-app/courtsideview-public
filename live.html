@@ -37,7 +37,7 @@
       .pill { margin-left: auto; border: 1px solid rgba(255,255,255,0.16); color: var(--muted);
         border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; letter-spacing: 1px; }
       .hero { margin-bottom: 14px; }
-      h1 { font-size: clamp(38px, 9vw, 62px); line-height: 0.96; margin: 0 0 10px;
+      h1 { font-size: clamp(36px, 8vw, 58px); line-height: 0.98; margin: 0 0 10px;
         letter-spacing: -1.2px; }
       .lead { color: var(--muted); font-size: 17px; line-height: 1.42; margin: 0; }
       .video-shell { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 44dvh;
@@ -68,7 +68,7 @@
         .mark { font-size: 26px; }
         .brand { font-size: 21px; }
         .pill { padding: 5px 9px; font-size: 11px; }
-        h1 { font-size: clamp(34px, 13vw, 52px); }
+        h1 { font-size: clamp(34px, 11vw, 44px); }
         .lead { font-size: 16px; }
         .video-shell { border-radius: 22px; max-height: 38dvh; }
         .status { left: 10px; right: 10px; bottom: 10px; padding: 10px 12px; font-size: 13px; }
@@ -135,8 +135,20 @@
       function fanViewUrl() {
         return streamId ? `${window.location.origin}/v/${encodeURIComponent(streamId)}` : window.location.origin;
       }
-      function setStatus(text, state = 'READY') {
-        statusEl.innerHTML = text;
+      function setStatus(parts, state = 'READY') {
+        statusEl.replaceChildren();
+        const list = Array.isArray(parts) ? parts : [{ text: String(parts) }];
+        for (const part of list) {
+          const node = document.createElement(part.strong ? 'strong' : 'span');
+          node.textContent = part.text;
+          statusEl.appendChild(node);
+        }
+        statePill.textContent = state;
+      }
+      function setStatusHtml(text, state = 'READY') {
+        const template = document.createElement('template');
+        template.innerHTML = text;
+        statusEl.replaceChildren(template.content.cloneNode(true));
         statePill.textContent = state;
       }
       function setPageCopy(title, lead) {
@@ -150,7 +162,10 @@
       }
       async function copyFanViewLink() {
         await navigator.clipboard.writeText(fanViewUrl());
-        setStatus('<strong>FanView link copied.</strong> Send it to family so they can watch from their own phone.', statePill.textContent || 'READY');
+        setStatus([
+          { text: 'FanView link copied.', strong: true },
+          { text: ' Send it to family so they can watch from their own phone.' },
+        ], statePill.textContent || 'READY');
       }
       async function shareFanViewLink() {
         ensureStreamId();
@@ -170,7 +185,10 @@
         try {
           await copyFanViewLink();
         } catch {
-          setStatus(`<strong>Copy this FanView link:</strong> ${url}`, statePill.textContent || 'READY');
+          setStatus([
+            { text: 'Copy this FanView link:', strong: true },
+            { text: ` ${url}` },
+          ], statePill.textContent || 'READY');
         }
       }
       function ensureStreamId() {
@@ -198,7 +216,7 @@
         cameraBtn.textContent = 'Camera ready';
         broadcastBtn.textContent = 'Go live';
         setPageCopy('Start Live Video', 'You are not live yet. Share the FanView link now, then go live when ready.');
-        setStatus('<strong>Camera ready.</strong> You are not live yet. Share the link, then tap <strong>Go live</strong>.', 'CAMERA READY');
+        setStatusHtml('<strong>Camera ready.</strong> You are not live yet. Share the link, then tap <strong>Go live</strong>.', 'CAMERA READY');
       }
       async function startBroadcast() {
         ensureStreamId();
@@ -211,7 +229,10 @@
             live = false;
             cameraBtn.disabled = false;
             resetBroadcastControls('Reconnect video');
-            setStatus('<strong>Broadcast disconnected.</strong> The game is still active. Check your signal, then reconnect video.', 'OFFLINE');
+            setStatus([
+              { text: 'Broadcast disconnected.', strong: true },
+              { text: ' The game is still active. Check your signal, then reconnect video.' },
+            ], 'OFFLINE');
           }
         });
         media.getTracks().forEach((track) => {
@@ -231,8 +252,8 @@
         broadcastBtn.disabled = true;
         broadcastBtn.textContent = 'Live now';
         stopBtn.disabled = false;
-        setPageCopy('Broadcasting Live', 'You are live. Keep this page open and share the FanView link so family can watch.');
-        setStatus('<strong>You are live.</strong> Keep this phone awake and use <strong>Share FanView link</strong> to invite viewers.', 'LIVE');
+        setPageCopy('Live Video', 'You are live. Keep this page open and share the FanView link so family can watch.');
+        setStatusHtml('<strong>You are live.</strong> Keep this phone awake and use <strong>Share FanView link</strong> to invite viewers.', 'LIVE');
       }
       async function stopBroadcast() {
         intentionalStop = true;
@@ -256,7 +277,10 @@
         broadcastBtn.disabled = true;
         stopBtn.disabled = true;
         setPageCopy('Start Live Video', 'Video has stopped, but the FanView link still works for score updates.');
-        setStatus('<strong>You have stopped the broadcast.</strong> The game and score updates are still active. Start camera to go live again.', 'OFFLINE');
+        setStatus([
+          { text: 'You have stopped the broadcast.', strong: true },
+          { text: ' The game and score updates are still active. Start camera to go live again.' },
+        ], 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
         cameraBtn.disabled = true;
@@ -264,7 +288,7 @@
           await startCamera();
         } catch (error) {
           cameraBtn.disabled = false;
-          setStatus(String(error instanceof Error ? error.message : error), 'ERROR');
+          setStatus([{ text: String(error instanceof Error ? error.message : error) }], 'ERROR');
         }
       });
       broadcastBtn.addEventListener('click', async () => {
@@ -273,7 +297,7 @@
           await startBroadcast();
         } catch (error) {
           broadcastBtn.disabled = false;
-          setStatus(String(error instanceof Error ? error.message : error), 'ERROR');
+          setStatus([{ text: String(error instanceof Error ? error.message : error) }], 'ERROR');
         }
       });
       stopBtn.addEventListener('click', () => {
@@ -294,7 +318,7 @@
         broadcastBtn.disabled = true;
         shareBtn.disabled = true;
         previewBtn.disabled = true;
-        setStatus('Missing FanView share ID. Open this page from the CourtsideView FanView modal.', 'ERROR');
+        setStatus([{ text: 'Missing FanView share ID. Open this page from the CourtsideView FanView modal.' }], 'ERROR');
       }
     </script>
   </body>
