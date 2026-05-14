@@ -122,9 +122,16 @@
         width: 100%; height: 100%; border: 0; }
       .video-frame video { position: absolute; inset: 0;
         width: 100%; height: 100%; border: 0; object-fit: cover; display: none; }
-      .video-status { position: absolute; inset: auto 12px 12px; z-index: 2;
-        background: rgba(10,14,26,0.78); color: #fff; border: 1px solid rgba(255,255,255,0.14);
-        border-radius: 14px; padding: 10px 12px; font-size: 12px; line-height: 1.35; display: none; }
+      .video-status { position: absolute; inset: 0; z-index: 3;
+        background: linear-gradient(180deg, rgba(5,5,5,0.78), rgba(5,5,5,0.88));
+        color: #fff; display: none; align-items: center; justify-content: center;
+        text-align: center; padding: 22px; }
+      .video-status.on { display: flex; }
+      .video-status-card { width: min(100%, 420px); background: rgba(10,14,26,0.78);
+        border: 1px solid rgba(255,255,255,0.14); border-radius: 18px; padding: 16px;
+        box-shadow: 0 14px 38px rgba(0,0,0,0.24); }
+      .video-status-title { font-size: 18px; line-height: 1.1; font-weight: 900; margin-bottom: 7px; }
+      .video-status-body { color: rgba(255,255,255,0.78); font-size: 13px; line-height: 1.35; }
       .video-live-pill { position: absolute; top: 12px; left: 12px; z-index: 2;
         background: rgba(220,38,38,0.96); color: #fff; font-size: 11px; font-weight: 800;
         letter-spacing: 1.2px; padding: 4px 10px; border-radius: 999px;
@@ -176,7 +183,7 @@
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
               <video id="liveVideo" autoplay playsinline controls muted></video>
-              <div id="videoStatus" class="video-status"></div>
+              <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
             </div>
           </div>
           <section class="score-column">
@@ -290,17 +297,46 @@
         const m = t.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
         return m ? m[1] : null;
       }
-      let cloudflareViewer = { streamId: null, pc: null, retry: null };
-      function setVideoStatus(text, visible = true) {
+      let cloudflareViewer = { streamId: null, pc: null, retry: null, connected: false };
+      function setVideoStatus(title, body = '', visible = true) {
         const box = $('videoStatus');
-        box.textContent = text;
-        box.style.display = visible ? 'block' : 'none';
+        if (visible) {
+          box.innerHTML =
+            '<div class="video-status-card">' +
+              '<div class="video-status-title">' + escapeHtml(title) + '</div>' +
+              (body ? '<div class="video-status-body">' + escapeHtml(body) + '</div>' : '') +
+            '</div>';
+          box.classList.add('on');
+        } else {
+          box.innerHTML = '';
+          box.classList.remove('on');
+        }
+      }
+      function retryCloudflareViewer(streamId) {
+        if (cloudflareViewer.retry) clearTimeout(cloudflareViewer.retry);
+        if (cloudflareViewer.pc) {
+          cloudflareViewer.pc.close();
+          cloudflareViewer.pc = null;
+        }
+        cloudflareViewer.retry = setTimeout(() => {
+          if (cloudflareViewer.streamId === streamId) void connectCloudflareViewer(streamId);
+        }, 5000);
+      }
+      async function getCloudflareStatus(streamId) {
+        try {
+          const response = await fetch(`${LIVE_WORKER_URL}/status/${encodeURIComponent(streamId)}`, {
+            cache: 'no-store',
+          });
+          return response.ok ? await response.json() : null;
+        } catch {
+          return null;
+        }
       }
       function stopCloudflareViewer() {
         if (cloudflareViewer.retry) clearTimeout(cloudflareViewer.retry);
         cloudflareViewer.retry = null;
         if (cloudflareViewer.pc) cloudflareViewer.pc.close();
-        cloudflareViewer = { streamId: null, pc: null, retry: null };
+        cloudflareViewer = { streamId: null, pc: null, retry: null, connected: false };
         $('liveVideo').srcObject = null;
         $('liveVideo').style.display = 'none';
       }
@@ -320,24 +356,45 @@
         const video = $('liveVideo');
         const pc = createPeerConnection();
         cloudflareViewer.pc = pc;
+        cloudflareViewer.connected = false;
         const media = new MediaStream();
         video.srcObject = media;
         video.style.display = 'block';
         pc.addEventListener('track', ({ track }) => {
           media.addTrack(track);
-          setVideoStatus('', false);
+          cloudflareViewer.connected = true;
+          setVideoStatus('', '', false);
+          track.addEventListener('ended', () => {
+            if (cloudflareViewer.streamId !== streamId) return;
+            setVideoStatus('Broadcast paused', 'The game is still active. We will reconnect automatically if the broadcaster restarts.');
+            retryCloudflareViewer(streamId);
+          });
+        });
+        pc.addEventListener('connectionstatechange', () => {
+          if (cloudflareViewer.streamId !== streamId) return;
+          if (pc.connectionState === 'connected') {
+            cloudflareViewer.connected = true;
+            setVideoStatus('', '', false);
+          }
+          if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+            setVideoStatus('Broadcast interrupted', 'The game is still active. We will reconnect automatically.');
+            retryCloudflareViewer(streamId);
+          }
         });
         try {
-          setVideoStatus('Waiting for live video…');
+          setVideoStatus('Waiting for broadcast', 'The game is live. Video will appear here when the broadcaster starts.');
           const response = await fetch(`${LIVE_WORKER_URL}/play/${encodeURIComponent(streamId)}`, {
             method: 'POST',
             headers: { 'content-type': 'application/sdp' },
           });
-          if (response.status === 404) throw new Error('Live video has not started yet.');
-          if (!response.ok) throw new Error(await response.text());
+          if (response.status === 404) {
+            const liveStatus = await getCloudflareStatus(streamId);
+            throw new Error(liveStatus?.state === 'stopped' ? 'stopped' : 'waiting');
+          }
+          if (!response.ok) throw new Error('interrupted');
           const offer = await response.text();
           const sessionLocation = response.headers.get('location');
-          if (!sessionLocation) throw new Error('Live video session could not start.');
+          if (!sessionLocation) throw new Error('interrupted');
           await pc.setRemoteDescription({ type: 'offer', sdp: offer });
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
@@ -346,15 +403,19 @@
             headers: { 'content-type': 'application/sdp' },
             body: answer.sdp || '',
           });
-          if (!renegotiate.ok) throw new Error('Live video negotiation failed.');
-          setVideoStatus('', false);
+          if (!renegotiate.ok) throw new Error('interrupted');
+          setVideoStatus('Connecting to broadcast', 'Video should start in a moment.');
         } catch (err) {
           pc.close();
           if (cloudflareViewer.streamId !== streamId) return;
-          setVideoStatus(err instanceof Error ? err.message : 'Waiting for live video…');
-          cloudflareViewer.retry = setTimeout(() => {
-            if (cloudflareViewer.streamId === streamId) void connectCloudflareViewer(streamId);
-          }, 5000);
+          if (err instanceof Error && err.message === 'waiting') {
+            setVideoStatus('Video has not started yet', 'The game is active. Video will appear here when the broadcaster goes live.');
+          } else if (err instanceof Error && err.message === 'stopped') {
+            setVideoStatus('Broadcast ended', 'The video was stopped by the broadcaster. Score updates may still continue.');
+          } else {
+            setVideoStatus('Video disconnected', 'The broadcaster may have lost signal. We will keep checking for the video.');
+          }
+          retryCloudflareViewer(streamId);
         }
       }
       function renderVideo(row) {
@@ -372,7 +433,7 @@
           pill.style.display = row.is_complete ? 'none' : 'inline-flex';
           if (row.is_complete) {
             stopCloudflareViewer();
-            setVideoStatus('Live video ended.');
+            setVideoStatus('Broadcast ended', 'Final match details are still available below.');
           } else {
             void startCloudflareViewer(row.share_id);
           }

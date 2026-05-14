@@ -89,11 +89,11 @@
         <section>
           <div class="video-shell">
             <video id="preview" muted autoplay playsinline></video>
-            <div id="status" class="status">Tap <strong>Start camera</strong>, allow camera and microphone, then start broadcasting.</div>
+            <div id="status" class="status">Tap <strong>Start camera</strong>. You are not live until you tap <strong>Go live</strong>.</div>
           </div>
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
-            <button id="broadcastBtn" class="primary" disabled>Start broadcasting</button>
+            <button id="broadcastBtn" class="primary" disabled>Go live</button>
             <button id="stopBtn" class="danger" disabled>Stop broadcast</button>
             <a id="fanLink" class="button secondary" href="#">Open FanView</a>
           </div>
@@ -115,6 +115,7 @@
       let media = null;
       let pc = null;
       let live = false;
+      let intentionalStop = false;
 
       fanLink.href = streamId ? `/v/${encodeURIComponent(streamId)}` : '/';
 
@@ -125,6 +126,11 @@
       function setStatus(text, state = 'READY') {
         statusEl.innerHTML = text;
         statePill.textContent = state;
+      }
+      function resetBroadcastControls(label = 'Go live') {
+        broadcastBtn.textContent = label;
+        broadcastBtn.disabled = !media;
+        stopBtn.disabled = true;
       }
       function ensureStreamId() {
         if (!streamId) throw new Error('Missing FanView share ID in the URL.');
@@ -149,12 +155,23 @@
         preview.srcObject = media;
         broadcastBtn.disabled = false;
         cameraBtn.textContent = 'Camera ready';
-        setStatus('Camera is ready. Tap <strong>Start broadcasting</strong> when the match is about to begin.', 'READY');
+        broadcastBtn.textContent = 'Go live';
+        setStatus('<strong>Camera ready.</strong> You are not live yet. Tap <strong>Go live</strong> when the match is about to begin.', 'READY');
       }
       async function startBroadcast() {
         ensureStreamId();
         if (!media) await startCamera();
+        intentionalStop = false;
         pc = createPeerConnection();
+        pc.addEventListener('connectionstatechange', () => {
+          if (!pc || intentionalStop) return;
+          if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+            live = false;
+            cameraBtn.disabled = false;
+            resetBroadcastControls('Reconnect video');
+            setStatus('<strong>Broadcast disconnected.</strong> The game is still active. Check your signal, then reconnect video.', 'OFFLINE');
+          }
+        });
         media.getTracks().forEach((track) => {
           pc.addTransceiver(track, { direction: 'sendonly' });
         });
@@ -170,10 +187,12 @@
         await pc.setRemoteDescription({ type: 'answer', sdp: answer });
         live = true;
         broadcastBtn.disabled = true;
+        broadcastBtn.textContent = 'Live now';
         stopBtn.disabled = false;
-        setStatus('<strong>Live video is broadcasting.</strong> Keep this phone awake and pointed at the court.', 'LIVE');
+        setStatus('<strong>You are live.</strong> Family can now watch from the FanView link. Keep this phone awake and pointed at the court.', 'LIVE');
       }
       async function stopBroadcast() {
+        intentionalStop = true;
         live = false;
         if (pc) {
           pc.getSenders().forEach((sender) => sender.track?.stop());
@@ -190,9 +209,10 @@
         }
         cameraBtn.textContent = 'Start camera';
         cameraBtn.disabled = false;
+        broadcastBtn.textContent = 'Go live again';
         broadcastBtn.disabled = true;
         stopBtn.disabled = true;
-        setStatus('Broadcast stopped. You can restart camera if the match resumes.', 'OFFLINE');
+        setStatus('<strong>You have stopped the broadcast.</strong> The game and score updates are still active. Start camera to go live again.', 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
         cameraBtn.disabled = true;
