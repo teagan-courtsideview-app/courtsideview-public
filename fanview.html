@@ -323,25 +323,30 @@
         const media = new MediaStream();
         video.srcObject = media;
         video.style.display = 'block';
-        pc.addTransceiver('video', { direction: 'recvonly' });
-        pc.addTransceiver('audio', { direction: 'recvonly' });
         pc.addEventListener('track', ({ track }) => {
           media.addTrack(track);
           setVideoStatus('', false);
         });
         try {
           setVideoStatus('Waiting for live video…');
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
           const response = await fetch(`${LIVE_WORKER_URL}/play/${encodeURIComponent(streamId)}`, {
             method: 'POST',
             headers: { 'content-type': 'application/sdp' },
-            body: offer.sdp || '',
           });
           if (response.status === 404) throw new Error('Live video has not started yet.');
           if (!response.ok) throw new Error(await response.text());
-          const answer = await response.text();
-          await pc.setRemoteDescription({ type: 'answer', sdp: answer });
+          const offer = await response.text();
+          const sessionLocation = response.headers.get('location');
+          if (!sessionLocation) throw new Error('Live video session could not start.');
+          await pc.setRemoteDescription({ type: 'offer', sdp: offer });
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          const renegotiate = await fetch(`${LIVE_WORKER_URL}${sessionLocation}`, {
+            method: 'PATCH',
+            headers: { 'content-type': 'application/sdp' },
+            body: answer.sdp || '',
+          });
+          if (!renegotiate.ok) throw new Error('Live video negotiation failed.');
           setVideoStatus('', false);
         } catch (err) {
           pc.close();
