@@ -12,12 +12,13 @@
         --bg: #FAFAF7; --bg-elev: #FFFFFF;
         --ink: #0A0E1A; --ink-muted: #5C6470; --ink-dim: #9AA3AD;
         --border: #E5E5E0; --green: #0F8A4F; --red: #DC2626;
+        --gold: #B38A00; --pink: #FF4F8E; --court: #F2F0EA;
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: var(--bg); color: var(--ink);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         font-feature-settings: "tnum" 1; min-height: 100vh; }
-      .container { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
+      .container { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
       .container.has-video { max-width: 1120px; }
       header.brand { display: flex; align-items: center; gap: 10px;
         padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
@@ -60,6 +61,54 @@
         border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
         padding: 8px 14px; cursor: pointer; font-family: inherit; }
       .last-updated { text-align: center; color: var(--ink-dim); font-size: 11px; margin-top: 8px; }
+      .action-strip { display: none; margin: 18px 0 18px; background: #fff;
+        border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+        box-shadow: 0 4px 14px rgba(10,14,26,0.05); }
+      .action-strip.on { display: flex; align-items: center; }
+      .action-accent { width: 6px; align-self: stretch; background: var(--green); flex: 0 0 auto; }
+      .action-text { padding: 12px 18px; font-size: clamp(18px, 4vw, 28px);
+        line-height: 1.05; font-weight: 800; letter-spacing: -0.2px; color: var(--ink); }
+      .court-section { display: none; margin-top: 18px; }
+      .court-section.on { display: block; }
+      .section-head { display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin: 0 2px 10px; }
+      .section-title { font-size: 14px; font-weight: 900; letter-spacing: 1px;
+        text-transform: uppercase; }
+      .court-legend { color: var(--ink-dim); font-size: 13px; font-weight: 650;
+        white-space: nowrap; }
+      .court-card { background: var(--bg-elev); border: 1px solid var(--border);
+        border-radius: 24px; padding: 14px; }
+      .net-band { height: 28px; border-radius: 6px; overflow: hidden;
+        display: grid; grid-template-columns: 8px 1fr 8px; align-items: center;
+        background: var(--green); margin-bottom: 12px; }
+      .net-cap { height: 100%; background: #EF4444; }
+      .net-label { color: #fff; text-align: center; font-size: 13px;
+        line-height: 28px; font-weight: 900; letter-spacing: 1.5px; }
+      .court-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px; }
+      .court-cell { min-width: 0; aspect-ratio: 1 / 1; background: var(--court);
+        border: 2px solid #D8D5CC; border-radius: 16px; padding: 10px;
+        display: flex; flex-direction: column; justify-content: space-between; }
+      .court-cell.tracked { border-color: var(--green); background: #F5FBF7; }
+      .court-cell.serving { border-color: var(--gold); }
+      .court-cell.libero { border-color: var(--pink); }
+      .cell-top { display: flex; align-items: flex-start; justify-content: space-between;
+        min-height: 18px; }
+      .pos-label { color: var(--ink-dim); font-size: 13px; font-weight: 900;
+        letter-spacing: 0.5px; }
+      .cell-marks { display: inline-flex; gap: 4px; align-items: center; }
+      .star { color: var(--green); font-size: 18px; line-height: 1; }
+      .serve-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold);
+        box-shadow: 0 0 0 2px rgba(179,138,0,0.14); }
+      .jersey { text-align: center; font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(38px, 11vw, 64px); line-height: 0.9; font-weight: 900;
+        letter-spacing: -2px; color: var(--ink); font-variant-numeric: tabular-nums; }
+      .player-line { text-align: center; font-size: clamp(13px, 3vw, 17px);
+        line-height: 1.1; font-weight: 850; white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis; }
+      .cell-sub { text-align: center; color: var(--ink-dim); font-size: 12px;
+        line-height: 1.1; font-weight: 850; letter-spacing: 0.7px; text-transform: uppercase; }
+      .cell-sub.libero { color: var(--pink); }
       .footer-hint { text-align: center; color: var(--ink-dim); font-size: 12px; padding: 20px; }
       .footer-hint a { color: var(--green); text-decoration: none; font-weight: 600; }
       .fanview-layout { display: block; }
@@ -83,12 +132,24 @@
           gap: 20px; align-items: start; }
         .container.has-video .score-column { position: sticky; top: 24px; }
       }
+      @media (min-width: 760px) {
+        .score-column.no-video .scoreboard,
+        .score-column.no-video .court-section { max-width: 760px; margin-left: auto; margin-right: auto; }
+        .score-column.no-video .action-strip { max-width: 760px; margin-left: auto; margin-right: auto; }
+        .court-card { padding: 18px; }
+        .court-grid { gap: 12px; }
+      }
       @media (max-width: 520px) {
         .container { padding: 18px 12px 48px; }
         header.brand { padding-bottom: 16px; margin-bottom: 16px; }
         .video-frame { border-radius: 16px; }
         .scoreboard { border-radius: 18px; padding: 22px 14px; }
         .score { font-size: clamp(64px, 22vw, 92px); letter-spacing: -3px; }
+        .court-card { border-radius: 18px; padding: 12px; }
+        .court-grid { gap: 8px; }
+        .court-cell { border-radius: 14px; padding: 8px; }
+        .section-head { align-items: flex-end; }
+        .court-legend { font-size: 12px; }
       }
     </style>
   </head>
@@ -128,6 +189,24 @@
               </div>
               <div class="target" id="targetLine"></div>
             </div>
+            <div id="actionStrip" class="action-strip">
+              <div id="actionAccent" class="action-accent"></div>
+              <div id="actionText" class="action-text"></div>
+            </div>
+            <section id="courtSection" class="court-section">
+              <div class="section-head">
+                <div class="section-title">On Court</div>
+                <div class="court-legend">★ tracked · ● serving</div>
+              </div>
+              <div class="court-card">
+                <div class="net-band">
+                  <div class="net-cap"></div>
+                  <div class="net-label">NET</div>
+                  <div class="net-cap"></div>
+                </div>
+                <div id="courtGrid" class="court-grid"></div>
+              </div>
+            </section>
             <div class="refresh-row">
               <button class="refresh-btn" onclick="forceRefresh()">↻ Refresh</button>
             </div>
@@ -172,6 +251,30 @@
       }
       function escapeHtml(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
       function pick(state, k, fallback) { return (state && typeof state[k] === 'number') ? state[k] : fallback; }
+      function positionAbbr(position) {
+        return ({
+          Setter: 'S',
+          'Outside Hitter': 'OH',
+          'Middle Blocker': 'MB',
+          Libero: 'L',
+          Opposite: 'OPP',
+          'Defensive Specialist': 'DS',
+        })[position] || '';
+      }
+      function firstName(name) {
+        return String(name || '').trim().split(/\s+/)[0] || '—';
+      }
+      function toneColor(tone) {
+        return ({
+          kill: '#0F8A4F',
+          score: '#3B82F6',
+          error: '#EF4444',
+          libero: '#FF4F8E',
+          rotation: '#B38A00',
+          sub: '#0F8A4F',
+          set: '#B38A00',
+        })[tone] || '#3B82F6';
+      }
       function extractYouTubeId(input) {
         if (!input) return null;
         const t = String(input).trim();
@@ -204,6 +307,59 @@
         document.querySelector('.container').classList.add('has-video');
         vw.classList.add('on');
         pill.style.display = row.is_complete ? 'none' : 'inline-flex';
+      }
+      function renderLatestAction(state) {
+        const strip = $('actionStrip');
+        const latest = state && state.latestFeed;
+        if (!latest || !latest.text) {
+          strip.classList.remove('on');
+          return;
+        }
+        $('actionText').textContent = latest.text;
+        $('actionAccent').style.backgroundColor = toneColor(latest.tone);
+        strip.classList.add('on');
+      }
+      function renderCourt(state) {
+        const section = $('courtSection');
+        const grid = $('courtGrid');
+        const rotation = state && state.court && Array.isArray(state.court.rotation)
+          ? state.court.rotation
+          : null;
+        if (!rotation || rotation.length < 6) {
+          section.classList.remove('on');
+          grid.innerHTML = '';
+          return;
+        }
+        const byPos = new Map(rotation.map((cell) => [Number(cell.courtPosition), cell]));
+        const order = [4, 3, 2, 5, 6, 1];
+        grid.innerHTML = order.map((pos) => {
+          const cell = byPos.get(pos) || { courtPosition: pos };
+          const abbr = positionAbbr(cell.position);
+          const libero = cell.position === 'Libero';
+          const classes = [
+            'court-cell',
+            cell.tracked ? 'tracked' : '',
+            cell.serving ? 'serving' : '',
+            libero ? 'libero' : '',
+          ].filter(Boolean).join(' ');
+          const row = pos === 4 || pos === 3 || pos === 2 ? 'FRONT' : 'BACK';
+          const sub = libero ? 'LIB · P' + pos : 'P' + pos + ' · ' + row;
+          return '' +
+            '<div class="' + classes + '">' +
+              '<div class="cell-top">' +
+                '<div class="pos-label">P' + pos + '</div>' +
+                '<div class="cell-marks">' +
+                  (cell.tracked ? '<span class="star">★</span>' : '') +
+                  (cell.serving ? '<span class="serve-dot"></span>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div class="jersey">' + escapeHtml(cell.number ?? '—') + '</div>' +
+              '<div class="player-line">' + escapeHtml(firstName(cell.name)) +
+                (abbr ? ' · ' + escapeHtml(abbr) : '') + '</div>' +
+              '<div class="cell-sub ' + (libero ? 'libero' : '') + '">' + escapeHtml(sub) + '</div>' +
+            '</div>';
+        }).join('');
+        section.classList.add('on');
       }
       let matchRow = null;
       let shareId = null;
@@ -246,6 +402,9 @@
           '<span style="color:' + readableTextColor(matchRow.away_color) + '">' + escapeHtml(matchRow.away_name || 'Away') + '</span>';
         $('targetLine').textContent = matchRow.is_complete ? '' : ('Playing to ' + setTarget);
         $('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+        $('board').querySelector('.score-column').classList.toggle('no-video', !(matchRow.video_url && (matchRow.video_type === 'youtube' || matchRow.video_type === 'youtube_live')));
+        renderLatestAction(s);
+        renderCourt(s);
         renderVideo(matchRow);
         showBoard();
       }
