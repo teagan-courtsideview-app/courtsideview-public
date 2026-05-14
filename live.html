@@ -146,6 +146,7 @@
       let pc = null;
       let live = false;
       let intentionalStop = false;
+      let audioEnabled = false;
       let lastViewerCount = null;
       let lastJoinedAt = null;
       let viewerPollTimer = null;
@@ -298,25 +299,49 @@
         ];
       }
       async function requestCameraStream() {
-        const cameraOnly = {
-          audio: false,
-          video: {
-            facingMode: { ideal: 'environment' },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            frameRate: { ideal: 30, max: 30 },
-          },
+        const audio = { echoCancellation: true, noiseSuppression: true };
+        const preferredVideo = {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30, max: 30 },
         };
+        const cameraOnly = { audio: false, video: preferredVideo };
         try {
-          return await navigator.mediaDevices.getUserMedia(cameraOnly);
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio,
+            video: preferredVideo,
+          });
+          audioEnabled = stream.getAudioTracks().length > 0;
+          return stream;
         } catch (error) {
           if (
             error instanceof DOMException &&
             (error.name === 'OverconstrainedError' || error.name === 'NotFoundError')
           ) {
-            return navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+            try {
+              const stream = await navigator.mediaDevices.getUserMedia({ audio, video: true });
+              audioEnabled = stream.getAudioTracks().length > 0;
+              return stream;
+            } catch {
+              // Fall through to video-only so one bad constraint never blocks the match.
+            }
           }
-          throw error;
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia(cameraOnly);
+            audioEnabled = false;
+            return stream;
+          } catch (cameraError) {
+            if (
+              cameraError instanceof DOMException &&
+              (cameraError.name === 'OverconstrainedError' || cameraError.name === 'NotFoundError')
+            ) {
+              const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+              audioEnabled = false;
+              return stream;
+            }
+            throw cameraError;
+          }
         }
       }
       async function startCamera() {
@@ -330,7 +355,11 @@
         cameraBtn.textContent = 'Camera ready';
         broadcastBtn.textContent = 'Go live';
         setPageCopy('Start Live Video', 'You are not live yet. Share the FanView link now, then go live when ready.');
-        setStatusHtml('<strong>Camera ready.</strong> You are not live yet. Share the link, then tap <strong>Go live</strong>.', 'CAMERA READY');
+        if (audioEnabled) {
+          setStatusHtml('<strong>Camera and microphone ready.</strong> Share the link, then tap <strong>Go live</strong>.', 'CAMERA READY');
+        } else {
+          setStatusHtml('<strong>Camera ready.</strong> Audio is off. To include sound, allow Microphone in browser settings, refresh, then start again.', 'CAMERA READY');
+        }
       }
       async function startBroadcast() {
         ensureStreamId();
@@ -367,7 +396,12 @@
         broadcastBtn.textContent = 'Live now';
         stopBtn.disabled = false;
         setPageCopy('Live Video', 'You are live. Keep this page open and share the FanView link so family can watch.');
-        setStatusHtml('<strong>You are live.</strong> Keep this phone awake and use <strong>Share FanView link</strong> to invite viewers.', 'LIVE');
+        setStatusHtml(
+          audioEnabled
+            ? '<strong>You are live with audio.</strong> Keep this phone awake and use <strong>Share FanView link</strong> to invite viewers.'
+            : '<strong>You are live without audio.</strong> Video is working. To add sound, allow Microphone and restart the broadcast.',
+          'LIVE',
+        );
       }
       async function stopBroadcast() {
         intentionalStop = true;

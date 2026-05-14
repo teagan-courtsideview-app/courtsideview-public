@@ -156,6 +156,12 @@
         display: inline-flex; align-items: center; gap: 6px; }
       .video-live-pill .dot { width: 6px; height: 6px; border-radius: 50%;
         background: #fff; animation: pulse 1.4s ease-in-out infinite; }
+      .sound-button { position: absolute; right: 12px; bottom: 12px; z-index: 4;
+        display: none; appearance: none; border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 999px; background: rgba(10,14,26,0.82); color: #fff;
+        padding: 9px 12px; font: inherit; font-size: 12px; font-weight: 900;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.26); }
+      .sound-button.on { display: inline-flex; align-items: center; gap: 6px; }
       @media (min-width: 920px) {
         .container.has-video .fanview-layout { display: grid;
           grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
@@ -209,6 +215,7 @@
                 allowfullscreen></iframe>
               <video id="liveVideo" autoplay playsinline controls muted></video>
               <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
+              <button id="soundButton" class="sound-button" type="button">🔊 Tap for sound</button>
             </div>
           </div>
           <section class="score-column">
@@ -416,6 +423,9 @@
         presenceShareId = null;
       }
       let cloudflareViewer = { streamId: null, pc: null, retry: null, connected: false };
+      function showSoundButton(visible) {
+        $('soundButton').classList.toggle('on', Boolean(visible));
+      }
       function setVideoStatus(title, body = '', visible = true) {
         const box = $('videoStatus');
         if (visible) {
@@ -457,6 +467,8 @@
         cloudflareViewer = { streamId: null, pc: null, retry: null, connected: false };
         $('liveVideo').srcObject = null;
         $('liveVideo').style.display = 'none';
+        $('liveVideo').muted = true;
+        showSoundButton(false);
       }
       function createPeerConnection() {
         return new RTCPeerConnection({
@@ -482,6 +494,7 @@
           media.addTrack(track);
           cloudflareViewer.connected = true;
           setVideoStatus('', '', false);
+          if (track.kind === 'audio') showSoundButton(true);
           track.addEventListener('ended', () => {
             if (cloudflareViewer.streamId !== streamId) return;
             setVideoStatus('Broadcast paused', 'The game is still active. We will reconnect automatically if the broadcaster restarts.');
@@ -702,6 +715,17 @@
         const fresh = await fetchMatch();
         if (fresh) { matchRow = fresh; render(); }
       };
+      $('soundButton').addEventListener('click', async () => {
+        const video = $('liveVideo');
+        video.muted = false;
+        video.volume = 1;
+        try {
+          await video.play();
+          showSoundButton(false);
+        } catch {
+          showSoundButton(true);
+        }
+      });
       async function boot() {
         shareId = getShareId();
         if (!shareId) { showError('Missing share ID in the URL.'); return; }
