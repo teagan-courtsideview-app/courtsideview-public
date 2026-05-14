@@ -274,7 +274,7 @@
       async function startCamera() {
         ensureStreamId();
         media = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: true, noiseSuppression: true },
+          audio: false,
           video: {
             facingMode: 'environment',
             width: { ideal: 1280 },
