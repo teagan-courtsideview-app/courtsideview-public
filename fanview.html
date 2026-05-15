@@ -405,6 +405,32 @@
           return isRenderableActivity(item);
         }).slice(0, 40);
       }
+      function scoreFeedForState(state) {
+        return mergeFeed(
+          state && Array.isArray(state.feed) ? state.feed : [],
+          loadLocalActivity(),
+        );
+      }
+      function latestFeedScore(feed) {
+        for (const item of feed) {
+          const home = Number(item && item.myTeamScore);
+          const away = Number(item && item.opponentScore);
+          if (item && item.type === 'SCORE' && Number.isFinite(home) && Number.isFinite(away)) {
+            return { homeScore: home, awayScore: away };
+          }
+        }
+        return null;
+      }
+      function reconcileScoreWithFeed(state) {
+        const durable = scoreSnapshot(state || {});
+        const feedScore = latestFeedScore(scoreFeedForState(state));
+        if (!feedScore) return durable;
+        const durableTotal = durable.homeScore + durable.awayScore;
+        const feedTotal = feedScore.homeScore + feedScore.awayScore;
+        return feedTotal > durableTotal
+          ? { ...durable, ...feedScore }
+          : durable;
+      }
       function teamNameFor(team, row) {
         return team === 'myTeam' ? (row.home_name || 'Home') : (row.away_name || 'Away');
       }
@@ -471,8 +497,7 @@
       function renderActivity(state, row) {
         const section = $('activitySection');
         const list = $('activityList');
-        const remoteFeed = state && Array.isArray(state.feed) ? state.feed : [];
-        const feed = mergeFeed(remoteFeed, loadLocalActivity());
+        const feed = scoreFeedForState(state);
         if (!state || state.mode !== 'scorekeeper') {
           section.classList.remove('on');
           list.innerHTML = '';
@@ -828,8 +853,11 @@
         }
         const s = matchRow.state || {};
         const scoreOnly = s.mode === 'scorekeeper';
-        const homeScore = pick(s,'homeScore', pick(s,'myTeamScore', 0));
-        const awayScore = pick(s,'awayScore', pick(s,'opponentScore', 0));
+        const reconciledScore = scoreOnly
+          ? reconcileScoreWithFeed(s)
+          : scoreSnapshot(s);
+        const homeScore = reconciledScore.homeScore;
+        const awayScore = reconciledScore.awayScore;
         const currentSet = pick(s,'currentSet', 1);
         const homeSets = pick(s,'homeSetsWon', pick(s,'myTeamSetsWon', 0));
         const awaySets = pick(s,'awaySetsWon', pick(s,'opponentSetsWon', 0));
