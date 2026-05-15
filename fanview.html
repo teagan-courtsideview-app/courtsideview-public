@@ -238,26 +238,27 @@
           border-radius: 0; border: 0; background: transparent; }
         .container.no-video-mode .no-video-hero::before { inset: 0; width: auto; }
         .container.no-video-mode .no-video-copy { left: max(32px, env(safe-area-inset-left)); right: auto;
-          top: clamp(82px, 24vh, 118px); width: min(29vw, 300px); text-align: left; }
+          top: clamp(82px, 24vh, 118px); width: min(35vw, 360px); text-align: left; }
         .container.no-video-mode .no-video-copy b { font-size: clamp(26px, 6.8vh, 38px); letter-spacing: -0.04em; }
-        .container.no-video-mode .no-video-copy span { max-width: min(100%, 276px); margin-top: 14px;
-          padding: 8px 12px; font-size: clamp(9px, 2.2vh, 12px); }
+        .container.no-video-mode .no-video-copy span { max-width: 100%; margin-top: 14px;
+          padding: 8px 11px; font-size: clamp(8px, 1.9vh, 10px); white-space: nowrap;
+          overflow: visible; text-overflow: clip; }
         .container.no-video-mode .no-video-viewers { right: max(18px, env(safe-area-inset-right)); top: 18px; }
         .container.no-video-mode .court-mini { inset: 0; background-size: 100% auto; background-position: center bottom; }
         .container.no-video-mode .score-column { position: fixed; right: max(16px, env(safe-area-inset-right));
-          top: clamp(62px, 15vh, 86px); width: min(54vw, 520px); z-index: 9; }
-        .container.no-video-mode .scoreboard { margin: 0 0 12px; border-radius: 14px; padding: 10px;
+          top: clamp(56px, 13vh, 76px); width: min(56vw, 660px); z-index: 9; }
+        .container.no-video-mode .scoreboard { margin: 0 0 12px; border-radius: 16px; padding: 12px;
           box-shadow: 0 24px 58px rgba(13,19,26,0.18); }
-        .container.no-video-mode .score-grid { grid-template-columns: minmax(0,1fr) clamp(76px, 11vw, 104px) minmax(0,1fr);
-          gap: 10px; }
-        .container.no-video-mode .side { min-height: clamp(126px, 31vh, 168px); border-radius: 12px;
-          padding: 14px 10px 12px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 8px; }
+        .container.no-video-mode .score-grid { grid-template-columns: minmax(0,1fr) clamp(82px, 11vw, 116px) minmax(0,1fr);
+          gap: 12px; }
+        .container.no-video-mode .side { min-height: clamp(138px, 34vh, 190px); border-radius: 12px;
+          padding: 15px 12px 13px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 8px; }
         .container.no-video-mode .side::before { width: 7px; }
         .container.no-video-mode .side .name { font-size: clamp(14px, 3.1vh, 18px); line-height: 1;
           letter-spacing: 3px; margin-bottom: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .container.no-video-mode .side .dot { width: 13px; height: 13px; }
         .container.no-video-mode .score { align-self: center; max-width: 100%;
-          font-size: clamp(64px, 16vh, 96px); line-height: .9; letter-spacing: -0.055em; }
+          font-size: clamp(78px, 18vh, 116px); line-height: .88; letter-spacing: -0.055em; }
         .container.no-video-mode .divider { border-radius: 12px; font-size: clamp(10px, 2.4vh, 14px);
           letter-spacing: 2px; align-content: center; gap: 8px; }
         .container.no-video-mode .divider strong { font-size: clamp(24px, 6.2vh, 36px); }
