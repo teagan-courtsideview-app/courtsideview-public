@@ -68,6 +68,20 @@
       .action-accent { width: 6px; align-self: stretch; background: var(--green); flex: 0 0 auto; }
       .action-text { padding: 12px 18px; font-size: clamp(18px, 4vw, 28px);
         line-height: 1.05; font-weight: 800; letter-spacing: -0.2px; color: var(--ink); }
+      .activity-section { display: none; margin-top: 22px; }
+      .activity-section.on { display: block; }
+      .activity-title { font-size: 14px; font-weight: 900; letter-spacing: 1.6px;
+        text-transform: uppercase; color: var(--ink); margin: 0 2px 10px; }
+      .activity-list { display: grid; gap: 8px; }
+      .activity-row { display: grid; grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px; align-items: center; background: #EEF3FF; border: 1px solid #D5DCEC;
+        border-left: 5px solid var(--green); border-radius: 999px; padding: 10px 14px;
+        box-shadow: 0 3px 10px rgba(10,14,26,0.035); }
+      .activity-message { color: var(--ink); font-size: 14px; line-height: 1.2; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; }
+      .activity-time { color: var(--ink-muted); font-size: 12px; font-weight: 650; white-space: nowrap; }
+      .activity-empty { color: var(--ink-dim); text-align: center; font-size: 13px;
+        background: #fff; border: 1px dashed var(--border); border-radius: 18px; padding: 16px; }
       .court-section { display: none; margin-top: 18px; }
       .court-section.on { display: block; }
       .section-head { display: flex; align-items: center; justify-content: space-between;
@@ -239,6 +253,10 @@
               <div id="actionAccent" class="action-accent"></div>
               <div id="actionText" class="action-text"></div>
             </div>
+            <section id="activitySection" class="activity-section">
+              <div id="activityTitle" class="activity-title">Activity</div>
+              <div id="activityList" class="activity-list"></div>
+            </section>
             <section id="courtSection" class="court-section">
               <div class="section-head">
                 <div class="section-title">On Court</div>
@@ -340,7 +358,42 @@
           rotation: '#B38A00',
           sub: '#0F8A4F',
           set: '#B38A00',
+          deciding: '#3B82F6',
         })[tone] || '#3B82F6';
+      }
+      function formatFeedTime(value) {
+        const d = new Date(value);
+        if (!Number.isFinite(d.getTime())) return '';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      function feedAccent(item, row) {
+        if (item && item.team === 'myTeam') return row.home_color || '#3B82F6';
+        if (item && item.team === 'opponent') return row.away_color || '#EF4444';
+        return toneColor(item && item.tone);
+      }
+      function renderActivity(state, row) {
+        const section = $('activitySection');
+        const list = $('activityList');
+        const feed = state && Array.isArray(state.feed) ? state.feed : [];
+        if (!state || state.mode !== 'scorekeeper') {
+          section.classList.remove('on');
+          list.innerHTML = '';
+          return;
+        }
+        $('activityTitle').textContent = row.is_complete ? 'Full Activity Log' : 'Activity';
+        if (feed.length === 0) {
+          list.innerHTML = '<div class="activity-empty">Waiting for the first point.</div>';
+        } else {
+          list.innerHTML = feed.map((item) => {
+            const message = String(item && item.message ? item.message : '');
+            return '' +
+              '<div class="activity-row" style="border-left-color:' + escapeHtml(feedAccent(item, row)) + '">' +
+                '<div class="activity-message">' + escapeHtml(message) + '</div>' +
+                '<div class="activity-time">' + escapeHtml(formatFeedTime(item && item.timestamp)) + '</div>' +
+              '</div>';
+          }).join('');
+        }
+        section.classList.add('on');
       }
       function extractYouTubeId(input) {
         if (!input) return null;
@@ -361,7 +414,12 @@
       }
       function updatePrivacyLine(row) {
         const line = $('privacyLine');
-        if (!row || row.video_type !== 'cloudflare_realtime') {
+        if (
+          !row ||
+          row.video_type !== 'cloudflare_realtime' ||
+          !row.video_url ||
+          row.video_url === 'cloudflare://fanview-live'
+        ) {
           line.style.display = 'none';
           line.textContent = '';
           return;
@@ -403,7 +461,13 @@
         }
       }
       function startPresence(row) {
-        const shouldTrack = !!row && row.video_type === 'cloudflare_realtime' && !row.is_complete && !isFanViewExpired(row);
+        const shouldTrack =
+          !!row &&
+          row.video_type === 'cloudflare_realtime' &&
+          row.video_url &&
+          row.video_url !== 'cloudflare://fanview-live' &&
+          !row.is_complete &&
+          !isFanViewExpired(row);
         if (!shouldTrack) {
           stopPresence();
           return;
@@ -556,7 +620,11 @@
         const pill = $('videoLivePill');
         const url = row && row.video_url;
         const type = row && row.video_type;
-        if (type === 'cloudflare_realtime') {
+        const cloudflareEnabled =
+          type === 'cloudflare_realtime' &&
+          url &&
+          url !== 'cloudflare://fanview-live';
+        if (cloudflareEnabled) {
           document.querySelector('.container').classList.add('has-video');
           vw.classList.add('on');
           vf.style.display = 'none';
@@ -657,6 +725,7 @@
           return;
         }
         const s = matchRow.state || {};
+        const scoreOnly = s.mode === 'scorekeeper';
         const homeScore = pick(s,'homeScore', pick(s,'myTeamScore', 0));
         const awayScore = pick(s,'awayScore', pick(s,'opponentScore', 0));
         const currentSet = pick(s,'currentSet', 1);
@@ -684,17 +753,26 @@
           $('setLine').textContent = 'MATCH COMPLETE';
           $('livePill').classList.remove('on');
         } else {
-          $('setLine').textContent = 'MATCH · SET ' + currentSet + ' OF ' + totalSets;
+          $('setLine').textContent = scoreOnly
+            ? 'SET ' + currentSet + ' OF ' + totalSets + ' · TO ' + setTarget
+            : 'MATCH · SET ' + currentSet + ' OF ' + totalSets;
           $('livePill').classList.add('on');
         }
         $('teamTally').innerHTML =
           '<span style="color:' + readableTextColor(matchRow.home_color) + '">' + escapeHtml(matchRow.home_name || 'Home') + '</span>' +
           '<span class="dim"> ' + homeSets + ' </span><span class="dim">—</span><span class="dim"> ' + awaySets + ' </span>' +
           '<span style="color:' + readableTextColor(matchRow.away_color) + '">' + escapeHtml(matchRow.away_name || 'Away') + '</span>';
-        $('targetLine').textContent = matchRow.is_complete ? '' : ('Playing to ' + setTarget);
-        $('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
-        $('board').querySelector('.score-column').classList.toggle('no-video', !(matchRow.video_url && (matchRow.video_type === 'youtube' || matchRow.video_type === 'youtube_live' || matchRow.video_type === 'cloudflare_realtime')));
+        const servingName = scoreOnly
+          ? (s.myTeamServing ? (matchRow.home_name || 'Home') : (matchRow.away_name || 'Away'))
+          : null;
+        $('targetLine').textContent = matchRow.is_complete
+          ? ''
+          : (scoreOnly && servingName ? (servingName + ' serving') : ('Playing to ' + setTarget));
+        $('lastUpdated').textContent = 'Last updated: ' + new Date(matchRow.updated_at || Date.now()).toLocaleTimeString();
+        const hasVideo = !!(matchRow.video_url && matchRow.video_url !== 'cloudflare://fanview-live' && (matchRow.video_type === 'youtube' || matchRow.video_type === 'youtube_live' || matchRow.video_type === 'cloudflare_realtime'));
+        $('board').querySelector('.score-column').classList.toggle('no-video', !hasVideo);
         renderLatestAction(s);
+        renderActivity(s, matchRow);
         renderCourt(s);
         renderVideo(matchRow);
         updatePrivacyLine(matchRow);
@@ -715,6 +793,29 @@
         const fresh = await fetchMatch();
         if (fresh) { matchRow = fresh; render(); }
       };
+      function applyScoreBroadcast(payload) {
+        if (!payload || !matchRow) return;
+        const patch = payload.statePatch && typeof payload.statePatch === 'object'
+          ? payload.statePatch
+          : {};
+        matchRow.state = {
+          ...(matchRow.state || {}),
+          ...patch,
+          homeScore: typeof payload.homeScore === 'number' ? payload.homeScore : pick(patch, 'homeScore', pick(matchRow.state || {}, 'homeScore', 0)),
+          awayScore: typeof payload.awayScore === 'number' ? payload.awayScore : pick(patch, 'awayScore', pick(matchRow.state || {}, 'awayScore', 0)),
+          currentSet: typeof payload.currentSet === 'number' ? payload.currentSet : pick(patch, 'currentSet', pick(matchRow.state || {}, 'currentSet', 1)),
+        };
+        if (typeof patch.isComplete === 'boolean') matchRow.is_complete = patch.isComplete;
+        matchRow.updated_at = new Date().toISOString();
+        render();
+      }
+      function applyStateBroadcast(payload) {
+        if (!payload || !matchRow) return;
+        matchRow.state = { ...(matchRow.state || {}), ...payload };
+        if (typeof payload.isComplete === 'boolean') matchRow.is_complete = payload.isComplete;
+        matchRow.updated_at = new Date().toISOString();
+        render();
+      }
       $('soundButton').addEventListener('click', async () => {
         const video = $('liveVideo');
         video.muted = false;
@@ -746,11 +847,25 @@
             matchRow = { ...matchRow, ...payload.new };
             render();
           });
+        const broadcastChannel = supabase.channel('game:' + shareId);
+        broadcastChannel.on('broadcast', { event: 'score' }, ({ payload }) => {
+          applyScoreBroadcast(payload);
+        });
+        broadcastChannel.on('broadcast', { event: 'state' }, ({ payload }) => {
+          applyStateBroadcast(payload);
+        });
         channel.subscribe((status, err) => {
           if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
             console.warn('[FanView] channel status', status, err);
           } else {
             console.log('[FanView] channel status', status);
+          }
+        });
+        broadcastChannel.subscribe((status, err) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            console.warn('[FanView] broadcast channel status', status, err);
+          } else {
+            console.log('[FanView] broadcast channel status', status);
           }
         });
         setInterval(async () => {
