@@ -392,13 +392,17 @@
           localStorage.setItem(key, JSON.stringify(feed.slice(0, 40)));
         } catch {}
       }
+      function isRenderableActivity(item) {
+        const message = String(item && item.message ? item.message : '');
+        return !!message && !/^Score corrected\b/i.test(message);
+      }
       function mergeFeed(primary, fallback) {
         const seen = new Set();
         return [...primary, ...fallback].filter((item) => {
           const key = String((item && item.id) || (item && item.timestamp) + ':' + (item && item.message));
           if (seen.has(key)) return false;
           seen.add(key);
-          return item && item.message;
+          return isRenderableActivity(item);
         }).slice(0, 40);
       }
       function teamNameFor(team, row) {
