@@ -188,6 +188,31 @@
         padding: 9px 12px; font: inherit; font-size: 12px; font-weight: 900;
         box-shadow: 0 10px 26px rgba(0,0,0,0.26); }
       .sound-button.on { display: inline-flex; align-items: center; gap: 6px; }
+      .fullscreen-button { position: absolute; right: 12px; top: 12px; z-index: 5;
+        display: none; appearance: none; border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 999px; background: rgba(10,14,26,0.82); color: #fff;
+        min-height: 36px; padding: 9px 12px; font: inherit; font-size: 12px; font-weight: 900;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.26); }
+      .fullscreen-button.on { display: inline-flex; align-items: center; gap: 7px; }
+      .fullscreen-menu { position: absolute; right: 12px; top: 56px; z-index: 6;
+        display: none; gap: 8px; padding: 8px; border-radius: 18px;
+        background: rgba(10,14,26,0.88); border: 1px solid rgba(255,255,255,0.16);
+        box-shadow: 0 16px 34px rgba(0,0,0,0.28); backdrop-filter: blur(12px); }
+      .fullscreen-menu.on { display: grid; grid-template-columns: 1fr 1fr; }
+      .fullscreen-choice { appearance: none; border: 1px solid rgba(255,255,255,0.16);
+        border-radius: 12px; background: rgba(255,255,255,0.1); color: #fff;
+        min-width: 104px; min-height: 44px; padding: 8px 10px; font: inherit;
+        font-size: 12px; line-height: 1.15; font-weight: 900; text-align: center; }
+      .fullscreen-choice span { display: block; color: rgba(255,255,255,0.68);
+        font-size: 10px; font-weight: 800; margin-top: 2px; }
+      .video-frame:fullscreen, .video-frame:-webkit-full-screen { width: 100vw; height: 100vh;
+        aspect-ratio: auto; border: 0; border-radius: 0; background: #000; box-shadow: none; }
+      .video-frame:fullscreen iframe, .video-frame:fullscreen video,
+      .video-frame:-webkit-full-screen iframe, .video-frame:-webkit-full-screen video {
+        width: 100%; height: 100%; object-fit: contain; }
+      .video-frame:fullscreen .video-viewers, .video-frame:-webkit-full-screen .video-viewers { top: 16px; left: 16px; }
+      .video-frame:fullscreen .fullscreen-button, .video-frame:-webkit-full-screen .fullscreen-button { right: 16px; top: 16px; }
+      .video-frame:fullscreen .fullscreen-menu, .video-frame:-webkit-full-screen .fullscreen-menu { right: 16px; top: 62px; }
       .no-video-hero { display: none; height: 224px; border-radius: 24px; margin-top: 8px;
         position: relative; overflow: hidden; background:
           radial-gradient(circle at 50% 8%, rgba(16,136,76,0.06), transparent 36%),
@@ -321,11 +346,16 @@
             <div class="video-frame">
               <span id="videoViewerCount" class="viewer-pill video-viewers"><span class="dot"></span><span>0 watching</span></span>
               <iframe id="videoFrame"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
               <video id="liveVideo" autoplay playsinline controls muted></video>
               <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
               <button id="soundButton" class="sound-button" type="button">🔊 Tap for sound</button>
+              <button id="fullscreenButton" class="fullscreen-button" type="button" aria-expanded="false">⛶ Full screen</button>
+              <div id="fullscreenMenu" class="fullscreen-menu" role="menu" aria-label="Choose full-screen orientation">
+                <button class="fullscreen-choice" type="button" data-orientation="portrait" role="menuitem">Portrait<span>upright</span></button>
+                <button class="fullscreen-choice" type="button" data-orientation="landscape" role="menuitem">Landscape<span>wide</span></button>
+              </div>
             </div>
           </div>
           <section class="score-column">
@@ -756,6 +786,68 @@
       function showSoundButton(visible) {
         $('soundButton').classList.toggle('on', Boolean(visible));
       }
+      function setFullscreenControlsVisible(visible) {
+        $('fullscreenButton').classList.toggle('on', Boolean(visible));
+        if (!visible) closeFullscreenMenu();
+      }
+      function closeFullscreenMenu() {
+        $('fullscreenMenu').classList.remove('on');
+        $('fullscreenButton').setAttribute('aria-expanded', 'false');
+      }
+      function fullscreenElement() {
+        return document.fullscreenElement || document.webkitFullscreenElement || null;
+      }
+      async function requestElementFullscreen(element) {
+        if (element.requestFullscreen) {
+          await element.requestFullscreen();
+          return true;
+        }
+        if (element.webkitRequestFullscreen) {
+          element.webkitRequestFullscreen();
+          return true;
+        }
+        if (element.webkitEnterFullscreen) {
+          element.webkitEnterFullscreen();
+          return true;
+        }
+        return false;
+      }
+      async function lockFullscreenOrientation(orientation) {
+        const lock = screen && screen.orientation && screen.orientation.lock;
+        if (!lock) return;
+        try {
+          await screen.orientation.lock(orientation === 'landscape' ? 'landscape' : 'portrait');
+        } catch {
+          // Orientation lock support varies by browser and device; fullscreen still works without it.
+        }
+      }
+      async function enterVideoFullscreen(orientation) {
+        closeFullscreenMenu();
+        const frame = document.querySelector('.video-frame');
+        const liveVideo = $('liveVideo');
+        const iframe = $('videoFrame');
+        const usingLiveVideo = liveVideo && liveVideo.style.display !== 'none';
+        const usingIframe = iframe && iframe.style.display !== 'none' && iframe.src;
+        const target = usingLiveVideo && liveVideo.webkitEnterFullscreen && !frame.requestFullscreen
+          ? liveVideo
+          : frame;
+        try {
+          const entered = await requestElementFullscreen(target);
+          if (entered && fullscreenElement()) {
+            frame.dataset.fullscreenOrientation = orientation;
+            await lockFullscreenOrientation(orientation);
+            return;
+          }
+          if (usingIframe && iframe.requestFullscreen) {
+            await requestElementFullscreen(iframe);
+            await lockFullscreenOrientation(orientation);
+          }
+        } catch {
+          if (usingLiveVideo && liveVideo.webkitEnterFullscreen) {
+            try { liveVideo.webkitEnterFullscreen(); } catch {}
+          }
+        }
+      }
       function setVideoStatus(title, body = '', visible = true) {
         const box = $('videoStatus');
         if (visible) {
@@ -892,6 +984,7 @@
         if (cloudflareEnabled) {
           document.querySelector('.container').classList.add('has-video');
           vw.classList.add('on');
+          setFullscreenControlsVisible(true);
           vf.style.display = 'none';
           if (vf.src) vf.src = '';
           if (row.is_complete) {
@@ -905,6 +998,7 @@
         if (!url || (type !== 'youtube' && type !== 'youtube_live')) {
           document.querySelector('.container').classList.remove('has-video');
           vw.classList.remove('on');
+          setFullscreenControlsVisible(false);
           if (vf.src) vf.src = '';
           stopCloudflareViewer();
           return;
@@ -913,6 +1007,7 @@
         if (!id) {
           document.querySelector('.container').classList.remove('has-video');
           vw.classList.remove('on');
+          setFullscreenControlsVisible(false);
           if (vf.src) vf.src = '';
           stopCloudflareViewer();
           return;
@@ -925,6 +1020,7 @@
         stopCloudflareViewer();
         document.querySelector('.container').classList.add('has-video');
         vw.classList.add('on');
+        setFullscreenControlsVisible(true);
       }
       function renderLatestAction(state) {
         const strip = $('actionStrip');
@@ -1105,6 +1201,29 @@
         } catch {
           showSoundButton(true);
         }
+      });
+      $('fullscreenButton').addEventListener('click', () => {
+        const menu = $('fullscreenMenu');
+        const next = !menu.classList.contains('on');
+        menu.classList.toggle('on', next);
+        $('fullscreenButton').setAttribute('aria-expanded', String(next));
+      });
+      $('fullscreenMenu').addEventListener('click', (event) => {
+        const choice = event.target.closest('[data-orientation]');
+        if (!choice) return;
+        void enterVideoFullscreen(choice.dataset.orientation || 'landscape');
+      });
+      document.addEventListener('fullscreenchange', () => {
+        if (!fullscreenElement()) {
+          document.querySelector('.video-frame').removeAttribute('data-fullscreen-orientation');
+          closeFullscreenMenu();
+          if (screen && screen.orientation && screen.orientation.unlock) {
+            try { screen.orientation.unlock(); } catch {}
+          }
+        }
+      });
+      document.addEventListener('webkitfullscreenchange', () => {
+        if (!fullscreenElement()) closeFullscreenMenu();
       });
       async function boot() {
         shareId = getShareId();
