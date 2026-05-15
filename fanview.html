@@ -238,11 +238,12 @@
           border-radius: 0; border: 0; background: transparent; }
         .container.no-video-mode .no-video-hero::before { inset: 0; width: auto; }
         .container.no-video-mode .no-video-copy { left: max(32px, env(safe-area-inset-left)); right: auto;
-          top: clamp(82px, 24vh, 118px); width: min(35vw, 360px); text-align: left; }
-        .container.no-video-mode .no-video-copy b { font-size: clamp(26px, 6.8vh, 38px); letter-spacing: -0.04em; }
+          top: clamp(86px, 25vh, 122px); width: min(27vw, 330px); text-align: left; }
+        .container.no-video-mode .no-video-copy b { font-size: clamp(19px, 5.1vh, 28px);
+          letter-spacing: -0.04em; white-space: nowrap; }
         .container.no-video-mode .no-video-copy span { max-width: 100%; margin-top: 14px;
-          padding: 8px 11px; font-size: clamp(8px, 1.9vh, 10px); white-space: nowrap;
-          overflow: visible; text-overflow: clip; }
+          padding: 8px 10px; font-size: clamp(7px, 1.65vh, 8.5px); white-space: nowrap;
+          overflow: visible; text-overflow: clip; letter-spacing: 0; }
         .container.no-video-mode .no-video-viewers { right: max(18px, env(safe-area-inset-right)); top: 18px; }
         .container.no-video-mode .court-mini { inset: 0; background-size: 100% auto; background-position: center bottom; }
         .container.no-video-mode .score-column { position: fixed; right: max(16px, env(safe-area-inset-right));
@@ -329,7 +330,7 @@
             <div id="noVideoHero" class="no-video-hero">
               <span id="noVideoViewerCount" class="viewer-pill no-video-viewers"><span class="dot"></span><span>0 watching</span></span>
               <div class="no-video-copy">
-                <b>No broadcast video selected</b>
+                <b>No broadcast video</b>
                 <span>Score-only FanView is live. Video can be added anytime.</span>
               </div>
               <div class="court-mini"><span>1</span><span>6</span><span class="active">5</span><span>4</span><span>3</span><span>2</span></div>
