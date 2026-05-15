@@ -62,6 +62,7 @@
         text-decoration: underline; text-underline-offset: 3px; font-size: 13px;
         font-weight: 800; padding: 6px 8px; cursor: pointer; }
       button:disabled { opacity: 0.5; cursor: default; }
+      .is-hidden { display: none !important; }
       .hint { color: var(--dim); font-size: 12px; line-height: 1.4; margin: 14px 4px 0; text-align: center; }
       .viewer-row { display: flex; align-items: center; justify-content: center; gap: 8px;
         color: var(--muted); font-size: 13px; font-weight: 800; margin-top: 12px; }
@@ -101,13 +102,13 @@
       </header>
       <div class="stage">
         <section class="hero">
-          <h1 id="pageTitle">Start Live Video</h1>
-          <p id="pageLead" class="lead">Use this phone as the camera. Share the FanView link so family can watch while scores and rotations update.</p>
+          <h1 id="pageTitle">Set up live video</h1>
+          <p id="pageLead" class="lead">Start the camera, then go live when ready.</p>
         </section>
         <section>
           <div class="video-shell">
             <video id="preview" muted autoplay playsinline></video>
-            <div id="status" class="status">Tap <strong>Start camera</strong>. You are not live until you tap <strong>Go live</strong>.</div>
+            <div id="status" class="status"><strong>Camera off.</strong> Not live yet.</div>
           </div>
           <div class="viewer-row" aria-live="polite">
             <span class="viewer-dot"></span>
@@ -115,12 +116,12 @@
           </div>
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
-            <button id="broadcastBtn" class="primary" disabled>Go live</button>
+            <button id="broadcastBtn" class="primary is-hidden" disabled>Go live</button>
             <button id="shareBtn" class="fanview-primary">Share FanView link</button>
-            <button id="stopBtn" class="danger" disabled>Stop broadcast</button>
+            <button id="stopBtn" class="danger is-hidden" disabled>End live video</button>
             <button id="previewBtn" class="preview-link">Preview FanView</button>
           </div>
-          <p class="hint">Keep this page open while broadcasting. Locking the phone or switching apps may pause video.</p>
+          <p class="hint">Fans can follow scores without video. Keep this page open while video is live.</p>
         </section>
       </div>
     </main>
@@ -179,10 +180,26 @@
         pageTitle.textContent = title;
         pageLead.textContent = lead;
       }
+      function showControl(element, visible) {
+        element.classList.toggle('is-hidden', !visible);
+      }
+      function setControlState(state) {
+        const isSetup = state === 'setup';
+        const isCameraReady = state === 'camera-ready';
+        const isLive = state === 'live';
+        const isOffline = state === 'offline';
+        showControl(cameraBtn, isSetup || isOffline);
+        showControl(broadcastBtn, isCameraReady);
+        showControl(stopBtn, isLive);
+        showControl(previewBtn, !isLive);
+        cameraBtn.disabled = !(isSetup || isOffline);
+        broadcastBtn.disabled = !isCameraReady;
+        stopBtn.disabled = !isLive;
+        shareBtn.disabled = false;
+      }
       function resetBroadcastControls(label = 'Go live') {
         broadcastBtn.textContent = label;
-        broadcastBtn.disabled = !media;
-        stopBtn.disabled = true;
+        setControlState(media ? 'camera-ready' : 'setup');
       }
       function viewerLabel(count) {
         return count === 1 ? 'watching' : 'watching';
@@ -351,12 +368,12 @@
         }
         media = await requestCameraStream();
         preview.srcObject = media;
-        broadcastBtn.disabled = false;
         cameraBtn.textContent = 'Camera ready';
         broadcastBtn.textContent = 'Go live';
-        setPageCopy('Start Live Video', 'You are not live yet. Share the FanView link now, then go live when ready.');
+        setPageCopy('Ready to go live', 'Frame the court before starting video.');
+        setControlState('camera-ready');
         if (audioEnabled) {
-          setStatusHtml('<strong>Camera and microphone ready.</strong> Share the link, then tap <strong>Go live</strong>.', 'CAMERA READY');
+          setStatusHtml('<strong>Camera and microphone ready.</strong> Not live yet.', 'CAMERA READY');
         } else {
           setStatusHtml('<strong>Camera ready.</strong> Audio is off. To include sound, allow Microphone in browser settings, refresh, then start again.', 'CAMERA READY');
         }
@@ -373,7 +390,7 @@
             cameraBtn.disabled = false;
             resetBroadcastControls('Reconnect video');
             setStatus([
-              { text: 'Broadcast disconnected.', strong: true },
+              { text: 'Live video disconnected.', strong: true },
               { text: ' The game is still active. Check your signal, then reconnect video.' },
             ], 'OFFLINE');
           }
@@ -392,14 +409,13 @@
         const answer = await response.text();
         await pc.setRemoteDescription({ type: 'answer', sdp: answer });
         live = true;
-        broadcastBtn.disabled = true;
         broadcastBtn.textContent = 'Live now';
-        stopBtn.disabled = false;
-        setPageCopy('Live Video', 'You are live. Keep this page open and share the FanView link so family can watch.');
+        setPageCopy('Live video is on', 'Share the FanView link so fans can watch.');
+        setControlState('live');
         setStatusHtml(
           audioEnabled
-            ? '<strong>You are live with audio.</strong> Keep this phone awake and use <strong>Share FanView link</strong> to invite viewers.'
-            : '<strong>You are live without audio.</strong> Video is working. To add sound, allow Microphone and restart the broadcast.',
+            ? '<strong>You are live with audio.</strong> Keep this page open while video is live.'
+            : '<strong>You are live without audio.</strong> Video is working. To add sound, allow Microphone and restart live video.',
           'LIVE',
         );
       }
@@ -420,14 +436,12 @@
           await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, { method: 'DELETE' }).catch(() => {});
         }
         cameraBtn.textContent = 'Start camera';
-        cameraBtn.disabled = false;
-        broadcastBtn.textContent = 'Go live again';
-        broadcastBtn.disabled = true;
-        stopBtn.disabled = true;
-        setPageCopy('Start Live Video', 'Video has stopped, but the FanView link still works for score updates.');
+        broadcastBtn.textContent = 'Go live';
+        setPageCopy('Set up live video', 'Video has stopped. The FanView link still works for scores.');
+        setControlState('offline');
         setStatus([
-          { text: 'You have stopped the broadcast.', strong: true },
-          { text: ' The game and score updates are still active. Start camera to go live again.' },
+          { text: 'Live video ended.', strong: true },
+          { text: ' Fans can still follow the score. Start camera to go live again.' },
         ], 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
@@ -450,14 +464,14 @@
         }
       });
       stopBtn.addEventListener('click', () => {
-        void stopBroadcast();
+        const shouldStop = window.confirm('End live video? Fans will still see the score. The video will stop.');
+        if (shouldStop) void stopBroadcast();
       });
       shareBtn.addEventListener('click', () => {
         void shareFanViewLink();
       });
       previewBtn.addEventListener('click', () => {
-        const shouldOpen = window.confirm('Previewing FanView may pause your broadcast if this browser leaves the camera page. Stay here unless you are testing on a second device. Open preview?');
-        if (shouldOpen) window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
+        window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
       });
       window.addEventListener('pagehide', () => {
         if (live) void stopBroadcast();
@@ -469,6 +483,7 @@
         previewBtn.disabled = true;
         setStatus([{ text: 'Missing FanView share ID. Open this page from the CourtsideView FanView modal.' }], 'ERROR');
       } else {
+        setControlState('setup');
         startViewerPolling();
       }
     </script>
