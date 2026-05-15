@@ -432,6 +432,12 @@
         const existing = Array.isArray(nextState.feed) ? nextState.feed : [];
         const local = loadLocalActivity();
         const additions = [];
+        if (next.myTeamTimeouts > previous.myTeamTimeouts) {
+          additions.push(inferredFeedItem('myTeam', 'Timeout - ' + teamNameFor('myTeam', row), nextState, 'neutral'));
+        }
+        if (next.opponentTimeouts > previous.opponentTimeouts) {
+          additions.push(inferredFeedItem('opponent', 'Timeout - ' + teamNameFor('opponent', row), nextState, 'neutral'));
+        }
         if (next.homeScore !== previous.homeScore || next.awayScore !== previous.awayScore) {
           const team = next.homeScore > previous.homeScore ? 'myTeam' : next.awayScore > previous.awayScore ? 'opponent' : null;
           if (team) {
@@ -443,20 +449,7 @@
               nextState,
               'score',
             ));
-          } else {
-            additions.push(inferredFeedItem(
-              undefined,
-              'Score corrected -> ' + next.homeScore + '-' + next.awayScore,
-              nextState,
-              'neutral',
-            ));
           }
-        }
-        if (next.myTeamTimeouts > previous.myTeamTimeouts) {
-          additions.push(inferredFeedItem('myTeam', 'Timeout - ' + teamNameFor('myTeam', row), nextState, 'neutral'));
-        }
-        if (next.opponentTimeouts > previous.opponentTimeouts) {
-          additions.push(inferredFeedItem('opponent', 'Timeout - ' + teamNameFor('opponent', row), nextState, 'neutral'));
         }
         if (additions.length > 0) {
           saveLocalActivity(mergeFeed(additions, mergeFeed(existing, local)));
