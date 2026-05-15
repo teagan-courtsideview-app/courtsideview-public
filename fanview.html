@@ -24,10 +24,12 @@
         padding: 4px 2px 12px; margin-bottom: 8px; }
       .brand-mark { font-size: 28px; }
       .brand-word { font-size: 22px; font-weight: 900; letter-spacing: -0.7px; }
-      .header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+      .header-actions { margin-left: auto; display: flex; align-items: center; justify-content: flex-end;
+        gap: 8px; min-width: 0; flex-shrink: 0; }
       .fanview-pill { background: var(--pink); color: #fff; border: 1px solid var(--pink);
         font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
-        padding: 7px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; }
+        min-height: 34px; padding: 8px 13px; border-radius: 999px; display: inline-flex;
+        align-items: center; justify-content: center; gap: 6px; white-space: nowrap; flex: 0 0 auto; }
       .viewer-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 30px;
         border-radius: 999px; padding: 6px 10px; background: rgba(17,20,26,0.08);
         border: 1px solid rgba(17,20,26,0.12); color: var(--ink); font-size: 11px;
@@ -203,12 +205,30 @@
         padding: 8px 12px; background: rgba(255,255,255,0.92); color: var(--ink);
         border: 1px solid rgba(17,20,26,0.12); font-size: 11px; line-height: 1; font-weight: 900;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .court-mini { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
-        width: 230px; display: grid; grid-template-columns: repeat(6,1fr); gap: 5px; z-index: 2; }
-      .court-mini span { height: 26px; border-radius: 6px; background: var(--bg-elev);
-        border: 1px solid var(--border); display: grid; place-items: center; color: var(--ink-muted);
-        font-size: 10px; font-weight: 900; }
-      .court-mini span.active { color: var(--ink); box-shadow: inset 0 -3px 0 var(--green); }
+      .court-mini { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+        width: min(82%, 260px); aspect-ratio: 2.55 / 1; z-index: 2; border-radius: 12px;
+        overflow: hidden; border: 2px solid rgba(255,255,255,0.92);
+        background:
+          linear-gradient(90deg, transparent 0 49.4%, rgba(255,255,255,0.92) 49.4% 50.6%, transparent 50.6% 100%),
+          linear-gradient(90deg, transparent 0 31.8%, rgba(255,255,255,0.82) 31.8% 32.7%, transparent 32.7% 67.3%, rgba(255,255,255,0.82) 67.3% 68.2%, transparent 68.2% 100%),
+          repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 8px, transparent 8px 18px),
+          linear-gradient(135deg, #D89A57, #F1C37A 48%, #D78D48);
+        box-shadow: inset 0 0 0 1px rgba(139,82,32,0.18), 0 12px 28px rgba(13,19,26,0.12); }
+      .court-mini::before { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 2px);
+        height: 4px; background: rgba(17,20,26,0.18); box-shadow: 0 -1px 0 rgba(255,255,255,0.75), 0 1px 0 rgba(255,255,255,0.75); }
+      .court-mini::after { content: ""; position: absolute; left: 7%; right: 7%; top: 10%; bottom: 10%;
+        border: 1px solid rgba(255,255,255,0.72); border-radius: 4px; pointer-events: none; }
+      .court-mini span { position: absolute; width: 24px; height: 24px; border-radius: 50%;
+        background: rgba(255,255,255,0.92); border: 1px solid rgba(17,20,26,0.12);
+        display: grid; place-items: center; color: var(--ink-muted); font-size: 10px; font-weight: 900;
+        box-shadow: 0 3px 8px rgba(13,19,26,0.14); }
+      .court-mini span:nth-child(1) { left: 13%; top: 18%; }
+      .court-mini span:nth-child(2) { left: 13%; bottom: 18%; }
+      .court-mini span:nth-child(3) { left: 36%; top: 18%; }
+      .court-mini span:nth-child(4) { right: 36%; bottom: 18%; }
+      .court-mini span:nth-child(5) { right: 13%; top: 18%; }
+      .court-mini span:nth-child(6) { right: 13%; bottom: 18%; }
+      .court-mini span.active { color: var(--ink); border-color: var(--green); box-shadow: 0 0 0 3px rgba(16,136,76,0.18), 0 3px 8px rgba(13,19,26,0.14); }
       @media (orientation: landscape) and (max-height: 520px) {
         .container, .container.has-video { max-width: none; min-height: 100vh; padding: 0; }
         header.brand, .app-promo, .footer-hint, .refresh-row, .last-updated, .privacy-line { display: none !important; }
@@ -234,14 +254,28 @@
         .container.no-video-mode .no-video-hero { position: fixed; inset: 0; height: auto; margin: 0;
           border-radius: 0; border: 0; background: transparent; }
         .container.no-video-mode .no-video-hero::before { left: 8%; width: 52%; right: auto; top: 38%; bottom: 13%; }
-        .container.no-video-mode .no-video-copy { left: 36px; right: auto; top: 110px; width: 390px; text-align: left; }
-        .container.no-video-mode .no-video-copy b { font-size: 28px; }
-        .container.no-video-mode .no-video-viewers { right: max(18px, env(safe-area-inset-right)); top: 48px; }
-        .container.no-video-mode .court-mini { left: 42px; bottom: 28px; transform: none; width: 360px; gap: 7px; }
-        .container.no-video-mode .court-mini span { height: 34px; }
-        .container.no-video-mode .score-column { position: fixed; right: max(18px, env(safe-area-inset-right)); top: 96px;
-          width: 286px; z-index: 9; }
-        .container.no-video-mode .scoreboard { margin: 0 0 12px; }
+        .container.no-video-mode .no-video-copy { left: max(32px, env(safe-area-inset-left)); right: auto;
+          top: clamp(70px, 23vh, 112px); width: min(44vw, 430px); text-align: left; }
+        .container.no-video-mode .no-video-copy b { font-size: clamp(30px, 7.8vh, 44px); letter-spacing: -0.04em; }
+        .container.no-video-mode .no-video-copy span { margin-top: 16px; padding: 10px 16px; font-size: clamp(12px, 2.8vh, 15px); }
+        .container.no-video-mode .no-video-viewers { right: max(18px, env(safe-area-inset-right)); top: 18px; }
+        .container.no-video-mode .court-mini { left: max(42px, env(safe-area-inset-left)); bottom: 22px;
+          transform: none; width: min(430px, 43vw); }
+        .container.no-video-mode .court-mini span { width: clamp(26px, 6.6vh, 34px); height: clamp(26px, 6.6vh, 34px); font-size: 13px; }
+        .container.no-video-mode .score-column { position: fixed; right: max(16px, env(safe-area-inset-right));
+          top: clamp(62px, 15vh, 86px); width: min(54vw, 520px); z-index: 9; }
+        .container.no-video-mode .scoreboard { margin: 0 0 12px; border-radius: 14px; padding: 10px;
+          box-shadow: 0 24px 58px rgba(13,19,26,0.18); }
+        .container.no-video-mode .score-grid { grid-template-columns: minmax(0,1fr) clamp(76px, 11vw, 104px) minmax(0,1fr);
+          gap: 10px; }
+        .container.no-video-mode .side { min-height: clamp(128px, 31vh, 176px); border-radius: 12px; padding: 13px 10px; }
+        .container.no-video-mode .side::before { width: 7px; }
+        .container.no-video-mode .side .name { font-size: clamp(16px, 3.6vh, 20px); letter-spacing: 3px; margin-bottom: 16px; }
+        .container.no-video-mode .side .dot { width: 13px; height: 13px; }
+        .container.no-video-mode .score { font-size: clamp(78px, 20vh, 116px); line-height: .78; letter-spacing: -0.06em; }
+        .container.no-video-mode .divider { border-radius: 12px; font-size: clamp(11px, 2.7vh, 15px); letter-spacing: 2px; }
+        .container.no-video-mode .divider strong { font-size: clamp(28px, 7.2vh, 40px); }
+        .container.no-video-mode .target { margin-top: 10px; font-size: clamp(16px, 3.8vh, 21px); letter-spacing: 2.5px; }
         .container.no-video-mode .activity-section, .container.no-video-mode .court-section, .container.no-video-mode .meta-row { display: none !important; }
       }
       @media (min-width: 760px) {
@@ -254,6 +288,11 @@
       @media (max-width: 520px) {
         .container { padding: 18px 12px 48px; }
         header.brand { padding-bottom: 16px; margin-bottom: 16px; }
+        .brand-mark { font-size: 24px; }
+        .brand-word { font-size: 20px; letter-spacing: -0.8px; }
+        .header-actions { gap: 7px; }
+        .header-actions #headerViewerCount { display: none; }
+        .fanview-pill { min-height: 36px; padding: 9px 16px; font-size: 11px; letter-spacing: 1.4px; }
         .video-frame { border-radius: 16px; }
         .scoreboard { border-radius: 8px; padding: 8px; }
         .score { font-size: 42px; letter-spacing: -0.04em; }
