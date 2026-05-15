@@ -437,10 +437,10 @@
         const local = loadLocalActivity();
         const additions = [];
         if (next.myTeamTimeouts > previous.myTeamTimeouts) {
-          additions.push(inferredFeedItem('myTeam', 'Timeout - ' + teamNameFor('myTeam', row), nextState, 'neutral'));
+          additions.push(inferredFeedItem('myTeam', 'Timeout called by ' + teamNameFor('myTeam', row), nextState, 'neutral'));
         }
         if (next.opponentTimeouts > previous.opponentTimeouts) {
-          additions.push(inferredFeedItem('opponent', 'Timeout - ' + teamNameFor('opponent', row), nextState, 'neutral'));
+          additions.push(inferredFeedItem('opponent', 'Timeout called by ' + teamNameFor('opponent', row), nextState, 'neutral'));
         }
         if (next.homeScore !== previous.homeScore || next.awayScore !== previous.awayScore) {
           const team = next.homeScore > previous.homeScore ? 'myTeam' : next.awayScore > previous.awayScore ? 'opponent' : null;
