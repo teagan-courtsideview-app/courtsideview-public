@@ -359,6 +359,7 @@
           sub: '#0F8A4F',
           set: '#B38A00',
           deciding: '#3B82F6',
+          neutral: '#B38A00',
         })[tone] || '#3B82F6';
       }
       function formatFeedTime(value) {
@@ -371,10 +372,110 @@
         if (item && item.team === 'opponent') return row.away_color || '#EF4444';
         return toneColor(item && item.tone);
       }
+      function activityStorageKey() {
+        return shareId ? 'fanview.activity.' + shareId : '';
+      }
+      function loadLocalActivity() {
+        const key = activityStorageKey();
+        if (!key) return [];
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+      function saveLocalActivity(feed) {
+        const key = activityStorageKey();
+        if (!key) return;
+        try {
+          localStorage.setItem(key, JSON.stringify(feed.slice(0, 40)));
+        } catch {}
+      }
+      function mergeFeed(primary, fallback) {
+        const seen = new Set();
+        return [...primary, ...fallback].filter((item) => {
+          const key = String((item && item.id) || (item && item.timestamp) + ':' + (item && item.message));
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return item && item.message;
+        }).slice(0, 40);
+      }
+      function teamNameFor(team, row) {
+        return team === 'myTeam' ? (row.home_name || 'Home') : (row.away_name || 'Away');
+      }
+      function scoreSnapshot(state) {
+        return {
+          homeScore: pick(state, 'homeScore', pick(state, 'myTeamScore', 0)),
+          awayScore: pick(state, 'awayScore', pick(state, 'opponentScore', 0)),
+          myTeamServing: !!(state && state.myTeamServing),
+          myTeamTimeouts: pick(state, 'myTeamTimeouts', 0),
+          opponentTimeouts: pick(state, 'opponentTimeouts', 0),
+        };
+      }
+      function inferredFeedItem(team, message, state, tone) {
+        return {
+          id: 'local-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+          timestamp: new Date().toISOString(),
+          type: tone === 'neutral' ? 'TIMEOUT' : 'SCORE',
+          team,
+          message,
+          setNumber: pick(state, 'currentSet', 1),
+          myTeamScore: pick(state, 'homeScore', pick(state, 'myTeamScore', 0)),
+          opponentScore: pick(state, 'awayScore', pick(state, 'opponentScore', 0)),
+          tone,
+        };
+      }
+      function inferActivityFromDelta(previous, nextState, row) {
+        if (!previous || !nextState || nextState.mode !== 'scorekeeper') return;
+        const next = scoreSnapshot(nextState);
+        const existing = Array.isArray(nextState.feed) ? nextState.feed : [];
+        const local = loadLocalActivity();
+        const additions = [];
+        if (next.homeScore !== previous.homeScore || next.awayScore !== previous.awayScore) {
+          const team = next.homeScore > previous.homeScore ? 'myTeam' : next.awayScore > previous.awayScore ? 'opponent' : null;
+          if (team) {
+            const sideOut = previous.myTeamServing !== next.myTeamServing;
+            const name = teamNameFor(team, row);
+            additions.push(inferredFeedItem(
+              team,
+              (sideOut ? 'Side out - ' : '') + name + ' scores -> ' + next.homeScore + '-' + next.awayScore,
+              nextState,
+              'score',
+            ));
+          } else {
+            additions.push(inferredFeedItem(
+              undefined,
+              'Score corrected -> ' + next.homeScore + '-' + next.awayScore,
+              nextState,
+              'neutral',
+            ));
+          }
+        }
+        if (next.myTeamTimeouts > previous.myTeamTimeouts) {
+          additions.push(inferredFeedItem('myTeam', 'Timeout - ' + teamNameFor('myTeam', row), nextState, 'neutral'));
+        }
+        if (next.opponentTimeouts > previous.opponentTimeouts) {
+          additions.push(inferredFeedItem('opponent', 'Timeout - ' + teamNameFor('opponent', row), nextState, 'neutral'));
+        }
+        if (additions.length > 0) {
+          saveLocalActivity(mergeFeed(additions, mergeFeed(existing, local)));
+        }
+      }
+      function activeActivity(state) {
+        if (!state || state.mode !== 'scorekeeper') return null;
+        if (state.currentActivity && state.currentActivity.message) return state.currentActivity;
+        const feed = Array.isArray(state.feed) ? state.feed : [];
+        const latest = feed[0];
+        return latest && latest.type === 'TIMEOUT'
+          ? { type: 'TIMEOUT', team: latest.team, message: latest.message, timestamp: latest.timestamp }
+          : null;
+      }
       function renderActivity(state, row) {
         const section = $('activitySection');
         const list = $('activityList');
-        const feed = state && Array.isArray(state.feed) ? state.feed : [];
+        const remoteFeed = state && Array.isArray(state.feed) ? state.feed : [];
+        const feed = mergeFeed(remoteFeed, loadLocalActivity());
         if (!state || state.mode !== 'scorekeeper') {
           section.classList.remove('on');
           list.innerHTML = '';
@@ -666,12 +767,15 @@
       function renderLatestAction(state) {
         const strip = $('actionStrip');
         const latest = state && state.latestFeed;
-        if (!latest || !latest.text) {
+        const current = activeActivity(state);
+        const text = latest && latest.text ? latest.text : current && current.message;
+        const tone = latest && latest.tone ? latest.tone : current && current.type === 'TIMEOUT' ? 'neutral' : undefined;
+        if (!text) {
           strip.classList.remove('on');
           return;
         }
-        $('actionText').textContent = latest.text;
-        $('actionAccent').style.backgroundColor = toneColor(latest.tone);
+        $('actionText').textContent = text;
+        $('actionAccent').style.backgroundColor = toneColor(tone);
         strip.classList.add('on');
       }
       function renderCourt(state) {
@@ -718,6 +822,7 @@
       }
       let matchRow = null;
       let shareId = null;
+      let lastScoreSnapshot = null;
       function render() {
         if (!matchRow) return;
         if (isFanViewExpired(matchRow)) {
@@ -777,6 +882,7 @@
         renderVideo(matchRow);
         updatePrivacyLine(matchRow);
         startPresence(matchRow);
+        lastScoreSnapshot = scoreOnly ? scoreSnapshot(s) : null;
         showBoard();
       }
       async function fetchMatch() {
@@ -791,10 +897,16 @@
       }
       window.forceRefresh = async () => {
         const fresh = await fetchMatch();
-        if (fresh) { matchRow = fresh; render(); }
+        if (fresh) {
+          const previous = lastScoreSnapshot;
+          matchRow = fresh;
+          inferActivityFromDelta(previous, matchRow.state, matchRow);
+          render();
+        }
       };
       function applyScoreBroadcast(payload) {
         if (!payload || !matchRow) return;
+        const previous = lastScoreSnapshot;
         const patch = payload.statePatch && typeof payload.statePatch === 'object'
           ? payload.statePatch
           : {};
@@ -807,13 +919,16 @@
         };
         if (typeof patch.isComplete === 'boolean') matchRow.is_complete = patch.isComplete;
         matchRow.updated_at = new Date().toISOString();
+        inferActivityFromDelta(previous, matchRow.state, matchRow);
         render();
       }
       function applyStateBroadcast(payload) {
         if (!payload || !matchRow) return;
+        const previous = lastScoreSnapshot;
         matchRow.state = { ...(matchRow.state || {}), ...payload };
         if (typeof payload.isComplete === 'boolean') matchRow.is_complete = payload.isComplete;
         matchRow.updated_at = new Date().toISOString();
+        inferActivityFromDelta(previous, matchRow.state, matchRow);
         render();
       }
       $('soundButton').addEventListener('click', async () => {
@@ -844,7 +959,9 @@
           (payload) => {
             if (!payload.new) return;
             console.log('[FanView] UPDATE', payload.new);
+            const previous = lastScoreSnapshot;
             matchRow = { ...matchRow, ...payload.new };
+            inferActivityFromDelta(previous, matchRow.state, matchRow);
             render();
           });
         const broadcastChannel = supabase.channel('game:' + shareId);
@@ -876,7 +993,9 @@
           const completeChanged = fresh.is_complete !== matchRow.is_complete;
           if (stateChanged || videoChanged || completeChanged) {
             console.log('[FanView] poll update');
+            const previous = lastScoreSnapshot;
             matchRow = fresh;
+            inferActivityFromDelta(previous, matchRow.state, matchRow);
             render();
           }
         }, 2000);
