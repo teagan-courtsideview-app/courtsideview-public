@@ -190,9 +190,8 @@
       .sound-button.on { display: inline-flex; align-items: center; gap: 6px; }
       .no-video-hero { display: none; height: 224px; border-radius: 24px; margin-top: 8px;
         position: relative; overflow: hidden; background:
-          linear-gradient(180deg, rgba(255,255,255,0.74), rgba(255,255,255,0.28)),
-          radial-gradient(circle at 50% 8%, rgba(16,136,76,0.16), transparent 34%),
-          linear-gradient(180deg, #F4F7F2, #E9EEE8);
+          radial-gradient(circle at 50% 8%, rgba(16,136,76,0.06), transparent 36%),
+          linear-gradient(180deg, #F8F9F6, #EEF1EC);
         border: 1px solid var(--border); }
       .no-video-mode .no-video-hero { display: block; }
       .no-video-hero::before { content: ""; position: absolute; inset: 0; z-index: 1;
@@ -207,23 +206,18 @@
         padding: 8px 12px; background: rgba(255,255,255,0.92); color: var(--ink);
         border: 1px solid rgba(17,20,26,0.12); font-size: 11px; line-height: 1; font-weight: 900;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .court-mini { position: absolute; inset: 0; z-index: 1; overflow: hidden;
+      .court-mini { position: absolute; inset: 0; z-index: 1; overflow: hidden; opacity: 0.72;
         background:
-          linear-gradient(90deg, transparent 0 49.6%, rgba(255,255,255,0.92) 49.6% 50.4%, transparent 50.4% 100%),
-          linear-gradient(90deg, transparent 0 31.8%, rgba(255,255,255,0.8) 31.8% 32.4%, transparent 32.4% 67.6%, rgba(255,255,255,0.8) 67.6% 68.2%, transparent 68.2% 100%),
-          linear-gradient(0deg, transparent 0 12%, rgba(255,255,255,0.76) 12% 12.6%, transparent 12.6% 87.4%, rgba(255,255,255,0.76) 87.4% 88%, transparent 88% 100%),
-          linear-gradient(90deg, transparent 0 7%, rgba(255,255,255,0.76) 7% 7.4%, transparent 7.4% 92.6%, rgba(255,255,255,0.76) 92.6% 93%, transparent 93% 100%),
-          repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 8px, transparent 8px 22px),
-          linear-gradient(135deg, #D99A57, #F2C779 48%, #D18644); }
-      .court-mini::before { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 11px);
-        height: 22px; z-index: 2; background:
-          repeating-linear-gradient(90deg, rgba(255,255,255,0.76) 0 2px, transparent 2px 18px),
-          repeating-linear-gradient(0deg, rgba(255,255,255,0.76) 0 2px, transparent 2px 9px),
-          rgba(17,20,26,0.2);
-        border-top: 2px solid rgba(255,255,255,0.86); border-bottom: 2px solid rgba(255,255,255,0.86);
-        box-shadow: 0 -1px 0 rgba(17,20,26,0.1), 0 1px 0 rgba(17,20,26,0.1); }
-      .court-mini::after { content: ""; position: absolute; left: 6%; right: 6%; top: 10%; bottom: 10%;
-        border: 2px solid rgba(255,255,255,0.72); border-radius: 8px; pointer-events: none; }
+          linear-gradient(90deg, transparent 0 49.7%, rgba(88,111,100,0.2) 49.7% 50.3%, transparent 50.3% 100%),
+          linear-gradient(90deg, transparent 0 33%, rgba(88,111,100,0.14) 33% 33.4%, transparent 33.4% 66.6%, rgba(88,111,100,0.14) 66.6% 67%, transparent 67% 100%),
+          linear-gradient(0deg, transparent 0 18%, rgba(88,111,100,0.12) 18% 18.4%, transparent 18.4% 81.6%, rgba(88,111,100,0.12) 81.6% 82%, transparent 82% 100%); }
+      .court-mini::before { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 7px);
+        height: 14px; z-index: 2; background:
+          repeating-linear-gradient(90deg, rgba(88,111,100,0.24) 0 1px, transparent 1px 17px),
+          rgba(88,111,100,0.07);
+        border-top: 1px solid rgba(88,111,100,0.18); border-bottom: 1px solid rgba(88,111,100,0.18); }
+      .court-mini::after { content: ""; position: absolute; left: 8%; right: 8%; top: 18%; bottom: 15%;
+        border: 2px solid rgba(88,111,100,0.13); border-radius: 18px; pointer-events: none; }
       .court-mini span { display: none; }
       @media (orientation: landscape) and (max-height: 520px) {
         .container, .container.has-video { max-width: none; min-height: 100vh; padding: 0; }
@@ -245,8 +239,7 @@
         .container.has-video .activity-section, .container.has-video .court-section, .container.has-video .meta-row { display: none !important; }
         .container.has-video .viewer-pill.video-viewers { top: 48px; left: auto; right: 138px; }
         .container.no-video-mode .fanview-layout { min-height: 100vh; background:
-          radial-gradient(circle at 29% 26%, rgba(16,136,76,0.22), transparent 30%),
-          linear-gradient(135deg, var(--bg-inset), var(--bg-elev)); }
+          linear-gradient(135deg, #F7F8F5, var(--bg-elev)); }
         .container.no-video-mode .no-video-hero { position: fixed; inset: 0; height: auto; margin: 0;
           border-radius: 0; border: 0; background: transparent; }
         .container.no-video-mode .no-video-hero::before { inset: 0; width: auto; }
