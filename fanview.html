@@ -431,6 +431,9 @@
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
       const FANVIEW_EXPIRE_MS = 15 * 60 * 1000;
       const PRESENCE_INTERVAL_MS = 15000;
+      const VIDEO_STATUS_INTERVAL_MS = 5000;
+      const CLOUDFLARE_PLACEHOLDER_URL = 'cloudflare://fanview-live';
+      const CLOUDFLARE_STATUS_URL_PREFIX = 'cloudflare://fanview-live-status/';
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true },
       });
@@ -688,7 +691,7 @@
           !row ||
           row.video_type !== 'cloudflare_realtime' ||
           !row.video_url ||
-          row.video_url === 'cloudflare://fanview-live'
+          row.video_url === CLOUDFLARE_PLACEHOLDER_URL
         ) {
           line.style.display = 'none';
           line.textContent = '';
@@ -743,6 +746,7 @@
           if (!response.ok) return;
           const status = await response.json();
           setViewerCount(typeof status.viewerCount === 'number' ? status.viewerCount : 0);
+          if (syncCloudflareVideoFromStatus(row, status)) render();
         } catch {
           // Viewer count is informational only.
         }
@@ -754,14 +758,64 @@
         if (!row || row.is_complete || isFanViewExpired(row)) return;
         viewerStatusTimer = setInterval(() => {
           void refreshViewerCount(row);
-        }, PRESENCE_INTERVAL_MS);
+        }, VIDEO_STATUS_INTERVAL_MS);
+      }
+      function hasRenderableCloudflareVideo(row) {
+        return !!(
+          row &&
+          row.video_type === 'cloudflare_realtime' &&
+          row.video_url &&
+          row.video_url !== CLOUDFLARE_PLACEHOLDER_URL
+        );
+      }
+      function syntheticCloudflareUrl(shareId) {
+        return CLOUDFLARE_STATUS_URL_PREFIX + encodeURIComponent(shareId);
+      }
+      function isSyntheticCloudflareVideo(row) {
+        return !!(
+          row &&
+          row.video_type === 'cloudflare_realtime' &&
+          typeof row.video_url === 'string' &&
+          row.video_url.startsWith(CLOUDFLARE_STATUS_URL_PREFIX)
+        );
+      }
+      function syncCloudflareVideoFromStatus(row, status) {
+        if (!row || !row.share_id || !status) return false;
+        if (status.isLive === true) {
+          if (!hasRenderableCloudflareVideo(row)) {
+            row.video_type = 'cloudflare_realtime';
+            row.video_url = syntheticCloudflareUrl(row.share_id);
+            return true;
+          }
+          return false;
+        }
+        if (isSyntheticCloudflareVideo(row)) {
+          row.video_type = null;
+          row.video_url = null;
+          return true;
+        }
+        return false;
+      }
+      function mergeFreshMatchRow(current, fresh) {
+        if (
+          isSyntheticCloudflareVideo(current) &&
+          fresh &&
+          (!fresh.video_url || fresh.video_url === CLOUDFLARE_PLACEHOLDER_URL)
+        ) {
+          return {
+            ...fresh,
+            video_type: 'cloudflare_realtime',
+            video_url: current.video_url,
+          };
+        }
+        return fresh;
       }
       function startPresence(row) {
         const shouldTrack =
           !!row &&
           row.video_type === 'cloudflare_realtime' &&
           row.video_url &&
-          row.video_url !== 'cloudflare://fanview-live' &&
+          row.video_url !== CLOUDFLARE_PLACEHOLDER_URL &&
           !row.is_complete &&
           !isFanViewExpired(row);
         if (!shouldTrack) {
@@ -977,10 +1031,7 @@
         const lv = $('liveVideo');
         const url = row && row.video_url;
         const type = row && row.video_type;
-        const cloudflareEnabled =
-          type === 'cloudflare_realtime' &&
-          url &&
-          url !== 'cloudflare://fanview-live';
+        const cloudflareEnabled = hasRenderableCloudflareVideo(row);
         if (cloudflareEnabled) {
           document.querySelector('.container').classList.add('has-video');
           vw.classList.add('on');
@@ -1131,7 +1182,7 @@
           ? ''
           : (scoreOnly && servingName ? (servingName + ' serving') : ('Playing to ' + setTarget));
         $('lastUpdated').textContent = 'Last updated: ' + new Date(matchRow.updated_at || Date.now()).toLocaleTimeString();
-        const hasVideo = !!(matchRow.video_url && matchRow.video_url !== 'cloudflare://fanview-live' && (matchRow.video_type === 'youtube' || matchRow.video_type === 'youtube_live' || matchRow.video_type === 'cloudflare_realtime'));
+        const hasVideo = !!(matchRow.video_url && matchRow.video_url !== CLOUDFLARE_PLACEHOLDER_URL && (matchRow.video_type === 'youtube' || matchRow.video_type === 'youtube_live' || matchRow.video_type === 'cloudflare_realtime'));
         const container = document.querySelector('.container');
         $('board').querySelector('.score-column').classList.toggle('no-video', !hasVideo);
         container.classList.toggle('no-video-mode', !hasVideo);
@@ -1159,7 +1210,7 @@
         const fresh = await fetchMatch();
         if (fresh) {
           const previous = lastScoreSnapshot;
-          matchRow = fresh;
+          matchRow = mergeFreshMatchRow(matchRow, fresh);
           inferActivityFromDelta(previous, matchRow.state, matchRow);
           render();
         }
@@ -1243,7 +1294,7 @@
             if (!payload.new) return;
             console.log('[FanView] UPDATE', payload.new);
             const previous = lastScoreSnapshot;
-            matchRow = { ...matchRow, ...payload.new };
+            matchRow = mergeFreshMatchRow(matchRow, { ...matchRow, ...payload.new });
             inferActivityFromDelta(previous, matchRow.state, matchRow);
             render();
           });
@@ -1271,13 +1322,14 @@
         setInterval(async () => {
           const fresh = await fetchMatch();
           if (!fresh) return;
-          const stateChanged = JSON.stringify(fresh.state) !== JSON.stringify(matchRow.state ?? {});
-          const videoChanged = fresh.video_url !== matchRow.video_url || fresh.video_type !== matchRow.video_type;
-          const completeChanged = fresh.is_complete !== matchRow.is_complete;
+          const mergedFresh = mergeFreshMatchRow(matchRow, fresh);
+          const stateChanged = JSON.stringify(mergedFresh.state) !== JSON.stringify(matchRow.state ?? {});
+          const videoChanged = mergedFresh.video_url !== matchRow.video_url || mergedFresh.video_type !== matchRow.video_type;
+          const completeChanged = mergedFresh.is_complete !== matchRow.is_complete;
           if (stateChanged || videoChanged || completeChanged) {
             console.log('[FanView] poll update');
             const previous = lastScoreSnapshot;
-            matchRow = fresh;
+            matchRow = mergedFresh;
             inferActivityFromDelta(previous, matchRow.state, matchRow);
             render();
           }
