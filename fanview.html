@@ -648,12 +648,17 @@
         const section = $('activitySection');
         const list = $('activityList');
         const feed = scoreFeedForState(state);
-        if (!state || state.mode !== 'scorekeeper') {
+        const supportsActivity = state && (state.mode === 'scorekeeper' || state.mode === 'game');
+        if (!supportsActivity) {
           section.classList.remove('on');
           list.innerHTML = '';
           return;
         }
-        $('activityTitle').textContent = row.is_complete ? 'Full Activity Log' : 'Activity';
+        $('activityTitle').textContent = row.is_complete
+          ? 'Full Activity Log'
+          : state.mode === 'game'
+            ? 'Live Activity'
+            : 'Activity';
         if (feed.length === 0) {
           list.innerHTML = '<div class="activity-empty">Waiting for the first point.</div>';
         } else {
