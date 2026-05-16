@@ -196,6 +196,7 @@
             <button id="cameraBtn" class="secondary">Start camera</button>
             <button id="broadcastBtn" class="primary is-hidden" disabled>Go live</button>
             <button id="shareBtn" class="fanview-primary">Share link</button>
+            <button id="minimizeBtn" class="secondary is-hidden" disabled>Minimize</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End live video</button>
             <button id="previewBtn" class="preview-link">Preview</button>
           </div>
@@ -223,6 +224,7 @@
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
       const shareBtn = document.getElementById('shareBtn');
+      const minimizeBtn = document.getElementById('minimizeBtn');
       const stopBtn = document.getElementById('stopBtn');
       const previewBtn = document.getElementById('previewBtn');
       const statusEl = document.getElementById('status');
@@ -239,13 +241,16 @@
       let media = null;
       let pc = null;
       let live = false;
+      let broadcastDesired = false;
       let intentionalStop = false;
       let audioEnabled = false;
+      let wakeLock = null;
       let lastViewerCount = null;
       let lastJoinedAt = null;
       let viewerPollTimer = null;
       let toastTimer = null;
       let statusTimer = null;
+      let reconnectTimer = null;
 
       function getStreamId() {
         const match = window.location.pathname.match(/^\/live\/([^/?#]+)/);
@@ -306,13 +311,16 @@
         const isOffline = state === 'offline';
         showControl(cameraBtn, isSetup || isOffline);
         showControl(broadcastBtn, isCameraReady);
+        showControl(minimizeBtn, isLive && canUsePictureInPicture());
         showControl(stopBtn, isLive);
         showControl(previewBtn, !isLive);
         cameraBtn.disabled = !(isSetup || isOffline);
         broadcastBtn.disabled = !isCameraReady;
+        minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
         shareBtn.disabled = false;
         shareBtn.textContent = 'Share link';
+        minimizeBtn.textContent = 'Minimize';
         stopBtn.textContent = 'End video';
       }
       function resetBroadcastControls(label = 'Go live') {
@@ -417,6 +425,98 @@
           bundlePolicy: 'max-bundle',
         });
       }
+      function canUsePictureInPicture() {
+        return Boolean(
+          document.pictureInPictureEnabled &&
+          preview &&
+          typeof preview.requestPictureInPicture === 'function',
+        );
+      }
+      async function requestScreenWakeLock() {
+        if (!('wakeLock' in navigator) || !navigator.wakeLock || document.visibilityState !== 'visible') {
+          return;
+        }
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => {
+            wakeLock = null;
+          }, { once: true });
+        } catch {
+          wakeLock = null;
+        }
+      }
+      async function releaseScreenWakeLock() {
+        if (!wakeLock) return;
+        try {
+          await wakeLock.release();
+        } catch {
+          // Wake Lock is best effort; broadcast state should not depend on it.
+        } finally {
+          wakeLock = null;
+        }
+      }
+      function closePeerConnection({ stopTracks = false } = {}) {
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        if (pc) {
+          pc.getSenders().forEach((sender) => {
+            if (stopTracks) sender.track?.stop();
+          });
+          pc.close();
+          pc = null;
+        }
+      }
+      function cameraTracksAreLive() {
+        return Boolean(media && media.getTracks().some((track) => track.readyState === 'live'));
+      }
+      async function reconnectBroadcast(reason = 'Reconnecting video...') {
+        if (!broadcastDesired || intentionalStop) return;
+        setStatus([
+          { text: reason, strong: true },
+          { text: ' Keep this page open while we restore the camera.' },
+        ], 'RECONNECTING', { persistent: true });
+        closePeerConnection({ stopTracks: false });
+        if (!cameraTracksAreLive()) {
+          if (media) {
+            media.getTracks().forEach((track) => track.stop());
+            media = null;
+            preview.srcObject = null;
+          }
+          await startCamera();
+        }
+        await startBroadcast({ reconnecting: true });
+      }
+      function scheduleReconnect(reason = 'Reconnecting video...') {
+        if (!broadcastDesired || intentionalStop || reconnectTimer) return;
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          void reconnectBroadcast(reason);
+        }, 1500);
+      }
+      async function enterPictureInPicture() {
+        if (!canUsePictureInPicture()) {
+          setStatus([
+            { text: 'Minimize is not supported on this browser.', strong: true },
+            { text: ' Keep this page open to stay live.' },
+          ], 'LIVE', { persistent: true });
+          return;
+        }
+        try {
+          await preview.requestPictureInPicture();
+          setStatusHtml(
+            '<strong>Broadcast minimized.</strong> If your browser pauses video after switching apps, return here and we will reconnect.',
+            'LIVE',
+            { duration: 3600 },
+          );
+        } catch {
+          setStatus([
+            { text: 'Could not minimize video.', strong: true },
+            { text: ' Keep this page open to stay live.' },
+          ], 'LIVE', { persistent: true });
+        }
+      }
       function cameraPermissionMessage(error) {
         const message = error instanceof Error ? error.message : String(error || '');
         const name = error instanceof Error ? error.name : '';
@@ -502,15 +602,17 @@
         hintEl.textContent = 'Frame the court, then go live.';
         setControlState('camera-ready');
         if (audioEnabled) {
-          setStatusHtml('<strong>Camera ready.</strong>', 'READY');
+          setStatusHtml('<strong>Camera ready.</strong> Keep this page open; minimize appears after you go live when supported.', 'READY');
         } else {
-          setStatusHtml('<strong>Camera ready.</strong> Audio is off.', 'READY', { duration: 3200 });
+          setStatusHtml('<strong>Camera ready.</strong> Audio is off. Keep this page open; minimize appears after you go live when supported.', 'READY', { duration: 4200 });
         }
       }
-      async function startBroadcast() {
+      async function startBroadcast({ reconnecting = false } = {}) {
         ensureStreamId();
         if (!media) await startCamera();
         intentionalStop = false;
+        broadcastDesired = true;
+        closePeerConnection({ stopTracks: false });
         pc = createPeerConnection();
         pc.addEventListener('connectionstatechange', () => {
           if (!pc || intentionalStop) return;
@@ -520,8 +622,9 @@
             resetBroadcastControls('Reconnect video');
             setStatus([
               { text: 'Live video disconnected.', strong: true },
-              { text: ' Check your signal, then reconnect.' },
+              { text: ' We will try to reconnect automatically.' },
             ], 'OFFLINE', { persistent: true });
+            scheduleReconnect('Restoring live video...');
           }
         });
         media.getTracks().forEach((track) => {
@@ -540,28 +643,36 @@
         live = true;
         broadcastBtn.textContent = 'Live now';
         setPageCopy('Live video is on', 'Share the FanView link so fans can watch.');
-        hintEl.textContent = 'Keep this tab open while live.';
+        hintEl.textContent = canUsePictureInPicture()
+          ? 'Use Minimize to try a floating broadcast preview. Keep this page open if your browser does not support it.'
+          : 'This browser must keep the broadcast page open while video is live.';
         setControlState('live');
+        void requestScreenWakeLock();
         setStatusHtml(
-          audioEnabled
-            ? '<strong>Live video started.</strong>'
-            : '<strong>Live video started.</strong> Audio is off.',
+          reconnecting
+            ? '<strong>Live video reconnected.</strong>'
+            : canUsePictureInPicture()
+              ? '<strong>Live video started.</strong> Tap Minimize to try picture-in-picture.'
+              : (audioEnabled
+                  ? '<strong>Live video started.</strong> Keep this page open to stay live.'
+                  : '<strong>Live video started.</strong> Audio is off. Keep this page open to stay live.'),
           'LIVE',
-          { duration: 2600 },
+          { duration: 4200 },
         );
       }
       async function stopBroadcast() {
         intentionalStop = true;
+        broadcastDesired = false;
         live = false;
-        if (pc) {
-          pc.getSenders().forEach((sender) => sender.track?.stop());
-          pc.close();
-          pc = null;
-        }
+        closePeerConnection({ stopTracks: true });
         if (media) {
           media.getTracks().forEach((track) => track.stop());
           media = null;
           preview.srcObject = null;
+        }
+        await releaseScreenWakeLock();
+        if (document.pictureInPictureElement === preview) {
+          await document.exitPictureInPicture().catch(() => {});
         }
         if (streamId) {
           await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, { method: 'DELETE' }).catch(() => {});
@@ -619,8 +730,37 @@
       previewBtn.addEventListener('click', () => {
         window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
       });
+      minimizeBtn.addEventListener('click', () => {
+        void enterPictureInPicture();
+      });
+      preview.addEventListener('leavepictureinpicture', () => {
+        if (!live || intentionalStop) return;
+        setStatus([
+          { text: 'Broadcast still live.', strong: true },
+          { text: ' Keep this page open if you leave picture-in-picture.' },
+        ], 'LIVE', { duration: 3200 });
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          if (broadcastDesired) {
+            void requestScreenWakeLock();
+            if (!live || !pc || !cameraTracksAreLive()) {
+              void reconnectBroadcast('Restoring live video...');
+            }
+          }
+        } else if (broadcastDesired) {
+          setStatus([
+            { text: 'Broadcast is best effort while hidden.', strong: true },
+            { text: ' Return here if your browser pauses the camera.' },
+          ], 'LIVE', { persistent: true });
+        }
+      });
       window.addEventListener('pagehide', () => {
-        if (live) void stopBroadcast();
+        if (!broadcastDesired || intentionalStop) return;
+        setStatus([
+          { text: 'Broadcast handoff attempted.', strong: true },
+          { text: ' If this browser pauses video, return to reconnect.' },
+        ], 'LIVE', { persistent: true });
       });
       if (!streamId) {
         cameraBtn.disabled = true;
