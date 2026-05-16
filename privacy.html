@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy · CourtsideView</title>
-    <meta name="description" content="CourtsideView privacy policy: a local-first volleyball stat tracking app with an optional launch waitlist.">
+    <meta name="description" content="CourtsideView privacy policy: local-first volleyball scoring with optional user-initiated FanView sharing.">
     <meta name="theme-color" content="#0a0e14">
     <link rel="icon" type="image/png" href="/assets/courtsideview-app-icon.png">
     <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png">
@@ -48,24 +48,25 @@
                 CourtsideView
             </div>
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">Privacy Policy</h1>
-            <p class="text-sm text-gray-500 mb-10">Last updated: May 14, 2026</p>
+            <p class="text-sm text-gray-500 mb-10">Last updated: May 16, 2026</p>
 
             <!-- Highlight card -->
             <div class="glass p-6 md:p-8 rounded-3xl mb-12">
                 <div class="flex flex-wrap gap-2 mb-4">
-                    <span class="text-xs font-bold uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">No accounts</span>
+                    <span class="text-xs font-bold uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">No app login</span>
                     <span class="text-xs font-bold uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">No tracking</span>
                     <span class="text-xs font-bold uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">No ads</span>
                 </div>
                 <p class="text-gray-300 leading-relaxed">
-                    CourtsideView is a local-first volleyball stat-tracking app for parents and youth coaches. Your match data, roster, and player stats stay on your device. We do not require an app account, and we do not share or sell information about you or your players.
+                    CourtsideView is a local-first volleyball stat-tracking app for parents and youth coaches. Core roster and match data stays on your device unless you choose to publish a FanView link. We do not sell personal information, run ads, or use data for third-party tracking.
                 </p>
             </div>
 
             <!-- Body -->
             <div class="prose-cv">
                 <h2>What we collect</h2>
-                <p><strong>App data stays local.</strong> CourtsideView does not collect, transmit, or store your match, roster, player stat, or app preference data on our servers. There is no app account, login, or user profile to create.</p>
+                <p><strong>Core app data is local-first.</strong> CourtsideView stores roster, match, stat, rotation, color, and app preference data on your device so you can score games without creating a visible account.</p>
+                <p><strong>Optional FanView sharing.</strong> When you tap <strong>FANVIEW</strong> and publish a live view, CourtsideView sends a match snapshot to Supabase so family and fans can open a read-only web link. FanView publishing is user-initiated and optional.</p>
                 <p><strong>Launch waitlist.</strong> If you choose to join the CourtsideView launch waitlist on our website, we store the email address you submit and the date it was submitted so we can send launch or early-access updates. Joining the waitlist is optional and separate from using the app.</p>
 
                 <h2>What stays on your device</h2>
@@ -74,7 +75,18 @@
                     <li>Match results: scores, sets, rotations, timeouts, and the events you log (kills, digs, blocks, errors, etc.).</li>
                     <li>App preferences: theme choice, team colors, dismissed coaching tips.</li>
                 </ul>
-                <p>All of the above is stored locally on your device using the operating system's standard secure storage (MMKV on iOS and Android). You can wipe everything at any time from <strong>Settings → Wipe All Data</strong>.</p>
+                <p>Core app data is stored locally on your device using app storage. You can wipe local app data at any time from <strong>Settings → Wipe All Data</strong>.</p>
+
+                <h2>What FanView stores when you publish</h2>
+                <p>If you publish FanView, CourtsideView stores the information needed to show the live scoreboard and match context on a public-but-unlisted web link. This can include:</p>
+                <ul>
+                    <li>Team names, colors, format, set scores, match state, and whether the match is complete.</li>
+                    <li>Player names, jersey numbers, positions, tracked-player status, stats, rotation/court data, and live activity feed items.</li>
+                    <li>A generated share ID used in the FanView URL.</li>
+                    <li>An anonymous Supabase user/session identifier used to publish and update the FanView row.</li>
+                    <li>Optional live-video status metadata if the broadcaster starts FanView live video.</li>
+                </ul>
+                <p>FanView links are intended for people you share them with. They are not indexed by CourtsideView, but anyone with the link may be able to view the live match while it is available.</p>
 
                 <h2>What we don't do</h2>
                 <ul>
@@ -82,28 +94,39 @@
                     <li>We don't display ads or share data with advertisers.</li>
                     <li>We don't sell, rent, or trade your information to third parties.</li>
                     <li>We don't make waitlist email addresses publicly visible.</li>
-                    <li>We don't access your camera, photos, contacts, or location for any purpose other than what you explicitly initiate inside the app.</li>
+                    <li>We don't access native app camera, photos, contacts, or location in the current mobile app.</li>
+                    <li>We don't record or store FanView live video.</li>
                 </ul>
 
                 <h2>Permissions you may see</h2>
-                <p>CourtsideView may request these device permissions only when you take a corresponding action:</p>
+                <p>The iOS and Android app is configured not to request native camera, microphone, photo library, contacts, or location permissions in the current release.</p>
+                <p>The FanView broadcaster web page may ask your browser for camera and microphone access when you choose to start live video. Camera and microphone access is used only to send the live stream while the broadcaster keeps it running. CourtsideView does not record or store the video or audio. If microphone access is unavailable or declined, the web broadcaster may fall back to video-only where the browser allows it.</p>
+
+                <h2>Retention and deletion</h2>
                 <ul>
-                    <li><strong>Photos / camera</strong> — when you choose to add a player headshot to your roster. Photos are stored only on your device.</li>
-                    <li><strong>Microphone</strong> — reserved for a future voice-note coaching feature; not active in v1.0.</li>
+                    <li><strong>Local app data:</strong> remove it in the app with <strong>Settings → Wipe All Data</strong>.</li>
+                    <li><strong>FanView data:</strong> FanView links close 15 minutes after the match is marked complete. Some FanView rows or operational records may remain in Supabase unless removed by request.</li>
+                    <li><strong>Waitlist data:</strong> we keep your email until you ask us to remove it or we no longer need it for launch communications.</li>
                 </ul>
-                <p>You can revoke any of these in your device's Settings app at any time without breaking the app's core stat-tracking features.</p>
+                <p>To request deletion of FanView data, anonymous session data associated with a published FanView, or waitlist email data, email <a href="mailto:teagan@courtsideviewapp.com">teagan@courtsideviewapp.com</a>. Include the FanView link or the email address you used so we can locate the data.</p>
+
+                <h2>Service providers</h2>
+                <p>CourtsideView uses service providers to operate the app and website, including Supabase for optional FanView publishing, anonymous session support, realtime updates, and the website waitlist; Expo for app updates; Vercel for website hosting; and Cloudflare for the optional live-video relay. These providers process data only to provide CourtsideView functionality.</p>
+
+                <h2>Security</h2>
+                <p>We use HTTPS, app-store platform controls, and database access rules to protect CourtsideView data. No system is perfect, so avoid sharing FanView links with people who should not see the match.</p>
 
                 <h2>Updates over the air</h2>
-                <p>To deliver bug fixes quickly, CourtsideView uses Expo's update service to download new application bundles. The update service receives only the version, build, and runtime identifiers required to deliver the right bundle. No personal information is transmitted.</p>
+                <p>To deliver bug fixes quickly, CourtsideView uses Expo's update service to download new application bundles. The update service receives version, build, runtime, and device/update identifiers needed to deliver the right bundle.</p>
 
                 <h2>Children's privacy</h2>
-                <p>CourtsideView is designed for use by adult parents and youth coaches. We do not knowingly collect any personal information from children. The roster and stat data the user (the parent or coach) enters about young athletes stays on their device under their control. If a parent or guardian wants that data removed, they can wipe it via <strong>Settings → Wipe All Data</strong>; nothing is retained on our servers because nothing is sent to our servers.</p>
+                <p>CourtsideView is designed for use by adult parents and youth coaches. We do not knowingly collect information directly from children. Adults may enter youth athlete names, jersey numbers, positions, and stats. That information stays local unless the adult user chooses to publish FanView. Parents or guardians can wipe local data in the app or contact us to request deletion of FanView data.</p>
 
                 <h2>Changes to this policy</h2>
                 <p>We will update this page if our practices change. The "Last updated" date at the top will reflect the most recent revision. Material changes will be summarized in the app's release notes.</p>
 
                 <h2>Contact</h2>
-                <p>Questions, feedback, or a request to delete your waitlist email? Email <a href="mailto:teagan@courtsideviewapp.com">teagan@courtsideviewapp.com</a>.</p>
+                <p>Questions, feedback, or a request to delete your data? Email <a href="mailto:teagan@courtsideviewapp.com">teagan@courtsideviewapp.com</a>.</p>
             </div>
         </main>
 
