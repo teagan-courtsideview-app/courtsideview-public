@@ -30,6 +30,7 @@
       html, body { min-height: 100%; margin: 0; background: var(--bg); color: var(--ink);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
       body { padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+      body.camera-mode { padding: 0; overflow: hidden; }
       .wrap { width: min(100%, 720px); margin: 0 auto; }
       header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
       .mark { font-size: 30px; }
@@ -44,10 +45,20 @@
         background: #05070a; border: 1px solid var(--border); border-radius: 28px;
         overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.35); margin: 0 auto; }
       video { width: 100%; height: 100%; object-fit: contain; display: block; background: #05070a; }
+      .top-overlay { display: none; }
+      .viewer-chip { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        min-height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,0.92);
+        border: 1px solid rgba(255,255,255,0.45); color: #0b1017; font-size: 13px;
+        font-weight: 900; box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
+      .live-chip { display: none; align-items: center; justify-content: center; min-height: 34px;
+        padding: 0 14px; border-radius: 999px; background: var(--red); color: #fff;
+        font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
       .status { position: absolute; left: 14px; right: 14px; bottom: 14px;
         background: rgba(15,20,27,0.78); backdrop-filter: blur(12px);
         border: 1px solid rgba(255,255,255,0.13); border-radius: 18px;
-        padding: 12px 14px; color: var(--muted); font-size: 14px; line-height: 1.35; }
+        padding: 12px 14px; color: var(--muted); font-size: 14px; line-height: 1.35;
+        transition: opacity 180ms ease, transform 180ms ease; }
       .status strong { color: var(--ink); }
       .controls { display: grid; gap: 10px; margin-top: 14px; }
       button, a.button { appearance: none; border: 0; border-radius: 999px; padding: 16px 18px;
@@ -69,12 +80,58 @@
       .viewer-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink);
         box-shadow: 0 0 0 4px rgba(255,79,147,0.12); }
       .viewer-count strong { color: var(--ink); }
+      .viewer-chip .viewer-count strong { color: #0b1017; }
       .join-toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom));
         transform: translate(-50%, 18px); z-index: 20; opacity: 0; pointer-events: none;
         background: rgba(23,30,39,0.94); color: var(--ink); border: 1px solid var(--border);
         border-radius: 999px; padding: 12px 16px; font-size: 14px; font-weight: 900;
         box-shadow: 0 18px 44px rgba(0,0,0,0.38); transition: opacity 180ms ease, transform 180ms ease; }
       .join-toast.on { opacity: 1; transform: translate(-50%, 0); }
+      .confirm-backdrop { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end;
+        padding: 18px max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+        background: rgba(0,0,0,0.62); opacity: 0; pointer-events: none; transition: opacity 160ms ease; }
+      .confirm-backdrop.on { opacity: 1; pointer-events: auto; }
+      .confirm-sheet { width: min(100%, 460px); margin: 0 auto; border-radius: 28px;
+        background: #f8fafc; color: #0b1017; padding: 22px; box-shadow: 0 28px 80px rgba(0,0,0,0.42); }
+      .confirm-sheet h2 { margin: 0 0 8px; font-size: 24px; line-height: 1.05; letter-spacing: -0.3px; }
+      .confirm-sheet p { margin: 0 0 18px; color: #5f6875; font-size: 15px; line-height: 1.4; font-weight: 700; }
+      .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .confirm-actions button { padding: 14px 14px; font-size: 15px; }
+      .confirm-actions .keep { color: #0b1017; background: #fff; border: 1px solid rgba(11,16,23,0.14); }
+      body.camera-mode .wrap { position: fixed; inset: 0; width: 100%; max-width: none; margin: 0; }
+      body.camera-mode header,
+      body.camera-mode .hero,
+      body.camera-mode .viewer-row { display: none; }
+      body.camera-mode .stage,
+      body.camera-mode .stage > section,
+      body.camera-mode .broadcast-panel { display: block; height: 100%; }
+      body.camera-mode .video-shell { position: fixed; inset: 0; width: 100%; height: 100dvh;
+        aspect-ratio: auto; max-height: none; border: 0; border-radius: 0; margin: 0;
+        box-shadow: none; background: #030507; }
+      body.camera-mode video { object-fit: cover; }
+      body.camera-mode .top-overlay { position: fixed; top: max(14px, env(safe-area-inset-top));
+        left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
+        z-index: 8; display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+        pointer-events: none; }
+      body.camera-mode.is-live .live-chip { display: inline-flex; }
+      body.camera-mode .status { position: fixed; z-index: 9; left: 50%; right: auto;
+        top: max(58px, calc(env(safe-area-inset-top) + 58px)); bottom: auto; width: max-content;
+        max-width: min(86vw, 440px); transform: translate(-50%, -8px); border-radius: 999px;
+        padding: 9px 13px; text-align: center; color: #dbe3ee; background: rgba(15,20,27,0.74);
+        opacity: 0; pointer-events: none; box-shadow: 0 16px 40px rgba(0,0,0,0.24); }
+      body.camera-mode .status.on { opacity: 1; transform: translate(-50%, 0); }
+      body.camera-mode .controls { position: fixed; z-index: 10; left: max(14px, env(safe-area-inset-left));
+        right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom));
+        display: grid; grid-template-columns: 1fr 0.78fr; gap: 10px; width: auto; max-width: 520px;
+        margin: 0 auto; padding: 12px; border-radius: 28px; background: rgba(8,13,21,0.78);
+        border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(18px);
+        box-shadow: 0 20px 62px rgba(0,0,0,0.38); }
+      body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; }
+      body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; }
+      body.camera-mode .preview-link { color: #fff; text-decoration: none; border: 1px solid var(--border);
+        border-radius: 999px; background: rgba(255,255,255,0.06); padding: 16px 18px;
+        font-size: 16px; display: flex; align-items: center; justify-content: center; }
+      body.camera-mode .hint { display: none; }
       @media (max-width: 430px) {
         body { padding-left: 12px; padding-right: 12px; }
         .mark { font-size: 26px; }
@@ -85,11 +142,21 @@
         .video-shell { border-radius: 22px; max-height: 38dvh; }
         .status { left: 10px; right: 10px; bottom: 10px; padding: 10px 12px; font-size: 13px; }
         button, a.button { padding: 14px 16px; font-size: 15px; }
+        body.camera-mode .top-overlay { top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
+        body.camera-mode .controls { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
       }
       @media (orientation: landscape) and (min-width: 760px) {
         .stage { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(360px, 1fr);
           align-items: center; gap: 24px; }
         .video-shell { aspect-ratio: 16 / 9; max-height: none; }
+        body.camera-mode .stage { display: block; }
+        body.camera-mode .video-shell { height: 100dvh; }
+        body.camera-mode .top-overlay { top: max(12px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right)); }
+        body.camera-mode .status { top: 54px;
+          left: auto; right: 16px; transform: translateY(-8px); }
+        body.camera-mode .status.on { transform: translateY(0); }
+        body.camera-mode .controls { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
+          transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom)); }
       }
     </style>
   </head>
@@ -105,9 +172,16 @@
           <h1 id="pageTitle">Set up live video</h1>
           <p id="pageLead" class="lead">Start the camera, then go live when ready.</p>
         </section>
-        <section>
+        <section class="broadcast-panel">
           <div class="video-shell">
             <video id="preview" muted autoplay playsinline></video>
+            <div class="top-overlay" aria-live="polite">
+              <span class="viewer-chip">
+                <span class="viewer-dot"></span>
+                <span id="viewerCountTop" class="viewer-count"><strong>0</strong> watching</span>
+              </span>
+              <span class="live-chip">LIVE</span>
+            </div>
             <div id="status" class="status"><strong>Camera off.</strong> Not live yet.</div>
           </div>
           <div class="viewer-row" aria-live="polite">
@@ -117,15 +191,25 @@
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
             <button id="broadcastBtn" class="primary is-hidden" disabled>Go live</button>
-            <button id="shareBtn" class="fanview-primary">Share FanView link</button>
+            <button id="shareBtn" class="fanview-primary">Share link</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End live video</button>
-            <button id="previewBtn" class="preview-link">Preview FanView</button>
+            <button id="previewBtn" class="preview-link">Preview</button>
           </div>
           <p class="hint">Fans can follow scores without video. Keep this page open while video is live.</p>
         </section>
       </div>
     </main>
     <div id="joinToast" class="join-toast" role="status" aria-live="polite">Someone joined FanView</div>
+    <div id="endConfirm" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="endConfirmTitle" aria-hidden="true">
+      <div class="confirm-sheet">
+        <h2 id="endConfirmTitle">End live video?</h2>
+        <p>Fans will keep seeing live scores, but the camera broadcast will stop.</p>
+        <div class="confirm-actions">
+          <button id="cancelEndBtn" class="keep" type="button">Keep video on</button>
+          <button id="confirmEndBtn" class="danger" type="button">End video</button>
+        </div>
+      </div>
+    </div>
 
     <script type="module">
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
@@ -141,8 +225,13 @@
       const statePill = document.getElementById('statePill');
       const pageTitle = document.getElementById('pageTitle');
       const pageLead = document.getElementById('pageLead');
+      const hintEl = document.querySelector('.hint');
       const viewerCountEl = document.getElementById('viewerCount');
+      const viewerCountTopEl = document.getElementById('viewerCountTop');
       const joinToast = document.getElementById('joinToast');
+      const endConfirm = document.getElementById('endConfirm');
+      const cancelEndBtn = document.getElementById('cancelEndBtn');
+      const confirmEndBtn = document.getElementById('confirmEndBtn');
       let media = null;
       let pc = null;
       let live = false;
@@ -152,6 +241,7 @@
       let lastJoinedAt = null;
       let viewerPollTimer = null;
       let toastTimer = null;
+      let statusTimer = null;
 
       function getStreamId() {
         const match = window.location.pathname.match(/^\/live\/([^/?#]+)/);
@@ -160,7 +250,7 @@
       function fanViewUrl() {
         return streamId ? `${window.location.origin}/v/${encodeURIComponent(streamId)}` : window.location.origin;
       }
-      function setStatus(parts, state = 'READY') {
+      function setStatus(parts, state = 'READY', options = {}) {
         statusEl.replaceChildren();
         const list = Array.isArray(parts) ? parts : [{ text: String(parts) }];
         for (const part of list) {
@@ -169,21 +259,41 @@
           statusEl.appendChild(node);
         }
         statePill.textContent = state;
+        showStatus(options);
       }
-      function setStatusHtml(text, state = 'READY') {
+      function setStatusHtml(text, state = 'READY', options = {}) {
         const template = document.createElement('template');
         template.innerHTML = text;
         statusEl.replaceChildren(template.content.cloneNode(true));
         statePill.textContent = state;
+        showStatus(options);
       }
       function setPageCopy(title, lead) {
         pageTitle.textContent = title;
         pageLead.textContent = lead;
       }
+      function showStatus(options = {}) {
+        if (statusTimer) clearTimeout(statusTimer);
+        statusEl.classList.add('on');
+        const isCameraMode = document.body.classList.contains('camera-mode');
+        const persistent = options.persistent || !isCameraMode;
+        if (!persistent) {
+          statusTimer = setTimeout(() => {
+            statusEl.classList.remove('on');
+          }, options.duration ?? 2200);
+        }
+      }
+      function setUiMode(state) {
+        const cameraMode = state === 'camera-ready' || state === 'live';
+        document.body.classList.toggle('camera-mode', cameraMode);
+        document.body.classList.toggle('is-ready', state === 'camera-ready');
+        document.body.classList.toggle('is-live', state === 'live');
+      }
       function showControl(element, visible) {
         element.classList.toggle('is-hidden', !visible);
       }
       function setControlState(state) {
+        setUiMode(state);
         const isSetup = state === 'setup';
         const isCameraReady = state === 'camera-ready';
         const isLive = state === 'live';
@@ -196,6 +306,8 @@
         broadcastBtn.disabled = !isCameraReady;
         stopBtn.disabled = !isLive;
         shareBtn.disabled = false;
+        shareBtn.textContent = 'Share link';
+        stopBtn.textContent = 'End video';
       }
       function resetBroadcastControls(label = 'Go live') {
         broadcastBtn.textContent = label;
@@ -205,10 +317,12 @@
         return count === 1 ? 'watching' : 'watching';
       }
       function setViewerCount(count) {
-        viewerCountEl.replaceChildren();
-        const strong = document.createElement('strong');
-        strong.textContent = String(count);
-        viewerCountEl.append(strong, ` ${viewerLabel(count)}`);
+        for (const target of [viewerCountEl, viewerCountTopEl]) {
+          target.replaceChildren();
+          const strong = document.createElement('strong');
+          strong.textContent = String(count);
+          target.append(strong, ` ${viewerLabel(count)}`);
+        }
       }
       function showJoinToast() {
         joinToast.classList.add('on');
@@ -216,6 +330,15 @@
         toastTimer = setTimeout(() => {
           joinToast.classList.remove('on');
         }, 2600);
+      }
+      function openEndConfirm() {
+        endConfirm.classList.add('on');
+        endConfirm.setAttribute('aria-hidden', 'false');
+        cancelEndBtn.focus();
+      }
+      function closeEndConfirm() {
+        endConfirm.classList.remove('on');
+        endConfirm.setAttribute('aria-hidden', 'true');
       }
       async function refreshViewerPresence() {
         if (!streamId) return;
@@ -253,7 +376,6 @@
         await navigator.clipboard.writeText(fanViewUrl());
         setStatus([
           { text: 'FanView link copied.', strong: true },
-          { text: ' Send it to family so they can watch from their own phone.' },
         ], statePill.textContent || 'READY');
       }
       async function shareFanViewLink() {
@@ -262,8 +384,8 @@
         if (navigator.share) {
           try {
             await navigator.share({
-              title: 'Watch on FanView',
-              text: 'Follow the match live on CourtsideView.',
+              title: 'Watch live',
+              text: 'Here is the link to follow the game with live updates.',
               url,
             });
             return;
@@ -275,9 +397,9 @@
           await copyFanViewLink();
         } catch {
           setStatus([
-            { text: 'Copy this FanView link:', strong: true },
+            { text: 'Copy this game link:', strong: true },
             { text: ` ${url}` },
-          ], statePill.textContent || 'READY');
+          ], statePill.textContent || 'READY', { persistent: true });
         }
       }
       function ensureStreamId() {
@@ -371,11 +493,12 @@
         cameraBtn.textContent = 'Camera ready';
         broadcastBtn.textContent = 'Go live';
         setPageCopy('Ready to go live', 'Frame the court before starting video.');
+        hintEl.textContent = 'Frame the court, then go live.';
         setControlState('camera-ready');
         if (audioEnabled) {
-          setStatusHtml('<strong>Camera and microphone ready.</strong> Not live yet.', 'CAMERA READY');
+          setStatusHtml('<strong>Camera ready.</strong>', 'READY');
         } else {
-          setStatusHtml('<strong>Camera ready.</strong> Audio is off. To include sound, allow Microphone in browser settings, refresh, then start again.', 'CAMERA READY');
+          setStatusHtml('<strong>Camera ready.</strong> Audio is off.', 'READY', { duration: 3200 });
         }
       }
       async function startBroadcast() {
@@ -391,8 +514,8 @@
             resetBroadcastControls('Reconnect video');
             setStatus([
               { text: 'Live video disconnected.', strong: true },
-              { text: ' The game is still active. Check your signal, then reconnect video.' },
-            ], 'OFFLINE');
+              { text: ' Check your signal, then reconnect.' },
+            ], 'OFFLINE', { persistent: true });
           }
         });
         media.getTracks().forEach((track) => {
@@ -411,12 +534,14 @@
         live = true;
         broadcastBtn.textContent = 'Live now';
         setPageCopy('Live video is on', 'Share the FanView link so fans can watch.');
+        hintEl.textContent = 'Keep this tab open while live.';
         setControlState('live');
         setStatusHtml(
           audioEnabled
-            ? '<strong>You are live with audio.</strong> Keep this page open while video is live.'
-            : '<strong>You are live without audio.</strong> Video is working. To add sound, allow Microphone and restart live video.',
+            ? '<strong>Live video started.</strong>'
+            : '<strong>Live video started.</strong> Audio is off.',
           'LIVE',
+          { duration: 2600 },
         );
       }
       async function stopBroadcast() {
@@ -438,10 +563,11 @@
         cameraBtn.textContent = 'Start camera';
         broadcastBtn.textContent = 'Go live';
         setPageCopy('Set up live video', 'Video has stopped. The FanView link still works for scores.');
+        hintEl.textContent = 'Fans can follow scores without video. Keep this page open while video is live.';
         setControlState('offline');
         setStatus([
-          { text: 'Live video ended.', strong: true },
-          { text: ' Fans can still follow the score. Start camera to go live again.' },
+          { text: 'Video stopped.', strong: true },
+          { text: ' Fans can still follow the score.' },
         ], 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
@@ -464,8 +590,22 @@
         }
       });
       stopBtn.addEventListener('click', () => {
-        const shouldStop = window.confirm('End live video? Fans will still see the score. The video will stop.');
-        if (shouldStop) void stopBroadcast();
+        openEndConfirm();
+      });
+      cancelEndBtn.addEventListener('click', () => {
+        closeEndConfirm();
+      });
+      confirmEndBtn.addEventListener('click', () => {
+        closeEndConfirm();
+        void stopBroadcast();
+      });
+      endConfirm.addEventListener('click', (event) => {
+        if (event.target === endConfirm) closeEndConfirm();
+      });
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && endConfirm.classList.contains('on')) {
+          closeEndConfirm();
+        }
       });
       shareBtn.addEventListener('click', () => {
         void shareFanViewLink();
