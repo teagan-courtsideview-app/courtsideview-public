@@ -63,7 +63,7 @@
       .controls { display: grid; gap: 10px; margin-top: 14px; }
       button, a.button { appearance: none; border: 0; border-radius: 999px; padding: 16px 18px;
         font-size: 16px; font-weight: 900; letter-spacing: 0.2px; text-align: center;
-        text-decoration: none; cursor: pointer; }
+        text-decoration: none; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .primary { color: #fff; background: var(--green); }
       .fanview-primary { color: #fff; background: var(--pink); }
       .fanview-primary:active { background: var(--pink-dark); }
@@ -118,11 +118,12 @@
         top: max(58px, calc(env(safe-area-inset-top) + 58px)); bottom: auto; width: max-content;
         max-width: min(86vw, 440px); transform: translate(-50%, -8px); border-radius: 999px;
         padding: 9px 13px; text-align: center; color: #dbe3ee; background: rgba(15,20,27,0.74);
-        opacity: 0; pointer-events: none; box-shadow: 0 16px 40px rgba(0,0,0,0.24); }
+        opacity: 0; pointer-events: none; box-shadow: 0 16px 40px rgba(0,0,0,0.24);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       body.camera-mode .status.on { opacity: 1; transform: translate(-50%, 0); }
       body.camera-mode .controls { position: fixed; z-index: 10; left: max(14px, env(safe-area-inset-left));
         right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom));
-        display: grid; grid-template-columns: 1fr 0.78fr; gap: 10px; width: auto; max-width: 520px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: auto; max-width: 520px;
         margin: 0 auto; padding: 12px; border-radius: 28px; background: rgba(8,13,21,0.78);
         border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(18px);
         box-shadow: 0 20px 62px rgba(0,0,0,0.38); }
@@ -132,6 +133,9 @@
       body.camera-mode.is-offline #cameraBtn { grid-column: 1 / -1; }
       body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; }
       body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; }
+      body.camera-mode.is-live #scoreBtn,
+      body.camera-mode.is-live #stopBtn { grid-column: 1 / -1; }
+      body.camera-mode.is-live #stopBtn { margin-top: 6px; }
       body.camera-mode .preview-link { color: #fff; text-decoration: none; border: 1px solid var(--border);
         border-radius: 999px; background: rgba(255,255,255,0.06); padding: 16px 18px;
         font-size: 16px; display: flex; align-items: center; justify-content: center; }
@@ -146,6 +150,7 @@
         .video-shell { border-radius: 22px; max-height: 38dvh; }
         .status { left: 10px; right: 10px; bottom: 10px; padding: 10px 12px; font-size: 13px; }
         button, a.button { padding: 14px 16px; font-size: 15px; }
+        body.camera-mode.is-live .controls { gap: 9px; padding: 11px; }
         body.camera-mode .top-overlay { top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
         body.camera-mode .controls { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
       }
@@ -173,8 +178,8 @@
       </header>
       <div class="stage">
         <section class="hero">
-          <h1 id="pageTitle">Set up live video</h1>
-          <p id="pageLead" class="lead">Start the camera, then go live when ready.</p>
+          <h1 id="pageTitle">Start live video</h1>
+          <p id="pageLead" class="lead">Start your camera, then return to the app to score.</p>
         </section>
         <section class="broadcast-panel">
           <div class="video-shell">
@@ -186,7 +191,7 @@
               </span>
               <span class="live-chip">LIVE</span>
             </div>
-            <div id="status" class="status"><strong>Camera off.</strong> Not live yet.</div>
+            <div id="status" class="status"><strong>Camera off.</strong> Start the camera when ready.</div>
           </div>
           <div class="viewer-row" aria-live="polite">
             <span class="viewer-dot"></span>
@@ -194,21 +199,22 @@
           </div>
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
-            <button id="broadcastBtn" class="primary is-hidden" disabled>Go live</button>
+            <button id="broadcastBtn" class="primary is-hidden" disabled>Start live video</button>
+            <button id="scoreBtn" class="primary is-hidden" disabled>Back to scoring</button>
             <button id="shareBtn" class="fanview-primary">Share link</button>
-            <button id="minimizeBtn" class="secondary is-hidden" disabled>Minimize</button>
+            <button id="minimizeBtn" class="secondary is-hidden" disabled>Float video</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End live video</button>
             <button id="previewBtn" class="preview-link">Preview</button>
           </div>
-          <p class="hint">Fans can follow scores without video. Keep this page open while video is live.</p>
+          <p class="hint">Fans can follow scores even before video starts.</p>
         </section>
       </div>
     </main>
-    <div id="joinToast" class="join-toast" role="status" aria-live="polite">Someone joined FanView</div>
+    <div id="joinToast" class="join-toast" role="status" aria-live="polite">A fan joined FanView</div>
     <div id="endConfirm" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="endConfirmTitle" aria-hidden="true">
       <div class="confirm-sheet">
         <h2 id="endConfirmTitle">End live video?</h2>
-        <p>Fans will keep seeing live scores, but the camera broadcast will stop.</p>
+        <p>Fans will still see the score, but the video will stop.</p>
         <div class="confirm-actions">
           <button id="cancelEndBtn" class="keep" type="button">Keep video on</button>
           <button id="confirmEndBtn" class="danger" type="button">End video</button>
@@ -223,6 +229,7 @@
       const preview = document.getElementById('preview');
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
+      const scoreBtn = document.getElementById('scoreBtn');
       const shareBtn = document.getElementById('shareBtn');
       const minimizeBtn = document.getElementById('minimizeBtn');
       const stopBtn = document.getElementById('stopBtn');
@@ -258,6 +265,9 @@
       }
       function fanViewUrl() {
         return streamId ? `${window.location.origin}/v/${encodeURIComponent(streamId)}` : window.location.origin;
+      }
+      function appUrl() {
+        return streamId ? `courtsideview://fanview/${encodeURIComponent(streamId)}` : 'courtsideview://';
       }
       function setStatus(parts, state = 'READY', options = {}) {
         statusEl.replaceChildren();
@@ -311,19 +321,22 @@
         const isOffline = state === 'offline';
         showControl(cameraBtn, isSetup || isOffline);
         showControl(broadcastBtn, isCameraReady);
-        showControl(minimizeBtn, isLive && canUsePictureInPicture());
+        showControl(scoreBtn, isLive);
+        showControl(minimizeBtn, isLive);
         showControl(stopBtn, isLive);
         showControl(previewBtn, !isLive);
         cameraBtn.disabled = !(isSetup || isOffline);
         broadcastBtn.disabled = !isCameraReady;
+        scoreBtn.disabled = !isLive;
         minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
         shareBtn.disabled = false;
-        shareBtn.textContent = 'Share link';
-        minimizeBtn.textContent = 'Minimize';
+        scoreBtn.textContent = 'Back to scoring';
+        shareBtn.textContent = isLive ? 'Share link' : 'Share FanView link';
+        minimizeBtn.textContent = 'Float video';
         stopBtn.textContent = 'End video';
       }
-      function resetBroadcastControls(label = 'Go live') {
+      function resetBroadcastControls(label = 'Start live video') {
         broadcastBtn.textContent = label;
         setControlState(media ? 'camera-ready' : 'setup');
       }
@@ -398,8 +411,8 @@
         if (navigator.share) {
           try {
             await navigator.share({
-              title: 'Watch live',
-              text: 'Here is the link to follow the game with live updates.',
+              title: 'Watch on FanView',
+              text: 'Follow the game live on FanView.',
               url,
             });
             return;
@@ -450,7 +463,7 @@
         try {
           await wakeLock.release();
         } catch {
-          // Wake Lock is best effort; broadcast state should not depend on it.
+          // Wake Lock is helpful when available; broadcast state should not depend on it.
         } finally {
           wakeLock = null;
         }
@@ -475,7 +488,7 @@
         if (!broadcastDesired || intentionalStop) return;
         setStatus([
           { text: reason, strong: true },
-          { text: ' Keep this page open while we restore the camera.' },
+          { text: '' },
         ], 'RECONNECTING', { persistent: true });
         closePeerConnection({ stopTracks: false });
         if (!cameraTracksAreLive()) {
@@ -498,24 +511,32 @@
       async function enterPictureInPicture() {
         if (!canUsePictureInPicture()) {
           setStatus([
-            { text: 'Minimize is not supported on this browser.', strong: true },
-            { text: ' Keep this page open to stay live.' },
+            { text: 'Keep this tab open while video is live.', strong: true },
           ], 'LIVE', { persistent: true });
           return;
         }
         try {
           await preview.requestPictureInPicture();
           setStatusHtml(
-            '<strong>Broadcast minimized.</strong> If your browser pauses video after switching apps, return here and we will reconnect.',
+            '<strong>Video stays live.</strong> Go back to CourtsideView to score.',
             'LIVE',
-            { duration: 3600 },
+            { duration: 4200 },
           );
         } catch {
           setStatus([
-            { text: 'Could not minimize video.', strong: true },
-            { text: ' Keep this page open to stay live.' },
+            { text: 'Could not float video.', strong: true },
+            { text: ' Keep this tab open while video is live.' },
           ], 'LIVE', { persistent: true });
         }
+      }
+      function returnToScoring() {
+        if (canUsePictureInPicture() && live && document.pictureInPictureElement !== preview) {
+          void preview.requestPictureInPicture().catch(() => {});
+        }
+        setStatus([
+          { text: 'Video stays live. Go back to CourtsideView to score.', strong: true },
+        ], 'LIVE', { duration: 3600 });
+        window.location.href = appUrl();
       }
       function cameraPermissionMessage(error) {
         const message = error instanceof Error ? error.message : String(error || '');
@@ -597,14 +618,14 @@
         media = await requestCameraStream();
         preview.srcObject = media;
         cameraBtn.textContent = 'Camera ready';
-        broadcastBtn.textContent = 'Go live';
-        setPageCopy('Ready to go live', 'Frame the court before starting video.');
-        hintEl.textContent = 'Frame the court, then go live.';
+        broadcastBtn.textContent = 'Start live video';
+        setPageCopy('Camera ready', 'Frame the court, then start live video.');
+        hintEl.textContent = 'Frame the court, then start live video.';
         setControlState('camera-ready');
         if (audioEnabled) {
-          setStatusHtml('<strong>Camera ready.</strong> Keep this page open; minimize appears after you go live when supported.', 'READY');
+          setStatusHtml('<strong>Camera ready.</strong>', 'READY');
         } else {
-          setStatusHtml('<strong>Camera ready.</strong> Audio is off. Keep this page open; minimize appears after you go live when supported.', 'READY', { duration: 4200 });
+          setStatusHtml('<strong>Camera ready.</strong> Audio is off.', 'READY', { duration: 3600 });
         }
       }
       async function startBroadcast({ reconnecting = false } = {}) {
@@ -621,10 +642,9 @@
             cameraBtn.disabled = false;
             resetBroadcastControls('Reconnect video');
             setStatus([
-              { text: 'Live video disconnected.', strong: true },
-              { text: ' We will try to reconnect automatically.' },
+              { text: 'Video paused. We are trying to reconnect.', strong: true },
             ], 'OFFLINE', { persistent: true });
-            scheduleReconnect('Restoring live video...');
+            scheduleReconnect('Restoring video...');
           }
         });
         media.getTracks().forEach((track) => {
@@ -642,20 +662,18 @@
         await pc.setRemoteDescription({ type: 'answer', sdp: answer });
         live = true;
         broadcastBtn.textContent = 'Live now';
-        setPageCopy('Live video is on', 'Share the FanView link so fans can watch.');
-        hintEl.textContent = canUsePictureInPicture()
-          ? 'Use Minimize to try a floating broadcast preview. Keep this page open if your browser does not support it.'
-          : 'This browser must keep the broadcast page open while video is live.';
+        setPageCopy('Live video is on', 'Share the link, then return to CourtsideView to score.');
+        hintEl.textContent = 'Video is live. Return to CourtsideView to score.';
         setControlState('live');
         void requestScreenWakeLock();
         setStatusHtml(
           reconnecting
-            ? '<strong>Live video reconnected.</strong>'
+            ? '<strong>Video is live again.</strong>'
             : canUsePictureInPicture()
-              ? '<strong>Live video started.</strong> Tap Minimize to try picture-in-picture.'
+              ? '<strong>Video is live.</strong> Tap Back to scoring when ready.'
               : (audioEnabled
-                  ? '<strong>Live video started.</strong> Keep this page open to stay live.'
-                  : '<strong>Live video started.</strong> Audio is off. Keep this page open to stay live.'),
+                  ? '<strong>Video is live.</strong> Return to CourtsideView to score.'
+                  : '<strong>Video is live.</strong> Audio is off.'),
           'LIVE',
           { duration: 4200 },
         );
@@ -678,12 +696,12 @@
           await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, { method: 'DELETE' }).catch(() => {});
         }
         cameraBtn.textContent = 'Start camera';
-        broadcastBtn.textContent = 'Go live';
-        setPageCopy('Set up live video', 'Video has stopped. The FanView link still works for scores.');
-        hintEl.textContent = 'Fans can follow scores without video. Keep this page open while video is live.';
+        broadcastBtn.textContent = 'Start live video';
+        setPageCopy('Start live video', 'Video ended. The FanView link still works for scores.');
+        hintEl.textContent = 'Fans can follow scores even without video.';
         setControlState('offline');
         setStatus([
-          { text: 'Video stopped.', strong: true },
+          { text: 'Video ended.', strong: true },
           { text: ' Fans can still follow the score.' },
         ], 'OFFLINE');
       }
@@ -727,6 +745,9 @@
       shareBtn.addEventListener('click', () => {
         void shareFanViewLink();
       });
+      scoreBtn.addEventListener('click', () => {
+        returnToScoring();
+      });
       previewBtn.addEventListener('click', () => {
         window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
       });
@@ -736,8 +757,7 @@
       preview.addEventListener('leavepictureinpicture', () => {
         if (!live || intentionalStop) return;
         setStatus([
-          { text: 'Broadcast still live.', strong: true },
-          { text: ' Keep this page open if you leave picture-in-picture.' },
+          { text: 'Video is still live.', strong: true },
         ], 'LIVE', { duration: 3200 });
       });
       document.addEventListener('visibilitychange', () => {
@@ -745,27 +765,27 @@
           if (broadcastDesired) {
             void requestScreenWakeLock();
             if (!live || !pc || !cameraTracksAreLive()) {
-              void reconnectBroadcast('Restoring live video...');
+              void reconnectBroadcast('Restoring video...');
             }
           }
         } else if (broadcastDesired) {
           setStatus([
-            { text: 'Broadcast is best effort while hidden.', strong: true },
-            { text: ' Return here if your browser pauses the camera.' },
-          ], 'LIVE', { persistent: true });
+            { text: 'Video should keep running. Return here if the camera pauses.', strong: true },
+          ], 'LIVE', { duration: 3600 });
         }
       });
       window.addEventListener('pagehide', () => {
         if (!broadcastDesired || intentionalStop) return;
         setStatus([
-          { text: 'Broadcast handoff attempted.', strong: true },
-          { text: ' If this browser pauses video, return to reconnect.' },
+          { text: 'Video stays live. Go back to CourtsideView to score.', strong: true },
         ], 'LIVE', { persistent: true });
       });
       if (!streamId) {
         cameraBtn.disabled = true;
         broadcastBtn.disabled = true;
+        scoreBtn.disabled = true;
         shareBtn.disabled = true;
+        minimizeBtn.disabled = true;
         previewBtn.disabled = true;
         setStatus([{ text: 'Missing FanView share ID. Open this page from the CourtsideView FanView modal.' }], 'ERROR');
       } else {
