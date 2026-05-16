@@ -126,6 +126,10 @@
         margin: 0 auto; padding: 12px; border-radius: 28px; background: rgba(8,13,21,0.78);
         border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(18px);
         box-shadow: 0 20px 62px rgba(0,0,0,0.38); }
+      body.camera-mode.is-setup .controls,
+      body.camera-mode.is-offline .controls { grid-template-columns: 1fr 0.78fr; }
+      body.camera-mode.is-setup #cameraBtn,
+      body.camera-mode.is-offline #cameraBtn { grid-column: 1 / -1; }
       body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; }
       body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; }
       body.camera-mode .preview-link { color: #fff; text-decoration: none; border: 1px solid var(--border);
@@ -284,8 +288,10 @@
         }
       }
       function setUiMode(state) {
-        const cameraMode = state === 'camera-ready' || state === 'live';
+        const cameraMode = state === 'setup' || state === 'offline' || state === 'camera-ready' || state === 'live';
         document.body.classList.toggle('camera-mode', cameraMode);
+        document.body.classList.toggle('is-setup', state === 'setup');
+        document.body.classList.toggle('is-offline', state === 'offline');
         document.body.classList.toggle('is-ready', state === 'camera-ready');
         document.body.classList.toggle('is-live', state === 'live');
       }
