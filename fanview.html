@@ -139,6 +139,19 @@
       .cell-sub { text-align: center; color: var(--ink-dim); font-size: 12px;
         line-height: 1.1; font-weight: 850; letter-spacing: 0.7px; text-transform: uppercase; }
       .cell-sub.libero { color: var(--pink); }
+      .tracked-summary { display: none; margin: 10px 0 14px; background: var(--bg-elev);
+        border: 1px solid #CFD9EA; border-radius: 14px; padding: 12px 14px; }
+      .tracked-summary.on { display: block; }
+      .tracked-name { color: var(--ink); font-size: 14px; line-height: 1.1;
+        font-weight: 900; margin-bottom: 10px; white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis; }
+      .tracked-stats { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+      .tracked-stat { color: var(--ink); font-size: 12px; line-height: 1;
+        font-weight: 900; letter-spacing: 0.4px; white-space: nowrap; }
+      .tracked-stat strong { color: var(--green); font-weight: 950; }
+      .tracked-stat.pct { background: #DFFFEA; color: #1DFF64; border-radius: 999px;
+        padding: 7px 10px; }
+      .tracked-stat.pct strong { color: #1DFF64; }
       .footer-hint { text-align: center; color: var(--ink-dim); font-size: 12px; padding: 20px; }
       .footer-hint a { color: var(--green); text-decoration: none; font-weight: 600; }
       .app-promo { margin: 28px auto 0; background: var(--bg-elev); border: 1px solid var(--border);
@@ -289,7 +302,8 @@
           letter-spacing: 2px; align-content: center; gap: 8px; }
         .container.no-video-mode .divider strong { font-size: clamp(24px, 6.2vh, 36px); }
         .container.no-video-mode .target { margin-top: 10px; font-size: clamp(16px, 3.8vh, 21px); letter-spacing: 2.5px; }
-        .container.no-video-mode .activity-section, .container.no-video-mode .court-section, .container.no-video-mode .meta-row { display: none !important; }
+        .container.no-video-mode .activity-section, .container.no-video-mode .court-section,
+        .container.no-video-mode .tracked-summary, .container.no-video-mode .meta-row { display: none !important; }
       }
       @media (min-width: 760px) {
         .score-column.no-video .scoreboard,
@@ -387,10 +401,6 @@
               <div id="actionAccent" class="action-accent"></div>
               <div id="actionText" class="action-text"></div>
             </div>
-            <section id="activitySection" class="activity-section">
-              <div id="activityTitle" class="activity-title">Activity</div>
-              <div id="activityList" class="activity-list"></div>
-            </section>
             <section id="courtSection" class="court-section">
               <div class="section-head">
                 <div class="section-title">On Court</div>
@@ -404,6 +414,11 @@
                 </div>
                 <div id="courtGrid" class="court-grid"></div>
               </div>
+            </section>
+            <section id="trackedSummary" class="tracked-summary"></section>
+            <section id="activitySection" class="activity-section">
+              <div id="activityTitle" class="activity-title">Activity</div>
+              <div id="activityList" class="activity-list"></div>
             </section>
             <div class="refresh-row">
               <button class="refresh-btn" onclick="forceRefresh()">↻ Refresh</button>
@@ -485,6 +500,17 @@
       }
       function firstName(name) {
         return String(name || '').trim().split(/\s+/)[0] || '—';
+      }
+      function statNumber(stats, key) {
+        const value = stats && stats[key];
+        return Number.isFinite(Number(value)) ? Number(value) : 0;
+      }
+      function formatDumpPct(stats) {
+        const attempts = statNumber(stats, 'dumpAttempts');
+        if (attempts === 0) return '.000';
+        const pct = (statNumber(stats, 'dumpKills') - statNumber(stats, 'dumpErrors')) / attempts;
+        const abs = Math.abs(pct).toFixed(3);
+        return (pct < 0 ? '-' : '') + (abs.startsWith('0') ? abs.slice(1) : abs);
       }
       function toneColor(tone) {
         return ({
@@ -1134,6 +1160,33 @@
         }).join('');
         section.classList.add('on');
       }
+      function renderTrackedSummary(state) {
+        const section = $('trackedSummary');
+        const player = state && state.trackedPlayer && typeof state.trackedPlayer === 'object'
+          ? state.trackedPlayer
+          : null;
+        if (!player) {
+          section.classList.remove('on');
+          section.innerHTML = '';
+          return;
+        }
+        const stats = player.stats || {};
+        const abbr = positionAbbr(player.position);
+        section.innerHTML = '' +
+          '<div class="tracked-name">' +
+            escapeHtml(firstName(player.name)) +
+            (player.number ? ' #' + escapeHtml(player.number) : '') +
+            (abbr ? ' · ' + escapeHtml(abbr) : '') +
+          '</div>' +
+          '<div class="tracked-stats">' +
+            '<span class="tracked-stat">AST: <strong>' + statNumber(stats, 'assists') + '</strong></span>' +
+            '<span class="tracked-stat">DMPK: <strong>' + statNumber(stats, 'dumpKills') + '</strong></span>' +
+            '<span class="tracked-stat">SETE: <strong>' + statNumber(stats, 'settingErrors') + '</strong></span>' +
+            '<span class="tracked-stat">D: <strong>' + statNumber(stats, 'digs') + '</strong></span>' +
+            '<span class="tracked-stat pct">DMP%: <strong>' + escapeHtml(formatDumpPct(stats)) + '</strong></span>' +
+          '</div>';
+        section.classList.add('on');
+      }
       let matchRow = null;
       let shareId = null;
       let lastScoreSnapshot = null;
@@ -1192,8 +1245,9 @@
         $('board').querySelector('.score-column').classList.toggle('no-video', !hasVideo);
         container.classList.toggle('no-video-mode', !hasVideo);
         renderLatestAction(s);
-        renderActivity(s, matchRow);
         renderCourt(s);
+        renderTrackedSummary(s);
+        renderActivity(s, matchRow);
         renderVideo(matchRow);
         updatePrivacyLine(matchRow);
         startPresence(matchRow);
