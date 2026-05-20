@@ -75,6 +75,7 @@
     .primary:disabled { opacity: .45; }
     .ghost { border: 1px solid var(--line); border-radius: 16px; background: #fffdf8; color: var(--ink); padding: 14px; font-weight: 950; width: 100%; }
     .status { margin: 12px 0; border-radius: 14px; padding: 12px 14px; font-weight: 850; }
+    .save-status { margin: -2px 0 2px; text-align: center; font-weight: 950; letter-spacing: .03em; }
     .status.info { background: #edf5ff; color: #1d4ed8; }
     .status.ok { background: #e7f7ef; color: #047349; }
     .status.err { background: #fee2e2; color: #b91c1c; }
@@ -162,6 +163,7 @@
       </div>
 
       <button type="button" class="primary" id="logBtn">Log Observation</button>
+      <div id="saveStatus" class="status ok save-status hidden" role="status" aria-live="polite"></div>
       <button type="button" class="ghost" id="refreshBtn">Refresh Session</button>
     </section>
   </main>
@@ -186,14 +188,31 @@
       zone: 1,
       direction: 'line',
       result: 'kill',
+      saving: false,
     };
     const $ = (id) => document.getElementById(id);
+    let saveStatusTimer = null;
 
     function sessionIdFromPath() {
       const parts = window.location.pathname.split('/').filter(Boolean);
       const scoutIndex = parts.indexOf('scout');
       if (scoutIndex === -1 || !parts[scoutIndex + 1]) return '';
       return decodeURIComponent(parts[scoutIndex + 1]);
+    }
+
+    function initialTabFromPath() {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const scoutIndex = parts.indexOf('scout');
+      return parts[scoutIndex + 2] === 'track' ? 'track' : 'dashboard';
+    }
+
+    function trackUrlFromPath() {
+      const id = sessionIdFromPath();
+      const url = new URL(window.location.href);
+      if (id) url.pathname = `/scout/${encodeURIComponent(id)}/track`;
+      url.search = '';
+      url.hash = '';
+      return url.toString();
     }
 
     function api(path, options = {}) {
@@ -237,6 +256,17 @@
       el.classList.toggle('hidden', !text);
     }
 
+    function setSaveStatus(kind, text) {
+      const el = $('saveStatus');
+      el.className = `status ${kind} save-status`;
+      el.textContent = text;
+      el.classList.toggle('hidden', !text);
+      if (saveStatusTimer) clearTimeout(saveStatusTimer);
+      if (text && kind === 'ok') {
+        saveStatusTimer = setTimeout(() => setSaveStatus('ok', ''), 3500);
+      }
+    }
+
     async function loadSession({ quiet = false } = {}) {
       const id = sessionIdFromPath();
       if (!id) {
@@ -275,7 +305,8 @@
       $('totalObs').textContent = String(state.observations.length);
       $('playerCount').textContent = String(state.players.length);
       $('endedNotice').classList.toggle('hidden', !ended);
-      $('logBtn').disabled = ended || !selectedPlayer();
+      $('logBtn').disabled = state.saving || ended || !selectedPlayer();
+      $('logBtn').textContent = state.saving ? 'Saving...' : 'Log Observation';
       renderPlayers();
       renderTracker();
       renderFeed();
@@ -369,7 +400,10 @@
     async function logObservation() {
       const session = state.session;
       const player = selectedPlayer();
-      if (!session || !player || session.ended_at) return;
+      if (state.saving || !session || !player || session.ended_at) return;
+      state.saving = true;
+      setSaveStatus('info', 'Saving observation...');
+      render();
       setStatus('info', 'Saving observation...');
       const note = $('noteInput').value.trim();
       const body = {
@@ -384,13 +418,40 @@
         note: note || null,
         ts: Date.now(),
       };
-      const res = await api('scout_observations', { method: 'POST', body: JSON.stringify(body) });
+      let res;
+      try {
+        res = await api('scout_observations', { method: 'POST', body: JSON.stringify(body) });
+      } catch {
+        state.saving = false;
+        render();
+        setSaveStatus('err', 'Could not save. Check your connection and try again.');
+        setStatus('err', 'Could not save this observation. Check your connection and try again.');
+        return;
+      }
       if (!res.ok) {
+        state.saving = false;
+        render();
+        setSaveStatus('err', 'Could not save. Check your connection and try again.');
         setStatus('err', 'Could not save this observation. Check your connection and try again.');
         return;
       }
       $('noteInput').value = '';
-      await loadSession({ quiet: true });
+      try {
+        await loadSession({ quiet: true });
+      } catch {
+        state.saving = false;
+        render();
+        setSaveStatus('err', 'Observation saved, but refresh failed. Tap Refresh Session.');
+        setStatus('err', 'Observation saved, but this page could not refresh.');
+        return;
+      }
+      state.saving = false;
+      render();
+      $('logBtn').textContent = 'Saved ✓';
+      setTimeout(() => {
+        if (!state.saving) render();
+      }, 1200);
+      setSaveStatus('ok', 'Observation saved. Team dashboard updated.');
       setStatus('ok', 'Observation saved.');
     }
 
@@ -403,7 +464,7 @@
     }
 
     async function sharePage() {
-      const url = window.location.href;
+      const url = trackUrlFromPath();
       if (navigator.share) {
         try {
           await navigator.share({
@@ -430,6 +491,7 @@
     $('refreshBtn').addEventListener('click', () => loadSession());
     $('logBtn').addEventListener('click', logObservation);
 
+    showTab(initialTabFromPath());
     loadSession().catch((error) => {
       console.error(error);
       setStatus('err', 'Something went wrong loading this Team Scout link.');
