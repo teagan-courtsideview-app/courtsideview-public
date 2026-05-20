@@ -149,7 +149,7 @@
 
       <div class="card">
         <p class="section-label" id="detailTitle">Attack</p>
-        <p class="section-label">Zone</p>
+        <p class="section-label" id="zoneLabel">Zone</p>
         <div class="choice-grid" id="zoneChoices"></div>
         <p class="section-label" id="directionLabel" style="margin-top:16px;">Direction</p>
         <div class="choice-grid" id="directionChoices"></div>
@@ -176,18 +176,20 @@
     const directions = ['line', 'angle', 'cut', 'tip'];
     const resultsByType = {
       attack: ['kill', 'error', 'dig', 'block'],
-      serve: ['ace', 'in_play', 'reception_error'],
+      serve: ['ace', 'in_play', 'error'],
       block: ['stuff', 'touch', 'no_block', 'block_error'],
     };
+    const setResults = ['kill', 'error', 'dig', 'block'];
     const state = {
       session: null,
       players: [],
       observations: [],
       selectedPlayerId: null,
       type: 'attack',
-      zone: 1,
-      direction: 'line',
-      result: 'kill',
+      zone: null,
+      direction: null,
+      result: null,
+      setTarget: null,
       saving: false,
     };
     const $ = (id) => document.getElementById(id);
@@ -305,7 +307,7 @@
       $('totalObs').textContent = String(state.observations.length);
       $('playerCount').textContent = String(state.players.length);
       $('endedNotice').classList.toggle('hidden', !ended);
-      $('logBtn').disabled = state.saving || ended || !selectedPlayer();
+      $('logBtn').disabled = !canLogObservation();
       $('logBtn').textContent = state.saving ? 'Saving...' : 'Log Observation';
       renderPlayers();
       renderTracker();
@@ -345,26 +347,35 @@
       $('detailTitle').textContent = label(state.type);
       $('directionLabel').classList.toggle('hidden', state.type !== 'attack' && state.type !== 'block');
       $('directionChoices').classList.toggle('hidden', state.type !== 'attack' && state.type !== 'block');
-      $('zoneChoices').innerHTML = zones.map((zone) =>
-        `<button type="button" class="choice ${state.zone === zone ? 'active' : ''}" data-zone="${zone}">Z${zone}</button>`
-      ).join('');
+      $('zoneLabel').textContent = state.type === 'set_distribution'
+        ? 'Set To'
+        : state.type === 'serve'
+          ? 'Serve Zone'
+          : 'Zone';
+      if (state.type === 'set_distribution') {
+        $('zoneChoices').innerHTML = state.players.map((target) =>
+          `<button type="button" class="choice ${state.setTarget === target.jersey_number ? 'active' : ''}" data-set-target="${clean(target.jersey_number)}">#${clean(target.jersey_number)}</button>`
+        ).join('') || '<p class="empty">Add players in the native app to track set distribution.</p>';
+      } else {
+        $('zoneChoices').innerHTML = zones.map((zone) =>
+          `<button type="button" class="choice ${state.zone === zone ? 'active' : ''}" data-zone="${zone}">Z${zone}</button>`
+        ).join('');
+      }
       $('directionChoices').innerHTML = directions.map((direction) =>
         `<button type="button" class="choice ${state.direction === direction ? 'active' : ''}" data-direction="${direction}">${clean(label(direction))}</button>`
       ).join('');
-      const results = state.type === 'set_distribution'
-        ? state.players.map((player) => player.jersey_number).filter(Boolean)
-        : (resultsByType[state.type] || resultsByType.attack);
-      if (!results.includes(state.result)) state.result = results[0];
+      const results = state.type === 'set_distribution' ? setResults : (resultsByType[state.type] || resultsByType.attack);
       $('resultChoices').innerHTML = results.map((result) =>
-        `<button type="button" class="choice ${state.result === result ? 'active' : ''}" data-result="${clean(result)}">${state.type === 'set_distribution' ? `#${clean(result)}` : clean(label(result))}</button>`
-      ).join('') || '<p class="empty">Add more players in the native app to track set distribution.</p>';
+        `<button type="button" class="choice ${state.result === result ? 'active' : ''}" data-result="${clean(result)}">${clean(label(result))}</button>`
+      ).join('');
       document.querySelectorAll('[data-type]').forEach((button) => {
         button.classList.toggle('active', button.getAttribute('data-type') === state.type);
         button.onclick = () => {
           state.type = button.getAttribute('data-type');
-          state.result = state.type === 'set_distribution'
-            ? (state.players[0]?.jersey_number || '')
-            : (resultsByType[state.type] || resultsByType.attack)[0];
+          state.zone = null;
+          state.direction = null;
+          state.result = null;
+          state.setTarget = null;
           renderTracker();
         };
       });
@@ -377,6 +388,10 @@
       document.querySelectorAll('[data-result]').forEach((button) => {
         button.onclick = () => { state.result = button.getAttribute('data-result'); renderTracker(); };
       });
+      document.querySelectorAll('[data-set-target]').forEach((button) => {
+        button.onclick = () => { state.setTarget = button.getAttribute('data-set-target'); renderTracker(); };
+      });
+      updateLogButtonState();
     }
 
     function summarizeObservation(item) {
@@ -384,7 +399,20 @@
       if (item.type === 'attack') return `Attack · zone ${item.zone || '-'} · ${label(item.direction || '')} · ${label(item.result)}`;
       if (item.type === 'serve') return `Serve · zone ${item.zone || '-'} · ${label(item.result)}`;
       if (item.type === 'block') return `Block · ${label(item.result)}`;
-      return `Set Distribution · #${item.set_target || '?'}`;
+      return `Set Distribution · #${item.set_target || '?'} · ${label(item.result)}`;
+    }
+
+    function canLogObservation() {
+      if (state.saving || !state.session || state.session.ended_at || !selectedPlayer()) return false;
+      const note = $('noteInput')?.value.trim();
+      if (note) return true;
+      if (state.type === 'set_distribution') return Boolean(state.setTarget && state.result);
+      return Boolean(state.result);
+    }
+
+    function updateLogButtonState() {
+      $('logBtn').disabled = !canLogObservation();
+      if (!state.saving) $('logBtn').textContent = 'Log Observation';
     }
 
     function renderFeed() {
@@ -411,10 +439,10 @@
         session_id: session.id,
         player_id: player.id,
         type: note ? 'note' : state.type,
-        zone: note ? null : state.zone,
+        zone: note || state.type === 'set_distribution' ? null : state.zone,
         direction: !note && (state.type === 'attack' || state.type === 'block') ? state.direction : null,
-        result: note || state.type === 'set_distribution' ? 'in_play' : state.result,
-        set_target: !note && state.type === 'set_distribution' ? state.result : null,
+        result: note ? 'in_play' : state.result,
+        set_target: !note && state.type === 'set_distribution' ? state.setTarget : null,
         note: note || null,
         ts: Date.now(),
       };
@@ -490,6 +518,7 @@
     $('shareBtn').addEventListener('click', sharePage);
     $('refreshBtn').addEventListener('click', () => loadSession());
     $('logBtn').addEventListener('click', logObservation);
+    $('noteInput').addEventListener('input', updateLogButtonState);
 
     showTab(initialTabFromPath());
     loadSession().catch((error) => {
