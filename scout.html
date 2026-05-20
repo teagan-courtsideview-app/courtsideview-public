@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="description" content="CourtsideView Team Scout shared tracking link." />
+  <meta property="og:title" content="CourtsideView Team Scout" />
+  <meta property="og:description" content="Open a shared scouting session and contribute observations." />
+  <meta property="og:type" content="website" />
+  <title>CourtsideView Team Scout</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f2ec;
+      --card: #ffffff;
+      --ink: #070a10;
+      --muted: #66625d;
+      --line: #d8d4cc;
+      --green: #139555;
+      --blue: #3f73ff;
+      --purple: #8b5cf6;
+      --orange: #f97316;
+      --red: #dc2626;
+      --cream: #f7f4ed;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); }
+    button, input, textarea { font: inherit; }
+    .shell { width: min(100%, 476px); min-height: 100vh; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 18px max(26px, env(safe-area-inset-bottom)); }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0 22px; }
+    .back { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line); background: #e8e4dc; color: var(--ink); font-size: 30px; text-decoration: none; }
+    .mode { flex: 1; display: flex; align-items: center; gap: 8px; color: var(--purple); font-size: 13px; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+    .mode-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--purple); }
+    .share { border: 0; border-radius: 999px; background: #fffdf8; padding: 14px 18px; font-size: 14px; font-weight: 950; box-shadow: 0 1px 0 rgba(0,0,0,.05); }
+    h1 { margin: 0; font-size: clamp(40px, 13vw, 64px); line-height: .92; letter-spacing: -0.04em; }
+    .subtitle { margin: 8px 0 22px; color: var(--muted); font-size: 18px; font-weight: 800; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border: 1px solid var(--line); border-radius: 28px; background: #e7e3da; margin: 0 0 18px; }
+    .tab { border: 0; border-radius: 23px; padding: 14px 10px; background: transparent; color: var(--muted); font-size: 14px; font-weight: 950; letter-spacing: .06em; text-transform: uppercase; }
+    .tab.active { background: var(--ink); color: #fff; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 1px 0 rgba(0,0,0,.03); }
+    .stack { display: grid; gap: 14px; }
+    .section-label { margin: 0 0 10px; color: var(--muted); font-size: 12px; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
+    .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .metric { border: 1px solid var(--line); border-radius: 16px; padding: 16px 12px; background: var(--cream); min-height: 94px; }
+    .metric .value { font-size: 44px; line-height: .9; font-weight: 950; letter-spacing: -0.06em; }
+    .metric .label { margin-top: 10px; color: var(--muted); font-size: 12px; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
+    .players-head { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+    .count { color: var(--muted); font-size: 13px; font-weight: 900; }
+    .player-row { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 13px; text-align: left; width: 100%; }
+    .player-row.active { border-color: var(--purple); box-shadow: inset 0 0 0 1px var(--purple); }
+    .avatar { flex: 0 0 auto; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--purple); color: #fff; font-size: 22px; font-weight: 950; }
+    .player-main { min-width: 0; flex: 1; }
+    .player-name { font-size: 18px; font-weight: 950; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .player-meta { margin-top: 3px; color: var(--muted); font-size: 13px; font-weight: 800; }
+    .obs-pill { flex: 0 0 auto; border-radius: 999px; background: #efede6; color: var(--muted); padding: 7px 9px; font-size: 11px; font-weight: 950; }
+    .player-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .player-strip::-webkit-scrollbar { display: none; }
+    .player-pill { flex: 0 0 auto; min-width: 72px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 10px 12px; font-weight: 950; }
+    .player-pill.active { color: var(--blue); border-color: var(--blue); background: #eef4ff; }
+    .tracking { display: flex; align-items: center; justify-content: space-between; border: 2px solid var(--blue); border-radius: 999px; padding: 10px 14px; color: var(--blue); font-size: 12px; font-weight: 950; letter-spacing: .06em; text-transform: uppercase; }
+    .type-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .type { min-height: 92px; border: 1px solid var(--line); border-radius: 18px; background: #eef1f7; padding: 15px; text-align: left; font-size: 18px; font-weight: 950; color: var(--blue); }
+    .type.attack { background: #fff1e8; color: var(--orange); }
+    .type.serve { background: #e7f5ee; color: #0f8f77; }
+    .type.block { background: #edf1f8; color: var(--blue); }
+    .type.set { background: #f1e8fb; color: var(--purple); }
+    .type.active { outline: 3px solid currentColor; outline-offset: -3px; }
+    .choice-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+    .choice { border: 1px solid var(--line); border-radius: 12px; background: #e9e5dc; padding: 12px 8px; font-size: 13px; font-weight: 950; }
+    .choice.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+    .note { min-height: 90px; width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #fff; }
+    .primary { border: 0; border-radius: 16px; background: var(--green); color: #fff; padding: 16px; font-weight: 950; letter-spacing: .05em; text-transform: uppercase; width: 100%; }
+    .primary:disabled { opacity: .45; }
+    .ghost { border: 1px solid var(--line); border-radius: 16px; background: #fffdf8; color: var(--ink); padding: 14px; font-weight: 950; width: 100%; }
+    .status { margin: 12px 0; border-radius: 14px; padding: 12px 14px; font-weight: 850; }
+    .status.info { background: #edf5ff; color: #1d4ed8; }
+    .status.ok { background: #e7f7ef; color: #047349; }
+    .status.err { background: #fee2e2; color: #b91c1c; }
+    .locked { border: 1px solid #ef4444; background: #fff1f1; color: #b91c1c; border-radius: 14px; padding: 12px 14px; font-weight: 950; }
+    .feed-item { border-top: 1px solid var(--line); padding: 12px 0; }
+    .feed-item:first-child { border-top: 0; padding-top: 0; }
+    .feed-title { font-weight: 950; }
+    .feed-meta { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .hidden { display: none !important; }
+    .empty { color: var(--muted); line-height: 1.45; }
+    @media (min-width: 720px) {
+      body { background: #dbe2eb; }
+      .shell { margin-top: 28px; margin-bottom: 28px; min-height: calc(100vh - 56px); border-radius: 34px; border: 1px solid #c7d0dc; background: var(--bg); }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="top">
+      <a class="back" href="/" aria-label="CourtsideView home">‹</a>
+      <div class="mode"><span class="mode-dot"></span><span>Team Scout Mode</span></div>
+      <button class="share" type="button" id="shareBtn">Share</button>
+    </div>
+
+    <h1 id="opponentName">Team Scout</h1>
+    <div class="subtitle" id="sessionMeta">Loading session...</div>
+    <div id="status" class="status info">Loading Team Scout link...</div>
+
+    <div class="tabs">
+      <button type="button" class="tab active" id="dashboardTab">Dashboard</button>
+      <button type="button" class="tab" id="trackTab">Track</button>
+    </div>
+
+    <section id="dashboard" class="stack">
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="value" id="totalObs">0</div>
+          <div class="label">Total Observations</div>
+        </div>
+        <div class="metric">
+          <div class="value" id="playerCount">0</div>
+          <div class="label">Players</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="section-label">Players</p>
+        <div id="playerList" class="stack"></div>
+      </div>
+
+      <div class="card">
+        <p class="section-label">Recent Observations</p>
+        <div id="feedList"></div>
+      </div>
+    </section>
+
+    <section id="track" class="stack hidden">
+      <div id="endedNotice" class="locked hidden">Session ended. Logging is locked.</div>
+      <div class="player-strip" id="playerStrip"></div>
+      <div class="tracking">
+        <span id="trackingLabel">Select a player</span>
+        <span id="trackingObs">0 obs</span>
+      </div>
+
+      <div class="type-grid">
+        <button type="button" class="type attack active" data-type="attack">Attack</button>
+        <button type="button" class="type serve" data-type="serve">Serve</button>
+        <button type="button" class="type block" data-type="block">Block</button>
+        <button type="button" class="type set" data-type="set_distribution">Set Distribution</button>
+      </div>
+
+      <div class="card">
+        <p class="section-label" id="detailTitle">Attack</p>
+        <p class="section-label">Zone</p>
+        <div class="choice-grid" id="zoneChoices"></div>
+        <p class="section-label" id="directionLabel" style="margin-top:16px;">Direction</p>
+        <div class="choice-grid" id="directionChoices"></div>
+        <p class="section-label" style="margin-top:16px;">Result</p>
+        <div class="choice-grid" id="resultChoices"></div>
+      </div>
+
+      <div class="card">
+        <p class="section-label">Quick Note</p>
+        <textarea class="note" id="noteInput" placeholder="Optional note"></textarea>
+      </div>
+
+      <button type="button" class="primary" id="logBtn">Log Observation</button>
+      <button type="button" class="ghost" id="refreshBtn">Refresh Session</button>
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://pewflqlmmgjipgedajdd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBld2ZscWxtbWdqaXBnZWRhamRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMjY2ODcsImV4cCI6MjA5NDYwMjY4N30.5EYRz5aGxFGVEAtOwsOujEcK9omRRvRLW-oXi2LHuVc';
+    const positions = ['OH', 'MB', 'OPP', 'S', 'L', 'DS'];
+    const zones = [1, 2, 3, 4, 5, 6];
+    const directions = ['line', 'angle', 'cut', 'tip'];
+    const resultsByType = {
+      attack: ['kill', 'error', 'dig', 'block'],
+      serve: ['ace', 'in_play', 'reception_error'],
+      block: ['stuff', 'touch', 'no_block', 'block_error'],
+    };
+    const state = {
+      session: null,
+      players: [],
+      observations: [],
+      selectedPlayerId: null,
+      type: 'attack',
+      zone: 1,
+      direction: 'line',
+      result: 'kill',
+    };
+    const $ = (id) => document.getElementById(id);
+
+    function sessionIdFromPath() {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const scoutIndex = parts.indexOf('scout');
+      if (scoutIndex === -1 || !parts[scoutIndex + 1]) return '';
+      return decodeURIComponent(parts[scoutIndex + 1]);
+    }
+
+    function api(path, options = {}) {
+      return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        ...options,
+        headers: {
+          apikey: SUPABASE_KEY,
+          authorization: `Bearer ${SUPABASE_KEY}`,
+          ...(options.body ? { 'content-type': 'application/json', prefer: 'return=minimal' } : {}),
+          ...(options.headers || {}),
+        },
+      });
+    }
+
+    function clean(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[char]);
+    }
+
+    function label(value) {
+      return String(value || '').replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
+    function selectedPlayer() {
+      return state.players.find((player) => player.id === state.selectedPlayerId) || state.players[0];
+    }
+
+    function observationsFor(playerId) {
+      return state.observations.filter((item) => item.player_id === playerId);
+    }
+
+    function setStatus(kind, text) {
+      const el = $('status');
+      el.className = `status ${kind}`;
+      el.textContent = text;
+      el.classList.toggle('hidden', !text);
+    }
+
+    async function loadSession({ quiet = false } = {}) {
+      const id = sessionIdFromPath();
+      if (!id) {
+        setStatus('err', 'Missing Team Scout session ID.');
+        return;
+      }
+      if (!quiet) setStatus('info', 'Loading Team Scout link...');
+      const sessionRes = await api(`scout_sessions?select=*&id=eq.${encodeURIComponent(id)}&limit=1`);
+      if (!sessionRes.ok) {
+        setStatus('err', 'Could not load this Team Scout session.');
+        return;
+      }
+      const sessions = await sessionRes.json();
+      if (!sessions.length) {
+        setStatus('err', 'This Team Scout link was not found.');
+        return;
+      }
+      const [playersRes, observationsRes] = await Promise.all([
+        api(`scout_players?select=*&session_id=eq.${encodeURIComponent(id)}&order=jersey_number.asc`),
+        api(`scout_observations?select=*&session_id=eq.${encodeURIComponent(id)}&order=ts.desc`),
+      ]);
+      state.session = sessions[0];
+      state.players = playersRes.ok ? await playersRes.json() : [];
+      state.observations = observationsRes.ok ? await observationsRes.json() : [];
+      if (!state.selectedPlayerId && state.players.length) state.selectedPlayerId = state.players[0].id;
+      render();
+      setStatus('ok', quiet ? '' : 'Team Scout link loaded.');
+    }
+
+    function render() {
+      const session = state.session;
+      if (!session) return;
+      const ended = Boolean(session.ended_at);
+      $('opponentName').textContent = session.opponent_name || 'Team Scout';
+      $('sessionMeta').textContent = `${state.observations.length} Total Observations${session.match_context ? ` · ${session.match_context}` : ''}`;
+      $('totalObs').textContent = String(state.observations.length);
+      $('playerCount').textContent = String(state.players.length);
+      $('endedNotice').classList.toggle('hidden', !ended);
+      $('logBtn').disabled = ended || !selectedPlayer();
+      renderPlayers();
+      renderTracker();
+      renderFeed();
+    }
+
+    function renderPlayers() {
+      const playerHtml = state.players.map((player) => {
+        const obs = observationsFor(player.id).length;
+        const name = player.name || `#${player.jersey_number}`;
+        return `<button type="button" class="player-row ${player.id === state.selectedPlayerId ? 'active' : ''}" data-player="${clean(player.id)}">
+          <span class="avatar">${clean(player.jersey_number)}</span>
+          <span class="player-main">
+            <span class="player-name">${clean(name)}</span>
+            <span class="player-meta">#${clean(player.jersey_number)} · ${clean(player.position)} · ${obs} obs</span>
+          </span>
+          <span class="obs-pill">${obs} obs</span>
+        </button>`;
+      }).join('');
+      $('playerList').innerHTML = playerHtml || '<p class="empty">No players are attached to this Team Scout session yet.</p>';
+      $('playerStrip').innerHTML = state.players.map((player) =>
+        `<button type="button" class="player-pill ${player.id === state.selectedPlayerId ? 'active' : ''}" data-player="${clean(player.id)}">#${clean(player.jersey_number)}<br><small>${clean(player.position)}</small></button>`
+      ).join('');
+      document.querySelectorAll('[data-player]').forEach((button) => {
+        button.addEventListener('click', () => {
+          state.selectedPlayerId = button.getAttribute('data-player');
+          render();
+        });
+      });
+    }
+
+    function renderTracker() {
+      const player = selectedPlayer();
+      const obsCount = player ? observationsFor(player.id).length : 0;
+      $('trackingLabel').textContent = player ? `Tracking #${player.jersey_number} — ${player.position}` : 'Select a player';
+      $('trackingObs').textContent = `${obsCount} obs`;
+      $('detailTitle').textContent = label(state.type);
+      $('directionLabel').classList.toggle('hidden', state.type !== 'attack' && state.type !== 'block');
+      $('directionChoices').classList.toggle('hidden', state.type !== 'attack' && state.type !== 'block');
+      $('zoneChoices').innerHTML = zones.map((zone) =>
+        `<button type="button" class="choice ${state.zone === zone ? 'active' : ''}" data-zone="${zone}">Z${zone}</button>`
+      ).join('');
+      $('directionChoices').innerHTML = directions.map((direction) =>
+        `<button type="button" class="choice ${state.direction === direction ? 'active' : ''}" data-direction="${direction}">${clean(label(direction))}</button>`
+      ).join('');
+      const results = state.type === 'set_distribution'
+        ? state.players.map((player) => player.jersey_number).filter(Boolean)
+        : (resultsByType[state.type] || resultsByType.attack);
+      if (!results.includes(state.result)) state.result = results[0];
+      $('resultChoices').innerHTML = results.map((result) =>
+        `<button type="button" class="choice ${state.result === result ? 'active' : ''}" data-result="${clean(result)}">${state.type === 'set_distribution' ? `#${clean(result)}` : clean(label(result))}</button>`
+      ).join('') || '<p class="empty">Add more players in the native app to track set distribution.</p>';
+      document.querySelectorAll('[data-type]').forEach((button) => {
+        button.classList.toggle('active', button.getAttribute('data-type') === state.type);
+        button.onclick = () => {
+          state.type = button.getAttribute('data-type');
+          state.result = state.type === 'set_distribution'
+            ? (state.players[0]?.jersey_number || '')
+            : (resultsByType[state.type] || resultsByType.attack)[0];
+          renderTracker();
+        };
+      });
+      document.querySelectorAll('[data-zone]').forEach((button) => {
+        button.onclick = () => { state.zone = Number(button.getAttribute('data-zone')); renderTracker(); };
+      });
+      document.querySelectorAll('[data-direction]').forEach((button) => {
+        button.onclick = () => { state.direction = button.getAttribute('data-direction'); renderTracker(); };
+      });
+      document.querySelectorAll('[data-result]').forEach((button) => {
+        button.onclick = () => { state.result = button.getAttribute('data-result'); renderTracker(); };
+      });
+    }
+
+    function summarizeObservation(item) {
+      if (item.type === 'note') return `Note · ${item.note || ''}`;
+      if (item.type === 'attack') return `Attack · zone ${item.zone || '-'} · ${label(item.direction || '')} · ${label(item.result)}`;
+      if (item.type === 'serve') return `Serve · zone ${item.zone || '-'} · ${label(item.result)}`;
+      if (item.type === 'block') return `Block · ${label(item.result)}`;
+      return `Set Distribution · #${item.set_target || '?'}`;
+    }
+
+    function renderFeed() {
+      $('feedList').innerHTML = state.observations.slice(0, 20).map((item) => {
+        const player = state.players.find((candidate) => candidate.id === item.player_id);
+        return `<div class="feed-item">
+          <div class="feed-title">${clean(summarizeObservation(item))}</div>
+          <div class="feed-meta">${clean(player ? `#${player.jersey_number} ${player.name || player.position}` : 'Unknown player')} · ${clean(new Date(item.ts || Date.now()).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</div>
+        </div>`;
+      }).join('') || '<p class="empty">No observations yet. Use Track to log the first one.</p>';
+    }
+
+    async function logObservation() {
+      const session = state.session;
+      const player = selectedPlayer();
+      if (!session || !player || session.ended_at) return;
+      setStatus('info', 'Saving observation...');
+      const note = $('noteInput').value.trim();
+      const body = {
+        id: `obs_${Math.random().toString(36).slice(2, 10)}`,
+        session_id: session.id,
+        player_id: player.id,
+        type: note ? 'note' : state.type,
+        zone: note ? null : state.zone,
+        direction: !note && (state.type === 'attack' || state.type === 'block') ? state.direction : null,
+        result: note || state.type === 'set_distribution' ? 'in_play' : state.result,
+        set_target: !note && state.type === 'set_distribution' ? state.result : null,
+        note: note || null,
+        ts: Date.now(),
+      };
+      const res = await api('scout_observations', { method: 'POST', body: JSON.stringify(body) });
+      if (!res.ok) {
+        setStatus('err', 'Could not save this observation. Check your connection and try again.');
+        return;
+      }
+      $('noteInput').value = '';
+      await loadSession({ quiet: true });
+      setStatus('ok', 'Observation saved.');
+    }
+
+    function showTab(name) {
+      const isDashboard = name === 'dashboard';
+      $('dashboard').classList.toggle('hidden', !isDashboard);
+      $('track').classList.toggle('hidden', isDashboard);
+      $('dashboardTab').classList.toggle('active', isDashboard);
+      $('trackTab').classList.toggle('active', !isDashboard);
+    }
+
+    async function sharePage() {
+      const url = window.location.href;
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'CourtsideView Team Scout',
+            text: `Track ${state.session?.opponent_name || 'this team'} with CourtsideView Team Scout.`,
+            url,
+          });
+          return;
+        } catch (error) {
+          if (error && error.name === 'AbortError') return;
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        setStatus('ok', 'Team Scout link copied.');
+      } catch {
+        setStatus('info', url);
+      }
+    }
+
+    $('dashboardTab').addEventListener('click', () => showTab('dashboard'));
+    $('trackTab').addEventListener('click', () => showTab('track'));
+    $('shareBtn').addEventListener('click', sharePage);
+    $('refreshBtn').addEventListener('click', () => loadSession());
+    $('logBtn').addEventListener('click', logObservation);
+
+    loadSession().catch((error) => {
+      console.error(error);
+      setStatus('err', 'Something went wrong loading this Team Scout link.');
+    });
+    setInterval(() => loadSession({ quiet: true }).catch(() => {}), 8000);
+  </script>
+</body>
+</html>

@@ -3,6 +3,7 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/scout/(.*)", "destination": "/scout.html" },
     { "source": "/live/(.*)", "destination": "/live.html" },
     { "source": "/v/(.*)", "destination": "/fanview.html" },
     { "source": "/privacy", "destination": "/privacy.html" }
