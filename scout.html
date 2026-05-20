@@ -70,6 +70,16 @@
     .choice-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
     .choice { border: 1px solid var(--line); border-radius: 12px; background: #e9e5dc; padding: 12px 8px; font-size: 13px; font-weight: 950; }
     .choice.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+    .zone-helper { margin: -4px 0 10px; color: var(--muted); font-size: 14px; line-height: 1.35; }
+    .zone-court { display: grid; gap: 2px; border: 2px solid var(--ink); border-radius: 16px; background: #eff8f2; padding: 4px; }
+    .zone-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+    .zone-cell { min-height: 96px; border: 0; border-radius: 10px; background: rgba(255,255,255,.62); display: grid; place-items: center; }
+    .zone-cell:active { background: rgba(255,255,255,.88); }
+    .zone-dot { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,.92); background: #fff; color: var(--orange); font-size: 18px; font-weight: 950; }
+    .zone-cell.active .zone-dot { background: var(--orange); color: #fff; }
+    .zone-court.serve .zone-dot { color: #0f8f77; }
+    .zone-court.serve .zone-cell.active .zone-dot { background: #0f8f77; color: #fff; }
+    .zone-net { color: var(--ink); font-size: 11px; font-weight: 950; letter-spacing: .1em; text-align: center; padding: 4px 0 2px; }
     .note { min-height: 90px; width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #fff; }
     .primary { border: 0; border-radius: 16px; background: var(--green); color: #fff; padding: 16px; font-weight: 950; letter-spacing: .05em; text-transform: uppercase; width: 100%; }
     .primary:disabled { opacity: .45; }
@@ -149,7 +159,8 @@
 
       <div class="card">
         <p class="section-label" id="detailTitle">Attack</p>
-        <p class="section-label" id="zoneLabel">Zone</p>
+        <p class="section-label" id="zoneLabel">Where did it land?</p>
+        <p class="zone-helper hidden" id="zoneHelper">Tap where the ball landed. Back row: 1·6·5 · Front row: 2·3·4</p>
         <div class="choice-grid" id="zoneChoices"></div>
         <p class="section-label" id="directionLabel" style="margin-top:16px;">Direction</p>
         <div class="choice-grid" id="directionChoices"></div>
@@ -172,7 +183,7 @@
     const SUPABASE_URL = 'https://pewflqlmmgjipgedajdd.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBld2ZscWxtbWdqaXBnZWRhamRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMjY2ODcsImV4cCI6MjA5NDYwMjY4N30.5EYRz5aGxFGVEAtOwsOujEcK9omRRvRLW-oXi2LHuVc';
     const positions = ['OH', 'MB', 'OPP', 'S', 'L', 'DS'];
-    const zones = [1, 2, 3, 4, 5, 6];
+    const courtZoneRows = [[1, 6, 5], [2, 3, 4]];
     const directions = ['line', 'angle', 'cut', 'tip'];
     const resultsByType = {
       attack: ['kill', 'error', 'dig', 'block'],
@@ -347,19 +358,23 @@
       $('detailTitle').textContent = label(state.type);
       $('directionLabel').classList.toggle('hidden', state.type !== 'attack' && state.type !== 'block');
       $('directionChoices').classList.toggle('hidden', state.type !== 'attack' && state.type !== 'block');
+      const usesCourtZone = state.type === 'attack' || state.type === 'serve';
       $('zoneLabel').textContent = state.type === 'set_distribution'
         ? 'Set To'
-        : state.type === 'serve'
-          ? 'Serve Zone'
-          : 'Zone';
+        : 'Where did it land?';
+      $('zoneHelper').classList.toggle('hidden', !usesCourtZone);
       if (state.type === 'set_distribution') {
+        $('zoneChoices').className = 'choice-grid';
         $('zoneChoices').innerHTML = state.players.map((target) =>
           `<button type="button" class="choice ${state.setTarget === target.jersey_number ? 'active' : ''}" data-set-target="${clean(target.jersey_number)}">#${clean(target.jersey_number)}</button>`
         ).join('') || '<p class="empty">Add players in the native app to track set distribution.</p>';
       } else {
-        $('zoneChoices').innerHTML = zones.map((zone) =>
-          `<button type="button" class="choice ${state.zone === zone ? 'active' : ''}" data-zone="${zone}">Z${zone}</button>`
-        ).join('');
+        $('zoneChoices').className = `zone-court ${state.type === 'serve' ? 'serve' : 'attack'}`;
+        $('zoneChoices').innerHTML = courtZoneRows.map((row) =>
+          `<div class="zone-row">${row.map((zone) =>
+            `<button type="button" class="zone-cell ${state.zone === zone ? 'active' : ''}" data-zone="${zone}" aria-label="Zone ${zone}" aria-pressed="${state.zone === zone ? 'true' : 'false'}"><span class="zone-dot">${zone}</span></button>`
+          ).join('')}</div>`
+        ).join('') + '<div class="zone-net">▲ NET</div>';
       }
       $('directionChoices').innerHTML = directions.map((direction) =>
         `<button type="button" class="choice ${state.direction === direction ? 'active' : ''}" data-direction="${direction}">${clean(label(direction))}</button>`
