@@ -18,9 +18,11 @@
         body { font-family: 'Inter', sans-serif; background-color: #0a0e14; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .hero-gradient { background: radial-gradient(circle at top right, rgba(46, 204, 113, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(46, 204, 113, 0.05), transparent 40%); }
-        .wordmark { font-weight: 800; letter-spacing: -0.04em; display: inline-flex; align-items: center; gap: 0.5rem; }
-        .wordmark .view { font-style: italic; color: #2ECC71; }
-        .wordmark .ball { width: 1.75em; height: 1.3em; flex-shrink: 0; object-fit: contain; }
+        .wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
+        .brand-logo { display: block; width: clamp(18rem, 23vw, 24rem); height: auto; max-width: min(100%, 24rem); }
+        @media (max-width: 639px) {
+            .brand-logo { width: min(15.75rem, calc(100vw - 3rem)); }
+        }
         .prose-cv h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 2.5rem; margin-bottom: 0.75rem; color: #ffffff; }
         .prose-cv p, .prose-cv li { color: #9CA3AF; line-height: 1.7; font-size: 1rem; }
         .prose-cv strong { color: #ffffff; font-weight: 600; }
@@ -34,9 +36,8 @@
     <div class="hero-gradient min-h-screen flex flex-col">
         <!-- Navigation (matches index.html) -->
         <nav class="container mx-auto px-6 py-8 flex justify-between items-center">
-            <a href="/" class="wordmark text-2xl md:text-3xl tracking-tighter" aria-label="CourtsideView home">
-                <img class="ball" src="/assets/courtsideview-app-icon-mark.png" alt="" aria-hidden="true">
-                <span>Courtside<span class="view">View</span></span>
+            <a href="/" class="wordmark" aria-label="CourtsideView home">
+                <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="" aria-hidden="true" width="598" height="138">
             </a>
             <div class="hidden md:flex space-x-8 text-sm font-semibold text-gray-400">
                 <a href="/" class="hover:text-white transition">Home</a>
