@@ -6,7 +6,8 @@
     { "source": "/scout/(.*)", "destination": "/scout.html" },
     { "source": "/live/(.*)", "destination": "/live.html" },
     { "source": "/v/(.*)", "destination": "/fanview.html" },
-    { "source": "/privacy", "destination": "/privacy.html" }
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/support", "destination": "/support.html" }
   ],
   "headers": [
     {
@@ -27,6 +28,7 @@
   ],
   "redirects": [
     { "source": "/privacy.html", "destination": "/privacy", "permanent": true },
+    { "source": "/support.html", "destination": "/support", "permanent": true },
     { "source": "/index.html", "destination": "/", "permanent": true }
   ]
 }
