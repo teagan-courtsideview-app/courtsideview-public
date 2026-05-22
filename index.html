@@ -592,7 +592,15 @@
                 font-size: 0.98rem;
             }
             .final-actions { align-items: flex-start; }
-            .final-actions .qr-card { display: none; }
+            .final-actions .qr-card {
+                display: grid;
+                width: min(100%, 20rem);
+                grid-template-columns: 5.5rem minmax(0, 1fr);
+                gap: 0.75rem;
+            }
+            .final-actions .qr-card img {
+                width: 5.5rem;
+            }
             .footer-inner { flex-direction: column; text-align: center; }
         }
     </style>
