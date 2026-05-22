@@ -4,106 +4,596 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CourtsideView | Volleyball Score Keeper & Player Stats App</title>
-    <meta name="description" content="CourtsideView is a volleyball score keeper and tracking app for live scores, rotations, rosters, and volleyball player stats. Request early access.">
+    <meta name="description" content="CourtsideView is a volleyball score keeper and player stats app for live scores, rotations, rosters, and FanView updates. Download now on the App Store. Android coming soon.">
     <meta name="theme-color" content="#0a0e14">
+    <meta name="apple-itunes-app" content="app-id=6766532771, app-argument=https://www.courtsideviewapp.com/">
 
-    <!-- Open Graph / social -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.courtsideviewapp.com/">
-    <meta property="og:title" content="CourtsideView | Volleyball Score Keeper & Tracking App">
-    <meta property="og:description" content="Track volleyball scores, player stats, rosters, rotations, and FanView updates from one match-day app.">
+    <meta property="og:title" content="CourtsideView | Volleyball Score Keeper & Player Stats App">
+    <meta property="og:description" content="Score the match, track rotations and player stats, and share live FanView updates with the whole volleyball family.">
     <meta property="og:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CourtsideView | Volleyball Score Keeper & Tracking App">
-    <meta name="twitter:description" content="Track volleyball scores, player stats, rosters, rotations, and FanView updates from one match-day app.">
+    <meta name="twitter:title" content="CourtsideView | Volleyball Score Keeper & Player Stats App">
+    <meta name="twitter:description" content="Score the match, track rotations and player stats, and share live FanView updates with the whole volleyball family.">
     <meta name="twitter:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
 
-    <!-- Favicons -->
     <link rel="icon" type="image/png" href="/assets/courtsideview-app-icon.png">
     <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png">
-
     <link rel="canonical" href="https://www.courtsideviewapp.com/">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0a0e14; overflow-x: hidden; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .hero-gradient { background: radial-gradient(circle at top right, rgba(46, 204, 113, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(46, 204, 113, 0.05), transparent 40%); }
+        :root {
+            --cv-bg: #070b10;
+            --cv-navy: #07111f;
+            --cv-green: #18d86f;
+            --cv-green-soft: #b6f23a;
+            --cv-pink: #ff3b8a;
+            --cv-blue: #2f80ed;
+            --cv-cream: #f3f4ee;
+            --cv-yellow: #f5c542;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--cv-bg);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        a { color: inherit; }
+        .page-shell {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 82% 8%, rgba(24, 216, 111, 0.18), transparent 34rem),
+                radial-gradient(circle at 6% 42%, rgba(47, 128, 237, 0.08), transparent 28rem),
+                linear-gradient(180deg, #070b10 0%, #07110f 45%, #070b10 100%);
+        }
+        .container-wide { width: min(100% - 3rem, 1200px); margin: 0 auto; }
         .wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
-        .brand-logo { display: block; width: clamp(18rem, 23vw, 24rem); height: auto; max-width: min(100%, 24rem); }
-        .phone-screen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-        .app-phone-frame { width: 20rem; }
-        .app-preview-screen { position: absolute; inset: 0; background: linear-gradient(180deg, #0d1715 0%, #0a0e14 100%); padding: 1.15rem 0.85rem; overflow: hidden; }
-        .app-preview-top { display: flex; justify-content: space-between; align-items: center; color: #9CA3AF; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-        .app-preview-live { color: #2ECC71; }
-        .app-preview-score { margin-top: 0.9rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.55rem; }
-        .app-preview-team { min-width: 0; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.9rem; padding: 0.7rem 0.45rem; text-align: center; background: rgba(255, 255, 255, 0.04); }
-        .app-preview-name { color: #9CA3AF; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .app-preview-number { margin-top: 0.25rem; color: #fff; font-size: 2.5rem; line-height: 0.95; font-weight: 800; letter-spacing: -0.08em; }
-        .app-preview-set { width: 2rem; height: 2rem; border-radius: 999px; display: grid; place-items: center; background: rgba(46, 204, 113, 0.14); color: #2ECC71; font-size: 0.72rem; font-weight: 800; }
-        .app-preview-court { margin-top: 0.8rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.32rem; }
-        .app-preview-pos { aspect-ratio: 1; border-radius: 0.55rem; background: rgba(46, 204, 113, 0.13); border: 1px solid rgba(46, 204, 113, 0.18); display: grid; place-items: center; color: #fff; font-size: 1rem; font-weight: 800; }
-        .app-preview-feed { margin-top: 0.85rem; border-radius: 0.85rem; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.65rem; }
-        .app-preview-feed-title { color: #2ECC71; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
-        .app-preview-feed-line { margin-top: 0.35rem; color: #fff; font-size: 0.82rem; line-height: 1.25; font-weight: 700; }
-        .app-preview-stats { margin-top: 0.65rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
-        .app-preview-stat { border-radius: 0.7rem; background: rgba(255, 255, 255, 0.05); padding: 0.45rem 0.25rem; text-align: center; }
-        .app-preview-stat strong { display: block; color: #fff; font-size: 0.95rem; line-height: 1; }
-        .app-preview-stat span { display: block; margin-top: 0.15rem; color: #9CA3AF; font-size: 0.54rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-        .real-screens-stage { min-height: 44rem; isolation: isolate; }
-        .real-screen { position: absolute; height: auto; object-fit: contain; filter: drop-shadow(0 32px 70px rgba(0, 0, 0, 0.44)); user-select: none; }
-        .real-screen-scoreboard { width: min(26rem, 52vw); top: -2.5rem; right: 2rem; z-index: 2; }
-        .real-screen-tracking { width: min(22rem, 44vw); top: 4rem; right: 17rem; z-index: 1; opacity: 0.88; transform: rotate(-5deg); }
-        .cta-button { background: #f5c542; color: #08110c; box-shadow: 0 14px 35px rgba(245, 197, 66, 0.22); }
-        .cta-button:hover { background: #ffd866; }
-        .cta-button:disabled { cursor: not-allowed; opacity: 0.68; transform: none; }
-        .mobile-copy { display: none; }
-        .desktop-copy { display: inline; }
-        @media (max-width: 639px) {
-            .hero-gradient { background: radial-gradient(circle at 92% 68%, rgba(46, 204, 113, 0.16), transparent 32%), linear-gradient(180deg, #070b10 0%, #070b10 48%, #08110f 100%); }
-            .mobile-compact-nav { padding-top: 1rem; padding-bottom: 0.35rem; }
-            .mobile-compact-nav .brand-logo { width: min(15.75rem, calc(100vw - 3rem)); }
-            .mobile-hero { align-items: stretch; padding-top: 0.15rem !important; padding-bottom: 1.75rem !important; gap: 0.72rem !important; max-width: 100vw; overflow: hidden; }
-            .mobile-hero-copy { text-align: left !important; width: min(100%, calc(100vw - 4rem)); max-width: calc(100vw - 4rem); min-width: 0; gap: 0.7rem; overflow: visible; }
-            .mobile-hero-copy > :not([hidden]) ~ :not([hidden]) { margin-top: 0.58rem !important; }
-            .mobile-hero-copy .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.48rem !important; }
-            .mobile-eyebrow { width: 100%; padding: 0.56rem 0.35rem; border-color: rgba(46, 204, 113, 0.55); background: #020807; color: #53ee88; font-size: clamp(0.58rem, 2.45vw, 0.68rem) !important; line-height: 1.12 !important; letter-spacing: 0 !important; text-align: center; text-transform: none !important; white-space: normal; overflow: hidden; text-overflow: clip; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28); }
-            .mobile-headline { font-size: clamp(2.35rem, 10.4vw, 3rem) !important; line-height: 0.98 !important; letter-spacing: -0.04em !important; max-width: 21rem; margin-left: 0 !important; margin-right: 0 !important; }
-            .mobile-subhead { font-size: 0.95rem !important; line-height: 1.38 !important; width: min(21rem, calc(100vw - 4rem)); max-width: 100%; margin-left: 0 !important; margin-right: 0 !important; color: #b7c0c7; }
-            .mobile-form { max-width: calc(100vw - 4rem); width: 100%; min-width: 0; }
-            .mobile-input { min-height: 3.15rem; padding-top: 0.78rem !important; padding-bottom: 0.78rem !important; border-color: rgba(255, 255, 255, 0.16); background: rgba(10, 16, 16, 0.88); border-radius: 1rem; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04); }
-            .mobile-button { min-height: 3.28rem; padding-top: 0.82rem !important; padding-bottom: 0.82rem !important; border-radius: 1rem; font-size: 1rem; box-shadow: 0 12px 24px rgba(245, 197, 66, 0.22); }
-            .mobile-status { width: calc(100vw - 2rem); max-width: none; font-size: clamp(0.48rem, 1.95vw, 0.56rem) !important; line-height: 1.1 !important; min-height: 0; margin: 0.48rem 0 0 50% !important; color: #46e27d !important; text-align: center; white-space: nowrap; letter-spacing: 0; transform: translateX(-50%); }
-            .mobile-consent { display: none; }
-            .mobile-fomo { display: none; }
-            .mobile-phone-wrap { width: calc(100vw - 2rem); max-width: 24rem; margin: -1.55rem auto 0; }
-            .mobile-phone-frame { width: 100% !important; height: clamp(15.75rem, 38vh, 18rem); aspect-ratio: auto; border-width: 8px; border-radius: 2rem 2rem 1.5rem 1.5rem; background: rgba(3, 9, 9, 0.94); border-color: #2b2b31; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38); }
-            .mobile-phone-frame .app-preview-screen { padding: 0.9rem; background: linear-gradient(135deg, #0d1715 0%, #06100d 100%); }
-            .mobile-phone-frame .app-preview-top { font-size: 0.57rem; }
-            .mobile-phone-frame .app-preview-score { margin-top: 0.55rem; gap: 0.42rem; grid-template-columns: 1fr auto 1fr; }
-            .mobile-phone-frame .app-preview-team { border-radius: 0.8rem; padding: 0.48rem 0.34rem; }
-            .mobile-phone-frame .app-preview-name { font-size: 0.52rem; }
-            .mobile-phone-frame .app-preview-number { font-size: 1.8rem; }
-            .mobile-phone-frame .app-preview-set { width: 1.6rem; height: 1.6rem; font-size: 0.58rem; }
-            .mobile-phone-frame .app-preview-court { margin-top: 0.68rem; display: grid; gap: 0.3rem; }
-            .mobile-phone-frame .app-preview-pos { border-radius: 0.5rem; font-size: 0.82rem; }
-            .mobile-phone-frame .app-preview-feed { margin-top: 0.55rem; padding: 0.5rem 0.58rem; border-radius: 0.75rem; }
-            .mobile-phone-frame .app-preview-feed-title { font-size: 0.5rem; }
-            .mobile-phone-frame .app-preview-feed-line { margin-top: 0.2rem; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .mobile-phone-frame .app-preview-stats { margin-top: 0.5rem; gap: 0.35rem; }
-            .mobile-phone-frame .app-preview-stat { padding: 0.34rem 0.2rem; border-radius: 0.62rem; }
-            .mobile-phone-frame .app-preview-stat strong { font-size: 0.82rem; }
-            .mobile-phone-frame .app-preview-stat span { font-size: 0.44rem; }
-            .real-screens-stage { min-height: clamp(21.25rem, 48vh, 26.25rem); width: 100%; overflow: hidden; }
-            .real-screen { filter: drop-shadow(0 22px 42px rgba(0, 0, 0, 0.42)); }
-            .real-screen-scoreboard { width: min(12.5rem, 51vw); top: 0.15rem; right: 0.85rem; }
-            .real-screen-tracking { width: min(10.6rem, 43vw); top: 3.1rem; right: 8.2rem; opacity: 0.86; transform: rotate(-6deg); }
-            .mobile-glow { filter: blur(42px); opacity: 0.55; }
-            .mobile-copy { display: inline; }
-            .desktop-copy { display: none; }
+        .brand-logo { display: block; width: clamp(16rem, 21vw, 22rem); height: auto; max-width: min(100%, 22rem); }
+        .top-banner {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(7, 17, 31, 0.82);
+            backdrop-filter: blur(14px);
+        }
+        .top-banner-inner {
+            min-height: 3.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.85rem;
+            text-align: center;
+            color: #d8e2dd;
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+        .top-banner a { color: var(--cv-green); font-weight: 900; white-space: nowrap; }
+        .nav {
+            padding: 1.45rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.25rem;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.35rem;
+            color: #a8b0ba;
+            font-size: 0.86rem;
+            font-weight: 800;
+        }
+        .nav-links a { transition: color 160ms ease; }
+        .nav-links a:hover { color: #fff; }
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 0.95fr) minmax(24rem, 1.05fr);
+            align-items: center;
+            gap: clamp(2.5rem, 5vw, 5rem);
+            padding: clamp(2rem, 5vw, 4.5rem) 0 clamp(4rem, 8vw, 7rem);
+        }
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border: 1px solid rgba(24, 216, 111, 0.34);
+            border-radius: 999px;
+            background: rgba(24, 216, 111, 0.1);
+            color: #6df69b;
+            padding: 0.48rem 0.85rem;
+            font-size: 0.76rem;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .hero h1 {
+            margin: 1.2rem 0 0;
+            max-width: 46rem;
+            font-size: 6.2rem;
+            line-height: 0.92;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+        .text-green { color: #5bd16b; }
+        .hero-copy {
+            margin-top: 1.25rem;
+            max-width: 40rem;
+            color: #b6bec8;
+            font-size: 1.24rem;
+            line-height: 1.55;
+            font-weight: 600;
+        }
+        .cta-row {
+            margin-top: 1.7rem;
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            flex-wrap: wrap;
+        }
+        .app-store-badge {
+            display: block;
+            width: 11.8rem;
+            height: auto;
+            filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.28));
+        }
+        .hero-helper {
+            margin-top: 0.8rem;
+            color: #9fa7b3;
+            font-size: 0.93rem;
+            font-weight: 700;
+        }
+        .hero-tools {
+            margin-top: 1.45rem;
+            display: grid;
+            grid-template-columns: minmax(0, 15.5rem) minmax(0, 1fr);
+            gap: 1rem;
+            align-items: stretch;
+            max-width: 40rem;
+        }
+        .qr-card,
+        .signup-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.045);
+            border-radius: 1.35rem;
+            padding: 1rem;
+            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.2);
+        }
+        .qr-card {
+            display: grid;
+            grid-template-columns: 6.4rem minmax(0, 1fr);
+            gap: 0.85rem;
+            align-items: center;
+        }
+        .qr-card img {
+            width: 6.4rem;
+            aspect-ratio: 1;
+            border-radius: 0.75rem;
+            background: #f8fafc;
+        }
+        .qr-card strong,
+        .signup-card strong {
+            display: block;
+            color: #fff;
+            font-size: 0.98rem;
+            line-height: 1.2;
+        }
+        .qr-card span,
+        .signup-card span {
+            display: block;
+            margin-top: 0.3rem;
+            color: #aab3bf;
+            font-size: 0.82rem;
+            line-height: 1.35;
+            font-weight: 700;
+        }
+        .signup-form {
+            margin-top: 0.75rem;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 0.55rem;
+        }
+        .signup-form input {
+            min-width: 0;
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 0.85rem;
+            background: rgba(255, 255, 255, 0.09);
+            color: #fff;
+            padding: 0.8rem 0.9rem;
+            outline: none;
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+        .signup-form input::placeholder {
+            color: #858e9d;
+            font-size: 0.78rem;
+        }
+        .signup-form input:focus {
+            border-color: rgba(24, 216, 111, 0.7);
+            box-shadow: 0 0 0 3px rgba(24, 216, 111, 0.14);
+        }
+        .notify-button {
+            border: 0;
+            border-radius: 0.85rem;
+            background: var(--cv-yellow);
+            color: #07110f;
+            padding: 0.8rem 1rem;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .notify-button:disabled { opacity: 0.7; cursor: not-allowed; }
+        .signup-status {
+            margin-top: 0.55rem;
+            min-height: 1.1rem;
+            color: #9fa7b3;
+            font-size: 0.78rem;
+            line-height: 1.35;
+            font-weight: 700;
+        }
+        .signup-status.success { color: #6df69b; }
+        .signup-status.error { color: #ff8da8; }
+        .privacy-note {
+            margin-top: 0.35rem;
+            color: #7f8793;
+            font-size: 0.72rem;
+            line-height: 1.35;
+            font-weight: 700;
+        }
+        .privacy-note a { color: #62df8d; }
+        .hero-visual {
+            position: relative;
+            min-height: clamp(36rem, 60vw, 50rem);
+            isolation: isolate;
+        }
+        .hero-visual::before {
+            content: "";
+            position: absolute;
+            inset: 9% 4% 1% 2%;
+            background: radial-gradient(circle, rgba(24, 216, 111, 0.34), transparent 62%);
+            filter: blur(52px);
+            z-index: -1;
+        }
+        .phone-shot {
+            position: absolute;
+            height: auto;
+            user-select: none;
+            filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.44));
+        }
+        .hero-main-phone {
+            width: min(26rem, 44vw);
+            top: 0;
+            right: 0;
+            z-index: 2;
+        }
+        .hero-side-phone {
+            width: min(20.5rem, 34vw);
+            top: 8.5rem;
+            left: 0;
+            z-index: 1;
+            opacity: 0.92;
+            transform: rotate(-5deg);
+        }
+        .section {
+            padding: clamp(4rem, 8vw, 7rem) 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .section-cream {
+            background: var(--cv-cream);
+            color: #091018;
+            border-top: 0;
+        }
+        .section-dark {
+            background:
+                radial-gradient(circle at 82% 12%, rgba(255, 59, 138, 0.14), transparent 30rem),
+                linear-gradient(180deg, #07111f, #070b10);
+        }
+        .section-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(17rem, 0.7fr);
+            gap: clamp(2rem, 5vw, 4.5rem);
+            align-items: center;
+        }
+        .section-grid.reverse {
+            grid-template-columns: minmax(17rem, 0.7fr) minmax(0, 0.9fr);
+        }
+        .section-copy .kicker {
+            margin: 0 0 0.75rem;
+            color: var(--cv-green);
+            font-size: 0.8rem;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .section-cream .section-copy .kicker { color: #0f9950; }
+        .section-copy h2 {
+            margin: 0;
+            max-width: 42rem;
+            font-size: 4.2rem;
+            line-height: 0.96;
+            letter-spacing: 0;
+            font-weight: 900;
+        }
+        .section-copy p {
+            margin: 1.05rem 0 0;
+            max-width: 38rem;
+            color: #aeb7c2;
+            font-size: 1.15rem;
+            line-height: 1.62;
+            font-weight: 650;
+        }
+        .section-cream .section-copy p { color: #59615f; }
+        .pull-quote {
+            margin-top: 1.3rem;
+            display: inline-flex;
+            border: 1px solid rgba(24, 216, 111, 0.28);
+            border-radius: 999px;
+            padding: 0.55rem 0.85rem;
+            color: #86f4a8;
+            background: rgba(24, 216, 111, 0.08);
+            font-size: 0.88rem;
+            line-height: 1.2;
+            font-weight: 900;
+        }
+        .section-cream .pull-quote {
+            background: rgba(24, 216, 111, 0.12);
+            color: #0b7c42;
+        }
+        .feature-image-wrap {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 0;
+        }
+        .feature-image-wrap::before {
+            content: "";
+            position: absolute;
+            inset: 14% 8%;
+            border-radius: 999px;
+            background: rgba(24, 216, 111, 0.18);
+            filter: blur(42px);
+            z-index: 0;
+        }
+        .feature-phone {
+            position: relative;
+            z-index: 1;
+            width: min(100%, 23rem);
+            height: auto;
+            filter: drop-shadow(0 30px 58px rgba(0, 0, 0, 0.28));
+        }
+        .fanview-pair {
+            display: grid;
+            grid-template-columns: minmax(0, 0.95fr) minmax(0, 0.72fr);
+            gap: 1rem;
+            align-items: center;
+        }
+        .fanview-pair img:first-child { width: min(100%, 22rem); }
+        .fanview-pair img:last-child { width: min(100%, 16rem); margin-top: 5rem; }
+        .wide-shot {
+            width: 100%;
+            filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.36));
+        }
+        .download-section {
+            padding: clamp(4rem, 8vw, 6.5rem) 0;
+            background:
+                radial-gradient(circle at 50% 20%, rgba(24, 216, 111, 0.18), transparent 32rem),
+                #070b10;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .download-box {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 2rem;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: clamp(1.4rem, 4vw, 2.5rem);
+            background: rgba(255, 255, 255, 0.045);
+        }
+        .download-box > * { min-width: 0; }
+        .download-box h2 {
+            margin: 0;
+            font-size: 3.7rem;
+            line-height: 0.98;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+        .download-box p {
+            margin: 0.8rem 0 0;
+            color: #aeb7c2;
+            font-size: 1.05rem;
+            line-height: 1.55;
+            font-weight: 650;
+        }
+        .final-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .final-actions .qr-card {
+            width: 17rem;
+            grid-template-columns: 6rem minmax(0, 1fr);
+        }
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .faq-card {
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 1.2rem;
+            padding: 1.35rem;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .faq-card h3 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .faq-card p {
+            margin: 0.7rem 0 0;
+            color: #aeb7c2;
+            line-height: 1.55;
+            font-weight: 600;
+        }
+        .footer {
+            padding: 2rem 0 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #858e9d;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .footer-links {
+            display: flex;
+            gap: 1.15rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .footer-links a:hover { color: #fff; }
+        @media (max-width: 1180px) {
+            .nav-links { display: none; }
+            .hero {
+                grid-template-columns: 1fr;
+                padding-top: 1rem;
+            }
+            .hero-visual {
+                min-height: clamp(30rem, 76vw, 42rem);
+                width: min(100%, 42rem);
+                margin: 0 auto;
+            }
+            .hero-main-phone { width: min(23rem, 55vw); right: 6%; }
+            .hero-side-phone { width: min(18.5rem, 44vw); left: 7%; top: 6.5rem; }
+            .section-grid,
+            .section-grid.reverse,
+            .download-box {
+                grid-template-columns: 1fr;
+            }
+            .section-grid.reverse .feature-image-wrap { order: 2; }
+            .section-grid.reverse .section-copy { order: 1; }
+            .section-copy { text-align: left; }
+        }
+        @media (max-width: 760px) {
+            .container-wide { width: min(100% - 2rem, 1200px); }
+            .top-banner-inner {
+                flex-direction: column;
+                gap: 0.3rem;
+                padding: 0.7rem 0;
+                font-size: 0.78rem;
+                line-height: 1.25;
+            }
+            .nav { padding: 1.15rem 0 0.6rem; }
+            .brand-logo { width: min(15.8rem, calc(100vw - 3rem)); }
+            .hero {
+                gap: 1.5rem;
+                padding: 0.6rem 0 3.4rem;
+            }
+            .eyebrow {
+                width: 100%;
+                justify-content: center;
+                font-size: 0.64rem;
+                line-height: 1.15;
+                text-align: center;
+                padding: 0.56rem 0.7rem;
+                letter-spacing: 0.04em;
+            }
+            .hero h1 {
+                font-size: 3.35rem;
+                line-height: 0.95;
+                max-width: 22rem;
+            }
+            .hero-copy {
+                max-width: 22rem;
+                font-size: 1rem;
+                line-height: 1.45;
+            }
+            .cta-row {
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            .app-store-badge { width: 11.25rem; }
+            .hero-helper {
+                max-width: 22rem;
+                font-size: 0.82rem;
+                line-height: 1.35;
+            }
+            .hero-tools {
+                grid-template-columns: 1fr;
+                max-width: 22rem;
+            }
+            .qr-card { display: none; }
+            .signup-card {
+                padding: 0.95rem;
+                border-radius: 1rem;
+            }
+            .signup-form {
+                grid-template-columns: 1fr;
+            }
+            .notify-button { width: 100%; }
+            .hero-visual {
+                min-height: clamp(22rem, 68vh, 30rem);
+                overflow: hidden;
+            }
+            .hero-main-phone {
+                width: min(13.8rem, 56vw);
+                top: 0.2rem;
+                right: 0.8rem;
+            }
+            .hero-side-phone {
+                width: min(11.5rem, 46vw);
+                top: 4.2rem;
+                left: 1.2rem;
+            }
+            .section { padding: 3.6rem 0; }
+            .section-copy h2 {
+                font-size: 2.75rem;
+                line-height: 0.98;
+            }
+            .section-copy p {
+                font-size: 1rem;
+                line-height: 1.55;
+            }
+            .feature-phone { width: min(100%, 18rem); }
+            .fanview-pair {
+                grid-template-columns: 1fr 0.72fr;
+                gap: 0.55rem;
+            }
+            .fanview-pair img:first-child { width: min(100%, 17rem); }
+            .fanview-pair img:last-child { width: min(100%, 11rem); margin-top: 4rem; }
+            .wide-shot { width: 100%; max-width: 100%; margin-left: 0; }
+            .faq-grid { grid-template-columns: 1fr; }
+            .download-box { gap: 1.25rem; }
+            .download-box {
+                padding: 1rem;
+                border-radius: 1.25rem;
+            }
+            .download-box h2 {
+                font-size: 2.35rem;
+                line-height: 1.02;
+            }
+            .download-box p {
+                font-size: 0.98rem;
+            }
+            .final-actions { align-items: flex-start; }
+            .final-actions .qr-card { display: none; }
+            .footer-inner { flex-direction: column; text-align: center; }
         }
     </style>
     <script type="application/ld+json">
@@ -112,8 +602,8 @@
             "@type": "MobileApplication",
             "name": "CourtsideView",
             "applicationCategory": "SportsApplication",
-            "operatingSystem": "iOS, Android",
-            "description": "Volleyball scorekeeping and stat tracking app for live scores, rosters, rotations, and match-day stats.",
+            "operatingSystem": "iOS, iPadOS",
+            "description": "Volleyball scorekeeping and player stat tracking app for live scores, rosters, rotations, and FanView updates.",
             "featureList": [
                 "Volleyball score keeper",
                 "Live volleyball scorekeeping",
@@ -121,9 +611,11 @@
                 "Rotation and lineup tracking",
                 "Roster management",
                 "FanView live score sharing",
-                "Post-match reports"
+                "Big scoreboard mode"
             ],
             "url": "https://www.courtsideviewapp.com/",
+            "downloadUrl": "https://apps.apple.com/us/app/courtsideview/id6766532771",
+            "sameAs": "https://apps.apple.com/us/app/courtsideview/id6766532771",
             "image": "https://www.courtsideviewapp.com/assets/og-image.png",
             "publisher": {
                 "@type": "Organization",
@@ -132,7 +624,7 @@
             },
             "offers": {
                 "@type": "Offer",
-                "availability": "https://schema.org/PreOrder",
+                "availability": "https://schema.org/InStock",
                 "price": "0",
                 "priceCurrency": "USD"
             }
@@ -162,7 +654,7 @@
                     "name": "Can CourtsideView be used as a volleyball score keeper?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "Yes. CourtsideView is built for live volleyball scorekeeping, with match flow, roster context, rotations, and player stats in one focused app."
+                        "text": "Yes. CourtsideView is built for fast volleyball scorekeeping, live match flow, roster context, rotations, and player stats in one focused app."
                     }
                 },
                 {
@@ -170,7 +662,7 @@
                     "name": "What volleyball player stats can I track?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "CourtsideView is designed to help track volleyball player stats such as kills, aces, blocks, attempts, hitting percentage, and other match-day details."
+                        "text": "CourtsideView helps track player-level match details such as assists, digs, serves, net touches, substitutions, rotations, and other volleyball stats."
                     }
                 },
                 {
@@ -178,219 +670,206 @@
                     "name": "Can family and fans follow live volleyball scores?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "CourtsideView includes FanView updates so supporters can follow live volleyball scores and match context when they cannot be courtside."
+                        "text": "Yes. FanView lets supporters follow live volleyball scores and match context from a shared web link."
                     }
                 }
             ]
         }
     </script>
 </head>
-<body class="text-white selection:bg-green-500 selection:text-black">
-    <div class="hero-gradient min-h-screen">
-        <!-- Navigation -->
-        <nav class="container mx-auto px-6 py-8 flex justify-between items-center mobile-compact-nav">
-            <a href="/" class="wordmark" aria-label="CourtsideView home">
-                <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="" aria-hidden="true" width="598" height="138">
-            </a>
-            <div class="hidden lg:flex space-x-8 text-sm font-semibold text-gray-400">
-                <a href="#features" class="hover:text-white transition">Features</a>
-                <a href="#player-stats" class="hover:text-white transition">Player Stats</a>
-                <a href="#faq" class="hover:text-white transition">FAQ</a>
-                <a href="/support" class="hover:text-white transition">Support</a>
-                <a href="/privacy" class="hover:text-white transition">Privacy Policy</a>
+<body class="selection:bg-green-500 selection:text-black">
+    <div class="page-shell">
+        <div class="top-banner">
+            <div class="container-wide top-banner-inner">
+                <span>CourtsideView is live on the App Store.</span>
+                <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">Download for iPhone and iPad</a>
             </div>
-        </nav>
+        </div>
 
-        <!-- Hero Section -->
-        <main class="container mx-auto px-6 pt-12 pb-24 flex flex-col lg:flex-row items-center gap-16 mobile-hero">
-            <div class="lg:w-1/2 space-y-8 text-center lg:text-left mobile-hero-copy">
-                <div class="inline-block px-4 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-xs font-bold uppercase tracking-widest mobile-eyebrow">
-                    Built for Volleyball, Designed by Volleyballers
+        <header class="container-wide">
+            <nav class="nav" aria-label="Main navigation">
+                <a href="/" class="wordmark" aria-label="CourtsideView home">
+                    <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="" aria-hidden="true" width="598" height="138">
+                </a>
+                <div class="nav-links">
+                    <a href="#scoring">Scoring</a>
+                    <a href="#stats">Stats</a>
+                    <a href="#fanview">FanView</a>
+                    <a href="#android">Android</a>
+                    <a href="/support">Support</a>
+                    <a href="/privacy">Privacy</a>
                 </div>
-                <h1 class="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight mobile-headline">
-                    <span class="desktop-copy">Volleyball score keeper and <span class="text-green-500">player stats app.</span></span>
-                    <span class="mobile-copy">For Players.<br>For Fans.<br><span class="text-green-500">For Volleyball<br>in 2026.</span></span>
-                </h1>
-                <p class="text-xl text-gray-400 leading-relaxed max-w-xl mx-auto lg:mx-0 mobile-subhead">
-                    <span class="desktop-copy">Request an invite for real-time volleyball scores, player stats, rosters, rotations, and FanView updates built for parents, coaches, players, and fans.</span>
-                    <span class="mobile-copy">Turn your phone into a match-day command center. Track scores, stats, and rotations. With FanView, family can follow from anywhere!</span>
-                </p>
+            </nav>
+        </header>
 
-                <div class="space-y-4">
-                    <form id="waitlist-form" class="max-w-xl mx-auto lg:mx-0 mobile-form" novalidate>
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <label class="sr-only" for="waitlist-email">Email address</label>
-                            <input
-                                id="waitlist-email"
-                                name="email"
-                                type="email"
-                                autocomplete="email"
-                                required
-                                placeholder="Enter your email"
-                                class="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/10 px-5 py-4 text-base font-semibold text-white placeholder:text-gray-500 outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/30 mobile-input"
-                            >
-                            <button
-                                id="waitlist-submit"
-                                type="submit"
-                                class="cta-button font-extrabold px-8 py-4 rounded-xl transition transform hover:-translate-y-1 active:scale-95 text-lg text-center mobile-button"
-                            >
-                                Get Early Access
-                            </button>
+        <main>
+            <section class="container-wide hero" aria-labelledby="hero-title">
+                <div>
+                    <div class="eyebrow">Now live on the App Store</div>
+                    <h1 id="hero-title">Volleyball Score Keeper and <span class="text-green">Player Stats App</span></h1>
+                    <p class="hero-copy">CourtsideView turns your phone into a match-day command center for scores, rotations, player stats, and live FanView updates. Built by volleyball families, for volleyball families.</p>
+                    <div class="cta-row">
+                        <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
+                            <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
+                        </a>
+                    </div>
+                    <p class="hero-helper">Available now for iPhone and iPad. Because "what's the score?" is not a lifestyle.</p>
+                    <div class="hero-tools">
+                        <div class="qr-card" aria-label="QR code to download CourtsideView">
+                            <img src="/assets/app-store-qr.png" alt="QR code linking to the CourtsideView App Store page" width="768" height="768">
+                            <div>
+                                <strong>Scan to download before first serve.</strong>
+                                <span>Available now on the App Store.</span>
+                            </div>
                         </div>
-                        <p id="waitlist-status" class="mt-3 min-h-5 text-sm font-semibold text-gray-400 mobile-status" role="status" aria-live="polite">Request your invite before tournament season! No spam.</p>
-                        <p class="mt-1 text-xs text-gray-500 mobile-consent">
-                            By requesting an invite, you agree to receive CourtsideView launch updates. <a href="/privacy" class="text-green-500 hover:text-green-400">Privacy Policy</a>
-                        </p>
-                    </form>
-                    <p class="text-sm text-green-500/80 font-semibold uppercase tracking-widest mobile-fomo">
-                        Request your invite before tournament season.
-                    </p>
+                        <div class="signup-card" id="android">
+                            <strong>Android coming soon.</strong>
+                            <span>Join the Android launch list and get occasional CourtsideView updates. No spam.</span>
+                            <form id="updates-form" class="signup-form" novalidate>
+                                <label class="sr-only" for="updates-email">Email address</label>
+                                <input id="updates-email" name="email" type="email" autocomplete="email" required placeholder="Email address">
+                                <button id="updates-submit" class="notify-button" type="submit">Notify me</button>
+                            </form>
+                            <p id="updates-status" class="signup-status" role="status" aria-live="polite"></p>
+                            <p class="privacy-note">By signing up, you agree to receive CourtsideView updates. <a href="/privacy">Privacy Policy</a></p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <!-- Phone Mockup Container -->
-            <div class="lg:w-1/2 relative flex justify-center mobile-phone-wrap real-screens-stage" aria-label="CourtsideView app screenshots showing live scoring and player stat tracking">
-                <img
-                    class="real-screen real-screen-tracking"
-                    src="/assets/marketing-iphone17-tracking.png"
-                    alt="CourtsideView player tracking screen with on-court rotation and action buttons"
-                    width="1620"
-                    height="3138"
-                    loading="eager"
-                    decoding="async"
-                >
-                <img
-                    class="real-screen real-screen-scoreboard"
-                    src="/assets/marketing-iphone17-scoreboard.png"
-                    alt="CourtsideView live scoreboard screen with set score, last action, and on-court rotation"
-                    width="1620"
-                    height="3138"
-                    loading="eager"
-                    decoding="async"
-                >
-                <div class="absolute inset-0 bg-green-500/20 blur-[100px] -z-0 mobile-glow"></div>
-            </div>
+
+                <div class="hero-visual" aria-label="CourtsideView app screenshots">
+                    <img class="phone-shot hero-side-phone" src="/assets/website-fanview-live.webp" alt="CourtsideView FanView live web page showing live score updates" width="900" height="1915" loading="eager" decoding="async">
+                    <img class="phone-shot hero-main-phone" src="/assets/website-scoreboard-command.webp" alt="CourtsideView scorekeeper command center with score, last action, and on-court rotation" width="900" height="1915" loading="eager" decoding="async">
+                </div>
+            </section>
+
+            <section id="scoring" class="section section-cream">
+                <div class="container-wide section-grid">
+                    <div class="section-copy">
+                        <p class="kicker">Scorekeeper</p>
+                        <h2>Paper scorebook, we need to talk.</h2>
+                        <p>Score the match in seconds, keep the set moving, and stop playing detective at set point. No more pencil math, scratched-out points, or asking three people if it is 14-12 or 13-12.</p>
+                        <span class="pull-quote">Tap. Score. Breathe.</span>
+                    </div>
+                    <div class="feature-image-wrap">
+                        <img class="feature-phone" src="/assets/website-scorekeeper-main.webp" alt="CourtsideView scorekeeper screen with score buttons, timeouts, FanView, and end set controls" width="860" height="1830" loading="lazy" decoding="async">
+                    </div>
+                </div>
+            </section>
+
+            <section id="stats" class="section section-dark">
+                <div class="container-wide section-grid reverse">
+                    <div class="feature-image-wrap">
+                        <img class="feature-phone" src="/assets/website-scoreboard-command.webp" alt="CourtsideView player stats, rotations, score, and last action in one match screen" width="900" height="1915" loading="lazy" decoding="async">
+                    </div>
+                    <div class="section-copy">
+                        <p class="kicker">Stats and rotations</p>
+                        <h2>Your libero deserves better than "played great."</h2>
+                        <p>Track player stats match by match so athletes, parents, and coaches can see the work behind the win. See who is on court, who is serving, and where everyone should be before the next whistle.</p>
+                        <span class="pull-quote">Rotation chaos? Not today.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="fanview" class="section">
+                <div class="container-wide section-grid">
+                    <div class="section-copy">
+                        <p class="kicker">FanView</p>
+                        <h2>Grandma can follow from 600 miles away.</h2>
+                        <p>Send a live FanView link so family, friends, and fans can follow the score without refreshing the group chat. One link, live scores, less sideline tech support.</p>
+                        <span class="pull-quote">Live updates for the whole volleyball fam.</span>
+                    </div>
+                    <div class="feature-image-wrap fanview-pair">
+                        <img class="feature-phone" src="/assets/website-fanview-live.webp" alt="FanView live web scoreboard with activity updates for family and fans" width="900" height="1915" loading="lazy" decoding="async">
+                        <img class="feature-phone" src="/assets/website-share-fanview.webp" alt="CourtsideView Share FanView modal with share link and live video setup controls" width="820" height="1745" loading="lazy" decoding="async">
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-cream">
+                <div class="container-wide section-grid reverse">
+                    <div class="feature-image-wrap">
+                        <img class="feature-phone" src="/assets/website-roster-hub.webp" alt="CourtsideView roster hub with import and create roster options" width="820" height="1745" loading="lazy" decoding="async">
+                    </div>
+                    <div class="section-copy">
+                        <p class="kicker">Roster Hub</p>
+                        <h2>Load the team once.</h2>
+                        <p>Build rosters, import lists, and stop rewriting jersey numbers like it is a homework punishment. When match day hits, your players are already where you need them.</p>
+                        <span class="pull-quote">Before first serve, get the lineup handled.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="container-wide">
+                    <div class="section-copy" style="max-width: 760px;">
+                        <p class="kicker">Big mode</p>
+                        <h2>For the parent squinting from the far baseline.</h2>
+                        <p>Flip into a big scoreboard view for scorer tables, benches, and tournament chaos. Set point should not require detective work.</p>
+                    </div>
+                    <div style="margin-top: 2rem;">
+                        <img class="wide-shot" src="/assets/website-big-scoreboard.webp" alt="CourtsideView landscape big scoreboard mode with large team scores" width="1700" height="704" loading="lazy" decoding="async">
+                    </div>
+                </div>
+            </section>
+
+            <section id="faq" class="section section-dark">
+                <div class="container-wide">
+                    <div class="section-copy" style="max-width: 820px;">
+                        <p class="kicker">Match-day answers</p>
+                        <h2>A volleyball tracking app built from the sideline.</h2>
+                        <p>CourtsideView is for parents, coaches, players, and fans who want the score, the rotation, and the story behind the set without turning the group chat into a full-time job.</p>
+                    </div>
+                    <div class="faq-grid">
+                        <article class="faq-card">
+                            <h3>Can CourtsideView be used as a volleyball score keeper?</h3>
+                            <p>Yes. CourtsideView is built for fast volleyball scorekeeping, with roster context, match flow, rotations, and player stats in one focused app.</p>
+                        </article>
+                        <article class="faq-card">
+                            <h3>What volleyball player stats can I track?</h3>
+                            <p>Track match details that help athletes get credit for the work: assists, digs, serves, net touches, substitutions, rotations, and more.</p>
+                        </article>
+                        <article class="faq-card">
+                            <h3>Can family and fans follow live volleyball scores?</h3>
+                            <p>Yes. FanView lets supporters follow live volleyball scores and match context from a shared web link.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="download-section">
+                <div class="container-wide download-box">
+                    <div>
+                        <h2>Download before the next first serve.</h2>
+                        <p>CourtsideView is available now for iPhone and iPad. Android is coming soon, and the launch list is open.</p>
+                    </div>
+                    <div class="final-actions">
+                        <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
+                            <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
+                        </a>
+                        <div class="qr-card" aria-label="QR code to download CourtsideView">
+                            <img src="/assets/app-store-qr.png" alt="QR code linking to the CourtsideView App Store page" width="768" height="768">
+                            <div>
+                                <strong>Scan to download.</strong>
+                                <span>Available now on the App Store.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
-        <!-- Features Grid -->
-        <section id="features" class="container mx-auto px-6 py-24 border-t border-white/5">
-            <div class="max-w-3xl mb-12 text-center lg:text-left">
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">A Volleyball Score Keeper Built for Match Day</h2>
-                <p class="mt-4 text-lg text-gray-400 leading-relaxed">
-                    CourtsideView brings volleyball scorekeeping, player stats, roster details, and rotation context into one focused volleyball tracking app, so the match is easier to follow while it is happening and easier to review afterward.
-                </p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="glass p-8 rounded-3xl space-y-4">
-                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-green-500">Live Volleyball Scores &amp; Player Stats</h3>
-                    <p class="text-gray-400">Keep every set clear with a fast volleyball score keeper made for busy sidelines, tournament gyms, and families following point by point.</p>
+        <footer class="footer">
+            <div class="container-wide footer-inner">
+                <p>&copy; 2026 CourtsideView. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#scoring">Scoring</a>
+                    <a href="#stats">Stats</a>
+                    <a href="#fanview">FanView</a>
+                    <a href="/support">Support</a>
+                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/sitemap.xml">Sitemap</a>
+                    <a href="mailto:teagan@courtsideviewapp.com">Contact</a>
                 </div>
-                <div class="glass p-8 rounded-3xl space-y-4">
-                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-green-500">Roster, Rotation, and Lineup Tracking</h3>
-                    <p class="text-gray-400">Set up players, jersey numbers, positions, and rotation context before the first serve, then keep the action moving as substitutions and set changes happen.</p>
-                </div>
-                <div class="glass p-8 rounded-3xl space-y-4">
-                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-green-500">Fast Volleyball Scorekeeping on Match Day</h3>
-                    <p class="text-gray-400">Track player-level match details like kills, aces, blocks, attempts, and hitting percentage so the final score is not the only story.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SEO Content -->
-        <section id="player-stats" class="container mx-auto px-6 pb-24">
-            <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-start">
-                <div class="lg:sticky lg:top-8">
-                    <p class="text-xs font-bold uppercase tracking-widest text-green-500 mb-4">For parents, coaches, players, and fans</p>
-                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Follow the players, not just the score.</h2>
-                    <p class="mt-4 text-gray-400 leading-relaxed">
-                        Volleyball moves quickly. CourtsideView helps capture the score, the players on the court, and the key stats that make each match easier to understand.
-                    </p>
-                </div>
-                <div class="grid gap-5">
-                    <article class="glass p-7 rounded-3xl">
-                        <h3 class="text-2xl font-bold text-white">Simple Volleyball Scorekeeping for Busy Sidelines</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">
-                            Track the score as the match unfolds without losing sight of the action. CourtsideView is designed as a practical volleyball score keeper for tournament days, club matches, school gyms, and family members helping from the sideline.
-                        </p>
-                    </article>
-                    <article class="glass p-7 rounded-3xl">
-                        <h3 class="text-2xl font-bold text-white">Volleyball Player Stats That Tell the Story</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">
-                            Go beyond the scoreboard with volleyball player stats that help show contribution across a match. Track the details coaches review, players care about, and parents want to understand after the final point.
-                        </p>
-                    </article>
-                    <article class="glass p-7 rounded-3xl">
-                        <h3 class="text-2xl font-bold text-white">A Volleyball Tracking App for Real Match Flow</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">
-                            CourtsideView brings scorekeeping, roster management, rotation tracking, and FanView updates into a single match-day workflow, reducing the guesswork that comes from scattered notes and text updates.
-                        </p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="container mx-auto px-6 pb-24">
-            <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-8 md:p-10">
-                <div class="grid lg:grid-cols-3 gap-8">
-                    <div>
-                        <h2 class="text-3xl font-extrabold tracking-tight">Share the Match as It Happens</h2>
-                        <p class="mt-4 text-gray-400 leading-relaxed">
-                            FanView keeps supporters connected with live volleyball scores and match context, whether they are in the gym, between courts, or following from home.
-                        </p>
-                    </div>
-                    <article>
-                        <h3 class="text-xl font-bold text-green-500">Live Updates Without the Group Text</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">
-                            Give family and fans a cleaner way to follow the match instead of piecing together updates from texts, photos, and half-remembered set scores.
-                        </p>
-                    </article>
-                    <article>
-                        <h3 class="text-xl font-bold text-green-500">Built to Review and Remember</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">
-                            After the final whistle, the match has more context: score flow, player stats, roster details, and the moments that changed the set.
-                        </p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section id="faq" class="container mx-auto px-6 pb-24">
-            <div class="max-w-3xl mx-auto">
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-center">Volleyball Tracking App FAQ</h2>
-                <div class="mt-10 grid gap-5">
-                    <article class="glass p-7 rounded-3xl">
-                        <h3 class="text-xl font-bold text-white">Can CourtsideView be used as a volleyball score keeper?</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">Yes. CourtsideView is built for live volleyball scorekeeping, with match flow, roster context, rotations, and player stats in one focused app.</p>
-                    </article>
-                    <article class="glass p-7 rounded-3xl">
-                        <h3 class="text-xl font-bold text-white">What volleyball player stats can I track?</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">CourtsideView is designed to help track volleyball player stats such as kills, aces, blocks, attempts, hitting percentage, and other match-day details.</p>
-                    </article>
-                    <article class="glass p-7 rounded-3xl">
-                        <h3 class="text-xl font-bold text-white">Can family and fans follow live volleyball scores?</h3>
-                        <p class="mt-3 text-gray-400 leading-relaxed">Yes. FanView updates help supporters follow live volleyball scores and match context when they cannot be courtside.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="container mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/5 text-gray-500 text-sm">
-            <p>&copy; 2026 CourtsideView. All rights reserved.</p>
-            <div class="flex flex-wrap justify-center gap-x-8 gap-y-3">
-                <a href="#features" class="hover:text-white transition">Features</a>
-                <a href="/privacy" class="hover:text-white transition">Privacy Policy</a>
-                <a href="/support" class="hover:text-white transition">Support</a>
-                <a href="/sitemap.xml" class="hover:text-white transition">Sitemap</a>
-                <a href="mailto:teagan@courtsideviewapp.com" class="hover:text-white transition">Contact</a>
             </div>
         </footer>
     </div>
@@ -407,19 +886,19 @@
             },
         });
 
-        const form = document.getElementById('waitlist-form');
-        const emailInput = document.getElementById('waitlist-email');
-        const submitButton = document.getElementById('waitlist-submit');
-        const status = document.getElementById('waitlist-status');
+        const form = document.getElementById('updates-form');
+        const emailInput = document.getElementById('updates-email');
+        const submitButton = document.getElementById('updates-submit');
+        const status = document.getElementById('updates-status');
 
         const setStatus = (message, tone = 'neutral') => {
             status.textContent = message;
-            status.className = 'mt-3 min-h-5 text-sm font-semibold ' + (
+            status.className = 'signup-status' + (
                 tone === 'success'
-                    ? 'text-green-400'
+                    ? ' success'
                     : tone === 'error'
-                        ? 'text-red-300'
-                        : 'text-gray-400'
+                        ? ' error'
+                        : ''
             );
         };
 
@@ -435,28 +914,28 @@
             }
 
             submitButton.disabled = true;
-            submitButton.textContent = 'Requesting...';
-            setStatus('Saving your early-access request...');
+            submitButton.textContent = 'Saving...';
+            setStatus('Adding you to the Android launch list...');
 
             const { error } = await supabase
                 .from('waitlist')
-                .insert({ email, source: 'web' });
+                .insert({ email, source: 'android-launch' });
 
             if (error) {
                 if (error.code === '23505') {
-                    setStatus("You're already on the early-access list. We'll keep you posted.", 'success');
+                    setStatus("You're already on the list. We'll keep you posted.", 'success');
                     form.reset();
                 } else {
-                    console.error('[waitlist] insert failed', error);
+                    console.error('[android-launch] insert failed', error);
                     setStatus('Could not join right now. Email teagan@courtsideviewapp.com and we will add you manually.', 'error');
                 }
             } else {
-                setStatus("You're on the early-access list. We'll send invite updates as spots open.", 'success');
+                setStatus("You're on the Android launch list. We'll send updates when it is ready.", 'success');
                 form.reset();
             }
 
             submitButton.disabled = false;
-            submitButton.textContent = 'Get Early Access';
+            submitButton.textContent = 'Notify me';
         });
     </script>
 </body>
