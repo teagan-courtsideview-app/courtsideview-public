@@ -29,19 +29,21 @@
       }
       * { box-sizing: border-box; }
       html, body { min-height: 100%; margin: 0; background: var(--bg); color: var(--ink);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+        font-family: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
       body { padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
       body.camera-mode { padding: 0; overflow: hidden; }
       .wrap { width: min(100%, 720px); margin: 0 auto; }
       header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-      .mark { font-size: 30px; }
-      .brand { font-weight: 900; font-size: 24px; letter-spacing: -0.5px; }
+      .mark { width: 32px; height: 32px; border-radius: 9px; object-fit: contain; }
+      .brand { font-family: "AvenirNextCondensed-Heavy", "Avenir Next Condensed", "Avenir Next", sans-serif;
+        font-weight: 900; font-size: 27px; line-height: 1.1; letter-spacing: 0; text-transform: uppercase; }
       .pill { margin-left: auto; border: 1px solid rgba(255,255,255,0.16); color: var(--muted);
         border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; letter-spacing: 1px; }
       .hero { margin-bottom: 14px; }
-      h1 { font-size: clamp(36px, 8vw, 58px); line-height: 0.98; margin: 0 0 10px;
-        letter-spacing: -1.2px; }
-      .lead { color: var(--muted); font-size: 17px; line-height: 1.42; margin: 0; }
+      h1 { font-family: "AvenirNextCondensed-Heavy", "Avenir Next Condensed", "Avenir Next", sans-serif;
+        font-size: clamp(38px, 8vw, 60px); line-height: 1.08; margin: 0 0 8px;
+        letter-spacing: 0; text-transform: uppercase; }
+      .lead { color: var(--muted); font-size: 17px; line-height: 1.42; margin: 0; font-weight: 600; }
       .video-shell { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 44dvh;
         background: #05070a; border: 1px solid var(--border); border-radius: 28px;
         overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.35); margin: 0 auto; }
@@ -63,11 +65,14 @@
       .status strong { color: var(--ink); }
       .controls { display: grid; gap: 10px; margin-top: 14px; }
       button, a.button { appearance: none; border: 0; border-radius: 999px; padding: 16px 18px;
-        font-size: 16px; font-weight: 900; letter-spacing: 0.2px; text-align: center;
+        font-family: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 16px; font-weight: 900; letter-spacing: 0; text-align: center;
         text-decoration: none; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .primary { color: #fff; background: var(--green); }
+      .primary { color: #fff; background: var(--pink); }
       .fanview-primary { color: #fff; background: var(--pink); }
       .fanview-primary:active { background: var(--pink-dark); }
+      .primary::after,
+      .fanview-primary::after { content: " →"; font-weight: 900; }
       .danger { color: #fff; background: var(--red); }
       .secondary { color: var(--ink); background: rgba(255,255,255,0.12); border: 1px solid var(--border); }
       .preview-link { appearance: none; border: 0; background: transparent; color: var(--muted);
@@ -94,7 +99,8 @@
       .confirm-backdrop.on { opacity: 1; pointer-events: auto; }
       .confirm-sheet { width: min(100%, 460px); margin: 0 auto; border-radius: 28px;
         background: #f8fafc; color: #0b1017; padding: 22px; box-shadow: 0 28px 80px rgba(0,0,0,0.42); }
-      .confirm-sheet h2 { margin: 0 0 8px; font-size: 24px; line-height: 1.05; letter-spacing: -0.3px; }
+      .confirm-sheet h2 { margin: 0 0 8px; font-family: "AvenirNextCondensed-Heavy", "Avenir Next Condensed", "Avenir Next", sans-serif;
+        font-size: 28px; line-height: 1.12; letter-spacing: 0; text-transform: uppercase; }
       .confirm-sheet p { margin: 0 0 18px; color: #5f6875; font-size: 15px; line-height: 1.4; font-weight: 700; }
       .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
       .confirm-actions button { padding: 14px 14px; font-size: 15px; }
@@ -143,10 +149,10 @@
       body.camera-mode .hint { display: none; }
       @media (max-width: 430px) {
         body { padding-left: 12px; padding-right: 12px; }
-        .mark { font-size: 26px; }
-        .brand { font-size: 21px; }
+        .mark { width: 28px; height: 28px; }
+        .brand { font-size: 23px; }
         .pill { padding: 5px 9px; font-size: 11px; }
-        h1 { font-size: clamp(34px, 11vw, 44px); }
+        h1 { font-size: clamp(36px, 11vw, 46px); }
         .lead { font-size: 16px; }
         .video-shell { border-radius: 22px; max-height: 38dvh; }
         .status { left: 10px; right: 10px; bottom: 10px; padding: 10px 12px; font-size: 13px; }
@@ -173,7 +179,7 @@
   <body>
     <main class="wrap">
       <header>
-        <span class="mark">🏐</span>
+        <img class="mark" src="/assets/courtsideview-app-icon.png" alt="" />
         <span class="brand">CourtsideView</span>
         <span id="statePill" class="pill">READY</span>
       </header>

@@ -14,17 +14,20 @@
         --ink: #11141A; --ink-muted: #68707C; --ink-dim: #9AA3AD;
         --border: #E1E4DE; --border-strong: #C9CEC6; --green: #10884C; --red: #DC4543;
         --gold: #D79A1E; --pink: #F84A92; --court: #F1F3EF;
+        --font-sans: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        --font-display: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-score: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: var(--bg); color: var(--ink);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        font-family: var(--font-sans);
         font-feature-settings: "tnum" 1; min-height: 100vh; }
       .container { max-width: 430px; margin: 0 auto; padding: 20px 14px 44px; }
       .container.has-video { max-width: 430px; }
       header.brand { display: flex; align-items: center; gap: 10px;
         padding: 4px 2px 12px; margin-bottom: 8px; }
-      .brand-mark { font-size: 28px; }
-      .brand-word { font-size: 22px; font-weight: 900; letter-spacing: -0.7px; }
+      .brand-mark { width: 32px; height: 32px; border-radius: 9px; object-fit: contain; }
+      .brand-word { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: 0; }
       .header-actions { margin-left: auto; display: flex; align-items: center; justify-content: flex-end;
         gap: 8px; min-width: 0; flex-shrink: 0; }
       .fanview-pill { background: var(--pink); color: #fff; border: 1px solid var(--pink);
@@ -62,9 +65,9 @@
       .side.trailing .name { color: var(--ink-dim); }
       .side .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); }
       .score { width: 100%; max-width: 100%; text-align: center;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        font-family: var(--font-score);
         font-size: clamp(34px, 16vw, 46px); line-height: .88; font-weight: 950; color: var(--ink);
-        letter-spacing: -0.07em; font-variant-numeric: tabular-nums; }
+        letter-spacing: 0; font-variant-numeric: tabular-nums; }
       .side.leading .score { font-size: clamp(44px, 19vw, 58px); color: var(--team-color, var(--ink)); }
       .side.trailing .score { color: var(--ink-dim); }
       .sets-won { margin-top: 5px; color: var(--ink-muted); font-size: 10px; line-height: 1;
@@ -98,14 +101,14 @@
         padding: 18px 20px; }
       .action-strip.on { display: block; }
       .action-accent { display: none; }
-      .action-text { font-size: 24px; line-height: 1.05; font-weight: 900;
-        letter-spacing: -0.04em; color: var(--ink); }
+      .action-text { font-family: var(--font-display); font-size: 24px; line-height: 1.05; font-weight: 900;
+        letter-spacing: 0; color: var(--ink); }
       .action-text::before { content: "LAST PLAY"; display: block; color: #35D07F;
         font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
         margin-bottom: 12px; }
       .activity-section { display: none; margin-top: 10px; }
       .activity-section.on { display: block; }
-      .activity-title { font-size: 15px; font-weight: 900; letter-spacing: 0;
+      .activity-title { font-family: var(--font-display); font-size: 15px; font-weight: 900; letter-spacing: 0;
         color: var(--ink); margin: 0 2px 10px; }
       .activity-list { display: grid; gap: 8px; }
       .activity-row { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto;
@@ -123,7 +126,7 @@
       .court-section.on { display: block; }
       .section-head { display: flex; align-items: center; justify-content: space-between;
         gap: 12px; margin: 0 2px 10px; }
-      .section-title { font-size: 14px; font-weight: 900; letter-spacing: 1px;
+      .section-title { font-family: var(--font-display); font-size: 14px; font-weight: 900; letter-spacing: 1px;
         text-transform: uppercase; }
       .court-legend { color: var(--ink-dim); font-size: 13px; font-weight: 650;
         white-space: nowrap; }
@@ -151,9 +154,9 @@
       .star { color: var(--green); font-size: 18px; line-height: 1; }
       .serve-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold);
         box-shadow: 0 0 0 2px rgba(179,138,0,0.14); }
-      .jersey { text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      .jersey { text-align: center; font-family: var(--font-score);
         font-size: clamp(38px, 11vw, 64px); line-height: 0.9; font-weight: 900;
-        letter-spacing: -2px; color: var(--ink); font-variant-numeric: tabular-nums; }
+        letter-spacing: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
       .player-line { text-align: center; font-size: clamp(13px, 3vw, 17px);
         line-height: 1.1; font-weight: 850; white-space: nowrap; overflow: hidden;
         text-overflow: ellipsis; }
@@ -177,7 +180,7 @@
       .footer-hint a { color: var(--green); text-decoration: none; font-weight: 600; }
       .app-promo { margin: 28px auto 0; background: var(--bg-elev); border: 1px solid var(--border);
         border-radius: 22px; padding: 18px; box-shadow: 0 5px 18px rgba(10,14,26,0.05); }
-      .app-promo-title { font-size: 19px; line-height: 1.1; font-weight: 900; margin-bottom: 7px; }
+      .app-promo-title { font-family: var(--font-display); font-size: 19px; line-height: 1.1; font-weight: 900; margin-bottom: 7px; }
       .app-promo-body { color: var(--ink-muted); font-size: 14px; line-height: 1.4; margin-bottom: 14px; }
       .app-promo-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
       .app-promo-button { display: inline-flex; align-items: center; justify-content: center;
@@ -187,8 +190,8 @@
       .app-promo-note { color: var(--ink-dim); font-size: 12px; line-height: 1.35; margin-top: 12px; }
       .expired-panel { display: none; max-width: 620px; margin: 0 auto 24px; background: var(--bg-elev);
         border: 1px solid var(--border); border-radius: 24px; padding: 30px 22px; text-align: center; }
-      .expired-title { font-size: clamp(28px, 8vw, 44px); line-height: 1; font-weight: 900;
-        letter-spacing: -1px; margin-bottom: 10px; }
+      .expired-title { font-family: var(--font-display); font-size: clamp(28px, 8vw, 44px); line-height: 1; font-weight: 900;
+        letter-spacing: 0; margin-bottom: 10px; }
       .expired-body { color: var(--ink-muted); font-size: 15px; line-height: 1.45; max-width: 480px;
         margin: 0 auto; }
       .privacy-line { color: var(--ink-dim); font-size: 12px; line-height: 1.35; text-align: center;
@@ -212,7 +215,7 @@
       .video-status-card { width: min(100%, 420px); background: rgba(10,14,26,0.78);
         border: 1px solid rgba(255,255,255,0.14); border-radius: 18px; padding: 16px;
         box-shadow: 0 14px 38px rgba(0,0,0,0.24); }
-      .video-status-title { font-size: 18px; line-height: 1.1; font-weight: 900; margin-bottom: 7px; }
+      .video-status-title { font-family: var(--font-display); font-size: 18px; line-height: 1.1; font-weight: 900; margin-bottom: 7px; }
       .video-status-body { color: rgba(255,255,255,0.78); font-size: 13px; line-height: 1.35; }
       .video-viewers { position: absolute; top: 12px; left: 12px; z-index: 4;
         background: rgba(0,0,0,0.52); border-color: rgba(255,255,255,0.16); color: #fff; }
@@ -260,7 +263,7 @@
         pointer-events: none; }
       .no-video-copy { position: absolute; left: 22px; right: 22px; top: 58px; z-index: 3; text-align: center; }
       .no-video-viewers { position: absolute; right: 12px; top: 12px; z-index: 4; }
-      .no-video-copy b { display: block; color: var(--ink); font-size: 22px; line-height: 1.05; font-weight: 900; }
+      .no-video-copy b { display: block; color: var(--ink); font-family: var(--font-display); font-size: 22px; line-height: 1.05; font-weight: 900; }
       .no-video-copy span { display: inline-block; max-width: 100%; margin-top: 12px; border-radius: 999px;
         padding: 8px 12px; background: rgba(255,255,255,0.92); color: var(--ink);
         border: 1px solid rgba(17,20,26,0.12); font-size: 11px; line-height: 1; font-weight: 900;
@@ -301,7 +304,7 @@
         .container.no-video-mode .no-video-copy { left: max(32px, env(safe-area-inset-left)); right: auto;
           top: clamp(86px, 25vh, 122px); width: min(27vw, 330px); text-align: left; }
         .container.no-video-mode .no-video-copy b { font-size: clamp(19px, 5.1vh, 28px);
-          letter-spacing: -0.04em; white-space: nowrap; }
+          letter-spacing: 0; white-space: nowrap; }
         .container.no-video-mode .no-video-copy span { max-width: 100%; margin-top: 14px;
           padding: 8px 10px; font-size: clamp(7px, 1.65vh, 8.5px); white-space: nowrap;
           overflow: visible; text-overflow: clip; letter-spacing: 0; }
@@ -320,7 +323,7 @@
           letter-spacing: 3px; margin-bottom: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .container.no-video-mode .side .dot { width: 13px; height: 13px; }
         .container.no-video-mode .score { align-self: center; width: 100%; max-width: 100%;
-          font-size: clamp(76px, 17vh, 108px); line-height: .88; letter-spacing: -0.075em; }
+          font-size: clamp(76px, 17vh, 108px); line-height: .88; letter-spacing: 0; }
         .container.no-video-mode .side.leading .score { font-size: clamp(86px, 18vh, 116px); }
         .container.no-video-mode .side.trailing .score { font-size: clamp(64px, 14vh, 92px); }
         .container.no-video-mode .sets-won { font-size: clamp(11px, 2.4vh, 14px); letter-spacing: 1.4px; }
@@ -343,8 +346,8 @@
       @media (max-width: 520px) {
         .container { padding: 18px 12px 48px; }
         header.brand { padding-bottom: 16px; margin-bottom: 16px; }
-        .brand-mark { font-size: 24px; }
-        .brand-word { font-size: 20px; letter-spacing: -0.8px; }
+        .brand-mark { width: 28px; height: 28px; }
+        .brand-word { font-size: 20px; letter-spacing: 0; }
         .header-actions { gap: 7px; }
         .header-actions #headerViewerCount { display: none; }
         .fanview-pill { min-height: 36px; padding: 9px 16px; font-size: 11px; letter-spacing: 1.4px; }
@@ -354,7 +357,7 @@
         .video-frame { border-radius: 16px; }
         .scoreboard { border-radius: 8px; padding: 8px; }
         .score-column.no-video .scoreboard { margin-top: -12px; }
-        .score { font-size: 42px; letter-spacing: -0.04em; }
+        .score { font-size: 42px; letter-spacing: 0; }
         .court-card { border-radius: 18px; padding: 12px; }
         .court-grid { gap: 8px; }
         .court-cell { border-radius: 14px; padding: 8px; }
@@ -369,7 +372,7 @@
   <body>
     <div class="container">
       <header class="brand">
-        <span class="brand-mark">🏐</span>
+        <img class="brand-mark" src="/assets/courtsideview-app-icon.png" alt="" />
         <span class="brand-word">CourtsideView</span>
         <span class="header-actions">
           <span id="headerViewerCount" class="viewer-pill"><span class="dot"></span><span>0 watching</span></span>
