@@ -96,9 +96,9 @@
         .hero {
             display: grid;
             grid-template-columns: minmax(0, 0.95fr) minmax(24rem, 1.05fr);
-            align-items: center;
+            align-items: start;
             gap: clamp(2.5rem, 5vw, 5rem);
-            padding: clamp(2rem, 5vw, 4.5rem) 0 clamp(4rem, 8vw, 7rem);
+            padding: clamp(0.5rem, 1.8vw, 1.75rem) 0 clamp(4rem, 8vw, 7rem);
         }
         .eyebrow {
             display: inline-flex;
@@ -116,7 +116,7 @@
             text-transform: uppercase;
         }
         .hero h1 {
-            margin: 1.2rem 0 0;
+            margin: 0;
             max-width: 46rem;
             font-size: 6.2rem;
             line-height: 0.92;
@@ -733,7 +733,6 @@
         <main>
             <section class="container-wide hero" aria-labelledby="hero-title">
                 <div>
-                    <div class="eyebrow">Now live on iOS and Android</div>
                     <h1 id="hero-title">Volleyball Score Keeper and <span class="text-green">Player Stats App</span></h1>
                     <p class="hero-copy">CourtsideView turns your phone into a match-day command center for scores, rotations, player stats, and live FanView updates. Built by volleyball families, for volleyball families.</p>
                     <div class="cta-row">
