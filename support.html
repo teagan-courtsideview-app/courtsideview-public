@@ -13,9 +13,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0a0e14; }
+        :root {
+            --font-display: "Avenir Next Condensed", "AvenirNextCondensed-Heavy", "Avenir Next", "Arial Narrow", "Roboto Condensed", sans-serif;
+            --font-body: "Avenir Next", Avenir, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        body { font-family: var(--font-body); background-color: #0a0e14; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .hero-gradient { background: radial-gradient(circle at top right, rgba(46, 204, 113, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(46, 204, 113, 0.05), transparent 40%); }
         .wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
@@ -23,7 +26,9 @@
         @media (max-width: 639px) {
             .brand-logo { width: min(15.75rem, calc(100vw - 3rem)); }
         }
-        .prose-cv h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 2.5rem; margin-bottom: 0.75rem; color: #ffffff; }
+        .display-heading,
+        .prose-cv h2 { font-family: var(--font-display); letter-spacing: 0; }
+        .prose-cv h2 { font-size: 1.5rem; font-weight: 800; margin-top: 2.5rem; margin-bottom: 0.75rem; color: #ffffff; }
         .prose-cv p, .prose-cv li { color: #9CA3AF; line-height: 1.7; font-size: 1rem; }
         .prose-cv strong { color: #ffffff; font-weight: 600; }
         .prose-cv ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0 1rem; }
@@ -63,8 +68,8 @@
             <div class="inline-block px-4 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-xs font-bold uppercase tracking-widest mb-6">
                 CourtsideView Support
             </div>
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">Support</h1>
-            <p class="text-sm text-gray-500 mb-10">Last updated: May 22, 2026</p>
+            <h1 class="display-heading text-4xl md:text-5xl font-extrabold mb-3">Support</h1>
+            <p class="text-sm text-gray-500 mb-10">Last updated: June 6, 2026</p>
 
             <div class="glass p-6 md:p-8 rounded-3xl mb-12">
                 <div class="flex flex-wrap gap-2 mb-4">
@@ -79,7 +84,7 @@
 
             <div class="prose-cv">
                 <h2>Contact support</h2>
-                <p>For app help, bug reports, download questions, Android launch list questions, FanView issues, Team Scout questions, privacy requests, or app store review questions, email <a href="mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20Support">teagan@courtsideviewapp.com</a>.</p>
+                <p>For app help, bug reports, download questions, FanView issues, Team Scout questions, privacy requests, or app store review questions, email <a href="mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20Support">teagan@courtsideviewapp.com</a>.</p>
                 <p>If your request is urgent because a live match link is not working, include <strong>FanView urgent</strong> in the subject line so we can spot it quickly.</p>
 
                 <h2>What to include</h2>
@@ -96,7 +101,7 @@
 
                 <h2>Common help topics</h2>
                 <ul>
-                    <li><strong>Download and availability:</strong> CourtsideView is available now for iPhone and iPad on the App Store. Android is coming soon.</li>
+                    <li><strong>Download and availability:</strong> CourtsideView is available now for iPhone and iPad on the App Store and Android on Google Play.</li>
                     <li><strong>Scoring a match:</strong> CourtsideView is designed for quick match-day scorekeeping, roster context, rotations, and player stats.</li>
                     <li><strong>FanView links:</strong> FanView links are created when you choose to publish a live view from the app. Links are intended for people you share them with.</li>
                     <li><strong>Team Scout links:</strong> Team Scout sharing lets coaches and contributors review scouting observations through a shared web page.</li>
@@ -111,7 +116,7 @@
                 <p>If you are reviewing CourtsideView for Apple App Review or Google Play, this page is the public support contact for the app. Please email <a href="mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20App%20Store%20Review">teagan@courtsideviewapp.com</a> with any review questions or requests for clarification.</p>
 
                 <h2>Availability</h2>
-                <p>CourtsideView is available now for iPhone and iPad on the App Store. Android is coming soon, and some features or access flows may continue to evolve as we improve the app.</p>
+                <p>CourtsideView is available now for iPhone and iPad on the App Store and Android on Google Play. Some features or access flows may continue to evolve as we improve the app.</p>
             </div>
         </main>
 

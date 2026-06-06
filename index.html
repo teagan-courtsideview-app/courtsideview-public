@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CourtsideView | Volleyball Score Keeper & Player Stats App</title>
-    <meta name="description" content="CourtsideView is a volleyball score keeper and player stats app for live scores, rotations, rosters, and FanView updates. Download now on the App Store. Android coming soon.">
+    <meta name="description" content="CourtsideView is a volleyball score keeper and player stats app for live scores, rotations, rosters, and FanView updates. Download now on the App Store and Google Play.">
     <meta name="theme-color" content="#0a0e14">
     <meta name="apple-itunes-app" content="app-id=6766532771, app-argument=https://www.courtsideviewapp.com/">
 
@@ -36,12 +36,14 @@
             --cv-blue: #2f80ed;
             --cv-cream: #f3f4ee;
             --cv-yellow: #f5c542;
+            --font-display: "Avenir Next Condensed", "AvenirNextCondensed-Heavy", "Avenir Next", "Arial Narrow", "Roboto Condensed", sans-serif;
+            --font-body: "Avenir Next", Avenir, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
             margin: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             background: var(--cv-bg);
             color: #fff;
             overflow-x: hidden;
@@ -118,6 +120,7 @@
             max-width: 46rem;
             font-size: 6.2rem;
             line-height: 0.92;
+            font-family: var(--font-display);
             font-weight: 900;
             letter-spacing: 0;
         }
@@ -137,7 +140,14 @@
             gap: 1.1rem;
             flex-wrap: wrap;
         }
-        .app-store-badge {
+        .store-badges {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .app-store-badge,
+        .play-store-badge {
             display: block;
             width: 11.8rem;
             height: auto;
@@ -318,6 +328,7 @@
             max-width: 42rem;
             font-size: 4.2rem;
             line-height: 0.96;
+            font-family: var(--font-display);
             letter-spacing: 0;
             font-weight: 900;
         }
@@ -403,6 +414,7 @@
             margin: 0;
             font-size: 3.7rem;
             line-height: 0.98;
+            font-family: var(--font-display);
             font-weight: 900;
             letter-spacing: 0;
         }
@@ -528,7 +540,8 @@
                 align-items: flex-start;
                 gap: 0.75rem;
             }
-            .app-store-badge { width: 11.25rem; }
+            .app-store-badge,
+            .play-store-badge { width: 11.25rem; }
             .hero-helper {
                 max-width: 22rem;
                 font-size: 0.82rem;
@@ -592,6 +605,10 @@
                 font-size: 0.98rem;
             }
             .final-actions { align-items: flex-start; }
+            .final-actions .store-badges {
+                flex-direction: column;
+                align-items: flex-start;
+            }
             .final-actions .qr-card {
                 display: grid;
                 width: min(100%, 20rem);
@@ -610,7 +627,7 @@
             "@type": "MobileApplication",
             "name": "CourtsideView",
             "applicationCategory": "SportsApplication",
-            "operatingSystem": "iOS, iPadOS",
+            "operatingSystem": "iOS, iPadOS, Android",
             "description": "Volleyball scorekeeping and player stat tracking app for live scores, rosters, rotations, and FanView updates.",
             "featureList": [
                 "Volleyball score keeper",
@@ -622,8 +639,11 @@
                 "Big scoreboard mode"
             ],
             "url": "https://www.courtsideviewapp.com/",
-            "downloadUrl": "https://apps.apple.com/us/app/courtsideview/id6766532771",
-            "sameAs": "https://apps.apple.com/us/app/courtsideview/id6766532771",
+            "downloadUrl": "https://www.courtsideviewapp.com/download",
+            "sameAs": [
+                "https://apps.apple.com/us/app/courtsideview/id6766532771",
+                "https://play.google.com/store/apps/details?id=app.courtsideview.android&pli=1"
+            ],
             "image": "https://www.courtsideviewapp.com/assets/og-image.png",
             "publisher": {
                 "@type": "Organization",
@@ -689,8 +709,8 @@
     <div class="page-shell">
         <div class="top-banner">
             <div class="container-wide top-banner-inner">
-                <span>CourtsideView is live on the App Store.</span>
-                <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">Download for iPhone and iPad</a>
+                <span>CourtsideView is live on the App Store and Google Play.</span>
+                <a href="/download" aria-label="Download CourtsideView for your device">Download now</a>
             </div>
         </div>
 
@@ -703,7 +723,7 @@
                     <a href="#scoring">Scoring</a>
                     <a href="#stats">Stats</a>
                     <a href="#fanview">FanView</a>
-                    <a href="#android">Android</a>
+                    <a href="#download">Download</a>
                     <a href="/support">Support</a>
                     <a href="/privacy">Privacy</a>
                 </div>
@@ -713,30 +733,35 @@
         <main>
             <section class="container-wide hero" aria-labelledby="hero-title">
                 <div>
-                    <div class="eyebrow">Now live on the App Store</div>
+                    <div class="eyebrow">Now live on iOS and Android</div>
                     <h1 id="hero-title">Volleyball Score Keeper and <span class="text-green">Player Stats App</span></h1>
                     <p class="hero-copy">CourtsideView turns your phone into a match-day command center for scores, rotations, player stats, and live FanView updates. Built by volleyball families, for volleyball families.</p>
                     <div class="cta-row">
-                        <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
-                            <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
-                        </a>
+                        <div class="store-badges" aria-label="Download CourtsideView">
+                            <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
+                                <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
+                            </a>
+                            <a href="https://play.google.com/store/apps/details?id=app.courtsideview.android&amp;pli=1" aria-label="Get CourtsideView on Google Play">
+                                <img class="play-store-badge" src="/assets/get-it-on-google-play.svg" alt="Get it on Google Play" width="180" height="54">
+                            </a>
+                        </div>
                     </div>
-                    <p class="hero-helper">Available now for iPhone and iPad. Because "what's the score?" is not a lifestyle.</p>
+                    <p class="hero-helper">Available now for iPhone, iPad, and Android. Because "what's the score?" is not a lifestyle.</p>
                     <div class="hero-tools">
                         <div class="qr-card" aria-label="QR code to download CourtsideView">
-                            <img src="/assets/app-store-qr.png" alt="QR code linking to the CourtsideView App Store page" width="768" height="768">
+                            <img src="/assets/smart-download-qr.png" alt="QR code linking to the CourtsideView smart download page" width="768" height="768">
                             <div>
                                 <strong>Scan to download before first serve.</strong>
-                                <span>Available now on the App Store.</span>
+                                <span>Opens the App Store or Google Play for your device.</span>
                             </div>
                         </div>
                         <div class="signup-card" id="android">
-                            <strong>Android coming soon.</strong>
-                            <span>Join the Android launch list and get occasional CourtsideView updates. No spam.</span>
+                            <strong>Keep up with CourtsideView.</strong>
+                            <span>Get occasional product updates, FanView tips, and volleyball-family notes. No spam.</span>
                             <form id="updates-form" class="signup-form" novalidate>
                                 <label class="sr-only" for="updates-email">Email address</label>
                                 <input id="updates-email" name="email" type="email" autocomplete="email" required placeholder="Email address">
-                                <button id="updates-submit" class="notify-button" type="submit">Notify me</button>
+                                <button id="updates-submit" class="notify-button" type="submit">Join updates</button>
                             </form>
                             <p id="updates-status" class="signup-status" role="status" aria-live="polite"></p>
                             <p class="privacy-note">By signing up, you agree to receive CourtsideView updates. <a href="/privacy">Privacy Policy</a></p>
@@ -844,21 +869,26 @@
                 </div>
             </section>
 
-            <section class="download-section">
+            <section id="download" class="download-section">
                 <div class="container-wide download-box">
                     <div>
                         <h2>Download before the next first serve.</h2>
-                        <p>CourtsideView is available now for iPhone and iPad. Android is coming soon, and the launch list is open.</p>
+                        <p>CourtsideView is available now for iPhone, iPad, and Android. Score the match before the group chat asks again.</p>
                     </div>
                     <div class="final-actions">
-                        <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
-                            <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
-                        </a>
+                        <div class="store-badges" aria-label="Download CourtsideView">
+                            <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
+                                <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
+                            </a>
+                            <a href="https://play.google.com/store/apps/details?id=app.courtsideview.android&amp;pli=1" aria-label="Get CourtsideView on Google Play">
+                                <img class="play-store-badge" src="/assets/get-it-on-google-play.svg" alt="Get it on Google Play" width="180" height="54">
+                            </a>
+                        </div>
                         <div class="qr-card" aria-label="QR code to download CourtsideView">
-                            <img src="/assets/app-store-qr.png" alt="QR code linking to the CourtsideView App Store page" width="768" height="768">
+                            <img src="/assets/smart-download-qr.png" alt="QR code linking to the CourtsideView smart download page" width="768" height="768">
                             <div>
                                 <strong>Scan to download.</strong>
-                                <span>Available now on the App Store.</span>
+                                <span>Android opens Google Play. iPhone opens the App Store.</span>
                             </div>
                         </div>
                     </div>
@@ -923,27 +953,27 @@
 
             submitButton.disabled = true;
             submitButton.textContent = 'Saving...';
-            setStatus('Adding you to the Android launch list...');
+            setStatus('Adding you to CourtsideView updates...');
 
             const { error } = await supabase
                 .from('waitlist')
-                .insert({ email, source: 'android-launch' });
+                .insert({ email, source: 'website-updates' });
 
             if (error) {
                 if (error.code === '23505') {
                     setStatus("You're already on the list. We'll keep you posted.", 'success');
                     form.reset();
                 } else {
-                    console.error('[android-launch] insert failed', error);
+                    console.error('[website-updates] insert failed', error);
                     setStatus('Could not join right now. Email teagan@courtsideviewapp.com and we will add you manually.', 'error');
                 }
             } else {
-                setStatus("You're on the Android launch list. We'll send updates when it is ready.", 'success');
+                setStatus("You're on the CourtsideView update list. We'll keep it useful.", 'success');
                 form.reset();
             }
 
             submitButton.disabled = false;
-            submitButton.textContent = 'Notify me';
+            submitButton.textContent = 'Join updates';
         });
     </script>
 </body>
