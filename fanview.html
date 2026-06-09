@@ -248,6 +248,41 @@
         font-size: 12px; line-height: 1.15; font-weight: 900; text-align: center; }
       .fullscreen-choice span { display: block; color: rgba(255,255,255,0.68);
         font-size: 10px; font-weight: 800; margin-top: 2px; }
+      .broadcast-score-rail { display: none; position: absolute; left: 50%; top: max(14px, env(safe-area-inset-top));
+        z-index: 7; transform: translateX(-50%); width: min(calc(100% - 48px), 1120px);
+        grid-template-columns: minmax(0, 1fr) clamp(96px, 11vw, 142px) minmax(0, 1fr);
+        gap: clamp(14px, 2.1vw, 28px); align-items: center; padding: clamp(10px, 1.5vw, 18px);
+        border-radius: clamp(18px, 2.4vw, 30px); background: rgba(10,14,26,0.92);
+        border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 18px 44px rgba(0,0,0,0.32);
+        backdrop-filter: blur(14px); color: #fff; pointer-events: none; }
+      .broadcast-team { min-width: 0; display: grid; gap: clamp(8px, 1vw, 13px); }
+      .broadcast-team-label { min-width: 0; height: clamp(34px, 5.3vw, 58px); border-radius: clamp(8px, 1.2vw, 16px);
+        display: flex; align-items: center; justify-content: center; padding: 0 clamp(12px, 2vw, 26px);
+        background: #fff; color: var(--ink); font-family: var(--font-display);
+        font-size: clamp(18px, 3vw, 38px); line-height: .95; font-weight: 950; letter-spacing: .02em;
+        text-align: center; text-transform: uppercase; }
+      .broadcast-team-label span { display: block; min-width: 0; max-width: 100%;
+        overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+      .broadcast-score-tile { min-height: clamp(76px, 13vw, 156px); border-radius: clamp(10px, 1.5vw, 18px);
+        display: flex; align-items: center; justify-content: center; padding: 0 clamp(10px, 2vw, 22px);
+        background: var(--broadcast-color, var(--pink)); color: var(--broadcast-score-color, #fff);
+        font-family: var(--font-score); font-size: clamp(66px, 13vw, 164px);
+        line-height: .82; font-weight: 950; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+      .broadcast-set-stack { display: grid; justify-items: center; align-content: center; gap: clamp(7px, 1vw, 12px); }
+      .broadcast-set-badge { width: clamp(72px, 8.6vw, 116px); height: clamp(72px, 8.6vw, 116px);
+        border-radius: 999px; display: grid; place-items: center; align-content: center;
+        background: #fff; color: var(--ink); font-family: var(--font-display);
+        font-weight: 950; text-transform: uppercase; text-align: center;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
+      .broadcast-set-badge strong { display: block; font-family: var(--font-score);
+        font-size: clamp(38px, 6.2vw, 78px); line-height: .82; font-weight: 950; }
+      .broadcast-set-badge span { display: block; margin-top: 2px; font-size: clamp(13px, 2vw, 26px);
+        line-height: .9; letter-spacing: .04em; }
+      .broadcast-target-pill { min-width: clamp(60px, 7vw, 96px); height: clamp(22px, 3vw, 34px);
+        border-radius: 999px; display: flex; align-items: center; justify-content: center;
+        background: #fff; color: var(--ink); font-family: var(--font-display);
+        font-size: clamp(10px, 1.5vw, 18px); font-weight: 950; letter-spacing: .05em;
+        text-transform: uppercase; }
       .video-frame:fullscreen, .video-frame:-webkit-full-screen { width: 100vw; height: 100vh;
         aspect-ratio: auto; border: 0; border-radius: 0; background: #000; box-shadow: none; }
       .video-frame:fullscreen iframe, .video-frame:fullscreen video,
@@ -256,6 +291,11 @@
       .video-frame:fullscreen .video-viewers, .video-frame:-webkit-full-screen .video-viewers { top: 16px; left: 16px; }
       .video-frame:fullscreen .fullscreen-button, .video-frame:-webkit-full-screen .fullscreen-button { right: 16px; top: 16px; }
       .video-frame:fullscreen .fullscreen-menu, .video-frame:-webkit-full-screen .fullscreen-menu { right: 16px; top: 62px; }
+      .video-frame:fullscreen .broadcast-score-rail, .video-frame:-webkit-full-screen .broadcast-score-rail {
+        display: grid; top: max(18px, env(safe-area-inset-top)); }
+      .video-frame:fullscreen .video-viewers, .video-frame:-webkit-full-screen .video-viewers,
+      .video-frame:fullscreen .fullscreen-button, .video-frame:-webkit-full-screen .fullscreen-button {
+        display: none !important; }
       .no-video-hero { display: none; height: 224px; border-radius: 24px; margin-top: 8px;
         position: relative; overflow: hidden; background:
           radial-gradient(circle at 50% 8%, rgba(16,136,76,0.06), transparent 36%),
@@ -287,8 +327,7 @@
         .fanview-layout { min-height: 100vh; }
         .container.has-video .video-wrap { display: block; margin: 0; }
         .container.has-video .video-frame { position: fixed; inset: 0; border-radius: 0; border: 0; box-shadow: none; aspect-ratio: auto; }
-        .container.has-video .score-column { position: fixed; right: max(18px, env(safe-area-inset-right)); top: 94px;
-          width: 286px; z-index: 9; }
+        .container.has-video .score-column { display: none !important; }
         .container.has-video .scoreboard { margin: 0 0 12px; background: rgba(17,24,32,0.82);
           border-color: rgba(255,255,255,0.14); backdrop-filter: blur(14px); }
         .container.has-video .side, .container.has-video .divider { background: rgba(255,255,255,0.1);
@@ -300,8 +339,12 @@
         .container.has-video .side .name, .container.has-video .meta-row { color: rgba(255,255,255,0.74); }
         .container.has-video .action-strip { background: rgba(17,24,32,0.82); border-color: rgba(255,255,255,0.14);
           backdrop-filter: blur(14px); }
-        .container.has-video .activity-section, .container.has-video .court-section, .container.has-video .meta-row { display: none !important; }
-        .container.has-video .viewer-pill.video-viewers { top: 48px; left: auto; right: 138px; }
+        .container.has-video .activity-section, .container.has-video .court-section, .container.has-video .meta-row,
+        .container.has-video .action-strip, .container.has-video .tracked-summary { display: none !important; }
+        .container.has-video .viewer-pill.video-viewers,
+        .container.has-video .fullscreen-button,
+        .container.has-video .fullscreen-menu { display: none !important; }
+        .container.has-video .broadcast-score-rail { display: grid; }
         .container.no-video-mode .fanview-layout { min-height: 100vh; background:
           linear-gradient(135deg, #F7F8F5, var(--bg-elev)); }
         .container.no-video-mode .no-video-hero { position: fixed; inset: 0; height: auto; margin: 0;
@@ -341,6 +384,20 @@
         .container.no-video-mode .target { margin-top: 10px; font-size: clamp(16px, 3.8vh, 21px); letter-spacing: 2.5px; }
         .container.no-video-mode .activity-section, .container.no-video-mode .court-section,
         .container.no-video-mode .tracked-summary, .container.no-video-mode .meta-row { display: none !important; }
+      }
+      @media (orientation: landscape) and (min-height: 521px) {
+        .container.has-video { max-width: none; min-height: 100vh; padding: 0; }
+        .container.has-video header.brand, .container.has-video .app-promo,
+        .container.has-video .footer-hint, .container.has-video .refresh-row,
+        .container.has-video .last-updated, .container.has-video .privacy-line { display: none !important; }
+        .container.has-video .fanview-layout { min-height: 100vh; }
+        .container.has-video .video-wrap { display: block; margin: 0; }
+        .container.has-video .video-frame { position: fixed; inset: 0; border-radius: 0; border: 0; box-shadow: none; aspect-ratio: auto; }
+        .container.has-video .score-column { display: none !important; }
+        .container.has-video .broadcast-score-rail { display: grid; }
+        .container.has-video .viewer-pill.video-viewers,
+        .container.has-video .fullscreen-button,
+        .container.has-video .fullscreen-menu { display: none !important; }
       }
       @media (min-width: 760px) {
         .score-column.no-video .scoreboard,
@@ -401,6 +458,20 @@
                 allowfullscreen></iframe>
               <video id="liveVideo" autoplay playsinline controls muted></video>
               <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
+              <div id="broadcastScoreRail" class="broadcast-score-rail" aria-label="Live match score">
+                <div class="broadcast-team broadcast-home" id="broadcastHome">
+                  <div class="broadcast-team-label"><span id="broadcastHomeName">Home</span></div>
+                  <div class="broadcast-score-tile" id="broadcastHomeScoreTile"><span id="broadcastHomeScore">0</span></div>
+                </div>
+                <div class="broadcast-set-stack">
+                  <div class="broadcast-set-badge"><strong id="broadcastSetNumber">1</strong><span>Set</span></div>
+                  <div class="broadcast-target-pill" id="broadcastTarget">To 25</div>
+                </div>
+                <div class="broadcast-team broadcast-away" id="broadcastAway">
+                  <div class="broadcast-team-label"><span id="broadcastAwayName">Away</span></div>
+                  <div class="broadcast-score-tile" id="broadcastAwayScoreTile"><span id="broadcastAwayScore">0</span></div>
+                </div>
+              </div>
               <button id="soundButton" class="sound-button" type="button">🔊 Tap for sound</button>
               <button id="fullscreenButton" class="fullscreen-button" type="button" aria-expanded="false">⛶ Full screen</button>
               <div id="fullscreenMenu" class="fullscreen-menu" role="menu" aria-label="Choose full-screen orientation">
@@ -524,6 +595,15 @@
         const b = parseInt(hex.substr(5,2),16);
         return ((0.299*r+0.587*g+0.114*b)/255) > 0.75 ? '#0A0E1A' : hex;
       }
+      function contrastTextForBackground(hex) {
+        if (!hex || typeof hex !== 'string') return '#FFFFFF';
+        const m = hex.replace('#','').match(/^([0-9a-f]{6})$/i);
+        if (!m) return '#FFFFFF';
+        const r = parseInt(hex.substr(1,2),16);
+        const g = parseInt(hex.substr(3,2),16);
+        const b = parseInt(hex.substr(5,2),16);
+        return ((0.299*r+0.587*g+0.114*b)/255) > 0.72 ? '#11141A' : '#FFFFFF';
+      }
       function hexAlpha(hex, alpha) {
         const value = String(hex || '').trim();
         return /^#[0-9a-f]{6}$/i.test(value) ? value + alpha : value;
@@ -560,6 +640,13 @@
         if (!el) return;
         const full = normalizeDisplayName(name, fallback);
         el.textContent = compactTeamName(full, fallback, 18).toUpperCase();
+        el.title = full;
+      }
+      function setBroadcastTeamLabel(id, name, fallback) {
+        const el = $(id);
+        if (!el) return;
+        const full = normalizeDisplayName(name, fallback);
+        el.textContent = compactTeamName(full, fallback, 22).toUpperCase();
         el.title = full;
       }
       function displayActivityText(text, row) {
@@ -1341,6 +1428,16 @@
         awaySide.classList.toggle('trailing', homeLeading);
         $('homeScore').textContent = String(homeScore);
         $('awayScore').textContent = String(awayScore);
+        setBroadcastTeamLabel('broadcastHomeName', matchRow.home_name, 'Home');
+        setBroadcastTeamLabel('broadcastAwayName', matchRow.away_name, 'Away');
+        $('broadcastHomeScore').textContent = String(homeScore);
+        $('broadcastAwayScore').textContent = String(awayScore);
+        $('broadcastSetNumber').textContent = String(currentSet);
+        $('broadcastTarget').textContent = 'To ' + setTarget;
+        $('broadcastHomeScoreTile').style.setProperty('--broadcast-color', homeColor);
+        $('broadcastHomeScoreTile').style.setProperty('--broadcast-score-color', contrastTextForBackground(homeColor));
+        $('broadcastAwayScoreTile').style.setProperty('--broadcast-color', awayColor);
+        $('broadcastAwayScoreTile').style.setProperty('--broadcast-score-color', contrastTextForBackground(awayColor));
         $('homeScore').style.color = homeLeading ? homeColor : (scoreTied ? 'var(--ink)' : 'var(--ink-dim)');
         $('awayScore').style.color = awayLeading ? awayColor : (scoreTied ? 'var(--ink)' : 'var(--ink-dim)');
         $('homeSetsWon').textContent = 'Sets ' + homeSets;
