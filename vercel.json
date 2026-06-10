@@ -7,6 +7,7 @@
     { "source": "/live/(.*)", "destination": "/live.html" },
     { "source": "/v/(.*)", "destination": "/fanview.html" },
     { "source": "/p/(.*)", "destination": "/player.html" },
+    { "source": "/t/(.*)", "destination": "/team.html" },
     { "source": "/download", "destination": "/download.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/support", "destination": "/support.html" }

@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>CourtsideView Team</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #101820;
+        --muted: #647067;
+        --line: #dfe6dc;
+        --paper: #fbfcf7;
+        --panel: #ffffff;
+        --green: #0f8a4f;
+        --gold: #f4b400;
+        --pink: #ff4f8e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+      }
+      main {
+        width: min(960px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 30px 0 48px;
+      }
+      header {
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 20px;
+        margin-bottom: 22px;
+      }
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(38px, 8vw, 78px);
+        line-height: .94;
+      }
+      .meta {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .team-mark {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        margin-right: 8px;
+        vertical-align: -3px;
+        border: 2px solid rgba(16,24,32,.12);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1.7fr 1fr;
+        gap: 18px;
+      }
+      section, .live {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+      section + section { margin-top: 18px; }
+      h2 {
+        margin: 0 0 14px;
+        font-size: 13px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+      .live {
+        display: none;
+        margin-bottom: 18px;
+        border-color: rgba(255,79,142,.42);
+        box-shadow: 0 18px 40px rgba(255,79,142,.12);
+      }
+      .live.is-visible { display: block; }
+      .live-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      .live-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 30px;
+        border-radius: 999px;
+        padding: 0 12px;
+        color: #fff;
+        background: var(--pink);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .08em;
+      }
+      a.button, button {
+        appearance: none;
+        border: 0;
+        min-height: 42px;
+        border-radius: 999px;
+        padding: 0 16px;
+        background: var(--green);
+        color: #fff;
+        font-weight: 900;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .match {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+      }
+      .match:first-of-type { border-top: 0; padding-top: 0; }
+      .match-title {
+        font-weight: 900;
+      }
+      .match-meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .status {
+        align-self: start;
+        border-radius: 999px;
+        background: #eef5ee;
+        color: var(--green);
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .empty {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      form {
+        display: grid;
+        gap: 10px;
+      }
+      input {
+        min-height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        font: inherit;
+      }
+      .note {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      @media (max-width: 760px) {
+        .grid { grid-template-columns: 1fr; }
+        .live-row { align-items: flex-start; flex-direction: column; }
+        .match { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">CourtsideView Team Page</p>
+        <h1 id="teamName">Loading team...</h1>
+        <p class="meta" id="teamMeta"></p>
+      </header>
+
+      <div class="live" id="liveBanner">
+        <div class="live-row">
+          <div>
+            <span class="live-pill">LIVE NOW</span>
+            <p class="meta" id="liveText">Follow the match on FanView.</p>
+          </div>
+          <a class="button" id="liveLink" href="#">Open FanView</a>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <section>
+            <h2>Schedule</h2>
+            <div id="upcoming"></div>
+          </section>
+          <section>
+            <h2>Results</h2>
+            <div id="results"></div>
+          </section>
+        </div>
+        <aside>
+          <section>
+            <h2>Follow</h2>
+            <form id="followForm">
+              <input id="email" type="email" autocomplete="email" placeholder="Email address" required />
+              <button type="submit">Notify Me</button>
+            </form>
+            <p class="note" id="followNote">We will only email when this team goes live.</p>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
+
+      const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: false },
+      });
+
+      const state = { team: null, matches: [] };
+
+      function getSlug() {
+        const match = window.location.pathname.match(/^\/t\/([^/?#]+)/);
+        return match ? decodeURIComponent(match[1]) : '';
+      }
+
+      function fmtDate(value) {
+        if (!value) return 'Date TBA';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Date TBA';
+        return date.toLocaleString([], {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+        });
+      }
+
+      function renderMatch(match) {
+        const result = match.result || null;
+        const score = result && typeof result.us === 'number'
+          ? ` · ${result.us}-${result.them}`
+          : '';
+        const location = match.location ? ` · ${match.location}` : '';
+        const live = match.status === 'live' && match.fanview_share_id
+          ? `<a href="/v/${encodeURIComponent(match.fanview_share_id)}">FanView</a>`
+          : '';
+        return `
+          <div class="match">
+            <div>
+              <div class="match-title">vs ${match.opponent || 'Opponent'}${score}</div>
+              <div class="match-meta">${fmtDate(match.starts_at)}${location} ${live}</div>
+            </div>
+            <div class="status">${match.status}</div>
+          </div>
+        `;
+      }
+
+      function render() {
+        const team = state.team;
+        if (!team) return;
+        document.title = `${team.name} | CourtsideView`;
+        document.getElementById('teamName').textContent = team.name;
+        document.getElementById('teamMeta').innerHTML = `<span class="team-mark" style="background:${team.color || '#f4b400'}"></span>${team.season || 'Season'} · courtsideviewapp.com/t/${team.slug}`;
+
+        const live = state.matches.find((match) => match.status === 'live' && match.fanview_share_id);
+        const liveBanner = document.getElementById('liveBanner');
+        liveBanner.classList.toggle('is-visible', Boolean(live));
+        if (live) {
+          document.getElementById('liveText').textContent = `vs ${live.opponent || 'Opponent'} is live now.`;
+          document.getElementById('liveLink').href = `/v/${encodeURIComponent(live.fanview_share_id)}`;
+        }
+
+        const upcoming = state.matches.filter((match) => match.status !== 'final');
+        const results = state.matches.filter((match) => match.status === 'final');
+        document.getElementById('upcoming').innerHTML = upcoming.length
+          ? upcoming.map(renderMatch).join('')
+          : '<p class="empty">No upcoming matches posted yet.</p>';
+        document.getElementById('results').innerHTML = results.length
+          ? results.map(renderMatch).join('')
+          : '<p class="empty">Results will appear here after the match.</p>';
+      }
+
+      async function loadTeam() {
+        const slug = getSlug();
+        if (!slug) throw new Error('Missing team slug.');
+        const { data, error } = await supabase
+          .from('teams')
+          .select('id, slug, name, color, season, is_public')
+          .eq('slug', slug)
+          .eq('is_public', true)
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) throw new Error('Team page not found.');
+        state.team = data;
+      }
+
+      async function loadMatches() {
+        if (!state.team) return;
+        const { data, error } = await supabase
+          .from('team_matches')
+          .select('id, opponent, starts_at, location, status, match_id, fanview_share_id, result, live_notified_at')
+          .eq('team_id', state.team.id)
+          .order('starts_at', { ascending: true, nullsFirst: false });
+        if (error) throw error;
+        state.matches = data || [];
+        render();
+      }
+
+      document.getElementById('followForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const note = document.getElementById('followNote');
+        const email = document.getElementById('email').value.trim();
+        if (!state.team || !email) return;
+        const { error } = await supabase
+          .from('team_followers')
+          .insert({ team_id: state.team.id, email, confirmed: true });
+        if (error && error.code !== '23505') {
+          note.textContent = error.message || 'Unable to follow right now.';
+          return;
+        }
+        note.textContent = 'You are following this team. We will email when a match goes live.';
+        document.getElementById('email').value = '';
+      });
+
+      (async function init() {
+        try {
+          await loadTeam();
+          await loadMatches();
+          setInterval(loadMatches, 2000);
+        } catch (error) {
+          document.getElementById('teamName').textContent = 'Team page unavailable';
+          document.getElementById('teamMeta').textContent = error.message || 'This team page is private or unknown.';
+          document.querySelector('.grid').style.display = 'none';
+        }
+      })();
+    </script>
+  </body>
+</html>
