@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#F6F7F2" />
+    <title>CourtsideView Player Profile</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" href="/assets/courtsideview-app-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png" />
+    <style>
+      :root {
+        --bg: #f6f7f2; --card: #fff; --ink: #11141a; --muted: #68707c;
+        --dim: #9aa3ad; --border: #e1e4de; --green: #10884c;
+        --gold: #d79a1e; --pink: #f84a92;
+        --font-sans: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        --font-display: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: var(--font-sans); }
+      .page { max-width: 680px; margin: 0 auto; padding: 22px 16px 48px; }
+      .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+      .brand img { width: 34px; height: 34px; border-radius: 9px; }
+      .word { font-family: var(--font-display); font-size: 24px; line-height: 1; font-weight: 900; }
+      .status { padding: 90px 18px; text-align: center; color: var(--muted); }
+      .status.err { color: #dc4543; }
+      .hero { position: relative; overflow: hidden; border-radius: 24px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 14px 36px rgba(13,19,26,.08); }
+      .stripe { height: 14px; background: var(--team, var(--green)); }
+      .hero-body { padding: 28px 24px 24px; }
+      .eyebrow { font-size: 11px; line-height: 1; letter-spacing: 1.8px; text-transform: uppercase; font-weight: 900; color: var(--gold); }
+      .identity { display: grid; grid-template-columns: 86px minmax(0,1fr); gap: 18px; align-items: center; margin-top: 18px; }
+      .avatar { width: 86px; height: 86px; border-radius: 50%; display: grid; place-items: center; background: var(--team, var(--green)); color: #fff; font-size: 38px; line-height: 1; font-weight: 950; font-variant-numeric: tabular-nums; }
+      h1 { margin: 0; font-family: var(--font-display); font-size: clamp(42px, 11vw, 76px); line-height: .92; font-weight: 950; letter-spacing: 0; text-transform: uppercase; overflow-wrap: anywhere; }
+      .meta { margin-top: 8px; color: var(--muted); font-size: 14px; line-height: 1.35; font-weight: 800; }
+      .headline { margin-top: 24px; border-radius: 18px; background: #f1f3ef; padding: 18px; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+      .headline-value { font-family: var(--font-display); font-size: clamp(44px, 13vw, 72px); line-height: .9; font-weight: 950; color: var(--green); font-variant-numeric: tabular-nums; }
+      .headline-label { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 900; }
+      .games { text-align: right; color: var(--ink); font-size: 14px; font-weight: 900; white-space: nowrap; }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+      .stat { min-height: 92px; border-radius: 16px; background: #fafaf7; border: 1px solid #edf0ea; padding: 16px; }
+      .stat-value { font-family: var(--font-display); font-size: 36px; line-height: .95; font-weight: 950; font-variant-numeric: tabular-nums; }
+      .stat-label { margin-top: 8px; color: var(--muted); font-size: 10px; line-height: 1; letter-spacing: 1.3px; text-transform: uppercase; font-weight: 900; }
+      .best { display: none; margin-top: 14px; border-radius: 18px; background: #fff8e6; padding: 16px; color: var(--ink); }
+      .best.on { display: block; }
+      .best .eyebrow { color: var(--gold); margin-bottom: 8px; }
+      .section { margin-top: 18px; border-radius: 22px; background: var(--card); border: 1px solid var(--border); padding: 20px; }
+      .section-title { font-family: var(--font-display); font-size: 22px; line-height: 1; font-weight: 950; margin-bottom: 12px; }
+      .highlight-list { display: grid; gap: 12px; }
+      .highlight { display: grid; gap: 8px; border-radius: 16px; background: #fafaf7; border: 1px solid #edf0ea; overflow: hidden; }
+      .highlight iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; display: block; background: #050505; }
+      .highlight-copy { padding: 0 14px 14px; }
+      .highlight-label { font-weight: 900; color: var(--ink); }
+      .highlight-stat { margin-top: 3px; color: var(--muted); font-size: 13px; line-height: 1.3; }
+      .highlight-note { color: var(--muted); font-size: 13px; line-height: 1.35; border: 1px dashed #d9ded6;
+        border-radius: 14px; padding: 12px; background: #fafaf7; }
+      .footer { text-align: center; color: var(--dim); font-size: 12px; line-height: 1.4; padding: 24px 12px 0; }
+      .footer a { color: var(--green); text-decoration: none; font-weight: 900; }
+      @media (max-width: 460px) {
+        .page { padding: 18px 12px 42px; }
+        .identity { grid-template-columns: 74px minmax(0,1fr); gap: 14px; }
+        .avatar { width: 74px; height: 74px; font-size: 32px; }
+        .hero-body { padding: 24px 18px 20px; }
+        .headline { align-items: flex-start; flex-direction: column; }
+        .games { text-align: left; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="brand">
+        <img src="/assets/courtsideview-app-icon.png" alt="" />
+        <span class="word">CourtsideView</span>
+      </header>
+
+      <div id="loading" class="status">Loading player profile...</div>
+      <div id="errorBox" class="status err" style="display:none"></div>
+
+      <article id="profile" style="display:none">
+        <section class="hero">
+          <div class="stripe"></div>
+          <div class="hero-body">
+            <div class="eyebrow" id="season">Season Stats</div>
+            <div class="identity">
+              <div class="avatar" id="jersey">0</div>
+              <div>
+                <h1 id="name">Player</h1>
+                <div class="meta" id="meta"></div>
+              </div>
+            </div>
+            <div class="headline">
+              <div>
+                <div class="headline-value" id="headlineValue">.000</div>
+                <div class="headline-label" id="headlineLabel">Season hitting</div>
+              </div>
+              <div class="games" id="games">0 games · 0 sets</div>
+            </div>
+            <div class="grid" id="statsGrid"></div>
+            <div class="best" id="bestGame">
+              <div class="eyebrow">Best Game</div>
+              <div id="bestText"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="highlightsSection" style="display:none">
+          <div class="section-title">Highlights</div>
+          <div class="highlight-list" id="highlightList"></div>
+        </section>
+
+        <div class="footer">
+          Tracked live with <a href="https://www.courtsideviewapp.com/">CourtsideView</a>.
+          No player photos are stored on this public profile.
+        </div>
+      </article>
+    </main>
+
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
+      const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const $ = (id) => document.getElementById(id);
+      function getShareId() {
+        const match = window.location.pathname.match(/^\/p\/([^/?#]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+      }
+      function showError(message) {
+        $('loading').style.display = 'none';
+        $('profile').style.display = 'none';
+        $('errorBox').textContent = message;
+        $('errorBox').style.display = 'block';
+      }
+      function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = String(value ?? '');
+        return div.innerHTML;
+      }
+      function safeStats(row) {
+        return row && row.season_stats && typeof row.season_stats === 'object' ? row.season_stats : {};
+      }
+      function statNumber(stats, key) {
+        const value = Number(stats[key]);
+        return Number.isFinite(value) ? value : 0;
+      }
+      function hitPct(stats) {
+        const attempts = statNumber(stats, 'totalAttempts');
+        if (attempts <= 0) return '.000';
+        const pct = (statNumber(stats, 'kills') - statNumber(stats, 'errors')) / attempts;
+        const abs = Math.abs(pct).toFixed(3).replace(/^0\./, '.');
+        return pct < 0 ? `-${abs}` : abs;
+      }
+      function passAvg(stats) {
+        const attempts = statNumber(stats, 'passAttempts');
+        if (attempts <= 0) return '0.00';
+        return (statNumber(stats, 'passTotal') / attempts).toFixed(2);
+      }
+      function positionGroup(position) {
+        if (position === 'S') return 'setter';
+        if (position === 'L' || position === 'DS') return 'defensive';
+        return 'attacker';
+      }
+      function headlineFor(row, stats) {
+        const group = positionGroup(row.position);
+        if (group === 'setter') return { value: statNumber(stats, 'assists'), label: 'Season assists' };
+        if (group === 'defensive') return { value: passAvg(stats), label: 'Season pass avg' };
+        return { value: hitPct(stats), label: 'Season hitting' };
+      }
+      function statCells(row, stats) {
+        const group = positionGroup(row.position);
+        if (group === 'setter') {
+          return [
+            ['Assists', statNumber(stats, 'assists')],
+            ['Dump K', statNumber(stats, 'dumpKills')],
+            ['Set Err', statNumber(stats, 'settingErrors')],
+            ['Digs', statNumber(stats, 'digs')],
+            ['Aces', statNumber(stats, 'aces')],
+            ['Blocks', statNumber(stats, 'blocks')],
+          ];
+        }
+        if (group === 'defensive') {
+          return [
+            ['Pass Avg', passAvg(stats)],
+            ['Passes', statNumber(stats, 'passAttempts')],
+            ['Digs', statNumber(stats, 'digs')],
+            ['Aces', statNumber(stats, 'aces')],
+            ['Assists', statNumber(stats, 'assists')],
+            ['Errors', statNumber(stats, 'errors')],
+          ];
+        }
+        return [
+          ['Kills', statNumber(stats, 'kills')],
+          ['Hit %', hitPct(stats)],
+          ['Attempts', statNumber(stats, 'totalAttempts')],
+          ['Digs', statNumber(stats, 'digs')],
+          ['Blocks', statNumber(stats, 'blocks')],
+          ['Aces', statNumber(stats, 'aces')],
+        ];
+      }
+      function youTubeEmbedUrl(url, seconds) {
+        try {
+          const parsed = new URL(String(url));
+          let id = '';
+          if (parsed.hostname.includes('youtu.be')) id = parsed.pathname.slice(1);
+          if (parsed.searchParams.get('v')) id = parsed.searchParams.get('v') || '';
+          const liveIndex = parsed.pathname.indexOf('/live/');
+          if (!id && liveIndex >= 0) id = parsed.pathname.slice(liveIndex + 6).split('/')[0] || '';
+          if (!id) return null;
+          const start = Math.max(0, Math.floor(Number(seconds) || 0));
+          return `https://www.youtube.com/embed/${encodeURIComponent(id)}?start=${start}`;
+        } catch {
+          return null;
+        }
+      }
+      function renderHighlights(row) {
+        const highlights = Array.isArray(row.highlight_links) ? row.highlight_links : [];
+        if (highlights.length === 0) return;
+        $('highlightsSection').style.display = 'block';
+        const rendered = highlights
+          .map((item) => {
+            const embed = youTubeEmbedUrl(item.video_url, item.t_seconds);
+            if (!embed) return '';
+            return `<div class="highlight">
+              <iframe src="${escapeHtml(embed)}" allow="accelerometer; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              <div class="highlight-copy">
+                <div class="highlight-label">${escapeHtml(item.label || 'Highlight')}</div>
+                <div class="highlight-stat">${escapeHtml(item.stat_line || '')}</div>
+              </div>
+            </div>`;
+          })
+          .filter(Boolean);
+        $('highlightList').innerHTML = rendered.length > 0
+          ? rendered.join('')
+          : '<div class="highlight-note">Upload to YouTube and paste the link to share moments.</div>';
+      }
+      function render(row) {
+        const stats = safeStats(row);
+        const teamColor = /^#[0-9a-f]{6}$/i.test(row.team_color || '') ? row.team_color : '#10884C';
+        document.documentElement.style.setProperty('--team', teamColor);
+        document.title = `${row.display_name} · CourtsideView`;
+        $('season').textContent = row.season || 'Season Stats';
+        $('jersey').textContent = String(row.jersey_number ?? '');
+        $('name').textContent = row.display_name || 'Player';
+        $('meta').textContent = `#${row.jersey_number ?? ''} · ${row.position || '—'} · ${row.team_name || 'Team'}`;
+        const headline = headlineFor(row, stats);
+        $('headlineValue').textContent = String(headline.value);
+        $('headlineLabel').textContent = headline.label;
+        $('games').textContent = `${statNumber(stats, 'gamesPlayed')} games · ${statNumber(stats, 'setsPlayed')} sets`;
+        $('statsGrid').innerHTML = statCells(row, stats)
+          .map(([label, value]) => `<div class="stat"><div class="stat-value">${escapeHtml(value)}</div><div class="stat-label">${escapeHtml(label)}</div></div>`)
+          .join('');
+        if (statNumber(stats, 'bestGameKills') > 0) {
+          $('bestGame').classList.add('on');
+          $('bestText').textContent = `${statNumber(stats, 'bestGameKills')} kills vs ${stats.bestGameOpponent || 'Opponent'} · ${stats.bestGameDate || ''}`;
+        }
+        renderHighlights(row);
+        $('loading').style.display = 'none';
+        $('errorBox').style.display = 'none';
+        $('profile').style.display = 'block';
+      }
+      async function init() {
+        const shareId = getShareId();
+        if (!shareId) {
+          showError('Player profile not found.');
+          return;
+        }
+        const { data, error } = await supabase
+          .from('player_profiles')
+          .select('share_id, display_name, jersey_number, position, team_name, team_color, season, season_stats, highlight_links, is_public, updated_at')
+          .eq('share_id', shareId)
+          .eq('is_public', true)
+          .maybeSingle();
+        if (error) {
+          showError(error.message);
+          return;
+        }
+        if (!data) {
+          showError('Player profile not found or private.');
+          return;
+        }
+        render(data);
+      }
+      void init();
+    </script>
+  </body>
+</html>
