@@ -321,10 +321,10 @@
         const note = document.getElementById('followNote');
         const email = document.getElementById('email').value.trim();
         if (!state.team || !email) return;
-        const { error } = await supabase
-          .from('team_followers')
-          .insert({ team_id: state.team.id, email, confirmed: true });
-        if (error && error.code !== '23505') {
+        const { error } = await supabase.functions.invoke('follow-team', {
+          body: { teamId: state.team.id, email },
+        });
+        if (error) {
           note.textContent = error.message || 'Unable to follow right now.';
           return;
         }
