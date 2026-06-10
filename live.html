@@ -81,6 +81,25 @@
       button:disabled { opacity: 0.5; cursor: default; }
       .is-hidden { display: none !important; }
       .hint { color: var(--dim); font-size: 12px; line-height: 1.4; margin: 14px 4px 0; text-align: center; }
+      .record-panel { display: flex; align-items: center; gap: 12px; margin-top: 12px;
+        padding: 13px 14px; border-radius: 20px; background: rgba(255,255,255,0.08);
+        border: 1px solid var(--border); color: var(--ink); }
+      .record-toggle { position: relative; display: inline-flex; flex: 0 0 auto; }
+      .record-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+      .record-switch { width: 52px; height: 30px; border-radius: 999px; padding: 3px;
+        background: rgba(255,255,255,0.17); border: 1px solid rgba(255,255,255,0.18);
+        transition: background 160ms ease, border-color 160ms ease; }
+      .record-switch::after { content: ""; display: block; width: 22px; height: 22px;
+        border-radius: 50%; background: #fff; box-shadow: 0 5px 12px rgba(0,0,0,0.22);
+        transition: transform 160ms ease; }
+      .record-toggle input:checked + .record-switch { background: var(--green); border-color: var(--green); }
+      .record-toggle input:checked + .record-switch::after { transform: translateX(22px); }
+      .record-toggle input:disabled + .record-switch { opacity: 0.45; }
+      .record-copy { min-width: 0; display: grid; gap: 3px; }
+      .record-copy strong { font-size: 13px; line-height: 1.1; font-weight: 900; }
+      .record-copy span { color: var(--muted); font-size: 12px; line-height: 1.3; font-weight: 700; }
+      .record-copy small { color: var(--dim); font-size: 11px; line-height: 1.3; font-weight: 800; }
+      .record-panel.is-warning .record-copy small { color: #fbbf24; }
       .viewer-row { display: flex; align-items: center; justify-content: center; gap: 8px;
         color: var(--muted); font-size: 13px; font-weight: 800; margin-top: 12px; }
       .viewer-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink);
@@ -134,6 +153,12 @@
         margin: 0 auto; padding: 12px; border-radius: 28px; background: rgba(8,13,21,0.78);
         border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(18px);
         box-shadow: 0 20px 62px rgba(0,0,0,0.38); }
+      body.camera-mode .record-panel { position: fixed; z-index: 10;
+        left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
+        bottom: calc(max(14px, env(safe-area-inset-bottom)) + 166px);
+        width: auto; max-width: 520px; margin: 0 auto; background: rgba(8,13,21,0.78);
+        border-color: rgba(255,255,255,0.14); backdrop-filter: blur(18px);
+        box-shadow: 0 16px 42px rgba(0,0,0,0.28); }
       body.camera-mode.is-setup .controls,
       body.camera-mode.is-offline .controls { grid-template-columns: 1fr 0.78fr; }
       body.camera-mode.is-setup #cameraBtn,
@@ -160,6 +185,8 @@
         body.camera-mode.is-live .controls { gap: 9px; padding: 11px; }
         body.camera-mode .top-overlay { top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
         body.camera-mode .controls { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
+        body.camera-mode .record-panel { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
+          bottom: calc(max(12px, env(safe-area-inset-bottom)) + 164px); }
       }
       @media (orientation: landscape) and (min-width: 760px) {
         .stage { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(360px, 1fr);
@@ -173,6 +200,8 @@
         body.camera-mode .status.on { transform: translateY(0); }
         body.camera-mode .controls { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
           transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom)); }
+        body.camera-mode .record-panel { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
+          transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 142px); }
       }
     </style>
   </head>
@@ -204,6 +233,17 @@
             <span class="viewer-dot"></span>
             <span id="viewerCount" class="viewer-count"><strong>0</strong> watching</span>
           </div>
+          <div id="recordPanel" class="record-panel">
+            <label class="record-toggle" aria-label="Save a local copy">
+              <input id="recordToggle" type="checkbox" checked />
+              <span class="record-switch" aria-hidden="true"></span>
+            </label>
+            <div class="record-copy">
+              <strong>Save to my phone</strong>
+              <span>Broadcast is never saved by CourtsideView. Keep a copy on this phone.</span>
+              <small id="recordEstimate">Ready to save set files locally.</small>
+            </div>
+          </div>
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
             <button id="broadcastBtn" class="primary is-hidden" disabled>Start live video</button>
@@ -230,9 +270,22 @@
     </div>
 
     <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
+
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
+      const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
       const VIEWER_POLL_MS = 5000;
+      const RECORDING_CHUNK_MAX_MS = 25 * 60 * 1000;
+      const RECORDING_WARNING_BYTES = 4 * 1024 * 1024 * 1024;
       const streamId = getStreamId();
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: {
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+          persistSession: false,
+        },
+      });
       const preview = document.getElementById('preview');
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
@@ -241,6 +294,9 @@
       const minimizeBtn = document.getElementById('minimizeBtn');
       const stopBtn = document.getElementById('stopBtn');
       const previewBtn = document.getElementById('previewBtn');
+      const recordPanel = document.getElementById('recordPanel');
+      const recordToggle = document.getElementById('recordToggle');
+      const recordEstimate = document.getElementById('recordEstimate');
       const statusEl = document.getElementById('status');
       const statePill = document.getElementById('statePill');
       const pageTitle = document.getElementById('pageTitle');
@@ -265,6 +321,20 @@
       let toastTimer = null;
       let statusTimer = null;
       let reconnectTimer = null;
+      let matchChannel = null;
+      let currentSetFromMatch = 1;
+      let recordEnabled = true;
+      let mediaRecorder = null;
+      let recorderChunks = [];
+      let recorderChunkBytes = 0;
+      let recorderTotalBytes = 0;
+      let recorderChunkIndex = 1;
+      let recorderSetNumber = 1;
+      let recorderMimeType = '';
+      let recorderStopPromise = null;
+      let recorderFallbackTimer = null;
+      let recorderStartedAt = null;
+      const recorderSupported = typeof MediaRecorder !== 'undefined';
 
       function getStreamId() {
         const match = window.location.pathname.match(/^\/live\/([^/?#]+)/);
@@ -328,6 +398,7 @@
         const isOffline = state === 'offline';
         showControl(cameraBtn, isSetup || isOffline);
         showControl(broadcastBtn, isCameraReady);
+        showControl(recordPanel, isSetup || isCameraReady || isLive || isOffline);
         showControl(scoreBtn, isLive);
         showControl(minimizeBtn, isLive);
         showControl(stopBtn, isLive);
@@ -338,10 +409,12 @@
         minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
         shareBtn.disabled = false;
+        recordToggle.disabled = isLive || !recorderSupported;
         scoreBtn.textContent = 'Back to scoring';
         shareBtn.textContent = isLive ? 'Share link' : 'Share FanView link';
         minimizeBtn.textContent = 'Float video';
         stopBtn.textContent = 'End video';
+        updateRecordingEstimate();
       }
       function resetBroadcastControls(label = 'Start live video') {
         broadcastBtn.textContent = label;
@@ -438,6 +511,239 @@
       }
       function ensureStreamId() {
         if (!streamId) throw new Error('Missing FanView share ID in the URL.');
+      }
+      function formatBytes(bytes) {
+        if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+        if (bytes >= 1024 * 1024) return `${Math.max(1, Math.round(bytes / (1024 * 1024)))} MB`;
+        if (bytes >= 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+        return `${bytes} B`;
+      }
+      function updateRecordingEstimate() {
+        if (!recordEstimate || !recordPanel) return;
+        const estimated = recorderTotalBytes + recorderChunkBytes;
+        recordPanel.classList.toggle('is-warning', estimated > RECORDING_WARNING_BYTES);
+        if (!recorderSupported) {
+          recordEstimate.textContent = 'Local saving is not available in this browser.';
+          return;
+        }
+        if (!recordEnabled) {
+          recordEstimate.textContent = 'Local save is off for this broadcast.';
+          return;
+        }
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          const warning = estimated > RECORDING_WARNING_BYTES ? ' Storage warning.' : '';
+          recordEstimate.textContent = `Recording set ${recorderSetNumber} · ${formatBytes(estimated)} saved locally so far.${warning}`;
+          return;
+        }
+        recordEstimate.textContent = recorderTotalBytes > 0
+          ? `${formatBytes(recorderTotalBytes)} offered for saving so far.`
+          : 'Ready to save set files locally.';
+      }
+      function chooseRecordingMimeType() {
+        if (!recorderSupported || typeof MediaRecorder.isTypeSupported !== 'function') return '';
+        const candidates = [
+          'video/mp4;codecs=h264,aac',
+          'video/mp4',
+          'video/webm;codecs=vp9,opus',
+          'video/webm;codecs=vp8,opus',
+          'video/webm',
+        ];
+        return candidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
+      }
+      function extensionForMimeType(type) {
+        return type.includes('mp4') ? 'mp4' : 'webm';
+      }
+      function recordingFilename({ setNumber, chunkIndex, mimeType, startedAt }) {
+        const safeStream = streamId ? streamId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 18) : 'fanview';
+        const stamp = (startedAt || new Date().toISOString()).replace(/[:.]/g, '-');
+        return `courtsideview-${safeStream}-set-${setNumber}-part-${chunkIndex}-start-${stamp}.${extensionForMimeType(mimeType)}`;
+      }
+      async function promptSaveRecording(blob, meta) {
+        if (!blob || blob.size === 0) return;
+        const filename = recordingFilename(meta);
+        try {
+          if ('showSaveFilePicker' in window) {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: filename,
+              types: [{
+                description: 'CourtsideView video',
+                accept: { [meta.mimeType || 'video/webm']: [`.${extensionForMimeType(meta.mimeType || '')}`] },
+              }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+            setStatus([{ text: `Saved ${filename}.`, strong: true }], live ? 'LIVE' : 'READY', { duration: 4200 });
+            return;
+          }
+        } catch (error) {
+          if (!(error instanceof DOMException && error.name === 'AbortError')) {
+            console.warn('[CourtsideView] local recording save picker failed', error);
+          }
+        }
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        anchor.rel = 'noopener';
+        anchor.textContent = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          anchor.remove();
+        }, 30000);
+        setStatus([{ text: `Save ${filename} from your browser downloads.`, strong: true }], live ? 'LIVE' : 'READY', { duration: 5200 });
+      }
+      function stopRecordingFallbackTimer() {
+        if (recorderFallbackTimer) {
+          clearTimeout(recorderFallbackTimer);
+          recorderFallbackTimer = null;
+        }
+      }
+      async function finalizeRecordingChunk(reason = 'manual', { restart = false } = {}) {
+        if (recorderStopPromise) {
+          await recorderStopPromise;
+          return;
+        }
+        const recorder = mediaRecorder;
+        if (!recorder || recorder.state === 'inactive') {
+          if (recorderChunks.length > 0) {
+            const mimeType = recorderMimeType || 'video/webm';
+            const blob = new Blob(recorderChunks, { type: mimeType });
+            const setNumber = recorderSetNumber;
+            const chunkIndex = recorderChunkIndex;
+            const startedAt = recorderStartedAt;
+            mediaRecorder = null;
+            recorderChunks = [];
+            recorderChunkBytes = 0;
+            recorderChunkIndex += 1;
+            if (blob.size > 0) {
+              recorderTotalBytes += blob.size;
+              await promptSaveRecording(blob, { setNumber, chunkIndex, mimeType, reason, startedAt });
+            }
+            updateRecordingEstimate();
+          }
+          if (restart) startLocalRecording();
+          return;
+        }
+        stopRecordingFallbackTimer();
+        const setNumber = recorderSetNumber;
+        const chunkIndex = recorderChunkIndex;
+        const mimeType = recorderMimeType || recorder.mimeType || 'video/webm';
+        const startedAt = recorderStartedAt;
+        recorderStopPromise = new Promise((resolve) => {
+          recorder.addEventListener('stop', async () => {
+            const chunks = recorderChunks;
+            const blob = chunks.length > 0 ? new Blob(chunks, { type: mimeType }) : null;
+            mediaRecorder = null;
+            recorderChunks = [];
+            recorderChunkBytes = 0;
+            recorderChunkIndex += 1;
+            if (blob && blob.size > 0) {
+              recorderTotalBytes += blob.size;
+              await promptSaveRecording(blob, { setNumber, chunkIndex, mimeType, reason, startedAt });
+            }
+            recorderStopPromise = null;
+            updateRecordingEstimate();
+            if (restart && live && recordEnabled && cameraTracksAreLive()) {
+              startLocalRecording();
+            }
+            resolve();
+          }, { once: true });
+          recorder.stop();
+        });
+        await recorderStopPromise;
+      }
+      function handleRecorderFailure(error) {
+        console.warn('[CourtsideView] local recording error', error);
+        stopRecordingFallbackTimer();
+        void finalizeRecordingChunk('error', { restart: false }).catch(() => {});
+        setStatus([
+          { text: 'Local save paused.', strong: true },
+          { text: ' Live video is still running.' },
+        ], live ? 'LIVE' : 'READY', { duration: 5200 });
+      }
+      function startLocalRecording() {
+        if (!recordEnabled || !recorderSupported || !media || mediaRecorder) {
+          updateRecordingEstimate();
+          return;
+        }
+        try {
+          recorderSetNumber = currentSetFromMatch || 1;
+          recorderStartedAt = new Date().toISOString();
+          recorderMimeType = chooseRecordingMimeType();
+          const options = recorderMimeType ? { mimeType: recorderMimeType } : undefined;
+          mediaRecorder = new MediaRecorder(media, options);
+          recorderChunks = [];
+          recorderChunkBytes = 0;
+          mediaRecorder.addEventListener('dataavailable', (event) => {
+            if (!event.data || event.data.size === 0) return;
+            recorderChunks.push(event.data);
+            recorderChunkBytes += event.data.size;
+            updateRecordingEstimate();
+          });
+          mediaRecorder.addEventListener('error', (event) => {
+            handleRecorderFailure(event.error || event);
+          });
+          mediaRecorder.start(1000);
+          stopRecordingFallbackTimer();
+          recorderFallbackTimer = setTimeout(() => {
+            void finalizeRecordingChunk('time-limit', { restart: true });
+          }, RECORDING_CHUNK_MAX_MS);
+          updateRecordingEstimate();
+        } catch (error) {
+          handleRecorderFailure(error);
+        }
+      }
+      function readSetNumberFromRow(row) {
+        const state = row && row.state && typeof row.state === 'object' ? row.state : null;
+        const raw = state && typeof state.currentSet === 'number' ? state.currentSet : null;
+        return raw && Number.isFinite(raw) && raw > 0 ? raw : currentSetFromMatch || 1;
+      }
+      function handleMatchRow(row) {
+        if (!row) return;
+        const nextSet = readSetNumberFromRow(row);
+        const previousSet = currentSetFromMatch || nextSet;
+        currentSetFromMatch = nextSet;
+        if (mediaRecorder && nextSet > previousSet) {
+          recorderSetNumber = previousSet;
+          void finalizeRecordingChunk('set-complete', { restart: true });
+        }
+        if (row.is_complete && mediaRecorder) {
+          void finalizeRecordingChunk('match-complete', { restart: false });
+        }
+      }
+      async function startMatchSync() {
+        if (!streamId) return;
+        try {
+          const { data } = await supabase
+            .from('matches')
+            .select('share_id, state, is_complete')
+            .eq('share_id', streamId)
+            .maybeSingle();
+          if (data) handleMatchRow(data);
+        } catch (error) {
+          console.warn('[CourtsideView] match sync unavailable', error);
+        }
+        try {
+          matchChannel = supabase.channel(`live-recorder:${streamId}`);
+          matchChannel
+            .on(
+              'postgres_changes',
+              { event: 'UPDATE', schema: 'public', table: 'matches', filter: `share_id=eq.${streamId}` },
+              (payload) => handleMatchRow(payload.new),
+            )
+            .subscribe();
+        } catch (error) {
+          console.warn('[CourtsideView] match sync subscription unavailable', error);
+        }
+      }
+      async function stopMatchSync() {
+        if (!matchChannel) return;
+        const channel = matchChannel;
+        matchChannel = null;
+        await supabase.removeChannel(channel).catch(() => {});
       }
       function createPeerConnection() {
         return new RTCPeerConnection({
@@ -673,6 +979,7 @@
         hintEl.textContent = 'Video is live. Return to CourtsideView to score.';
         setControlState('live');
         void requestScreenWakeLock();
+        if (!reconnecting) startLocalRecording();
         setStatusHtml(
           reconnecting
             ? '<strong>Video is live again.</strong>'
@@ -689,6 +996,7 @@
         intentionalStop = true;
         broadcastDesired = false;
         live = false;
+        void finalizeRecordingChunk('video-ended', { restart: false });
         closePeerConnection({ stopTracks: true });
         if (media) {
           media.getTracks().forEach((track) => track.stop());
@@ -761,6 +1069,10 @@
       minimizeBtn.addEventListener('click', () => {
         void enterPictureInPicture();
       });
+      recordToggle.addEventListener('change', () => {
+        recordEnabled = recordToggle.checked;
+        updateRecordingEstimate();
+      });
       preview.addEventListener('leavepictureinpicture', () => {
         if (!live || intentionalStop) return;
         setStatus([
@@ -794,11 +1106,21 @@
         shareBtn.disabled = true;
         minimizeBtn.disabled = true;
         previewBtn.disabled = true;
+        recordToggle.disabled = true;
         setStatus([{ text: 'Missing FanView share ID. Open this page from the CourtsideView FanView modal.' }], 'ERROR');
       } else {
+        if (!recorderSupported) {
+          recordEnabled = false;
+          recordToggle.checked = false;
+          recordToggle.disabled = true;
+        }
         setControlState('setup');
         startViewerPolling();
+        void startMatchSync();
       }
+      window.addEventListener('beforeunload', () => {
+        void stopMatchSync();
+      });
     </script>
   </body>
 </html>

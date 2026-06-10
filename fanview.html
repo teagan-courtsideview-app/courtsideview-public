@@ -454,7 +454,7 @@
       <div id="errorBox" class="status err" style="display:none"></div>
       <section id="expiredPanel" class="expired-panel">
         <div class="expired-title">This FanView link has expired.</div>
-        <p class="expired-body">Live game links close 15 minutes after the match ends to keep things private and temporary. No video was recorded or stored.</p>
+        <p class="expired-body">Live game links close 15 minutes after the match ends to keep things private and temporary. No video was recorded or stored by CourtsideView.</p>
       </section>
       <main id="board" style="display:none">
         <div class="fanview-layout">
@@ -965,7 +965,7 @@
           return;
         }
         line.textContent = row.is_complete
-          ? 'Broadcast ended. No video was recorded or stored.'
+          ? 'Broadcast ended. No video was recorded or stored by CourtsideView.'
           : 'Live video only. CourtsideView does not record or store this broadcast.';
         line.style.display = 'block';
       }
