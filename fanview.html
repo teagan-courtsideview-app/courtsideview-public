@@ -128,6 +128,19 @@
       .activity-time { color: var(--ink-muted); font-size: 12px; font-weight: 650; white-space: nowrap; }
       .activity-empty { color: var(--ink-dim); text-align: center; font-size: 13px;
         background: #fff; border: 1px dashed var(--border); border-radius: 18px; padding: 16px; }
+      .moments-section { display: none; margin-top: 10px; }
+      .moments-section.on { display: block; }
+      .moments-list { display: grid; gap: 8px; }
+      .moment-link { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px;
+        padding: 10px; border: 1px solid var(--border); border-radius: 8px;
+        background: #fff; color: inherit; text-decoration: none; }
+      .moment-set { width: 38px; height: 38px; border-radius: 999px;
+        display: grid; place-items: center; background: rgba(15,138,79,0.12);
+        color: var(--green); font-size: 11px; font-weight: 900; }
+      .moment-label { color: var(--ink); font-size: 13px; line-height: 1.18; font-weight: 900; }
+      .moment-meta { margin-top: 3px; color: var(--ink-muted); font-size: 12px; font-weight: 650; }
+      .moments-note { color: var(--ink-muted); font-size: 13px; line-height: 1.35;
+        background: #fff; border: 1px dashed var(--border); border-radius: 14px; padding: 12px; }
       .court-section { display: none; margin-top: 18px; }
       .court-section.on { display: block; }
       .section-head { display: flex; align-items: center; justify-content: space-between;
@@ -528,6 +541,10 @@
               <div id="activityTitle" class="activity-title">Activity</div>
               <div id="activityList" class="activity-list"></div>
             </section>
+            <section id="momentsSection" class="moments-section">
+              <div class="activity-title">Top Moments</div>
+              <div id="momentsList" class="moments-list"></div>
+            </section>
             <div class="refresh-row">
               <button class="refresh-btn" onclick="forceRefresh()">↻ Refresh</button>
             </div>
@@ -887,6 +904,35 @@
               '</div>';
           }).join('');
         }
+        section.classList.add('on');
+      }
+      function renderMoments(state, row) {
+        const section = $('momentsSection');
+        const list = $('momentsList');
+        const moments = state && Array.isArray(state.moments) ? state.moments : [];
+        const localOnly = state && state.videoType === 'local';
+        if (!row.is_complete || moments.length === 0) {
+          section.classList.remove('on');
+          list.innerHTML = '';
+          return;
+        }
+        if (localOnly) {
+          list.innerHTML = '<div class="moments-note">Upload to YouTube and paste the link to share moments.</div>';
+          section.classList.add('on');
+          return;
+        }
+        list.innerHTML = moments.slice(0, 8).map((moment) => {
+          const url = moment && typeof moment.videoUrl === 'string' ? moment.videoUrl : '';
+          const tag = url ? 'a' : 'div';
+          const href = url ? ' href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer"' : '';
+          return '<' + tag + ' class="moment-link"' + href + '>' +
+              '<div class="moment-set">S' + escapeHtml(moment.setNumber || '') + '</div>' +
+              '<div>' +
+                '<div class="moment-label">' + escapeHtml(moment.label || 'Match moment') + '</div>' +
+                '<div class="moment-meta">' + escapeHtml(moment.statLine || '') + '</div>' +
+              '</div>' +
+            '</' + tag + '>';
+        }).join('');
         section.classList.add('on');
       }
       function extractYouTubeId(input) {
@@ -1488,6 +1534,7 @@
         renderCourt(s);
         renderTrackedSummary(s);
         renderActivity(s, matchRow);
+        renderMoments(s, matchRow);
         renderVideo(matchRow);
         updatePrivacyLine(matchRow);
         startPresence(matchRow);
@@ -1498,7 +1545,7 @@
       async function fetchMatch() {
         const { data, error } = await supabase
           .from('matches')
-          .select('id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete, video_url, video_type, created_at, updated_at')
+          .select('id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete, video_url, video_type, video_started_at, created_at, updated_at')
           .eq('share_id', shareId)
           .eq('is_published', true)
           .maybeSingle();
