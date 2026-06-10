@@ -249,40 +249,35 @@
       .fullscreen-choice span { display: block; color: rgba(255,255,255,0.68);
         font-size: 10px; font-weight: 800; margin-top: 2px; }
       .broadcast-score-rail { display: none; position: absolute; left: max(14px, env(safe-area-inset-left));
-        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 7; width: min(48vw, 560px);
-        grid-template-columns: minmax(0, 1fr) clamp(46px, 5.2vw, 64px) minmax(0, 1fr);
-        gap: 5px; align-items: center; padding: 6px;
-        border-radius: 14px; background: rgba(10,14,26,0.88);
-        border: 1px solid rgba(255,255,255,0.82); box-shadow: 0 8px 22px rgba(0,0,0,0.28);
+        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 7; width: clamp(318px, 23vw, 442px);
+        grid-template-columns: 1fr; gap: 5px; align-items: stretch; padding: 8px;
+        border-radius: 16px; background: rgba(10,14,26,0.96);
+        border: 2px solid rgba(245,248,255,0.92); box-shadow: 0 8px 22px rgba(0,0,0,0.28);
         backdrop-filter: blur(14px); color: #fff; pointer-events: none; }
-      .broadcast-team { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(40px, 5.6vw, 68px); }
-      .broadcast-team-label { min-width: 0; min-height: clamp(34px, 5.4vw, 58px); border-radius: 8px 0 0 8px;
-        display: flex; align-items: center; justify-content: center; padding: 0 clamp(8px, 1.2vw, 16px);
+      .broadcast-meta-row { min-height: clamp(28px, 1.75vw, 34px); border-radius: 9px;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 0 clamp(10px, 0.85vw, 14px); background: rgba(36,36,36,0.98);
+        font-family: var(--font-display); font-size: clamp(10px, 0.68vw, 13px);
+        line-height: 1; font-weight: 950; letter-spacing: .02em; text-transform: uppercase; }
+      .broadcast-live-label, .broadcast-match-meta { display: inline-flex; align-items: center; gap: 7px;
+        min-width: 0; white-space: nowrap; }
+      .broadcast-live-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--pink);
+        flex: 0 0 auto; }
+      .broadcast-team { min-width: 0; display: grid; grid-template-columns: clamp(14px, 0.95vw, 18px) minmax(0, 1fr) clamp(78px, 5vw, 96px);
+        min-height: clamp(34px, 2.1vw, 40px); overflow: hidden; border-radius: 6px; background: #fff; }
+      .broadcast-team::before { content: ""; display: block; background: var(--broadcast-color, var(--pink)); }
+      .broadcast-team-label { min-width: 0;
+        display: flex; align-items: center; justify-content: flex-start; padding: 0 clamp(12px, 1.1vw, 18px);
         background: #fff; color: var(--ink); font-family: var(--font-display);
-        font-size: clamp(14px, 2.25vw, 26px); line-height: .95; font-weight: 950; letter-spacing: .02em;
-        text-align: center; text-transform: uppercase; }
+        font-size: clamp(16px, 1.15vw, 22px); line-height: .95; font-weight: 950; letter-spacing: .02em;
+        text-align: left; text-transform: uppercase; }
       .broadcast-team-label span { display: block; min-width: 0; max-width: 100%;
         overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-      .broadcast-score-tile { min-height: clamp(34px, 5.4vw, 58px); border-radius: 0 8px 8px 0;
-        display: flex; align-items: center; justify-content: center; padding: 0 clamp(10px, 2vw, 22px);
+      .broadcast-score-tile { min-width: 0; min-height: clamp(34px, 2.1vw, 40px); border-radius: 0 6px 6px 0;
+        display: flex; align-items: center; justify-content: center; padding: 0;
         background: var(--broadcast-color, var(--pink)); color: var(--broadcast-score-color, #fff);
-        font-family: var(--font-score); font-size: clamp(30px, 5.2vw, 58px);
-        line-height: .82; font-weight: 950; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-      .broadcast-set-stack { display: grid; justify-items: center; align-content: center; gap: 4px; }
-      .broadcast-set-badge { width: clamp(36px, 4.9vw, 52px); height: clamp(36px, 4.9vw, 52px);
-        border-radius: 999px; display: grid; place-items: center; align-content: center;
-        background: #fff; color: var(--ink); font-family: var(--font-display);
-        font-weight: 950; text-transform: uppercase; text-align: center;
-        box-shadow: 0 5px 12px rgba(0,0,0,0.16); }
-      .broadcast-set-badge strong { display: block; font-family: var(--font-score);
-        font-size: clamp(21px, 3vw, 32px); line-height: .82; font-weight: 950; }
-      .broadcast-set-badge span { display: block; margin-top: 1px; font-size: clamp(8px, 1.1vw, 12px);
-        line-height: .9; letter-spacing: .04em; }
-      .broadcast-target-pill { min-width: clamp(36px, 4.8vw, 54px); height: clamp(16px, 2.1vw, 22px);
-        border-radius: 999px; display: flex; align-items: center; justify-content: center;
-        background: #fff; color: var(--ink); font-family: var(--font-display);
-        font-size: clamp(7px, 1vw, 11px); font-weight: 950; letter-spacing: .05em;
-        text-transform: uppercase; }
+        font-family: var(--font-score); font-size: clamp(25px, 1.72vw, 34px);
+        line-height: 1; font-weight: 950; letter-spacing: 0; font-variant-numeric: tabular-nums; }
       .video-frame:fullscreen, .video-frame:-webkit-full-screen { width: 100vw; height: 100vh;
         aspect-ratio: auto; border: 0; border-radius: 0; background: #000; box-shadow: none; }
       .video-frame:fullscreen iframe, .video-frame:fullscreen video,
@@ -459,13 +454,13 @@
               <video id="liveVideo" autoplay playsinline controls muted></video>
               <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
               <div id="broadcastScoreRail" class="broadcast-score-rail" aria-label="Live match score">
+                <div class="broadcast-meta-row">
+                  <span class="broadcast-live-label"><span class="broadcast-live-dot"></span><span>Live</span></span>
+                  <span class="broadcast-match-meta"><span>Set <span id="broadcastSetNumber">1</span></span><span aria-hidden="true">•</span><span id="broadcastTarget">To 25</span></span>
+                </div>
                 <div class="broadcast-team broadcast-home" id="broadcastHome">
                   <div class="broadcast-team-label"><span id="broadcastHomeName">Home</span></div>
                   <div class="broadcast-score-tile" id="broadcastHomeScoreTile"><span id="broadcastHomeScore">0</span></div>
-                </div>
-                <div class="broadcast-set-stack">
-                  <div class="broadcast-set-badge"><strong id="broadcastSetNumber">1</strong><span>Set</span></div>
-                  <div class="broadcast-target-pill" id="broadcastTarget">To 25</div>
                 </div>
                 <div class="broadcast-team broadcast-away" id="broadcastAway">
                   <div class="broadcast-team-label"><span id="broadcastAwayName">Away</span></div>
@@ -1434,8 +1429,10 @@
         $('broadcastAwayScore').textContent = String(awayScore);
         $('broadcastSetNumber').textContent = String(currentSet);
         $('broadcastTarget').textContent = 'To ' + setTarget;
+        $('broadcastHome').style.setProperty('--broadcast-color', homeColor);
         $('broadcastHomeScoreTile').style.setProperty('--broadcast-color', homeColor);
         $('broadcastHomeScoreTile').style.setProperty('--broadcast-score-color', contrastTextForBackground(homeColor));
+        $('broadcastAway').style.setProperty('--broadcast-color', awayColor);
         $('broadcastAwayScoreTile').style.setProperty('--broadcast-color', awayColor);
         $('broadcastAwayScoreTile').style.setProperty('--broadcast-score-color', contrastTextForBackground(awayColor));
         $('homeScore').style.color = homeLeading ? homeColor : (scoreTied ? 'var(--ink)' : 'var(--ink-dim)');
