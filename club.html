@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>CourtsideView Club</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #101820;
+        --muted: #647067;
+        --line: #dfe6dc;
+        --paper: #fbfcf7;
+        --panel: #ffffff;
+        --green: #0f8a4f;
+        --gold: #f4b400;
+        --pink: #ff4f8e;
+        --blue: #3978f2;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+      }
+      main {
+        width: min(1120px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 28px 0 44px;
+      }
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: end;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 20px;
+        margin-bottom: 18px;
+      }
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(42px, 8vw, 86px);
+        line-height: .92;
+      }
+      .meta {
+        color: var(--muted);
+        font-weight: 750;
+        line-height: 1.4;
+      }
+      .mark {
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 950;
+        letter-spacing: .04em;
+        box-shadow: inset 0 0 0 3px rgba(255,255,255,.55);
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+      section + section { margin-top: 16px; }
+      h2 {
+        margin: 0 0 14px;
+        font-size: 13px;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1.4fr .85fr;
+        gap: 16px;
+      }
+      .live-strip {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .live-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid rgba(255,79,142,.38);
+        border-radius: 8px;
+        padding: 16px;
+        background: #fff;
+        box-shadow: 0 18px 44px rgba(255,79,142,.1);
+      }
+      .live-pill {
+        display: inline-flex;
+        min-height: 28px;
+        align-items: center;
+        border-radius: 999px;
+        padding: 0 11px;
+        color: #fff;
+        background: var(--pink);
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: .09em;
+      }
+      .live-title {
+        margin: 8px 0 0;
+        font-size: 20px;
+        font-weight: 950;
+      }
+      a.button {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 0 16px;
+        background: var(--green);
+        color: #fff;
+        font-weight: 950;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+      }
+      .row:first-of-type { border-top: 0; padding-top: 0; }
+      .time {
+        min-width: 74px;
+        border-radius: 8px;
+        background: #eef5ee;
+        padding: 8px 10px;
+        text-align: center;
+        font-weight: 950;
+        color: var(--green);
+      }
+      .row-title { font-weight: 950; }
+      .row-meta {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .status {
+        align-self: center;
+        border-radius: 999px;
+        background: #eef5ee;
+        color: var(--green);
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .teams {
+        display: grid;
+        gap: 10px;
+      }
+      .team-link {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        align-items: center;
+        color: inherit;
+        text-decoration: none;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid rgba(16,24,32,.12);
+      }
+      .empty {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .hidden { display: none; }
+      @media (max-width: 780px) {
+        main { width: min(100% - 22px, 1120px); padding-top: 22px; }
+        header { grid-template-columns: 1fr; }
+        .mark { width: 60px; height: 60px; }
+        .grid { grid-template-columns: 1fr; }
+        .live-card { grid-template-columns: 1fr; }
+        .row { grid-template-columns: 1fr; gap: 8px; }
+        .time { width: fit-content; min-width: 0; }
+        a.button { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">CourtsideView Club Hub</p>
+          <h1 id="clubName">Loading club...</h1>
+          <p class="meta" id="clubMeta"></p>
+        </div>
+        <div class="mark" id="clubMark">CV</div>
+      </header>
+
+      <div id="liveStrip" class="live-strip"></div>
+
+      <div class="grid">
+        <div>
+          <section>
+            <h2>Today</h2>
+            <div id="schedule"></div>
+          </section>
+          <section>
+            <h2>Recent Results</h2>
+            <div id="results"></div>
+          </section>
+        </div>
+        <aside>
+          <section>
+            <h2>Teams</h2>
+            <div class="teams" id="teams"></div>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
+
+      const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: false },
+      });
+
+      const els = {
+        clubName: document.getElementById('clubName'),
+        clubMeta: document.getElementById('clubMeta'),
+        clubMark: document.getElementById('clubMark'),
+        liveStrip: document.getElementById('liveStrip'),
+        schedule: document.getElementById('schedule'),
+        results: document.getElementById('results'),
+        teams: document.getElementById('teams'),
+      };
+
+      function getSlug() {
+        const match = window.location.pathname.match(/^\/c\/([^/?#]+)/);
+        return match ? decodeURIComponent(match[1]) : '';
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        }[char]));
+      }
+
+      function fmtDateTime(value) {
+        if (!value) return 'Time TBA';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Time TBA';
+        return date.toLocaleString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        });
+      }
+
+      function fmtTime(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'TBA';
+        return date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        });
+      }
+
+      function scoreLabel(row) {
+        const result = row.result || {};
+        if (typeof result.us === 'number' && typeof result.them === 'number') {
+          return `${result.us}-${result.them}`;
+        }
+        const state = row.match_state || {};
+        const score = state.score || state.currentScore;
+        if (score && typeof score.us === 'number' && typeof score.them === 'number') {
+          return `${score.us}-${score.them}`;
+        }
+        return 'Live';
+      }
+
+      function renderLive(rows) {
+        if (!rows.length) {
+          els.liveStrip.innerHTML = '';
+          return;
+        }
+        els.liveStrip.innerHTML = rows.map((row) => `
+          <div class="live-card">
+            <div>
+              <span class="live-pill">LIVE NOW</span>
+              <p class="live-title">${escapeHtml(row.team_name)} vs ${escapeHtml(row.opponent)}</p>
+              <p class="meta">${escapeHtml(scoreLabel(row))}</p>
+            </div>
+            ${row.fanview_share_id ? `<a class="button" href="/v/${encodeURIComponent(row.fanview_share_id)}">Open FanView</a>` : ''}
+          </div>
+        `).join('');
+      }
+
+      function renderSchedule(rows) {
+        if (!rows.length) {
+          els.schedule.innerHTML = '<p class="empty">No tournament schedule posted yet.</p>';
+          return;
+        }
+        els.schedule.innerHTML = rows.map((row) => `
+          <div class="row">
+            <div class="time">${escapeHtml(fmtTime(row.scheduled_at))}</div>
+            <div>
+              <div class="row-title">${escapeHtml(row.team_name)} vs ${escapeHtml(row.opponent)}</div>
+              <div class="row-meta">Court ${escapeHtml(row.court || 'TBA')} · ${escapeHtml(row.event_name)}${row.venue ? ` · ${escapeHtml(row.venue)}` : ''}</div>
+              ${row.external_url ? `<div class="row-meta"><a href="${escapeHtml(row.external_url)}" rel="noopener">Official bracket</a></div>` : ''}
+            </div>
+            ${row.fanview_share_id ? `<a class="button" href="/v/${encodeURIComponent(row.fanview_share_id)}">FanView</a>` : `<span class="status">${escapeHtml(row.match_status || 'scheduled')}</span>`}
+          </div>
+        `).join('');
+      }
+
+      function renderResults(rows) {
+        if (!rows.length) {
+          els.results.innerHTML = '<p class="empty">Results will appear here after matches finish.</p>';
+          return;
+        }
+        els.results.innerHTML = rows.map((row) => `
+          <div class="row">
+            <div class="time">${escapeHtml(fmtDateTime(row.updated_at).split(',').pop()?.trim() || 'Final')}</div>
+            <div>
+              <div class="row-title">${escapeHtml(row.team_name)} vs ${escapeHtml(row.opponent)}</div>
+              <div class="row-meta">${escapeHtml(scoreLabel(row))}</div>
+            </div>
+            <span class="status">final</span>
+          </div>
+        `).join('');
+      }
+
+      function renderTeams(rows) {
+        if (!rows.length) {
+          els.teams.innerHTML = '<p class="empty">Teams will appear once they are attached by the club.</p>';
+          return;
+        }
+        els.teams.innerHTML = rows.map((team) => `
+          <a class="team-link" href="/t/${encodeURIComponent(team.slug)}">
+            <span class="dot" style="background:${escapeHtml(team.color || '#F4B400')}"></span>
+            <span>
+              <strong>${escapeHtml(team.name)}</strong>
+              <span class="row-meta">${escapeHtml(team.season || 'Season')}</span>
+            </span>
+          </a>
+        `).join('');
+      }
+
+      function render404() {
+        els.clubName.textContent = 'Club not found';
+        els.clubMeta.textContent = 'This club page may be private or unpublished.';
+        els.clubMark.textContent = '404';
+        els.liveStrip.innerHTML = '';
+        els.schedule.innerHTML = '<p class="empty">No public club page is available here.</p>';
+        els.results.innerHTML = '';
+        els.teams.innerHTML = '';
+      }
+
+      async function loadClub() {
+        const slug = getSlug();
+        if (!slug) {
+          render404();
+          return;
+        }
+        const { data, error } = await supabase.rpc('club_live_summary', {
+          club_slug: slug,
+        });
+        if (error || !data || !data.club) {
+          render404();
+          return;
+        }
+        const club = data.club;
+        const color = club.color || '#F4B400';
+        els.clubName.textContent = club.name || 'Club';
+        els.clubMeta.textContent = `${data.teams?.length ?? 0} teams · courtsideviewapp.com/c/${club.slug}`;
+        els.clubMark.textContent = (club.logo_text || club.name || 'CV').slice(0, 4).toUpperCase();
+        els.clubMark.style.background = color;
+        renderLive(data.live || []);
+        renderSchedule(data.schedule || []);
+        renderResults(data.results || []);
+        renderTeams(data.teams || []);
+      }
+
+      loadClub();
+      window.setInterval(loadClub, 5000);
+    </script>
+  </body>
+</html>
