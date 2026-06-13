@@ -22,6 +22,7 @@
       html, body { margin: 0; background: var(--bg); color: var(--ink);
         font-family: var(--font-sans);
         font-feature-settings: "tnum" 1; min-height: 100vh; }
+      body.fanview-fullscreen { overflow: hidden; background: #000; }
       .container { max-width: 430px; margin: 0 auto; padding: 20px 14px 44px; }
       .container.has-video { max-width: 430px; }
       header.brand { display: flex; align-items: center; gap: 10px;
@@ -262,48 +263,68 @@
       .fullscreen-choice span { display: block; color: rgba(255,255,255,0.68);
         font-size: 10px; font-weight: 800; margin-top: 2px; }
       .broadcast-score-rail { display: none; position: absolute; left: max(14px, env(safe-area-inset-left));
-        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 7; width: clamp(318px, 23vw, 442px);
-        grid-template-columns: 1fr; gap: 5px; align-items: stretch; padding: 8px;
-        border-radius: 16px; background: rgba(10,14,26,0.96);
-        border: 2px solid rgba(245,248,255,0.92); box-shadow: 0 8px 22px rgba(0,0,0,0.28);
-        backdrop-filter: blur(14px); color: #fff; pointer-events: none; }
-      .broadcast-meta-row { min-height: clamp(28px, 1.75vw, 34px); border-radius: 9px;
+        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 7; width: clamp(318px, 24vw, 460px);
+        grid-template-columns: 1fr; gap: 0; align-items: stretch; padding: 0;
+        border-radius: 11px; background: transparent;
+        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.38));
+        color: #fff; pointer-events: none; }
+      .broadcast-meta-row { min-height: clamp(24px, 1.8vw, 32px); border-radius: 11px 11px 0 0;
+        border: 2px solid rgba(255,255,255,0.92); border-bottom: 0;
         display: flex; align-items: center; justify-content: space-between; gap: 12px;
-        padding: 0 clamp(10px, 0.85vw, 14px); background: rgba(36,36,36,0.98);
-        font-family: var(--font-display); font-size: clamp(10px, 0.68vw, 13px);
-        line-height: 1; font-weight: 950; letter-spacing: .02em; text-transform: uppercase; }
+        padding: 0 clamp(10px, 0.9vw, 15px); background: rgba(5,8,15,0.98);
+        font-family: var(--font-display); font-size: clamp(8.5px, 0.68vw, 12px);
+        line-height: 1; font-weight: 950; letter-spacing: .04em; text-transform: uppercase; }
       .broadcast-live-label, .broadcast-match-meta { display: inline-flex; align-items: center; gap: 7px;
         min-width: 0; white-space: nowrap; }
       .broadcast-live-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--pink);
         flex: 0 0 auto; }
-      .broadcast-team { min-width: 0; display: grid; grid-template-columns: clamp(14px, 0.95vw, 18px) minmax(0, 1fr) clamp(78px, 5vw, 96px);
-        min-height: clamp(34px, 2.1vw, 40px); overflow: hidden; border-radius: 6px; background: #fff; }
+      .broadcast-team { min-width: 0; display: grid;
+        grid-template-columns: clamp(12px, 0.9vw, 18px) minmax(0, 1fr) clamp(70px, 5vw, 96px);
+        min-height: clamp(36px, 2.4vw, 48px); overflow: hidden; border: 2px solid rgba(255,255,255,0.92);
+        border-top: 0; border-radius: 0; background: #fff; }
+      .broadcast-away { border-radius: 0 0 11px 11px; }
       .broadcast-team::before { content: ""; display: block; background: var(--broadcast-color, var(--pink)); }
       .broadcast-team-label { min-width: 0;
         display: flex; align-items: center; justify-content: flex-start; padding: 0 clamp(12px, 1.1vw, 18px);
         background: #fff; color: var(--ink); font-family: var(--font-display);
-        font-size: clamp(16px, 1.15vw, 22px); line-height: .95; font-weight: 950; letter-spacing: .02em;
+        font-size: clamp(16px, 1.25vw, 24px); line-height: .95; font-weight: 950; letter-spacing: .01em;
         text-align: left; text-transform: uppercase; }
       .broadcast-team-label span { display: block; min-width: 0; max-width: 100%;
         overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-      .broadcast-score-tile { min-width: 0; min-height: clamp(34px, 2.1vw, 40px); border-radius: 0 6px 6px 0;
+      .broadcast-score-tile { min-width: 0; min-height: clamp(36px, 2.4vw, 48px);
         display: flex; align-items: center; justify-content: center; padding: 0;
         background: var(--broadcast-color, var(--pink)); color: var(--broadcast-score-color, #fff);
-        font-family: var(--font-score); font-size: clamp(25px, 1.72vw, 34px);
+        font-family: var(--font-score); font-size: clamp(28px, 2vw, 38px);
         line-height: 1; font-weight: 950; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-      .video-frame:fullscreen, .video-frame:-webkit-full-screen { width: 100vw; height: 100vh;
+      .video-frame:fullscreen, .video-frame:-webkit-full-screen, .video-frame.is-web-fullscreen {
+        width: 100dvw; height: 100dvh; max-width: none; max-height: none;
         aspect-ratio: auto; border: 0; border-radius: 0; background: #000; box-shadow: none; }
+      .video-frame.is-web-fullscreen { position: fixed; inset: 0; z-index: 9999; }
       .video-frame:fullscreen iframe, .video-frame:fullscreen video,
-      .video-frame:-webkit-full-screen iframe, .video-frame:-webkit-full-screen video {
-        width: 100%; height: 100%; object-fit: contain; }
+      .video-frame:-webkit-full-screen iframe, .video-frame:-webkit-full-screen video,
+      .video-frame.is-web-fullscreen iframe, .video-frame.is-web-fullscreen video {
+        width: 100%; height: 100%; object-fit: cover; }
+      .video-frame[data-video-fit="contain"]:fullscreen iframe,
+      .video-frame[data-video-fit="contain"]:fullscreen video,
+      .video-frame[data-video-fit="contain"]:-webkit-full-screen iframe,
+      .video-frame[data-video-fit="contain"]:-webkit-full-screen video,
+      .video-frame.is-web-fullscreen[data-video-fit="contain"] iframe,
+      .video-frame.is-web-fullscreen[data-video-fit="contain"] video {
+        object-fit: contain; }
       .video-frame:fullscreen .video-viewers, .video-frame:-webkit-full-screen .video-viewers { top: 16px; left: 16px; }
-      .video-frame:fullscreen .fullscreen-button, .video-frame:-webkit-full-screen .fullscreen-button { right: 16px; top: 16px; }
-      .video-frame:fullscreen .fullscreen-menu, .video-frame:-webkit-full-screen .fullscreen-menu { right: 16px; top: 62px; }
-      .video-frame:fullscreen .broadcast-score-rail, .video-frame:-webkit-full-screen .broadcast-score-rail {
+      .video-frame:fullscreen .fullscreen-button, .video-frame:-webkit-full-screen .fullscreen-button,
+      .video-frame.is-web-fullscreen .fullscreen-button { right: 16px; top: 16px; }
+      .video-frame:fullscreen .fullscreen-menu, .video-frame:-webkit-full-screen .fullscreen-menu,
+      .video-frame.is-web-fullscreen .fullscreen-menu { right: 16px; top: 62px; }
+      .video-frame:fullscreen .broadcast-score-rail, .video-frame:-webkit-full-screen .broadcast-score-rail,
+      .video-frame.is-web-fullscreen .broadcast-score-rail {
         display: grid; }
       .video-frame:fullscreen .video-viewers, .video-frame:-webkit-full-screen .video-viewers,
-      .video-frame:fullscreen .fullscreen-button, .video-frame:-webkit-full-screen .fullscreen-button {
+      .video-frame.is-web-fullscreen .video-viewers {
         display: none !important; }
+      .video-frame:fullscreen .fullscreen-button.on, .video-frame:-webkit-full-screen .fullscreen-button.on,
+      .video-frame.is-web-fullscreen .fullscreen-button.on {
+        display: inline-flex !important; }
       .no-video-hero { display: none; height: 224px; border-radius: 24px; margin-top: 8px;
         position: relative; overflow: hidden; background:
           radial-gradient(circle at 50% 8%, rgba(16,136,76,0.06), transparent 36%),
@@ -330,11 +351,17 @@
       .court-mini::before, .court-mini::after { content: none; }
       .court-mini span { display: none; }
       @media (orientation: landscape) and (max-height: 520px) {
+        html, body { width: 100%; min-height: 100%; overflow: hidden; background: #000; }
         .container, .container.has-video { max-width: none; min-height: 100vh; padding: 0; }
         header.brand, .app-promo, .footer-hint, .refresh-row, .last-updated, .privacy-line { display: none !important; }
         .fanview-layout { min-height: 100vh; }
-        .container.has-video .video-wrap { display: block; margin: 0; }
-        .container.has-video .video-frame { position: fixed; inset: 0; border-radius: 0; border: 0; box-shadow: none; aspect-ratio: auto; }
+        .container.has-video .fanview-layout { width: 100dvw; height: 100dvh; min-height: 100dvh; overflow: hidden; background: #000; }
+        .container.has-video .video-wrap { display: block !important; position: fixed; inset: 0;
+          width: 100dvw; height: 100dvh; min-height: 100dvh; margin: 0; overflow: hidden; background: #000; }
+        .container.has-video .video-frame { position: fixed; inset: 0; width: 100dvw; height: 100dvh;
+          max-width: none; max-height: none; border-radius: 0; border: 0; box-shadow: none; aspect-ratio: auto; background: #000; }
+        .container.has-video .video-frame iframe,
+        .container.has-video .video-frame video { width: 100%; height: 100%; object-fit: cover; }
         .container.has-video .score-column { display: none !important; }
         .container.has-video .scoreboard { margin: 0 0 12px; background: rgba(17,24,32,0.82);
           border-color: rgba(255,255,255,0.14); backdrop-filter: blur(14px); }
@@ -349,10 +376,11 @@
           backdrop-filter: blur(14px); }
         .container.has-video .activity-section, .container.has-video .court-section, .container.has-video .meta-row,
         .container.has-video .action-strip, .container.has-video .tracked-summary { display: none !important; }
-        .container.has-video .viewer-pill.video-viewers,
-        .container.has-video .fullscreen-button,
-        .container.has-video .fullscreen-menu { display: none !important; }
-        .container.has-video .broadcast-score-rail { display: grid; }
+        .container.has-video .viewer-pill.video-viewers { display: none !important; }
+        .container.has-video .fullscreen-button.on { display: inline-flex !important; }
+        .container.has-video .fullscreen-menu.on { display: grid !important; }
+        .container.has-video .broadcast-score-rail { display: grid; left: max(10px, env(safe-area-inset-left));
+          bottom: max(10px, env(safe-area-inset-bottom)); width: clamp(292px, 38vw, 390px); }
         .container.no-video-mode .fanview-layout { min-height: 100vh; background:
           linear-gradient(135deg, #F7F8F5, var(--bg-elev)); }
         .container.no-video-mode .no-video-hero { position: fixed; inset: 0; height: auto; margin: 0;
@@ -398,14 +426,18 @@
         .container.has-video header.brand, .container.has-video .app-promo,
         .container.has-video .footer-hint, .container.has-video .refresh-row,
         .container.has-video .last-updated, .container.has-video .privacy-line { display: none !important; }
-        .container.has-video .fanview-layout { min-height: 100vh; }
-        .container.has-video .video-wrap { display: block; margin: 0; }
-        .container.has-video .video-frame { position: fixed; inset: 0; border-radius: 0; border: 0; box-shadow: none; aspect-ratio: auto; }
+        .container.has-video .fanview-layout { width: 100dvw; height: 100dvh; min-height: 100dvh; overflow: hidden; background: #000; }
+        .container.has-video .video-wrap { display: block !important; position: fixed; inset: 0;
+          width: 100dvw; height: 100dvh; min-height: 100dvh; margin: 0; overflow: hidden; background: #000; }
+        .container.has-video .video-frame { position: fixed; inset: 0; width: 100dvw; height: 100dvh;
+          max-width: none; max-height: none; border-radius: 0; border: 0; box-shadow: none; aspect-ratio: auto; background: #000; }
+        .container.has-video .video-frame iframe,
+        .container.has-video .video-frame video { width: 100%; height: 100%; object-fit: cover; }
         .container.has-video .score-column { display: none !important; }
         .container.has-video .broadcast-score-rail { display: grid; }
-        .container.has-video .viewer-pill.video-viewers,
-        .container.has-video .fullscreen-button,
-        .container.has-video .fullscreen-menu { display: none !important; }
+        .container.has-video .viewer-pill.video-viewers { display: none !important; }
+        .container.has-video .fullscreen-button.on { display: inline-flex !important; }
+        .container.has-video .fullscreen-menu.on { display: grid !important; }
       }
       @media (min-width: 760px) {
         .score-column.no-video .scoreboard,
@@ -426,6 +458,12 @@
           font-size: 10px; }
         .no-video-viewers .dot { width: 6px; height: 6px; }
         .video-frame { border-radius: 16px; }
+        .broadcast-score-rail { left: max(9px, env(safe-area-inset-left));
+          bottom: max(9px, env(safe-area-inset-bottom)); width: min(390px, calc(100% - 18px)); }
+        .broadcast-meta-row { min-height: 22px; padding: 0 8px; gap: 8px; font-size: 9px; }
+        .broadcast-team { grid-template-columns: 10px minmax(0, 1fr) 50px; min-height: 34px; }
+        .broadcast-team-label { padding: 0 9px; font-size: 16px; }
+        .broadcast-score-tile { min-height: 34px; font-size: 24px; }
         .scoreboard { border-radius: 8px; padding: 8px; }
         .score-column.no-video .scoreboard { margin-top: -12px; }
         .score { font-size: 42px; letter-spacing: 0; }
@@ -468,7 +506,7 @@
               <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
               <div id="broadcastScoreRail" class="broadcast-score-rail" aria-label="Live match score">
                 <div class="broadcast-meta-row">
-                  <span class="broadcast-live-label"><span class="broadcast-live-dot"></span><span>Live</span></span>
+                  <span class="broadcast-live-label"><span class="broadcast-live-dot"></span><span>FanView Live</span></span>
                   <span class="broadcast-match-meta"><span>Set <span id="broadcastSetNumber">1</span></span><span aria-hidden="true">•</span><span id="broadcastTarget">To 25</span></span>
                 </div>
                 <div class="broadcast-team broadcast-home" id="broadcastHome">
@@ -658,7 +696,7 @@
         const el = $(id);
         if (!el) return;
         const full = normalizeDisplayName(name, fallback);
-        el.textContent = compactTeamName(full, fallback, 22).toUpperCase();
+        el.textContent = compactTeamName(full, fallback, 14).toUpperCase();
         el.title = full;
       }
       function displayActivityText(text, row) {
@@ -1104,11 +1142,13 @@
         presenceShareId = null;
       }
       let cloudflareViewer = { streamId: null, pc: null, retry: null, connected: false };
+      let webFullscreenActive = false;
       function showSoundButton(visible) {
         $('soundButton').classList.toggle('on', Boolean(visible));
       }
       function setFullscreenControlsVisible(visible) {
         $('fullscreenButton').classList.toggle('on', Boolean(visible));
+        updateFullscreenButton();
         if (!visible) closeFullscreenMenu();
       }
       function closeFullscreenMenu() {
@@ -1117,6 +1157,33 @@
       }
       function fullscreenElement() {
         return document.fullscreenElement || document.webkitFullscreenElement || null;
+      }
+      function defaultFullscreenOrientation() {
+        return window.innerWidth >= window.innerHeight ? 'landscape' : 'portrait';
+      }
+      function setFullscreenFit(orientation) {
+        const frame = document.querySelector('.video-frame');
+        if (!frame) return;
+        frame.dataset.fullscreenOrientation = orientation;
+        frame.dataset.videoFit = orientation === 'landscape' ? 'cover' : 'contain';
+      }
+      function clearFullscreenFit() {
+        const frame = document.querySelector('.video-frame');
+        if (!frame) return;
+        frame.removeAttribute('data-fullscreen-orientation');
+        frame.removeAttribute('data-video-fit');
+      }
+      function isVideoFullscreenActive() {
+        const active = fullscreenElement();
+        const frame = document.querySelector('.video-frame');
+        return webFullscreenActive || active === frame || Boolean(active && frame && frame.contains(active));
+      }
+      function updateFullscreenButton() {
+        const button = $('fullscreenButton');
+        if (!button) return;
+        const active = isVideoFullscreenActive();
+        button.textContent = active ? '↙ Exit full screen' : '⛶ Full screen';
+        button.setAttribute('aria-pressed', String(active));
       }
       async function requestElementFullscreen(element) {
         if (element.requestFullscreen) {
@@ -1133,6 +1200,34 @@
         }
         return false;
       }
+      function activateWebFullscreen(orientation) {
+        const frame = document.querySelector('.video-frame');
+        if (!frame) return;
+        setFullscreenFit(orientation);
+        frame.classList.add('is-web-fullscreen');
+        document.body.classList.add('fanview-fullscreen');
+        webFullscreenActive = true;
+        updateFullscreenButton();
+      }
+      async function exitVideoFullscreen() {
+        const frame = document.querySelector('.video-frame');
+        if (webFullscreenActive) {
+          webFullscreenActive = false;
+          if (frame) frame.classList.remove('is-web-fullscreen');
+          document.body.classList.remove('fanview-fullscreen');
+          clearFullscreenFit();
+          closeFullscreenMenu();
+          updateFullscreenButton();
+          return;
+        }
+        if (document.exitFullscreen && document.fullscreenElement) {
+          try { await document.exitFullscreen(); } catch {}
+        } else if (document.webkitExitFullscreen && document.webkitFullscreenElement) {
+          try { document.webkitExitFullscreen(); } catch {}
+        }
+        closeFullscreenMenu();
+        updateFullscreenButton();
+      }
       async function lockFullscreenOrientation(orientation) {
         const lock = screen && screen.orientation && screen.orientation.lock;
         if (!lock) return;
@@ -1146,28 +1241,27 @@
         closeFullscreenMenu();
         const frame = document.querySelector('.video-frame');
         const liveVideo = $('liveVideo');
-        const iframe = $('videoFrame');
         const usingLiveVideo = liveVideo && liveVideo.style.display !== 'none';
-        const usingIframe = iframe && iframe.style.display !== 'none' && iframe.src;
-        const target = usingLiveVideo && liveVideo.webkitEnterFullscreen && !frame.requestFullscreen
-          ? liveVideo
-          : frame;
+        setFullscreenFit(orientation);
         try {
-          const entered = await requestElementFullscreen(target);
-          if (entered && fullscreenElement()) {
-            frame.dataset.fullscreenOrientation = orientation;
-            await lockFullscreenOrientation(orientation);
-            return;
+          const entered = await requestElementFullscreen(frame);
+          if (entered) {
+            await new Promise((resolve) => setTimeout(resolve, 80));
           }
-          if (usingIframe && iframe.requestFullscreen) {
-            await requestElementFullscreen(iframe);
+          if (entered && fullscreenElement()) {
             await lockFullscreenOrientation(orientation);
+            updateFullscreenButton();
+            return;
           }
         } catch {
           if (usingLiveVideo && liveVideo.webkitEnterFullscreen) {
-            try { liveVideo.webkitEnterFullscreen(); } catch {}
+            try {
+              liveVideo.webkitEnterFullscreen();
+              return;
+            } catch {}
           }
         }
+        activateWebFullscreen(orientation);
       }
       function setVideoStatus(title, body = '', visible = true) {
         const box = $('videoStatus');
@@ -1600,10 +1694,11 @@
         }
       });
       $('fullscreenButton').addEventListener('click', () => {
-        const menu = $('fullscreenMenu');
-        const next = !menu.classList.contains('on');
-        menu.classList.toggle('on', next);
-        $('fullscreenButton').setAttribute('aria-expanded', String(next));
+        if (isVideoFullscreenActive()) {
+          void exitVideoFullscreen();
+          return;
+        }
+        void enterVideoFullscreen(defaultFullscreenOrientation());
       });
       $('fullscreenMenu').addEventListener('click', (event) => {
         const choice = event.target.closest('[data-orientation]');
@@ -1612,15 +1707,25 @@
       });
       document.addEventListener('fullscreenchange', () => {
         if (!fullscreenElement()) {
-          document.querySelector('.video-frame').removeAttribute('data-fullscreen-orientation');
+          clearFullscreenFit();
           closeFullscreenMenu();
           if (screen && screen.orientation && screen.orientation.unlock) {
             try { screen.orientation.unlock(); } catch {}
           }
         }
+        updateFullscreenButton();
       });
       document.addEventListener('webkitfullscreenchange', () => {
-        if (!fullscreenElement()) closeFullscreenMenu();
+        if (!fullscreenElement()) {
+          clearFullscreenFit();
+          closeFullscreenMenu();
+        }
+        updateFullscreenButton();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && webFullscreenActive) {
+          void exitVideoFullscreen();
+        }
       });
       async function boot() {
         shareId = getShareId();
