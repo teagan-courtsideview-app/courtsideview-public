@@ -29,7 +29,7 @@
       body {
         margin: 0;
         min-height: 100vh;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: "Avenir Next", Avenir, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background: var(--paper);
         color: var(--ink);
         max-width: 100%;
@@ -161,6 +161,42 @@
         color: var(--ink);
         font-size: 16px;
         font-weight: 950;
+      }
+      .live-feed-list {
+        width: min(520px, 100%);
+        display: grid;
+        gap: 10px;
+      }
+      .live-feed-card {
+        min-height: 62px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: inherit;
+        text-decoration: none;
+      }
+      .live-feed-title {
+        font-family: var(--font-display);
+        font-size: 19px;
+        font-weight: 950;
+        line-height: 1;
+      }
+      .live-feed-meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.3;
+      }
+      .live-feed-cta {
+        color: var(--green);
+        font-weight: 950;
+        white-space: nowrap;
       }
       .button, button {
         appearance: none;
@@ -315,6 +351,10 @@
         font-size: 13px;
         line-height: 1.45;
       }
+      .note + .button {
+        margin-top: 12px;
+        width: 100%;
+      }
       .powered {
         margin: 18px 0 0;
         color: var(--dim);
@@ -331,6 +371,8 @@
         .hero { grid-template-columns: 1fr; padding: 18px; }
         .hero-title { font-size: clamp(30px, 9vw, 42px); }
         .hero .button { width: 100%; }
+        .live-feed-card { grid-template-columns: 1fr; }
+        .live-feed-cta { justify-self: start; }
         .layout { grid-template-columns: 1fr; }
         .match-row { grid-template-columns: 76px minmax(0, 1fr); }
         .match-row .status, .match-row .button { grid-column: 2; justify-self: start; }
@@ -367,7 +409,7 @@
 
       <div class="layout">
         <div>
-          <section>
+          <section id="schedule">
             <div class="section-head">
               <h2>Schedule</h2>
               <span class="section-note" id="scheduleCount"></span>
@@ -383,6 +425,20 @@
           </section>
         </div>
         <aside>
+          <section>
+            <div class="section-head">
+              <h2>Free App Alerts</h2>
+            </div>
+            <p class="note">Watch in the browser anytime. Download the free app to follow this team, get push alerts, and keep live matches in your Following tab.</p>
+            <a class="button" href="/download">Get the Free App</a>
+          </section>
+          <section>
+            <div class="section-head">
+              <h2>Score This Team</h2>
+            </div>
+            <p class="note">Add this team to CourtsideView to score from the roster and keep the schedule connected.</p>
+            <a class="button secondary" id="openInApp" href="#">Add Team to App</a>
+          </section>
           <section id="follow">
             <div class="section-head">
               <h2>Follow</h2>
@@ -391,7 +447,7 @@
               <input id="email" type="email" autocomplete="email" placeholder="Email address" required />
               <button type="submit">Notify Me</button>
             </form>
-            <p class="note" id="followNote">Bookmark this page. Live scores appear here automatically on game day.</p>
+            <p class="note" id="followNote">Bookmark this Team Hub. We will email when the team goes live, and this page will show every active FanView feed.</p>
           </section>
           <section>
             <div class="section-head">
@@ -496,14 +552,73 @@
         return `${Math.round(hours / 24)} days away`;
       }
 
-      function scoreFromState(match) {
-        const s = match.fanview_state || {};
+      function fanviewLinks(match) {
+        const links = Array.isArray(match?.fanview_links) ? match.fanview_links : [];
+        const active = links
+          .filter((link) => link && link.share_id && link.status !== 'ended' && !link.is_complete)
+          .map((link, index) => ({
+            shareId: String(link.share_id),
+            label: link.label || link.source || `FanView ${index + 1}`,
+            source: link.source || 'fanview',
+            state: link.state || link.score_snapshot || {},
+            homeName: link.home_name || '',
+            awayName: link.away_name || '',
+            updatedAt: link.updated_at || '',
+          }));
+        if (active.length) return active;
+        if (match?.status !== 'final' && match?.fanview_share_id) {
+          return [{
+            shareId: String(match.fanview_share_id),
+            label: 'FanView',
+            source: 'fanview',
+            state: match.fanview_state || {},
+            homeName: match.fanview_home_name || '',
+            awayName: match.fanview_away_name || '',
+            updatedAt: match.updated_at || '',
+          }];
+        }
+        return [];
+      }
+
+      function fanviewLabel(link, index) {
+        const base = String(link?.label || link?.source || 'FanView').trim();
+        if (!base || base.toLowerCase() === 'fanview') return `FanView ${index + 1}`;
+        return base;
+      }
+
+      function scoreFromState(source) {
+        const s = source?.state || source?.fanview_state || source || {};
         const home = Number(s.homeScore ?? s.home_score ?? s.myTeamScore ?? 0);
         const away = Number(s.awayScore ?? s.away_score ?? s.opponentScore ?? 0);
         const set = Number(s.currentSet ?? s.current_set ?? 1);
         const homeSets = Number(s.homeSetsWon ?? s.home_sets_won ?? s.myTeamSetsWon ?? 0);
         const awaySets = Number(s.awaySetsWon ?? s.away_sets_won ?? s.opponentSetsWon ?? 0);
         return { home, away, set, homeSets, awaySets };
+      }
+
+      function renderFanViewChoices(matches) {
+        const choices = matches.flatMap((match) =>
+          fanviewLinks(match).map((link, index) => ({ match, link, index }))
+        );
+        if (!choices.length) return '';
+        return `
+          <div class="live-feed-list" aria-label="Live FanView choices">
+            ${choices.map(({ match, link, index }) => {
+              const score = scoreFromState(link);
+              const homeName = link.homeName || match.fanview_home_name || displayTeamName(state.team?.name);
+              const awayName = link.awayName || match.fanview_away_name || match.opponent || 'Opponent';
+              return `
+                <a class="live-feed-card" href="/v/${encodeURIComponent(link.shareId)}">
+                  <span>
+                    <span class="live-feed-title">${escapeHtml(fanviewLabel(link, index))}</span>
+                    <span class="live-feed-meta">${escapeHtml(`${homeName} ${score.home} - ${awayName} ${score.away} · Set ${score.set}`)}</span>
+                  </span>
+                  <span class="live-feed-cta">Watch</span>
+                </a>
+              `;
+            }).join('')}
+          </div>
+        `;
       }
 
       function resultText(match) {
@@ -544,7 +659,7 @@
 
       function renderHero() {
         const now = Date.now();
-        const live = state.matches.find((match) => match.status === 'live' && match.fanview_share_id);
+        const liveMatches = state.matches.filter((match) => fanviewLinks(match).length > 0);
         const upcoming = state.matches
           .filter((match) => match.status === 'scheduled')
           .sort((a, b) => new Date(a.starts_at || 8640000000000000).getTime() - new Date(b.starts_at || 8640000000000000).getTime());
@@ -555,20 +670,27 @@
 
         $('scoreline').innerHTML = '';
         $('heroAction').classList.remove('secondary');
-        if (live) {
-          const score = scoreFromState(live);
+        if (liveMatches.length) {
+          const live = liveMatches[0];
+          const links = liveMatches.flatMap((match) => fanviewLinks(match));
+          const firstLink = links[0];
+          const score = scoreFromState(firstLink);
           $('hero').style.setProperty('--accent', 'var(--pink)');
           $('heroPill').className = 'pill live';
           $('heroPill').textContent = 'LIVE NOW';
           $('heroTitle').textContent = `${displayTeamName(state.team.name)} vs ${live.opponent || 'Opponent'}`;
-          $('heroCopy').textContent = `Set ${score.set}. Open FanView for the live scoreboard and activity.`;
-          $('scoreline').innerHTML = `
-            <span class="score-chip">${escapeHtml(live.fanview_home_name || displayTeamName(state.team.name))} ${score.home}</span>
-            <span class="score-chip">${escapeHtml(live.fanview_away_name || live.opponent || 'Opponent')} ${score.away}</span>
-            <span class="score-chip">Sets ${score.homeSets}-${score.awaySets}</span>
-          `;
-          $('heroAction').textContent = 'Watch FanView';
-          $('heroAction').href = `/v/${encodeURIComponent(live.fanview_share_id)}`;
+          $('heroCopy').textContent = links.length > 1
+            ? 'Multiple scorers are live. Pick the FanView angle you want to follow.'
+            : `Set ${score.set}. Open FanView for the live scoreboard and activity.`;
+          $('scoreline').innerHTML = links.length > 1
+            ? renderFanViewChoices(liveMatches)
+            : `
+              <span class="score-chip">${escapeHtml(firstLink?.homeName || live.fanview_home_name || displayTeamName(state.team.name))} ${score.home}</span>
+              <span class="score-chip">${escapeHtml(firstLink?.awayName || live.fanview_away_name || live.opponent || 'Opponent')} ${score.away}</span>
+              <span class="score-chip">Sets ${score.homeSets}-${score.awaySets}</span>
+            `;
+          $('heroAction').textContent = links.length > 1 ? 'Watch Latest' : 'Watch FanView';
+          $('heroAction').href = firstLink ? `/v/${encodeURIComponent(firstLink.shareId)}` : '#schedule';
           return;
         }
 
@@ -607,7 +729,8 @@
       }
 
       function renderMatch(match, type) {
-        const isLive = match.status === 'live' && match.fanview_share_id;
+        const links = fanviewLinks(match);
+        const isLive = links.length > 0;
         const title = type === 'result'
           ? `${resultText(match)} vs ${escapeHtml(match.opponent || 'Opponent')}`
           : `vs ${escapeHtml(match.opponent || 'Opponent')}`;
@@ -615,7 +738,7 @@
           ? (setScoreText(match) ? `Set scores: ${escapeHtml(setScoreText(match))}` : fmtDate(match.starts_at))
           : `${fmtDate(match.starts_at)}${match.location ? ` · ${escapeHtml(match.location)}` : ''}`;
         const action = isLive
-          ? `<a class="button" href="/v/${encodeURIComponent(match.fanview_share_id)}">Watch</a>`
+          ? `<a class="button" href="/v/${encodeURIComponent(links[0].shareId)}">${links.length > 1 ? 'Choose' : 'Watch'}</a>`
           : `<span class="status ${isLive ? 'live' : ''}">${escapeHtml(match.status)}</span>`;
         return `
           <div class="match-row">
@@ -657,6 +780,7 @@
         $('teamMeta').textContent = `${seasonText(team)} · courtsideviewapp.com/t/${team.slug}`;
         $('teamMark').textContent = displayTeamMark(team, publicName);
         $('teamMark').style.background = color;
+        $('openInApp').href = `courtsideview://team/${encodeURIComponent(team.slug)}`;
 
         const schedule = state.matches.filter((match) => match.status !== 'final');
         const results = [...state.matches].filter((match) => match.status === 'final').reverse();
@@ -667,7 +791,7 @@
           : '<p class="empty">No matches posted yet. This page will update when the team adds one.</p>';
         $('results').innerHTML = results.length
           ? results.map((match) => renderMatch(match, 'result')).join('')
-          : '<p class="empty">Results will appear here after matches finish.</p>';
+          : '<p class="empty">No final scores yet. Results appear here after matches finish.</p>';
         renderHero();
         renderRoster();
       }
@@ -699,7 +823,7 @@
           note.textContent = error.message || 'Unable to follow right now.';
           return;
         }
-        note.textContent = 'You are following this team. We will email when game-day updates are posted.';
+        note.textContent = 'You are following this team. We will email when this Team Hub goes live.';
         $('email').value = '';
       });
 

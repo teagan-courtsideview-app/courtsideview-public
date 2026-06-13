@@ -199,6 +199,52 @@
         justify-content: flex-end;
       }
 
+      .live-feed-list {
+        display: grid;
+        gap: 10px;
+        width: min(430px, 100%);
+      }
+
+      .live-feed-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        min-height: 70px;
+        padding: 12px;
+        color: inherit;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, .24);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .12);
+      }
+
+      .live-feed-title {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 900;
+        line-height: 1.18;
+        text-transform: uppercase;
+      }
+
+      .live-feed-meta {
+        display: block;
+        margin-top: 4px;
+        color: rgba(255, 255, 255, .74);
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.35;
+      }
+
+      .live-feed-cta {
+        color: #fff;
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
       .button {
         display: inline-flex;
         min-height: 46px;
@@ -522,7 +568,7 @@
               <div class="section-head">
                 <div>
                   <h2>Recent Results</h2>
-                  <p class="section-note">Final scores and match history stay here after the day ends.</p>
+                  <p class="section-note">Final scores and match history stay here after matches finish.</p>
                 </div>
               </div>
               <div class="row-list" id="results"></div>
@@ -534,16 +580,25 @@
               <span class="section-label">Family Link</span>
               <p class="share-title">One page for game day.</p>
               <p class="share-body">
-                Share this hub with families. It shows schedules now and switches to FanView when a match goes live.
+                Share this hub with families. It shows the schedule now and live FanView links when scorers go live.
               </p>
               <button class="button secondary" type="button" id="shareHub">Share Hub</button>
+            </div>
+
+            <div class="side-card share-card">
+              <span class="section-label">Free App Alerts</span>
+              <p class="share-title">Follow from the app.</p>
+              <p class="share-body">
+                Families can watch in the browser. The free app adds push alerts, Following, and quick access when a team goes live.
+              </p>
+              <a class="button" href="/download">Get the Free App</a>
             </div>
 
             <section>
               <div class="section-head">
                 <div>
-                  <h2>Teams &amp; Rosters</h2>
-                  <p class="section-note">Open a team for roster details, match links, and alerts.</p>
+                  <h2>Choose Your Team</h2>
+                  <p class="section-note">Open a team for roster details, match links, and follow alerts.</p>
                 </div>
               </div>
               <div class="teams" id="teams"></div>
@@ -665,17 +720,65 @@
         });
       }
 
+      function fanviewLinks(row) {
+        const links = Array.isArray(row?.fanview_links) ? row.fanview_links : [];
+        if (links.length) {
+          return links
+            .filter((link) => link?.share_id && link.status !== 'ended' && link.is_complete !== true)
+            .map((link, index) => ({
+              share_id: link.share_id,
+              label: link.label || link.source || `FanView ${index + 1}`,
+              source: link.source || 'fanview',
+              state: link.state || link.score_snapshot || {},
+              home_name: link.home_name,
+              away_name: link.away_name,
+              updated_at: link.updated_at,
+            }));
+        }
+        if (row?.match_status === 'final' || row?.status === 'final') return [];
+        return row?.fanview_share_id
+          ? [{
+              share_id: row.fanview_share_id,
+              label: 'FanView',
+              source: 'fanview',
+              state: row.match_state || {},
+              updated_at: row.updated_at,
+            }]
+          : [];
+      }
+
+      function scoreFromState(state = {}) {
+        const home = Number(
+          state.homeScore ?? state.home_score ?? state.myTeamScore ?? state.score?.us ?? state.currentScore?.us,
+        );
+        const away = Number(
+          state.awayScore ?? state.away_score ?? state.opponentScore ?? state.score?.them ?? state.currentScore?.them,
+        );
+        if (Number.isFinite(home) && Number.isFinite(away)) return `${home}-${away}`;
+        return '';
+      }
+
       function scoreLabel(row) {
+        const firstLive = fanviewLinks(row)[0];
+        const liveScore = firstLive ? scoreFromState(firstLive.state) : '';
+        if (liveScore) return liveScore;
         const result = row.result || {};
         if (typeof result.us === 'number' && typeof result.them === 'number') {
           return `${result.us}-${result.them}`;
         }
         const state = row.match_state || {};
+        const direct = scoreFromState(state);
+        if (direct) return direct;
         const score = state.score || state.currentScore;
         if (score && typeof score.us === 'number' && typeof score.them === 'number') {
           return `${score.us}-${score.them}`;
         }
         return 'Live score';
+      }
+
+      function fanviewLabel(link, index) {
+        const base = String(link?.label || link?.source || 'FanView').trim();
+        return base && base !== 'fanview' ? base : `FanView ${index + 1}`;
       }
 
       function matchTitle(row) {
@@ -706,7 +809,7 @@
           try {
             await navigator.share({
               title: latestClubName,
-              text: `${latestClubName} schedule, live scores, and team links`,
+              text: `${latestClubName} schedule and live FanView links. Download the free CourtsideView app for push alerts.`,
               url,
             });
             return;
@@ -723,26 +826,49 @@
       }
 
       function heroAction(row, label = 'Watch FanView') {
-        return row?.fanview_share_id
-          ? `<a class="button fanview" href="/v/${encodeURIComponent(row.fanview_share_id)}">${label}</a>`
+        const link = fanviewLinks(row)[0];
+        return link?.share_id
+          ? `<a class="button fanview" href="/v/${encodeURIComponent(link.share_id)}">${label}</a>`
           : '';
+      }
+
+      function renderFanViewChooser(rows) {
+        const options = rows.flatMap((row) =>
+          fanviewLinks(row).map((link, index) => ({ row, link, index })),
+        );
+        if (options.length <= 1) return heroAction(rows[0]);
+        return `
+          <div class="live-feed-list" aria-label="Live FanView choices">
+            ${options.map(({ row, link, index }) => `
+              <a class="live-feed-card" href="/v/${encodeURIComponent(link.share_id)}">
+                <span>
+                  <span class="live-feed-title">${escapeHtml(fanviewLabel(link, index))}</span>
+                  <span class="live-feed-meta">${escapeHtml(matchTitle(row))}${scoreFromState(link.state) ? ` · ${escapeHtml(scoreFromState(link.state))}` : ''}</span>
+                </span>
+                <span class="live-feed-cta">Watch</span>
+              </a>
+            `).join('')}
+          </div>
+        `;
       }
 
       function renderHero(data) {
         const live = data.live || [];
         const schedule = data.schedule || [];
-        if (live.length) {
-          const primary = live[0];
+        const activeLive = live.filter((row) => fanviewLinks(row).length > 0);
+        if (activeLive.length) {
+          const primary = activeLive[0];
+          const liveCount = activeLive.reduce((count, row) => count + fanviewLinks(row).length, 0);
           els.hero.innerHTML = `
             <div class="hero-card live">
               <div>
                 <span class="hero-label">LIVE NOW</span>
                 <p class="hero-title">${escapeHtml(matchTitle(primary))}</p>
                 <p class="hero-meta">${escapeHtml(scoreLabel(primary))}</p>
-                <p class="hero-helper">FanView is live for families following from home.</p>
+                <p class="hero-helper">${liveCount > 1 ? 'Choose the FanView feed you want to watch.' : 'FanView is live for families following from home.'}</p>
               </div>
               <div class="hero-actions">
-                ${heroAction(primary)}
+                ${renderFanViewChooser(activeLive)}
                 <button class="button secondary" type="button" data-share-hub>Share Hub</button>
               </div>
             </div>
@@ -796,7 +922,7 @@
           ? `${cleanDisplayName(firstEvent, 'Tournament Day')} Schedule`
           : "Today's Schedule";
         els.scheduleNote.textContent = rows.length
-          ? 'FanView links appear here automatically when a scorer goes live.'
+          ? 'Live FanView links appear here when a scorer publishes.'
           : 'Match times and courts will appear here when the club posts the schedule.';
 
         if (!rows.length) {
@@ -804,8 +930,9 @@
           return;
         }
         els.schedule.innerHTML = rows.map((row) => {
-          const status = row.fanview_share_id
-            ? '<span class="status live">LIVE</span>'
+          const links = fanviewLinks(row);
+          const status = links.length
+            ? `<span class="status live">${links.length > 1 ? `${links.length} LIVE` : 'LIVE'}</span>`
             : `<span class="status">${escapeHtml(row.match_status || 'scheduled')}</span>`;
           return `
             <div class="match-row">
@@ -815,7 +942,7 @@
                 <p class="row-meta">${escapeHtml(matchMeta(row))}</p>
                 ${row.external_url ? `<a class="row-link" href="${escapeHtml(row.external_url)}" rel="noopener">Official bracket</a>` : ''}
               </div>
-              ${row.fanview_share_id ? heroAction(row, 'FanView') : status}
+              ${links.length ? heroAction(row, links.length > 1 ? 'Choose FanView' : 'FanView') : status}
             </div>
           `;
         }).join('');
@@ -823,7 +950,7 @@
 
       function renderResults(rows) {
         if (!rows.length) {
-          els.results.innerHTML = '<p class="empty">Final scores will appear here after matches finish.</p>';
+          els.results.innerHTML = '<p class="empty">No final scores yet. Results appear here after matches finish.</p>';
           return;
         }
         els.results.innerHTML = rows.map((row) => `
@@ -848,7 +975,7 @@
             <span class="dot" style="background:${escapeHtml(team.color || '#F4B400')}"></span>
             <span>
               <span class="team-name">${escapeHtml(cleanDisplayName(team.name))}</span>
-              <span class="row-meta">${escapeHtml(team.season || 'Season roster')}</span>
+              <span class="row-meta">${escapeHtml(team.season || 'Team page')}</span>
             </span>
             <span class="team-cta">View Team</span>
           </a>
