@@ -28,10 +28,11 @@
         --border: rgba(255,255,255,0.12);
       }
       * { box-sizing: border-box; }
-      html, body { min-height: 100%; margin: 0; background: var(--bg); color: var(--ink);
+      html, body { min-height: 100%; height: 100%; margin: 0; background: var(--bg); color: var(--ink);
         font-family: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
       body { padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
-      body.camera-mode { padding: 0; overflow: hidden; }
+      body.camera-mode { position: fixed; inset: 0; width: 100%; height: 100dvh; padding: 0; overflow: hidden;
+        overscroll-behavior: none; touch-action: manipulation; }
       .wrap { width: min(100%, 720px); margin: 0 auto; }
       header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
       .mark { width: 32px; height: 32px; border-radius: 9px; object-fit: contain; }
@@ -124,7 +125,8 @@
       .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
       .confirm-actions button { padding: 14px 14px; font-size: 15px; }
       .confirm-actions .keep { color: #0b1017; background: #fff; border: 1px solid rgba(11,16,23,0.14); }
-      body.camera-mode .wrap { position: fixed; inset: 0; width: 100%; max-width: none; margin: 0; }
+      body.camera-mode .wrap { position: fixed; inset: 0; width: 100%; height: 100dvh;
+        max-width: none; margin: 0; overflow: hidden; }
       body.camera-mode header,
       body.camera-mode .hero,
       body.camera-mode .viewer-row { display: none; }
@@ -202,6 +204,25 @@
           transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom)); }
         body.camera-mode .record-panel { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
           transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 142px); }
+      }
+      @media (orientation: landscape) and (max-height: 560px) {
+        body.camera-mode.is-live .record-panel { display: none; }
+        body.camera-mode.is-live .controls {
+          width: min(680px, calc(100% - 32px));
+          max-width: none;
+          left: 50%;
+          right: auto;
+          bottom: max(10px, env(safe-area-inset-bottom));
+          transform: translateX(-50%);
+          grid-template-columns: 1.2fr 1fr 1fr;
+          gap: 8px;
+          padding: 10px;
+          border-radius: 22px;
+        }
+        body.camera-mode.is-live #scoreBtn { grid-column: 1 / -1; }
+        body.camera-mode.is-live #stopBtn { grid-column: 1 / -1; margin-top: 0; }
+        body.camera-mode.is-live #shareBtn,
+        body.camera-mode.is-live #minimizeBtn { min-width: 0; }
       }
     </style>
   </head>
@@ -344,7 +365,7 @@
         return streamId ? `${window.location.origin}/v/${encodeURIComponent(streamId)}` : window.location.origin;
       }
       function appUrl() {
-        return streamId ? `courtsideview://fanview/${encodeURIComponent(streamId)}` : 'courtsideview://';
+        return streamId ? `courtsideview://scoring/${encodeURIComponent(streamId)}` : 'courtsideview://scoring';
       }
       function setStatus(parts, state = 'READY', options = {}) {
         statusEl.replaceChildren();
@@ -843,11 +864,8 @@
         }
       }
       function returnToScoring() {
-        if (canUsePictureInPicture() && live && document.pictureInPictureElement !== preview) {
-          void preview.requestPictureInPicture().catch(() => {});
-        }
         setStatus([
-          { text: 'Video stays live. Go back to CourtsideView to score.', strong: true },
+          { text: 'Video stays live. Returning to CourtsideView to score.', strong: true },
         ], 'LIVE', { duration: 3600 });
         window.location.href = appUrl();
       }
@@ -1096,7 +1114,7 @@
       window.addEventListener('pagehide', () => {
         if (!broadcastDesired || intentionalStop) return;
         setStatus([
-          { text: 'Video stays live. Go back to CourtsideView to score.', strong: true },
+          { text: 'Video stays live. Returning to CourtsideView to score.', strong: true },
         ], 'LIVE', { persistent: true });
       });
       if (!streamId) {
