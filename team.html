@@ -351,6 +351,13 @@
         font-size: 13px;
         line-height: 1.45;
       }
+      .family-title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 26px;
+        line-height: 1;
+        font-weight: 950;
+      }
       .note + .button {
         margin-top: 12px;
         width: 100%;
@@ -361,6 +368,7 @@
         font-size: 13px;
         font-weight: 800;
         text-align: center;
+        white-space: nowrap;
       }
       @media (max-width: 760px) {
         main { width: min(calc(100% - 28px), 560px); padding-top: 22px; }
@@ -376,6 +384,7 @@
         .layout { grid-template-columns: 1fr; }
         .match-row { grid-template-columns: 76px minmax(0, 1fr); }
         .match-row .status, .match-row .button { grid-column: 2; justify-self: start; }
+        .powered { font-size: 12px; }
       }
       @media (max-width: 420px) {
         main { width: calc(100% - 24px); }
@@ -427,6 +436,13 @@
         <aside>
           <section>
             <div class="section-head">
+              <h2>Family Link</h2>
+            </div>
+            <p class="family-title">One page for game day.</p>
+            <p class="note">Share this Team Hub with families. It shows the schedule now, then live FanView links when scorers go live.</p>
+          </section>
+          <section>
+            <div class="section-head">
               <h2>Free App Alerts</h2>
             </div>
             <p class="note">Watch in the browser anytime. Download the free app to follow this team, get push alerts, and keep live matches in your Following tab.</p>
@@ -458,7 +474,7 @@
           </section>
         </aside>
       </div>
-      <p class="powered">Powered by CourtsideView. Score your own team from the app.</p>
+      <p class="powered">Powered by CourtsideView.</p>
     </main>
 
     <script type="module">
