@@ -4,241 +4,556 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
-    <title>CourtsideView Club</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <title>CourtsideView Club Hub</title>
     <style>
       :root {
         color-scheme: light;
         --ink: #101820;
-        --muted: #647067;
-        --line: #dfe6dc;
-        --paper: #fbfcf7;
+        --ink-soft: #263241;
+        --muted: #687281;
+        --line: #e0e5dc;
+        --line-strong: #cdd7ca;
+        --paper: #f8faf5;
         --panel: #ffffff;
-        --green: #0f8a4f;
+        --panel-soft: #eef3ea;
+        --green: #1fa66b;
+        --green-dark: #0f8a4f;
         --gold: #f4b400;
+        --gold-soft: rgba(244, 180, 0, 0.16);
         --pink: #ff4f8e;
-        --blue: #3978f2;
+        --pink-soft: rgba(255, 79, 142, 0.16);
+        --club-color: #f4b400;
+        --shadow: 0 22px 48px rgba(16, 24, 32, 0.08);
+        --font-sans: "Avenir Next", Avenir, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        --font-display: "AvenirNextCondensed-Heavy", "Avenir Next Condensed", "Avenir Next", "Arial Narrow", "Roboto Condensed", sans-serif;
       }
+
       * { box-sizing: border-box; }
+
       body {
         margin: 0;
         min-height: 100vh;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: var(--paper);
+        font-family: var(--font-sans);
+        background:
+          radial-gradient(circle at 12% 8%, rgba(31, 166, 107, 0.08), transparent 28%),
+          linear-gradient(180deg, #fbfcf7 0%, var(--paper) 44%, #f3f6f0 100%);
         color: var(--ink);
       }
+
+      a { color: inherit; }
+
       main {
-        width: min(1120px, calc(100% - 28px));
+        width: min(1140px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 28px 0 44px;
+        padding: 28px 0 52px;
       }
+
+      .page-shell {
+        display: grid;
+        gap: 22px;
+      }
+
       header {
         display: grid;
         grid-template-columns: 1fr auto;
-        gap: 18px;
+        gap: 24px;
         align-items: end;
-        border-bottom: 1px solid var(--line);
-        padding-bottom: 20px;
-        margin-bottom: 18px;
+        padding: 4px 0 10px;
       }
+
       .eyebrow {
-        margin: 0 0 8px;
-        color: var(--green);
+        margin: 0 0 10px;
+        color: var(--green-dark);
         font-size: 12px;
         font-weight: 900;
-        letter-spacing: .16em;
+        letter-spacing: 0;
         text-transform: uppercase;
       }
+
       h1 {
         margin: 0;
-        font-family: Georgia, "Times New Roman", serif;
-        font-size: clamp(42px, 8vw, 86px);
-        line-height: .92;
+        max-width: 820px;
+        font-family: var(--font-display);
+        font-size: 76px;
+        line-height: .94;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
       }
+
       .meta {
+        margin: 14px 0 0;
         color: var(--muted);
-        font-weight: 750;
-        line-height: 1.4;
+        font-weight: 700;
+        line-height: 1.45;
       }
+
       .mark {
-        width: 74px;
-        height: 74px;
+        width: 76px;
+        height: 76px;
         border-radius: 50%;
         display: grid;
         place-items: center;
         color: #fff;
-        font-weight: 950;
-        letter-spacing: .04em;
-        box-shadow: inset 0 0 0 3px rgba(255,255,255,.55);
+        background: var(--club-color);
+        font-weight: 900;
+        letter-spacing: 0;
+        box-shadow:
+          inset 0 0 0 3px rgba(255, 255, 255, .6),
+          0 14px 32px rgba(16, 24, 32, .14);
       }
-      section {
+
+      .hero-card,
+      section,
+      .side-card {
         background: var(--panel);
         border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 18px;
+        border-radius: 18px;
+        box-shadow: var(--shadow);
       }
-      section + section { margin-top: 16px; }
-      h2 {
-        margin: 0 0 14px;
-        font-size: 13px;
-        letter-spacing: .15em;
-        text-transform: uppercase;
-      }
-      .grid {
+
+      .hero-card {
+        position: relative;
+        overflow: hidden;
         display: grid;
-        grid-template-columns: 1.4fr .85fr;
-        gap: 16px;
-      }
-      .live-strip {
-        display: grid;
-        gap: 10px;
-        margin-bottom: 16px;
-      }
-      .live-card {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 12px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 22px;
         align-items: center;
-        border: 1px solid rgba(255,79,142,.38);
-        border-radius: 8px;
-        padding: 16px;
-        background: #fff;
-        box-shadow: 0 18px 44px rgba(255,79,142,.1);
+        padding: clamp(20px, 4vw, 30px);
       }
-      .live-pill {
+
+      .hero-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 7px;
+        background: var(--club-color);
+      }
+
+      .hero-card.live {
+        color: #fff;
+        background:
+          linear-gradient(135deg, rgba(255, 79, 142, .34), rgba(255, 79, 142, 0) 38%),
+          linear-gradient(135deg, #111827 0%, #162238 100%);
+        border-color: rgba(255, 79, 142, .45);
+      }
+
+      .hero-card.live::before { background: var(--pink); }
+      .hero-card.live .hero-meta,
+      .hero-card.live .hero-helper { color: rgba(255, 255, 255, .76); }
+
+      .hero-label,
+      .section-label,
+      .status {
         display: inline-flex;
-        min-height: 28px;
         align-items: center;
+        width: fit-content;
+        min-height: 28px;
         border-radius: 999px;
         padding: 0 11px;
-        color: #fff;
-        background: var(--pink);
         font-size: 11px;
-        font-weight: 950;
-        letter-spacing: .09em;
-      }
-      .live-title {
-        margin: 8px 0 0;
-        font-size: 20px;
-        font-weight: 950;
-      }
-      a.button {
-        display: inline-flex;
-        min-height: 42px;
-        align-items: center;
-        justify-content: center;
-        border-radius: 999px;
-        padding: 0 16px;
-        background: var(--green);
-        color: #fff;
-        font-weight: 950;
-        text-decoration: none;
-        white-space: nowrap;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 12px;
-        align-items: center;
-        padding: 14px 0;
-        border-top: 1px solid var(--line);
-      }
-      .row:first-of-type { border-top: 0; padding-top: 0; }
-      .time {
-        min-width: 74px;
-        border-radius: 8px;
-        background: #eef5ee;
-        padding: 8px 10px;
-        text-align: center;
-        font-weight: 950;
-        color: var(--green);
-      }
-      .row-title { font-weight: 950; }
-      .row-meta {
-        margin-top: 3px;
-        color: var(--muted);
-        font-size: 13px;
-      }
-      .status {
-        align-self: center;
-        border-radius: 999px;
-        background: #eef5ee;
-        color: var(--green);
-        padding: 6px 10px;
-        font-size: 11px;
-        font-weight: 950;
-        letter-spacing: .08em;
+        font-weight: 900;
+        letter-spacing: 0;
         text-transform: uppercase;
       }
+
+      .hero-label {
+        color: var(--green-dark);
+        background: rgba(31, 166, 107, .12);
+      }
+
+      .hero-card.live .hero-label {
+        color: #fff;
+        background: var(--pink);
+      }
+
+      .hero-title {
+        margin: 12px 0 0;
+        font-family: var(--font-display);
+        font-size: 44px;
+        line-height: 1.04;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .hero-meta {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .hero-helper {
+        margin: 8px 0 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 999px;
+        padding: 0 18px;
+        background: var(--green);
+        color: #fff;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-decoration: none;
+        text-transform: uppercase;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      .button.fanview {
+        background: var(--pink);
+        box-shadow: 0 16px 34px rgba(255, 79, 142, .22);
+      }
+
+      .button.secondary {
+        color: var(--ink);
+        background: #fff;
+        border: 1px solid var(--line);
+      }
+
+      .hero-card.live .button.secondary {
+        color: #fff;
+        background: rgba(255, 255, 255, .12);
+        border-color: rgba(255, 255, 255, .22);
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .main-stack,
+      .side-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      section,
+      .side-card {
+        padding: clamp(18px, 3vw, 22px);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+
+      h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .section-note {
+        margin: 6px 0 0;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .row-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .match-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        min-height: 76px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .time {
+        min-width: 86px;
+        border-radius: 12px;
+        background: rgba(31, 166, 107, .11);
+        padding: 9px 10px;
+        text-align: center;
+        font-weight: 900;
+        color: var(--green-dark);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .row-title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 900;
+        line-height: 1.25;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .row-meta {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .row-link {
+        display: inline-flex;
+        margin-top: 7px;
+        color: var(--green-dark);
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .status {
+        background: rgba(31, 166, 107, .11);
+        color: var(--green-dark);
+      }
+
+      .status.final {
+        background: var(--gold-soft);
+        color: #8a6400;
+      }
+
+      .status.live {
+        background: var(--pink);
+        color: #fff;
+      }
+
+      .side-card {
+        display: grid;
+        gap: 14px;
+      }
+
+      .share-card {
+        background:
+          linear-gradient(135deg, rgba(31, 166, 107, .09), transparent 48%),
+          #fff;
+      }
+
+      .share-title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 22px;
+        line-height: 1.15;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .share-body {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
       .teams {
         display: grid;
         gap: 10px;
       }
+
       .team-link {
         display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 10px;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 12px;
         align-items: center;
+        min-height: 68px;
         color: inherit;
         text-decoration: none;
         border: 1px solid var(--line);
-        border-radius: 8px;
+        border-radius: 14px;
         padding: 12px;
+        background: #fff;
       }
+
       .dot {
-        width: 22px;
-        height: 22px;
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
-        border: 2px solid rgba(16,24,32,.12);
+        border: 2px solid rgba(16, 24, 32, .12);
+        background: var(--club-color);
       }
+
+      .team-name {
+        display: block;
+        font-family: var(--font-display);
+        font-weight: 900;
+        line-height: 1.25;
+        text-transform: uppercase;
+      }
+
+      .team-cta {
+        color: var(--green-dark);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
       .empty {
+        margin: 0;
         color: var(--muted);
-        line-height: 1.5;
+        line-height: 1.55;
       }
-      .hidden { display: none; }
-      @media (max-width: 780px) {
-        main { width: min(100% - 22px, 1120px); padding-top: 22px; }
+
+      .skeleton {
+        position: relative;
+        overflow: hidden;
+        min-height: 18px;
+        border-radius: 999px;
+        background: #e8eee5;
+      }
+
+      .skeleton::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .62), transparent);
+        animation: shimmer 1.4s infinite;
+      }
+
+      .skeleton.title { width: min(520px, 80vw); height: 64px; border-radius: 18px; }
+      .skeleton.meta { width: 340px; height: 20px; }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        z-index: 10;
+        transform: translateX(-50%) translateY(14px);
+        opacity: 0;
+        pointer-events: none;
+        min-height: 44px;
+        border-radius: 999px;
+        padding: 12px 18px;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 800;
+        box-shadow: var(--shadow);
+        transition: opacity .18s ease, transform .18s ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      @keyframes shimmer {
+        100% { transform: translateX(100%); }
+      }
+
+      @media (max-width: 860px) {
+        main { width: min(100% - 24px, 1140px); padding-top: 22px; }
         header { grid-template-columns: 1fr; }
-        .mark { width: 60px; height: 60px; }
-        .grid { grid-template-columns: 1fr; }
-        .live-card { grid-template-columns: 1fr; }
-        .row { grid-template-columns: 1fr; gap: 8px; }
+        .mark { width: 64px; height: 64px; }
+        .hero-card { grid-template-columns: 1fr; }
+        .hero-actions { justify-content: stretch; }
+        .button { width: 100%; }
+        .content-grid { grid-template-columns: 1fr; }
+        .match-row { grid-template-columns: 1fr; gap: 9px; }
         .time { width: fit-content; min-width: 0; }
-        a.button { width: 100%; }
+        .status { width: fit-content; }
+        .team-link { grid-template-columns: auto minmax(0, 1fr); }
+        .team-cta { display: none; }
+      }
+
+      @media (max-width: 420px) {
+        main { width: min(100% - 20px, 1140px); }
+        h1 { font-size: 58px; }
+        .hero-title { font-size: 28px; }
+        .section-head { display: block; }
+        .section-note { margin-top: 8px; }
       }
     </style>
   </head>
   <body>
     <main>
-      <header>
-        <div>
-          <p class="eyebrow">CourtsideView Club Hub</p>
-          <h1 id="clubName">Loading club...</h1>
-          <p class="meta" id="clubMeta"></p>
-        </div>
-        <div class="mark" id="clubMark">CV</div>
-      </header>
+      <div class="page-shell">
+        <header>
+          <div>
+            <p class="eyebrow">CourtsideView Club Hub</p>
+            <h1 id="clubName"><span class="skeleton title"></span></h1>
+            <p class="meta" id="clubMeta"><span class="skeleton meta"></span></p>
+          </div>
+          <div class="mark" id="clubMark">CV</div>
+        </header>
 
-      <div id="liveStrip" class="live-strip"></div>
+        <div id="hero"></div>
 
-      <div class="grid">
-        <div>
-          <section>
-            <h2>Tournament Schedule</h2>
-            <div id="schedule"></div>
-          </section>
-          <section>
-            <h2>Recent Results</h2>
-            <div id="results"></div>
-          </section>
+        <div class="content-grid">
+          <div class="main-stack">
+            <section>
+              <div class="section-head">
+                <div>
+                  <h2 id="scheduleTitle">Schedule</h2>
+                  <p class="section-note" id="scheduleNote"></p>
+                </div>
+              </div>
+              <div class="row-list" id="schedule"></div>
+            </section>
+
+            <section>
+              <div class="section-head">
+                <div>
+                  <h2>Recent Results</h2>
+                  <p class="section-note">Final scores and match history stay here after the day ends.</p>
+                </div>
+              </div>
+              <div class="row-list" id="results"></div>
+            </section>
+          </div>
+
+          <aside class="side-stack">
+            <div class="side-card share-card">
+              <span class="section-label">Family Link</span>
+              <p class="share-title">One page for game day.</p>
+              <p class="share-body">
+                Share this hub with families. It shows schedules now and switches to FanView when a match goes live.
+              </p>
+              <button class="button secondary" type="button" id="shareHub">Share Hub</button>
+            </div>
+
+            <section>
+              <div class="section-head">
+                <div>
+                  <h2>Teams &amp; Rosters</h2>
+                  <p class="section-note">Open a team for roster details, match links, and alerts.</p>
+                </div>
+              </div>
+              <div class="teams" id="teams"></div>
+            </section>
+          </aside>
         </div>
-        <aside>
-          <section>
-            <h2>Teams</h2>
-            <div class="teams" id="teams"></div>
-          </section>
-        </aside>
       </div>
     </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script type="module">
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
@@ -253,11 +568,17 @@
         clubName: document.getElementById('clubName'),
         clubMeta: document.getElementById('clubMeta'),
         clubMark: document.getElementById('clubMark'),
-        liveStrip: document.getElementById('liveStrip'),
+        hero: document.getElementById('hero'),
+        scheduleTitle: document.getElementById('scheduleTitle'),
+        scheduleNote: document.getElementById('scheduleNote'),
         schedule: document.getElementById('schedule'),
         results: document.getElementById('results'),
         teams: document.getElementById('teams'),
+        shareHub: document.getElementById('shareHub'),
+        toast: document.getElementById('toast'),
       };
+
+      let latestClubName = 'CourtsideView Club Hub';
 
       function getSlug() {
         const match = window.location.pathname.match(/^\/c\/([^/?#]+)/);
@@ -272,6 +593,52 @@
           '"': '&quot;',
           "'": '&#39;',
         }[char]));
+      }
+
+      function plural(count, singular, pluralLabel) {
+        return `${count} ${count === 1 ? singular : pluralLabel}`;
+      }
+
+      function titleCase(value) {
+        return String(value || '')
+          .split(' ')
+          .filter(Boolean)
+          .map((part) => {
+            if (/^[A-Z0-9]{1,4}$/.test(part)) return part;
+            if (/^u\d{1,2}$/i.test(part)) return part.toUpperCase();
+            return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+          })
+          .join(' ');
+      }
+
+      function cleanDisplayName(value, fallback = 'Team') {
+        const raw = String(value ?? '').trim();
+        if (!raw) return fallback;
+        const cleaned = raw
+          .replace(/\.(csv|xlsx?|pdf)$/i, '')
+          .replace(/[_]+/g, ' ')
+          .replace(/[-]+/g, ' ')
+          .replace(/\broster\b/ig, '')
+          .replace(/\s+[a-z0-9]{5,8}$/i, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return titleCase(cleaned || raw || fallback);
+      }
+
+      function opponentName(value) {
+        const cleaned = cleanDisplayName(value, 'Opponent TBA');
+        return /^opponent$/i.test(cleaned) ? 'Opponent TBA' : cleaned;
+      }
+
+      function fmtDate(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+        });
       }
 
       function fmtDateTime(value) {
@@ -308,83 +675,204 @@
         if (score && typeof score.us === 'number' && typeof score.them === 'number') {
           return `${score.us}-${score.them}`;
         }
-        return 'Live';
+        return 'Live score';
       }
 
-      function renderLive(rows) {
-        if (!rows.length) {
-          els.liveStrip.innerHTML = '';
+      function matchTitle(row) {
+        return `${cleanDisplayName(row.team_name)} vs ${opponentName(row.opponent)}`;
+      }
+
+      function matchMeta(row) {
+        const parts = [];
+        if (row.court) parts.push(`Court ${row.court}`);
+        if (row.event_name) parts.push(cleanDisplayName(row.event_name, 'Tournament Day'));
+        if (row.venue) parts.push(cleanDisplayName(row.venue, row.venue));
+        return parts.join(' - ');
+      }
+
+      function currentUrl() {
+        return window.location.href.split('#')[0];
+      }
+
+      function showToast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add('show');
+        window.setTimeout(() => els.toast.classList.remove('show'), 2200);
+      }
+
+      async function shareHub() {
+        const url = currentUrl();
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: latestClubName,
+              text: `${latestClubName} schedule, live scores, and team links`,
+              url,
+            });
+            return;
+          } catch (error) {
+            if (error?.name === 'AbortError') return;
+          }
+        }
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast('Hub link copied');
+        } catch {
+          showToast('Copy this page link from your browser');
+        }
+      }
+
+      function heroAction(row, label = 'Watch FanView') {
+        return row?.fanview_share_id
+          ? `<a class="button fanview" href="/v/${encodeURIComponent(row.fanview_share_id)}">${label}</a>`
+          : '';
+      }
+
+      function renderHero(data) {
+        const live = data.live || [];
+        const schedule = data.schedule || [];
+        if (live.length) {
+          const primary = live[0];
+          els.hero.innerHTML = `
+            <div class="hero-card live">
+              <div>
+                <span class="hero-label">LIVE NOW</span>
+                <p class="hero-title">${escapeHtml(matchTitle(primary))}</p>
+                <p class="hero-meta">${escapeHtml(scoreLabel(primary))}</p>
+                <p class="hero-helper">FanView is live for families following from home.</p>
+              </div>
+              <div class="hero-actions">
+                ${heroAction(primary)}
+                <button class="button secondary" type="button" data-share-hub>Share Hub</button>
+              </div>
+            </div>
+          `;
           return;
         }
-        els.liveStrip.innerHTML = rows.map((row) => `
-          <div class="live-card">
-            <div>
-              <span class="live-pill">LIVE NOW</span>
-              <p class="live-title">${escapeHtml(row.team_name)} vs ${escapeHtml(row.opponent)}</p>
-              <p class="meta">${escapeHtml(scoreLabel(row))}</p>
+
+        const now = Date.now();
+        const next =
+          schedule.find((row) => {
+            const time = Date.parse(row.scheduled_at);
+            return Number.isFinite(time) && time >= now - 12 * 60 * 60 * 1000;
+          }) ?? schedule[0];
+
+        if (next) {
+          els.hero.innerHTML = `
+            <div class="hero-card">
+              <div>
+                <span class="hero-label">Next Match</span>
+                <p class="hero-title">${escapeHtml(matchTitle(next))}</p>
+                <p class="hero-meta">${escapeHtml(fmtDateTime(next.scheduled_at))}</p>
+                <p class="hero-helper">${escapeHtml(matchMeta(next) || 'FanView appears here when a scorer goes live.')}</p>
+              </div>
+              <div class="hero-actions">
+                ${heroAction(next, 'Open FanView')}
+                ${next.external_url ? `<a class="button secondary" href="${escapeHtml(next.external_url)}" rel="noopener">Official Bracket</a>` : ''}
+                <button class="button secondary" type="button" data-share-hub>Share Hub</button>
+              </div>
             </div>
-            ${row.fanview_share_id ? `<a class="button" href="/v/${encodeURIComponent(row.fanview_share_id)}">Open FanView</a>` : ''}
+          `;
+          return;
+        }
+
+        els.hero.innerHTML = `
+          <div class="hero-card">
+            <div>
+              <span class="hero-label">Schedule Coming Soon</span>
+              <p class="hero-title">Game day details will appear here.</p>
+              <p class="hero-helper">This page becomes the live hub once the club posts matches or a scorer starts FanView.</p>
+            </div>
+            <div class="hero-actions">
+              <button class="button secondary" type="button" data-share-hub>Share Hub</button>
+            </div>
           </div>
-        `).join('');
+        `;
       }
 
       function renderSchedule(rows) {
+        const firstEvent = rows.find((row) => row.event_name)?.event_name;
+        els.scheduleTitle.textContent = firstEvent
+          ? `${cleanDisplayName(firstEvent, 'Tournament Day')} Schedule`
+          : "Today's Schedule";
+        els.scheduleNote.textContent = rows.length
+          ? 'FanView links appear here automatically when a scorer goes live.'
+          : 'Match times and courts will appear here when the club posts the schedule.';
+
         if (!rows.length) {
-          els.schedule.innerHTML = '<p class="empty">No tournament schedule posted yet.</p>';
+          els.schedule.innerHTML = '<p class="empty">No schedule posted yet.</p>';
           return;
         }
-        els.schedule.innerHTML = rows.map((row) => `
-          <div class="row">
-            <div class="time">${escapeHtml(fmtTime(row.scheduled_at))}</div>
-            <div>
-              <div class="row-title">${escapeHtml(row.team_name)} vs ${escapeHtml(row.opponent)}</div>
-              <div class="row-meta">Court ${escapeHtml(row.court || 'TBA')} · ${escapeHtml(row.event_name)}${row.venue ? ` · ${escapeHtml(row.venue)}` : ''}</div>
-              ${row.external_url ? `<div class="row-meta"><a href="${escapeHtml(row.external_url)}" rel="noopener">Official bracket</a></div>` : ''}
+        els.schedule.innerHTML = rows.map((row) => {
+          const status = row.fanview_share_id
+            ? '<span class="status live">LIVE</span>'
+            : `<span class="status">${escapeHtml(row.match_status || 'scheduled')}</span>`;
+          return `
+            <div class="match-row">
+              <div class="time">${escapeHtml(fmtTime(row.scheduled_at))}</div>
+              <div>
+                <p class="row-title">${escapeHtml(matchTitle(row))}</p>
+                <p class="row-meta">${escapeHtml(matchMeta(row))}</p>
+                ${row.external_url ? `<a class="row-link" href="${escapeHtml(row.external_url)}" rel="noopener">Official bracket</a>` : ''}
+              </div>
+              ${row.fanview_share_id ? heroAction(row, 'FanView') : status}
             </div>
-            ${row.fanview_share_id ? `<a class="button" href="/v/${encodeURIComponent(row.fanview_share_id)}">FanView</a>` : `<span class="status">${escapeHtml(row.match_status || 'scheduled')}</span>`}
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
 
       function renderResults(rows) {
         if (!rows.length) {
-          els.results.innerHTML = '<p class="empty">Results will appear here after matches finish.</p>';
+          els.results.innerHTML = '<p class="empty">Final scores will appear here after matches finish.</p>';
           return;
         }
         els.results.innerHTML = rows.map((row) => `
-          <div class="row">
-            <div class="time">${escapeHtml(fmtDateTime(row.updated_at).split(',').pop()?.trim() || 'Final')}</div>
+          <div class="match-row">
+            <div class="time">${escapeHtml(fmtDate(row.updated_at) || 'Final')}</div>
             <div>
-              <div class="row-title">${escapeHtml(row.team_name)} vs ${escapeHtml(row.opponent)}</div>
-              <div class="row-meta">${escapeHtml(scoreLabel(row))}</div>
+              <p class="row-title">${escapeHtml(matchTitle(row))}</p>
+              <p class="row-meta">${escapeHtml(scoreLabel(row))}</p>
             </div>
-            <span class="status">final</span>
+            <span class="status final">Final</span>
           </div>
         `).join('');
       }
 
       function renderTeams(rows) {
         if (!rows.length) {
-          els.teams.innerHTML = '<p class="empty">Teams will appear once they are attached by the club.</p>';
+          els.teams.innerHTML = '<p class="empty">Teams will appear once the club attaches public team pages.</p>';
           return;
         }
         els.teams.innerHTML = rows.map((team) => `
           <a class="team-link" href="/t/${encodeURIComponent(team.slug)}">
             <span class="dot" style="background:${escapeHtml(team.color || '#F4B400')}"></span>
             <span>
-              <strong>${escapeHtml(team.name)}</strong>
-              <span class="row-meta">${escapeHtml(team.season || 'Season')}</span>
+              <span class="team-name">${escapeHtml(cleanDisplayName(team.name))}</span>
+              <span class="row-meta">${escapeHtml(team.season || 'Season roster')}</span>
             </span>
+            <span class="team-cta">View Team</span>
           </a>
         `).join('');
       }
 
       function render404() {
+        latestClubName = 'Club not found';
+        document.title = 'Club not found - CourtsideView';
         els.clubName.textContent = 'Club not found';
         els.clubMeta.textContent = 'This club page may be private or unpublished.';
         els.clubMark.textContent = '404';
-        els.liveStrip.innerHTML = '';
-        els.schedule.innerHTML = '<p class="empty">No public club page is available here.</p>';
+        els.hero.innerHTML = `
+          <div class="hero-card">
+            <div>
+              <span class="hero-label">Not Available</span>
+              <p class="hero-title">No public club page is available here.</p>
+              <p class="hero-helper">Check the link with the team or club owner.</p>
+            </div>
+          </div>
+        `;
+        els.scheduleTitle.textContent = 'Schedule';
+        els.scheduleNote.textContent = '';
+        els.schedule.innerHTML = '';
         els.results.innerHTML = '';
         els.teams.innerHTML = '';
       }
@@ -402,17 +890,31 @@
           render404();
           return;
         }
+
         const club = data.club;
         const color = club.color || '#F4B400';
-        els.clubName.textContent = club.name || 'Club';
-        els.clubMeta.textContent = `${data.teams?.length ?? 0} teams · courtsideviewapp.com/c/${club.slug}`;
-        els.clubMark.textContent = (club.logo_text || club.name || 'CV').slice(0, 4).toUpperCase();
+        const teams = data.teams || [];
+        latestClubName = cleanDisplayName(club.name || 'CourtsideView Club');
+        document.title = `${latestClubName} - CourtsideView Club Hub`;
+        document.documentElement.style.setProperty('--club-color', color);
+        els.clubName.textContent = latestClubName;
+        els.clubMeta.textContent = `${plural(teams.length, 'team', 'teams')} - Live scores, schedules, rosters, and results`;
+        els.clubMark.textContent = (club.logo_text || latestClubName || 'CV').slice(0, 4).toUpperCase();
         els.clubMark.style.background = color;
-        renderLive(data.live || []);
+
+        renderHero(data);
         renderSchedule(data.schedule || []);
         renderResults(data.results || []);
-        renderTeams(data.teams || []);
+        renderTeams(teams);
       }
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target instanceof Element && target.closest('[data-share-hub]')) {
+          void shareHub();
+        }
+      });
+      els.shareHub.addEventListener('click', () => void shareHub());
 
       loadClub();
       window.setInterval(loadClub, 5000);
