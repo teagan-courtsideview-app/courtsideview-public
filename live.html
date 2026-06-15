@@ -107,6 +107,13 @@
         box-shadow: 0 0 0 4px rgba(255,79,147,0.12); }
       .viewer-count strong { color: var(--ink); }
       .viewer-chip .viewer-count strong { color: #0b1017; }
+      .handoff-panel { display: none; margin-top: 12px; padding: 13px 14px;
+        border-radius: 20px; background: rgba(34,197,94,0.11);
+        border: 1px solid rgba(34,197,94,0.28); color: #d9fbe6;
+        box-shadow: 0 14px 34px rgba(0,0,0,0.20); }
+      .handoff-panel.on { display: grid; gap: 4px; }
+      .handoff-title { color: #fff; font-size: 14px; line-height: 1.12; font-weight: 950; }
+      .handoff-copy { color: rgba(217,251,230,0.84); font-size: 12px; line-height: 1.32; font-weight: 760; }
       .join-toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom));
         transform: translate(-50%, 18px); z-index: 20; opacity: 0; pointer-events: none;
         background: rgba(23,30,39,0.94); color: var(--ink); border: 1px solid var(--border);
@@ -142,6 +149,11 @@
         z-index: 8; display: flex; justify-content: flex-end; align-items: center; gap: 8px;
         pointer-events: none; }
       body.camera-mode.is-live .live-chip { display: inline-flex; }
+      body.camera-mode .handoff-panel { position: fixed; z-index: 10;
+        left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
+        bottom: calc(max(14px, env(safe-area-inset-bottom)) + 238px);
+        width: auto; max-width: 520px; margin: 0 auto; background: rgba(8,13,21,0.78);
+        border-color: rgba(34,197,94,0.34); backdrop-filter: blur(18px); }
       body.camera-mode .status { position: fixed; z-index: 9; left: 50%; right: auto;
         top: max(58px, calc(env(safe-area-inset-top) + 58px)); bottom: auto; width: max-content;
         max-width: min(86vw, 440px); transform: translate(-50%, -8px); border-radius: 999px;
@@ -169,6 +181,7 @@
       body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; }
       body.camera-mode.is-live #scoreBtn,
       body.camera-mode.is-live #stopBtn { grid-column: 1 / -1; }
+      body.camera-mode.is-live #scoreBtn { min-height: 58px; font-size: 17px; }
       body.camera-mode.is-live #stopBtn { margin-top: 6px; }
       body.camera-mode .preview-link { color: #fff; text-decoration: none; border: 1px solid var(--border);
         border-radius: 999px; background: rgba(255,255,255,0.06); padding: 16px 18px;
@@ -187,6 +200,8 @@
         body.camera-mode.is-live .controls { gap: 9px; padding: 11px; }
         body.camera-mode .top-overlay { top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
         body.camera-mode .controls { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
+        body.camera-mode .handoff-panel { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
+          bottom: calc(max(12px, env(safe-area-inset-bottom)) + 232px); }
         body.camera-mode .record-panel { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
           bottom: calc(max(12px, env(safe-area-inset-bottom)) + 164px); }
       }
@@ -202,11 +217,14 @@
         body.camera-mode .status.on { transform: translateY(0); }
         body.camera-mode .controls { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
           transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom)); }
+        body.camera-mode .handoff-panel { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
+          transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 214px); }
         body.camera-mode .record-panel { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
           transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 142px); }
       }
       @media (orientation: landscape) and (max-height: 560px) {
         body.camera-mode.is-live .record-panel { display: none; }
+        body.camera-mode.is-live .handoff-panel { display: none; }
         body.camera-mode.is-live .controls {
           width: min(680px, calc(100% - 32px));
           max-width: none;
@@ -254,6 +272,10 @@
             <span class="viewer-dot"></span>
             <span id="viewerCount" class="viewer-count"><strong>0</strong> watching</span>
           </div>
+          <div id="handoffPanel" class="handoff-panel" aria-live="polite">
+            <div id="handoffTitle" class="handoff-title">Video is live</div>
+            <div id="handoffCopy" class="handoff-copy">Return to CourtsideView to score. Floating the preview is optional.</div>
+          </div>
           <div id="recordPanel" class="record-panel">
             <label class="record-toggle" aria-label="Save a local copy">
               <input id="recordToggle" type="checkbox" checked />
@@ -268,9 +290,9 @@
           <div class="controls">
             <button id="cameraBtn" class="secondary">Start camera</button>
             <button id="broadcastBtn" class="primary is-hidden" disabled>Start live video</button>
-            <button id="scoreBtn" class="primary is-hidden" disabled>Back to scoring</button>
+            <button id="scoreBtn" class="primary is-hidden" disabled>Return to scoring</button>
             <button id="shareBtn" class="fanview-primary">Share link</button>
-            <button id="minimizeBtn" class="secondary is-hidden" disabled>Float video</button>
+            <button id="minimizeBtn" class="secondary is-hidden" disabled>Float preview</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End live video</button>
             <button id="previewBtn" class="preview-link">Preview</button>
           </div>
@@ -316,6 +338,9 @@
       const stopBtn = document.getElementById('stopBtn');
       const previewBtn = document.getElementById('previewBtn');
       const recordPanel = document.getElementById('recordPanel');
+      const handoffPanel = document.getElementById('handoffPanel');
+      const handoffTitle = document.getElementById('handoffTitle');
+      const handoffCopy = document.getElementById('handoffCopy');
       const recordToggle = document.getElementById('recordToggle');
       const recordEstimate = document.getElementById('recordEstimate');
       const statusEl = document.getElementById('status');
@@ -333,6 +358,7 @@
       let pc = null;
       let live = false;
       let broadcastDesired = false;
+      let broadcastBlocked = false;
       let intentionalStop = false;
       let audioEnabled = false;
       let wakeLock = null;
@@ -389,6 +415,24 @@
         pageTitle.textContent = title;
         pageLead.textContent = lead;
       }
+      function browserBroadcastNote() {
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isAndroid = /Android/i.test(ua);
+        if (isIOS) {
+          return 'On iPhone or iPad, keep this browser tab available. If iOS pauses the camera, come back here and CourtsideView will reconnect.';
+        }
+        if (isAndroid) {
+          return 'On Android, keep Chrome available while scoring. If the camera pauses, return to this tab and CourtsideView will reconnect.';
+        }
+        return 'Keep this browser tab available while scoring. If the camera pauses, return here and CourtsideView will reconnect.';
+      }
+      function setHandoffPanel(title, copy, visible) {
+        if (!handoffPanel) return;
+        handoffTitle.textContent = title;
+        handoffCopy.textContent = copy;
+        handoffPanel.classList.toggle('on', Boolean(visible));
+      }
       function showStatus(options = {}) {
         if (statusTimer) clearTimeout(statusTimer);
         statusEl.classList.add('on');
@@ -420,22 +464,92 @@
         showControl(cameraBtn, isSetup || isOffline);
         showControl(broadcastBtn, isCameraReady);
         showControl(recordPanel, isSetup || isCameraReady || isLive || isOffline);
-        showControl(scoreBtn, isLive);
-        showControl(minimizeBtn, isLive);
+        const canReturnToScore = Boolean(streamId);
+        showControl(scoreBtn, canReturnToScore);
+        showControl(minimizeBtn, isLive && canUsePictureInPicture());
         showControl(stopBtn, isLive);
         showControl(previewBtn, !isLive);
         cameraBtn.disabled = !(isSetup || isOffline);
         broadcastBtn.disabled = !isCameraReady;
-        scoreBtn.disabled = !isLive;
+        scoreBtn.disabled = !canReturnToScore;
         minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
         shareBtn.disabled = false;
         recordToggle.disabled = isLive || !recorderSupported;
-        scoreBtn.textContent = 'Back to scoring';
+        if (broadcastBlocked) {
+          cameraBtn.disabled = true;
+          broadcastBtn.disabled = true;
+          recordToggle.disabled = true;
+        }
+        scoreBtn.textContent = 'Return to scoring';
         shareBtn.textContent = isLive ? 'Share link' : 'Share FanView link';
-        minimizeBtn.textContent = 'Float video';
+        minimizeBtn.textContent = 'Float preview';
         stopBtn.textContent = 'End video';
+        if (isLive) {
+          setHandoffPanel(
+            'Video is live',
+            canUsePictureInPicture()
+              ? 'Tap Return to scoring. You do not have to tap Float first. If your iPad pauses video, use Float preview or return here to reconnect.'
+              : browserBroadcastNote(),
+            true,
+          );
+        } else {
+          setHandoffPanel('', '', false);
+        }
         updateRecordingEstimate();
+      }
+      function broadcastUnavailableReason(row) {
+        if (!row) {
+          return 'Camera setup link unavailable. Return to CourtsideView to create a fresh camera setup.';
+        }
+        if (row.is_published !== true) {
+          return 'Camera setup link expired. Return to CourtsideView to create a fresh camera setup.';
+        }
+        if (row.is_complete === true) {
+          return 'This match has ended. Camera is closed for this FanView.';
+        }
+        return null;
+      }
+      function setBroadcastBlocked(reason, state = 'UNAVAILABLE') {
+        broadcastBlocked = true;
+        cameraBtn.textContent = 'Camera unavailable';
+        broadcastBtn.textContent = 'Start live video';
+        setPageCopy('Camera link unavailable', reason);
+        hintEl.textContent = reason;
+        setControlState('offline');
+        setStatus([
+          { text: reason, strong: true },
+          { text: ' Fans can still use the FanView spectator link when available.' },
+        ], state, { persistent: true });
+      }
+      function clearBroadcastBlocked() {
+        broadcastBlocked = false;
+      }
+      async function validateBroadcastAccess() {
+        if (!streamId) return false;
+        try {
+          const { data, error } = await supabase
+            .from('matches')
+            .select('share_id, state, is_published, is_complete, updated_at')
+            .eq('share_id', streamId)
+            .maybeSingle();
+          if (error) throw error;
+          const reason = broadcastUnavailableReason(data);
+          if (reason) {
+            setBroadcastBlocked(reason, data?.is_complete ? 'MATCH ENDED' : 'EXPIRED');
+            return false;
+          }
+          clearBroadcastBlocked();
+          handleMatchRow(data);
+          return true;
+        } catch (error) {
+          console.warn('[CourtsideView] broadcast access unavailable', error);
+          setBroadcastBlocked(
+            'Camera setup could not be verified. Return to CourtsideView and try again.',
+            'CHECK FAILED',
+          );
+          return false;
+        }
       }
       function resetBroadcastControls(label = 'Start live video') {
         broadcastBtn.textContent = label;
@@ -724,6 +838,16 @@
       }
       function handleMatchRow(row) {
         if (!row) return;
+        const unavailable = broadcastUnavailableReason(row);
+        if (unavailable) {
+          if (media || mediaRecorder || broadcastDesired) {
+            void stopBroadcast({ blockReason: unavailable, blockState: row.is_complete ? 'MATCH ENDED' : 'EXPIRED' });
+          } else {
+            setBroadcastBlocked(unavailable, row.is_complete ? 'MATCH ENDED' : 'EXPIRED');
+          }
+          return;
+        }
+        clearBroadcastBlocked();
         const nextSet = readSetNumberFromRow(row);
         const previousSet = currentSetFromMatch || nextSet;
         currentSetFromMatch = nextSet;
@@ -731,22 +855,10 @@
           recorderSetNumber = previousSet;
           void finalizeRecordingChunk('set-complete', { restart: true });
         }
-        if (row.is_complete && mediaRecorder) {
-          void finalizeRecordingChunk('match-complete', { restart: false });
-        }
       }
       async function startMatchSync() {
         if (!streamId) return;
-        try {
-          const { data } = await supabase
-            .from('matches')
-            .select('share_id, state, is_complete')
-            .eq('share_id', streamId)
-            .maybeSingle();
-          if (data) handleMatchRow(data);
-        } catch (error) {
-          console.warn('[CourtsideView] match sync unavailable', error);
-        }
+        await validateBroadcastAccess();
         try {
           matchChannel = supabase.channel(`live-recorder:${streamId}`);
           matchChannel
@@ -845,14 +957,15 @@
       async function enterPictureInPicture() {
         if (!canUsePictureInPicture()) {
           setStatus([
-            { text: 'Keep this tab open while video is live.', strong: true },
+            { text: 'Floating preview is unavailable here.', strong: true },
+            { text: ' Return to scoring still opens the app.' },
           ], 'LIVE', { persistent: true });
           return;
         }
         try {
           await preview.requestPictureInPicture();
           setStatusHtml(
-            '<strong>Video stays live.</strong> Go back to CourtsideView to score.',
+            '<strong>Preview floated.</strong> Return to CourtsideView to score.',
             'LIVE',
             { duration: 4200 },
           );
@@ -865,9 +978,18 @@
       }
       function returnToScoring() {
         setStatus([
-          { text: 'Video stays live. Returning to CourtsideView to score.', strong: true },
+          { text: 'Returning to CourtsideView to score.', strong: true },
+          { text: ' If CourtsideView does not open, switch back to the app and resume this game.' },
         ], 'LIVE', { duration: 3600 });
         window.location.href = appUrl();
+        setTimeout(() => {
+          if (document.visibilityState === 'visible') {
+            setStatus([
+              { text: 'Still here?', strong: true },
+              { text: ' Open CourtsideView and resume this game. Use Float preview if your iPad pauses video.' },
+            ], 'RETURN TO APP', { persistent: true });
+          }
+        }, 1400);
       }
       function cameraPermissionMessage(error) {
         const message = error instanceof Error ? error.message : String(error || '');
@@ -943,6 +1065,7 @@
       }
       async function startCamera() {
         ensureStreamId();
+        if (!(await validateBroadcastAccess())) return;
         if (!navigator.mediaDevices?.getUserMedia) {
           throw new Error('Camera is not available in this browser.');
         }
@@ -961,7 +1084,9 @@
       }
       async function startBroadcast({ reconnecting = false } = {}) {
         ensureStreamId();
+        if (!(await validateBroadcastAccess())) return;
         if (!media) await startCamera();
+        if (!media) return;
         intentionalStop = false;
         broadcastDesired = true;
         closePeerConnection({ stopTracks: false });
@@ -993,7 +1118,7 @@
         await pc.setRemoteDescription({ type: 'answer', sdp: answer });
         live = true;
         broadcastBtn.textContent = 'Live now';
-        setPageCopy('Live video is on', 'Share the link, then return to CourtsideView to score.');
+        setPageCopy('Live video is on', 'Return to CourtsideView to score. Floating the preview is optional.');
         hintEl.textContent = 'Video is live. Return to CourtsideView to score.';
         setControlState('live');
         void requestScreenWakeLock();
@@ -1002,7 +1127,7 @@
           reconnecting
             ? '<strong>Video is live again.</strong>'
             : canUsePictureInPicture()
-              ? '<strong>Video is live.</strong> Tap Back to scoring when ready.'
+              ? '<strong>Video is live.</strong> Tap Return to scoring. Float preview is optional.'
               : (audioEnabled
                   ? '<strong>Video is live.</strong> Return to CourtsideView to score.'
                   : '<strong>Video is live.</strong> Audio is off.'),
@@ -1010,11 +1135,11 @@
           { duration: 4200 },
         );
       }
-      async function stopBroadcast() {
+      async function stopBroadcast(options = {}) {
         intentionalStop = true;
         broadcastDesired = false;
         live = false;
-        void finalizeRecordingChunk('video-ended', { restart: false });
+        void finalizeRecordingChunk(options.blockReason ? 'match-complete' : 'video-ended', { restart: false });
         closePeerConnection({ stopTracks: true });
         if (media) {
           media.getTracks().forEach((track) => track.stop());
@@ -1027,6 +1152,10 @@
         }
         if (streamId) {
           await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, { method: 'DELETE' }).catch(() => {});
+        }
+        if (options.blockReason) {
+          setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
+          return;
         }
         cameraBtn.textContent = 'Start camera';
         broadcastBtn.textContent = 'Start live video';
@@ -1079,7 +1208,7 @@
         void shareFanViewLink();
       });
       scoreBtn.addEventListener('click', () => {
-        returnToScoring();
+        void returnToScoring();
       });
       previewBtn.addEventListener('click', () => {
         window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
@@ -1094,7 +1223,7 @@
       preview.addEventListener('leavepictureinpicture', () => {
         if (!live || intentionalStop) return;
         setStatus([
-          { text: 'Video is still live.', strong: true },
+          { text: 'Video should keep running. Return here if the camera pauses.', strong: true },
         ], 'LIVE', { duration: 3200 });
       });
       document.addEventListener('visibilitychange', () => {
@@ -1114,7 +1243,7 @@
       window.addEventListener('pagehide', () => {
         if (!broadcastDesired || intentionalStop) return;
         setStatus([
-          { text: 'Video stays live. Returning to CourtsideView to score.', strong: true },
+          { text: 'Returning to scoring. If video pauses, come back here to reconnect.', strong: true },
         ], 'LIVE', { persistent: true });
       });
       if (!streamId) {
