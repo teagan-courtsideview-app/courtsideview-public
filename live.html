@@ -322,6 +322,7 @@
       const RECORDING_CHUNK_MAX_MS = 25 * 60 * 1000;
       const RECORDING_WARNING_BYTES = 4 * 1024 * 1024 * 1024;
       const streamId = getStreamId();
+      const broadcastToken = getBroadcastToken();
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
           autoRefreshToken: false,
@@ -386,6 +387,39 @@
       function getStreamId() {
         const match = window.location.pathname.match(/^\/live\/([^/?#]+)/);
         return match ? decodeURIComponent(match[1]) : null;
+      }
+      function getBroadcastToken() {
+        const params = new URLSearchParams(window.location.search);
+        const queryToken = (params.get('b') || params.get('bt') || '').trim();
+        if (!streamId) return queryToken;
+        const storageKey = `courtsideview.broadcastToken.${streamId}`;
+        if (queryToken) {
+          try {
+            sessionStorage.setItem(storageKey, queryToken);
+          } catch {
+            // Session storage is a convenience only; the current page keeps the token in memory.
+          }
+          try {
+            const cleanUrl = `${window.location.origin}/live/${encodeURIComponent(streamId)}${window.location.hash || ''}`;
+            window.history.replaceState(null, '', cleanUrl);
+          } catch {
+            // Keep the original URL if the browser blocks history updates.
+          }
+          return queryToken;
+        }
+        try {
+          return (sessionStorage.getItem(storageKey) || '').trim();
+        } catch {
+          return '';
+        }
+      }
+      function broadcastTokenHeaders(extra = {}) {
+        if (!broadcastToken) return extra;
+        return {
+          ...extra,
+          authorization: `Bearer ${broadcastToken}`,
+          'x-broadcast-token': broadcastToken,
+        };
       }
       function fanViewUrl() {
         return streamId ? `${window.location.origin}/v/${encodeURIComponent(streamId)}` : window.location.origin;
@@ -510,6 +544,23 @@
         }
         return null;
       }
+      function broadcastTokenUnavailableReason(reason) {
+        if (reason === 'match_closed') {
+          return 'This match has ended. Camera is closed for this FanView.';
+        }
+        if (reason === 'expired' || reason === 'revoked') {
+          return 'Camera setup expired. Return to CourtsideView to create a fresh camera setup.';
+        }
+        if (reason === 'missing_token') {
+          return 'Private camera setup required. Return to CourtsideView and scan the camera QR again.';
+        }
+        return 'Camera setup could not be verified. Return to CourtsideView and create a fresh camera setup.';
+      }
+      function broadcastTokenState(reason) {
+        if (reason === 'match_closed') return 'MATCH ENDED';
+        if (reason === 'expired' || reason === 'revoked') return 'EXPIRED';
+        return 'CHECK FAILED';
+      }
       function setBroadcastBlocked(reason, state = 'UNAVAILABLE') {
         broadcastBlocked = true;
         cameraBtn.textContent = 'Camera unavailable';
@@ -527,6 +578,30 @@
       }
       async function validateBroadcastAccess() {
         if (!streamId) return false;
+        if (!broadcastToken) {
+          setBroadcastBlocked(broadcastTokenUnavailableReason('missing_token'), 'PRIVATE LINK');
+          return false;
+        }
+        try {
+          const response = await fetch(`${LIVE_WORKER_URL}/broadcast-token/${encodeURIComponent(streamId)}/validate`, {
+            method: 'POST',
+            headers: broadcastTokenHeaders({ 'content-type': 'application/json' }),
+            cache: 'no-store',
+          });
+          const result = await response.json().catch(() => null);
+          if (!response.ok || !result?.ok) {
+            const reason = typeof result?.reason === 'string' ? result.reason : 'invalid_token';
+            setBroadcastBlocked(broadcastTokenUnavailableReason(reason), broadcastTokenState(reason));
+            return false;
+          }
+        } catch (error) {
+          console.warn('[CourtsideView] broadcast token unavailable', error);
+          setBroadcastBlocked(
+            'Camera setup could not be verified. Return to CourtsideView and try again.',
+            'CHECK FAILED',
+          );
+          return false;
+        }
         try {
           const { data, error } = await supabase
             .from('matches')
@@ -1110,7 +1185,7 @@
         await pc.setLocalDescription(offer);
         const response = await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
           method: 'POST',
-          headers: { 'content-type': 'application/sdp' },
+          headers: broadcastTokenHeaders({ 'content-type': 'application/sdp' }),
           body: offer.sdp || '',
         });
         if (!response.ok) throw new Error(await response.text());
@@ -1151,7 +1226,10 @@
           await document.exitPictureInPicture().catch(() => {});
         }
         if (streamId) {
-          await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, { method: 'DELETE' }).catch(() => {});
+          await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
+            method: 'DELETE',
+            headers: broadcastTokenHeaders(),
+          }).catch(() => {});
         }
         if (options.blockReason) {
           setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
