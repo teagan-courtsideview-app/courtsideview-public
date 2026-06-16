@@ -385,22 +385,22 @@
           </div>
           <div class="controls">
             <div id="recordPanel" class="record-panel">
-              <label class="record-toggle" aria-label="Save a local copy">
+              <label class="record-toggle" aria-label="Create a video copy">
                 <input id="recordToggle" type="checkbox" checked />
                 <span class="record-switch" aria-hidden="true"></span>
               </label>
               <div class="record-copy">
-                <strong>Save a Copy</strong>
-                <span>Optional local copy on this phone.</span>
-                <small id="recordEstimate">CourtsideView does not save Broadcasts.</small>
+                <strong>Create a Video Copy</strong>
+                <span>After Broadcast, tap Save Video.</span>
+                <small id="recordEstimate">CourtsideView does not store Broadcasts.</small>
               </div>
             </div>
             <div id="downloadPanel" class="download-panel is-hidden">
               <div>
-                <strong>Copy saved to this phone</strong>
+                <strong>Video ready to save</strong>
                 <span id="downloadMeta">Your Broadcast copy is ready.</span>
               </div>
-              <a id="downloadLink" class="download-button" href="#" download>Download Video</a>
+              <a id="downloadLink" class="download-button" href="#" download>Save Video</a>
             </div>
             <button id="cameraBtn" class="primary">Start Camera</button>
             <button id="broadcastBtn" class="primary is-hidden" disabled>Start Broadcast</button>
@@ -920,21 +920,21 @@
         const estimated = recorderTotalBytes + recorderChunkBytes;
         recordPanel.classList.toggle('is-warning', estimated > RECORDING_WARNING_BYTES);
         if (!recorderSupported) {
-          recordEstimate.textContent = 'Save a Copy is not available on this device.';
+          recordEstimate.textContent = 'Video copy is not available on this device.';
           return;
         }
         if (!recordEnabled) {
-          recordEstimate.textContent = 'Save a Copy is off for this Broadcast.';
+          recordEstimate.textContent = 'Video copy is off for this Broadcast.';
           return;
         }
         if (mediaRecorder && mediaRecorder.state === 'recording') {
           const warning = estimated > RECORDING_WARNING_BYTES ? ' Storage warning.' : '';
-          recordEstimate.textContent = `Set ${recorderSetNumber} · ${formatBytes(estimated)} saved locally.${warning}`;
+          recordEstimate.textContent = `Set ${recorderSetNumber} · ${formatBytes(estimated)} recorded for saving.${warning}`;
           return;
         }
         recordEstimate.textContent = recorderTotalBytes > 0
-          ? `${formatBytes(recorderTotalBytes)} saved locally so far.`
-          : 'CourtsideView does not save Broadcasts.';
+          ? `${formatBytes(recorderTotalBytes)} ready to save.`
+          : 'CourtsideView does not store Broadcasts.';
       }
       function chooseRecordingMimeType() {
         if (!recorderSupported || typeof MediaRecorder.isTypeSupported !== 'function') return '';
@@ -970,7 +970,7 @@
             const writable = await handle.createWritable();
             await writable.write(blob);
             await writable.close();
-            setStatus([{ text: `Saved ${filename}.`, strong: true }], live ? 'LIVE' : 'READY', { duration: 4200 });
+            setStatus([{ text: `Video saved to this phone.`, strong: true }], live ? 'LIVE' : 'READY', { duration: 4200 });
             return;
           }
         } catch (error) {
@@ -983,11 +983,11 @@
         lastRecordingUrl = url;
         downloadLink.href = url;
         downloadLink.download = filename;
-        downloadMeta.textContent = `${formatBytes(blob.size)} saved locally.`;
+        downloadMeta.textContent = `${formatBytes(blob.size)} ready. Tap Save Video to keep it on this phone.`;
         if (!live) {
           downloadPanel.classList.remove('is-hidden');
         }
-        setStatus([{ text: 'Copy saved to this phone.', strong: true }], live ? 'LIVE' : 'READY', { duration: 5200 });
+        setStatus([{ text: 'Video ready to save.', strong: true }], live ? 'LIVE' : 'READY', { duration: 5200 });
       }
       function stopRecordingFallbackTimer() {
         if (recorderFallbackTimer) {
