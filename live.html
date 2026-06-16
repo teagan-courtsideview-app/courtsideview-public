@@ -71,6 +71,8 @@
         border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
       body.camera-mode .state-chip { display: inline-flex; }
       body.camera-mode.is-live .state-chip { background: var(--red); border-color: var(--red); }
+      body.camera-mode .top-overlay .viewer-chip { display: none; }
+      body.camera-mode.is-live .top-overlay .viewer-chip { display: inline-flex; }
       .status { position: absolute; left: 14px; right: 14px; bottom: 14px;
         background: rgba(15,20,27,0.78); backdrop-filter: blur(12px);
         border: 1px solid rgba(255,255,255,0.13); border-radius: 18px;
@@ -95,24 +97,24 @@
       button:disabled { opacity: 0.5; cursor: default; }
       .is-hidden { display: none !important; }
       .hint { color: var(--dim); font-size: 12px; line-height: 1.4; margin: 14px 4px 0; text-align: center; }
-      .record-panel { display: flex; align-items: center; gap: 12px; margin-top: 12px;
-        padding: 13px 14px; border-radius: 20px; background: rgba(255,255,255,0.08);
+      .record-panel { display: flex; align-items: center; gap: 10px; margin-top: 10px;
+        padding: 10px 12px; border-radius: 18px; background: rgba(255,255,255,0.08);
         border: 1px solid var(--border); color: var(--ink); }
       .controls .record-panel { margin-top: 0; }
       .record-toggle { position: relative; display: inline-flex; flex: 0 0 auto; }
       .record-toggle input { position: absolute; opacity: 0; pointer-events: none; }
-      .record-switch { width: 52px; height: 30px; border-radius: 999px; padding: 3px;
+      .record-switch { width: 46px; height: 26px; border-radius: 999px; padding: 3px;
         background: rgba(255,255,255,0.17); border: 1px solid rgba(255,255,255,0.18);
         transition: background 160ms ease, border-color 160ms ease; }
-      .record-switch::after { content: ""; display: block; width: 22px; height: 22px;
+      .record-switch::after { content: ""; display: block; width: 18px; height: 18px;
         border-radius: 50%; background: #fff; box-shadow: 0 5px 12px rgba(0,0,0,0.22);
         transition: transform 160ms ease; }
       .record-toggle input:checked + .record-switch { background: var(--green); border-color: var(--green); }
-      .record-toggle input:checked + .record-switch::after { transform: translateX(22px); }
+      .record-toggle input:checked + .record-switch::after { transform: translateX(20px); }
       .record-toggle input:disabled + .record-switch { opacity: 0.45; }
       .record-copy { min-width: 0; display: grid; gap: 3px; }
       .record-copy strong { font-size: 13px; line-height: 1.1; font-weight: 900; }
-      .record-copy span { color: var(--muted); font-size: 12px; line-height: 1.3; font-weight: 700; }
+      .record-copy span { color: var(--muted); font-size: 11px; line-height: 1.25; font-weight: 700; }
       .record-copy small { color: var(--dim); font-size: 11px; line-height: 1.3; font-weight: 800; }
       .record-panel.is-warning .record-copy small { color: #fbbf24; }
       .download-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
@@ -188,23 +190,32 @@
         display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: auto; max-width: 520px;
         margin: 0 auto; padding: 12px; border-radius: 26px; background: rgba(8,13,21,0.78);
         border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(18px);
-        box-shadow: 0 20px 62px rgba(0,0,0,0.38); }
+        box-shadow: 0 20px 62px rgba(0,0,0,0.38);
+        transition: opacity 190ms ease, transform 210ms ease; }
       body.camera-mode .record-panel { grid-column: 1 / -1; min-height: 54px; margin: 0;
         padding: 10px 12px; background: rgba(255,255,255,0.08);
         border-color: rgba(255,255,255,0.14); box-shadow: none; }
+      body.camera-mode .record-copy span { font-size: 11px; line-height: 1.25; }
+      body.camera-mode .record-copy small { font-size: 10px; line-height: 1.25; }
       body.camera-mode .download-panel { grid-column: 1 / -1; background: rgba(8,13,21,0.72); }
       body.camera-mode.is-setup .controls,
       body.camera-mode.is-offline .controls { grid-template-columns: 1fr 0.78fr; }
       body.camera-mode.is-setup #cameraBtn,
       body.camera-mode.is-offline #cameraBtn { grid-column: 1 / -1; }
-      body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; }
+      body.camera-mode.is-ready .controls { gap: 8px; padding: 10px; }
+      body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; min-height: 54px; }
       body.camera-mode.is-ready #scoreBtn,
-      body.camera-mode.is-ready #shareBtn { grid-column: 1 / -1; }
-      body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; }
+      body.camera-mode.is-ready #shareBtn { grid-column: 1 / -1; min-height: 46px; }
+      body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; border-radius: 24px; }
       body.camera-mode.is-live #scoreBtn,
       body.camera-mode.is-live #stopBtn { grid-column: 1 / -1; }
-      body.camera-mode.is-live #scoreBtn { min-height: 58px; font-size: 17px; }
-      body.camera-mode.is-live #stopBtn { margin-top: 6px; }
+      body.camera-mode.is-live #scoreBtn { min-height: 52px; font-size: 15px; }
+      body.camera-mode.is-live #shareBtn,
+      body.camera-mode.is-live #minimizeBtn { min-height: 44px; padding: 12px 14px; font-size: 14px; }
+      body.camera-mode.is-live #stopBtn { min-height: 46px; margin-top: 2px; color: #ffb4b4;
+        background: rgba(239,68,68,0.16); border: 1px solid rgba(239,68,68,0.36); }
+      body.camera-mode.is-live.controls-hidden .controls { opacity: 0; pointer-events: none;
+        transform: translateY(calc(100% + 24px)); }
       body.camera-mode .preview-link { grid-column: 1 / -1; color: var(--muted); text-decoration: underline;
         text-underline-offset: 3px; border: 0; border-radius: 999px; background: transparent;
         padding: 6px 8px; font-size: 13px; display: flex; align-items: center; justify-content: center; }
@@ -237,6 +248,7 @@
         body.camera-mode .status.on { transform: translateY(0); }
         body.camera-mode .controls { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
           transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom)); }
+        body.camera-mode.is-live.controls-hidden .controls { transform: translate(-50%, calc(100% + 24px)); }
         body.camera-mode .handoff-panel { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
           transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 214px); }
       }
@@ -279,25 +291,56 @@
         body:not(.camera-mode) .viewer-row {
           margin-top: 8px;
         }
+        body.camera-mode.is-ready .record-panel,
         body.camera-mode.is-live .record-panel { display: none; }
         body.camera-mode.is-live .handoff-panel { display: none; }
-        body.camera-mode.is-live .controls {
-          width: min(780px, calc(100% - 32px));
+        body.camera-mode.is-ready .controls {
+          width: min(720px, calc(100% - 32px));
           max-width: none;
           left: 50%;
           right: auto;
           bottom: max(10px, env(safe-area-inset-bottom));
           transform: translateX(-50%);
-          grid-template-columns: minmax(280px, 1.45fr) minmax(170px, 0.85fr) minmax(170px, 0.85fr);
+          grid-template-columns: minmax(260px, 1.25fr) minmax(210px, 1fr);
           gap: 8px;
-          padding: 10px;
+          padding: 9px;
+          border-radius: 22px;
+        }
+        body.camera-mode.is-ready #broadcastBtn,
+        body.camera-mode.is-ready #scoreBtn {
+          grid-column: auto;
+          min-height: 48px;
+          font-size: 15px;
+          padding: 12px 14px;
+        }
+        body.camera-mode.is-ready #shareBtn,
+        body.camera-mode.is-ready #previewBtn {
+          display: none !important;
+        }
+        body.camera-mode.is-live .controls {
+          width: min(660px, calc(100% - 32px));
+          max-width: none;
+          left: 50%;
+          right: auto;
+          bottom: max(10px, env(safe-area-inset-bottom));
+          transform: translateX(-50%);
+          grid-template-columns: minmax(240px, 1.25fr) minmax(150px, 0.8fr) minmax(150px, 0.8fr);
+          gap: 8px;
+          padding: 9px;
           border-radius: 22px;
         }
         body.camera-mode.is-live #scoreBtn,
         body.camera-mode.is-live #stopBtn { grid-column: auto; margin-top: 0; }
-        body.camera-mode.is-live #scoreBtn { font-size: 15px; padding-left: 14px; padding-right: 14px; }
+        body.camera-mode.is-live #scoreBtn,
+        body.camera-mode.is-live #stopBtn,
+        body.camera-mode.is-live #minimizeBtn {
+          min-height: 48px;
+          font-size: 14px;
+          padding: 12px 14px;
+        }
         body.camera-mode.is-live #shareBtn { display: none !important; }
         body.camera-mode.is-live #minimizeBtn { min-width: 0; }
+        body.camera-mode.is-live.controls-hidden .controls { transform: translate(-50%, calc(100% + 24px)); }
       }
     </style>
   </head>
@@ -430,11 +473,15 @@
       const endConfirm = document.getElementById('endConfirm');
       const cancelEndBtn = document.getElementById('cancelEndBtn');
       const confirmEndBtn = document.getElementById('confirmEndBtn');
+      const controlsEl = document.querySelector('.controls');
+      const viewerRow = document.querySelector('.viewer-row');
+      const CONTROL_HIDE_MS = 4500;
       let media = null;
       let pc = null;
       let live = false;
       let broadcastDesired = false;
       let broadcastBlocked = false;
+      let broadcastHasEnded = false;
       let intentionalStop = false;
       let audioEnabled = false;
       let wakeLock = null;
@@ -458,6 +505,7 @@
       let recorderFallbackTimer = null;
       let recorderStartedAt = null;
       let lastRecordingUrl = '';
+      let controlsHideTimer = null;
       const recorderSupported = typeof MediaRecorder !== 'undefined';
 
       function syncVisibleViewport() {
@@ -581,6 +629,38 @@
       function showControl(element, visible) {
         element.classList.toggle('is-hidden', !visible);
       }
+      function clearControlsHideTimer() {
+        if (controlsHideTimer) {
+          clearTimeout(controlsHideTimer);
+          controlsHideTimer = null;
+        }
+      }
+      function showLiveControls(duration = CONTROL_HIDE_MS) {
+        document.body.classList.remove('controls-hidden');
+        clearControlsHideTimer();
+        if (!live) return;
+        controlsHideTimer = setTimeout(() => {
+          if (live && !endConfirm.classList.contains('on')) {
+            document.body.classList.add('controls-hidden');
+          }
+        }, duration);
+      }
+      function syncLiveControlVisibility(isLive) {
+        if (!isLive) {
+          clearControlsHideTimer();
+          document.body.classList.remove('controls-hidden');
+          return;
+        }
+        showLiveControls();
+      }
+      function revealLiveControls(event) {
+        if (!live) return;
+        const target = event?.target;
+        if (target && typeof target.closest === 'function' && target.closest('.controls, .confirm-backdrop')) {
+          return;
+        }
+        showLiveControls();
+      }
       function setControlState(state) {
         setUiMode(state);
         const isSetup = state === 'setup';
@@ -589,8 +669,15 @@
         const isOffline = state === 'offline';
         showControl(cameraBtn, isSetup || isOffline);
         showControl(broadcastBtn, isCameraReady);
-        showControl(recordPanel, isSetup || isCameraReady || isOffline);
+        const canShowSavedCopy = Boolean(lastRecordingUrl) && isOffline;
+        const canShowRecordChoice =
+          !broadcastBlocked &&
+          !canShowSavedCopy &&
+          (isSetup || isCameraReady || (isOffline && !broadcastHasEnded));
+        showControl(downloadPanel, canShowSavedCopy);
+        showControl(recordPanel, canShowRecordChoice);
         const canReturnToScore = Boolean(streamId);
+        showControl(viewerRow, isLive);
         showControl(scoreBtn, canReturnToScore);
         showControl(minimizeBtn, isLive && canUsePictureInPicture());
         showControl(stopBtn, isLive);
@@ -628,6 +715,7 @@
         } else {
           setHandoffPanel('', '', false);
         }
+        syncLiveControlVisibility(isLive);
         updateRecordingEstimate();
       }
       function broadcastUnavailableReason(row) {
@@ -747,6 +835,7 @@
         }, 2600);
       }
       function openEndConfirm() {
+        showLiveControls(12000);
         endConfirm.classList.add('on');
         endConfirm.setAttribute('aria-hidden', 'false');
         cancelEndBtn.focus();
@@ -895,7 +984,9 @@
         downloadLink.href = url;
         downloadLink.download = filename;
         downloadMeta.textContent = `${formatBytes(blob.size)} saved locally.`;
-        downloadPanel.classList.remove('is-hidden');
+        if (!live) {
+          downloadPanel.classList.remove('is-hidden');
+        }
         setStatus([{ text: 'Copy saved to this phone.', strong: true }], live ? 'LIVE' : 'READY', { duration: 5200 });
       }
       function stopRecordingFallbackTimer() {
@@ -1248,6 +1339,7 @@
         if (!navigator.mediaDevices?.getUserMedia) {
           throw new Error('Camera is not available on this device.');
         }
+        broadcastHasEnded = false;
         media = await requestCameraStream();
         preview.srcObject = media;
         cameraBtn.textContent = 'Start Camera';
@@ -1267,6 +1359,7 @@
         if (!media) await startCamera();
         if (!media) return;
         intentionalStop = false;
+        broadcastHasEnded = false;
         broadcastDesired = true;
         closePeerConnection({ stopTracks: false });
         pc = createPeerConnection();
@@ -1316,6 +1409,9 @@
         intentionalStop = true;
         broadcastDesired = false;
         live = false;
+        broadcastHasEnded = true;
+        clearControlsHideTimer();
+        document.body.classList.remove('controls-hidden');
         void finalizeRecordingChunk(options.blockReason ? 'match-complete' : 'video-ended', { restart: false });
         closePeerConnection({ stopTracks: true });
         if (media) {
@@ -1371,6 +1467,7 @@
       });
       cancelEndBtn.addEventListener('click', () => {
         closeEndConfirm();
+        showLiveControls();
       });
       confirmEndBtn.addEventListener('click', () => {
         closeEndConfirm();
@@ -1399,6 +1496,11 @@
       recordToggle.addEventListener('change', () => {
         recordEnabled = recordToggle.checked;
         updateRecordingEstimate();
+      });
+      document.addEventListener('click', revealLiveControls);
+      document.addEventListener('touchstart', revealLiveControls, { passive: true });
+      controlsEl?.addEventListener('pointerdown', () => {
+        showLiveControls();
       });
       preview.addEventListener('leavepictureinpicture', () => {
         if (!live || intentionalStop) return;
