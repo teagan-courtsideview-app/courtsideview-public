@@ -29,6 +29,16 @@
         --scoreboard-tv-score-size: clamp(74px, 16.5vh, 106px);
         --scoreboard-tv-leading-size: clamp(84px, 17.5vh, 112px);
         --scoreboard-tv-trailing-size: clamp(64px, 13.5vh, 90px);
+        --scorebug-left: max(14px, env(safe-area-inset-left));
+        --scorebug-right: auto;
+        --scorebug-top: auto;
+        --scorebug-bottom: max(14px, env(safe-area-inset-bottom));
+        --scorebug-transform: none;
+        --scoreboard-tv-left: auto;
+        --scoreboard-tv-right: max(16px, env(safe-area-inset-right));
+        --scoreboard-tv-top: clamp(74px, 17vh, 96px);
+        --scoreboard-tv-bottom: auto;
+        --scoreboard-tv-transform: none;
       }
       html[data-scoreboard-size="small"] {
         --scorebug-width: clamp(274px, 21vw, 390px);
@@ -57,6 +67,66 @@
         --scoreboard-tv-score-size: clamp(80px, 17.5vh, 112px);
         --scoreboard-tv-leading-size: clamp(88px, 18.6vh, 118px);
         --scoreboard-tv-trailing-size: clamp(68px, 14.5vh, 96px);
+      }
+      html[data-scoreboard-position="top-left"] {
+        --scorebug-left: max(14px, env(safe-area-inset-left));
+        --scorebug-right: auto;
+        --scorebug-top: max(68px, calc(env(safe-area-inset-top) + 58px));
+        --scorebug-bottom: auto;
+        --scorebug-transform: none;
+        --scoreboard-tv-left: max(18px, env(safe-area-inset-left));
+        --scoreboard-tv-right: auto;
+        --scoreboard-tv-top: clamp(74px, 17vh, 96px);
+        --scoreboard-tv-bottom: auto;
+        --scoreboard-tv-transform: none;
+      }
+      html[data-scoreboard-position="top-right"] {
+        --scorebug-left: auto;
+        --scorebug-right: max(14px, env(safe-area-inset-right));
+        --scorebug-top: max(68px, calc(env(safe-area-inset-top) + 58px));
+        --scorebug-bottom: auto;
+        --scorebug-transform: none;
+        --scoreboard-tv-left: auto;
+        --scoreboard-tv-right: max(18px, env(safe-area-inset-right));
+        --scoreboard-tv-top: clamp(74px, 17vh, 96px);
+        --scoreboard-tv-bottom: auto;
+        --scoreboard-tv-transform: none;
+      }
+      html[data-scoreboard-position="bottom-left"] {
+        --scorebug-left: max(14px, env(safe-area-inset-left));
+        --scorebug-right: auto;
+        --scorebug-top: auto;
+        --scorebug-bottom: max(14px, env(safe-area-inset-bottom));
+        --scorebug-transform: none;
+        --scoreboard-tv-left: max(18px, env(safe-area-inset-left));
+        --scoreboard-tv-right: auto;
+        --scoreboard-tv-top: auto;
+        --scoreboard-tv-bottom: max(18px, env(safe-area-inset-bottom));
+        --scoreboard-tv-transform: none;
+      }
+      html[data-scoreboard-position="bottom-right"] {
+        --scorebug-left: auto;
+        --scorebug-right: max(14px, env(safe-area-inset-right));
+        --scorebug-top: auto;
+        --scorebug-bottom: max(14px, env(safe-area-inset-bottom));
+        --scorebug-transform: none;
+        --scoreboard-tv-left: auto;
+        --scoreboard-tv-right: max(18px, env(safe-area-inset-right));
+        --scoreboard-tv-top: auto;
+        --scoreboard-tv-bottom: max(18px, env(safe-area-inset-bottom));
+        --scoreboard-tv-transform: none;
+      }
+      html[data-scoreboard-position="bottom-center"] {
+        --scorebug-left: 50%;
+        --scorebug-right: auto;
+        --scorebug-top: auto;
+        --scorebug-bottom: max(14px, env(safe-area-inset-bottom));
+        --scorebug-transform: translateX(-50%);
+        --scoreboard-tv-left: 50%;
+        --scoreboard-tv-right: auto;
+        --scoreboard-tv-top: auto;
+        --scoreboard-tv-bottom: max(18px, env(safe-area-inset-bottom));
+        --scoreboard-tv-transform: translateX(-50%);
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: var(--bg); color: var(--ink);
@@ -316,14 +386,20 @@
         display: none; gap: 7px; padding: 8px; border-radius: 17px;
         background: rgba(10,14,26,0.9); border: 1px solid rgba(255,255,255,0.16);
         box-shadow: 0 16px 34px rgba(0,0,0,0.30); backdrop-filter: blur(12px); }
-      .display-menu.on { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .display-menu.on { display: grid; grid-template-columns: 1fr; }
+      .display-menu-section { display: grid; gap: 6px; }
+      .display-menu-label { color: rgba(255,255,255,0.68); font-size: 10px; line-height: 1;
+        font-weight: 900; letter-spacing: 1px; text-transform: uppercase; padding: 2px 4px 0; }
+      .display-menu-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+      .display-menu-options.position-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .display-choice { appearance: none; border: 1px solid rgba(255,255,255,0.16);
         border-radius: 999px; background: rgba(255,255,255,0.1); color: #fff;
         min-width: 76px; min-height: 38px; padding: 8px 11px; font: inherit;
         font-size: 12px; line-height: 1; font-weight: 900; text-align: center; }
       .display-choice[aria-pressed="true"] { background: var(--pink); border-color: var(--pink); color: #fff; }
-      .broadcast-score-rail { display: none; position: absolute; left: max(14px, env(safe-area-inset-left));
-        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 7; width: var(--scorebug-width);
+      .broadcast-score-rail { display: none; position: absolute; left: var(--scorebug-left);
+        right: var(--scorebug-right); top: var(--scorebug-top); bottom: var(--scorebug-bottom);
+        transform: var(--scorebug-transform); z-index: 7; width: var(--scorebug-width);
         grid-template-columns: 1fr; gap: 0; align-items: stretch; padding: 0;
         border-radius: 11px; background: transparent;
         filter: drop-shadow(0 12px 24px rgba(0,0,0,0.38));
@@ -441,8 +517,7 @@
         .container.has-video .viewer-pill.video-viewers { display: none !important; }
         .container.has-video .fullscreen-button.on { display: inline-flex !important; }
         .container.has-video .fullscreen-menu.on { display: grid !important; }
-        .container.has-video .broadcast-score-rail { display: grid; left: max(10px, env(safe-area-inset-left));
-          bottom: max(10px, env(safe-area-inset-bottom)); width: min(var(--scorebug-width), calc(100dvw - 20px)); }
+        .container.has-video .broadcast-score-rail { display: grid; width: min(var(--scorebug-width), calc(100dvw - 20px)); }
         .container.no-video-mode .fanview-layout { min-height: 100vh; background:
           linear-gradient(135deg, #F7F8F5, var(--bg-elev)); }
         .container.no-video-mode .no-video-hero { position: fixed; inset: 0; height: auto; margin: 0;
@@ -457,8 +532,9 @@
           overflow: visible; text-overflow: clip; letter-spacing: 0; }
         .container.no-video-mode .no-video-viewers { right: max(18px, env(safe-area-inset-right)); top: 10px; }
         .container.no-video-mode .court-mini { inset: 0; background-size: 100% auto; background-position: center bottom; }
-        .container.no-video-mode .score-column { position: fixed; right: max(16px, env(safe-area-inset-right));
-          top: clamp(74px, 17vh, 96px); width: var(--scoreboard-tv-width); z-index: 9; }
+        .container.no-video-mode .score-column { position: fixed; left: var(--scoreboard-tv-left);
+          right: var(--scoreboard-tv-right); top: var(--scoreboard-tv-top); bottom: var(--scoreboard-tv-bottom);
+          transform: var(--scoreboard-tv-transform); width: var(--scoreboard-tv-width); z-index: 9; }
         .container.no-video-mode .scoreboard { margin: 0 0 12px; border-radius: 16px; padding: 12px;
           overflow: visible; box-shadow: 0 24px 58px rgba(13,19,26,0.18); }
         .container.no-video-mode .score-grid { grid-template-columns: minmax(0,1fr) clamp(92px, 12vw, 132px) minmax(0,1fr);
@@ -526,8 +602,7 @@
           font-size: 10px; }
         .no-video-viewers .dot { width: 6px; height: 6px; }
         .video-frame { border-radius: 16px; }
-        .broadcast-score-rail { left: max(9px, env(safe-area-inset-left));
-          bottom: max(9px, env(safe-area-inset-bottom)); width: min(var(--scorebug-width), calc(100% - 18px)); }
+        .broadcast-score-rail { width: min(var(--scorebug-width), calc(100% - 18px)); }
         .broadcast-meta-row { min-height: max(22px, var(--scorebug-meta-height)); padding: 0 8px; gap: 8px; font-size: max(9px, var(--scorebug-meta-size)); }
         .broadcast-team { grid-template-columns: 10px minmax(0, 1fr) minmax(50px, var(--scorebug-score-column)); min-height: max(34px, var(--scorebug-row-height)); }
         .broadcast-team-label { padding: 0 9px; font-size: max(16px, var(--scorebug-team-size)); }
@@ -553,14 +628,29 @@
         <span class="brand-word">CourtsideView</span>
         <span class="header-actions">
           <span id="headerViewerCount" class="viewer-pill"><span class="dot"></span><span>0 watching</span></span>
-          <button id="displayHeaderButton" class="display-header-button" type="button" aria-expanded="false">Display: Standard</button>
+          <button id="displayHeaderButton" class="display-header-button" type="button" aria-expanded="false">Scoreboard: Standard · Bottom Left</button>
           <span id="fanViewPill" class="fanview-pill">FanView Live</span>
         </span>
       </header>
-      <div id="displayMenu" class="display-menu" role="menu" aria-label="Scoreboard size">
-        <button class="display-choice" type="button" data-scoreboard-size="small" role="menuitem">Small</button>
-        <button class="display-choice" type="button" data-scoreboard-size="standard" role="menuitem">Standard</button>
-        <button class="display-choice" type="button" data-scoreboard-size="large" role="menuitem">Large</button>
+      <div id="displayMenu" class="display-menu" role="menu" aria-label="Scoreboard display">
+        <div class="display-menu-section">
+          <div class="display-menu-label">Size</div>
+          <div class="display-menu-options">
+            <button class="display-choice" type="button" data-scoreboard-size="small" role="menuitem">Small</button>
+            <button class="display-choice" type="button" data-scoreboard-size="standard" role="menuitem">Standard</button>
+            <button class="display-choice" type="button" data-scoreboard-size="large" role="menuitem">Large</button>
+          </div>
+        </div>
+        <div class="display-menu-section">
+          <div class="display-menu-label">Position</div>
+          <div class="display-menu-options position-options">
+            <button class="display-choice" type="button" data-scoreboard-position="top-left" role="menuitem">Top Left</button>
+            <button class="display-choice" type="button" data-scoreboard-position="top-right" role="menuitem">Top Right</button>
+            <button class="display-choice" type="button" data-scoreboard-position="bottom-left" role="menuitem">Bottom Left</button>
+            <button class="display-choice" type="button" data-scoreboard-position="bottom-right" role="menuitem">Bottom Right</button>
+            <button class="display-choice" type="button" data-scoreboard-position="bottom-center" role="menuitem">Bottom Center</button>
+          </div>
+        </div>
       </div>
       <div id="loading" class="status">Loading match…</div>
       <div id="errorBox" class="status err" style="display:none"></div>
@@ -570,7 +660,7 @@
       </section>
       <main id="board" style="display:none">
         <div class="fanview-layout">
-          <button id="displayButton" class="display-button" type="button" aria-expanded="false">Display: Standard</button>
+          <button id="displayButton" class="display-button" type="button" aria-expanded="false">Scoreboard: Standard · Bottom Left</button>
           <div id="videoWrap" class="video-wrap">
             <div class="video-frame">
               <span id="videoViewerCount" class="viewer-pill video-viewers"><span class="dot"></span><span>0 watching</span></span>
@@ -688,7 +778,15 @@
       const CLOUDFLARE_PLACEHOLDER_URL = 'cloudflare://fanview-live';
       const CLOUDFLARE_STATUS_URL_PREFIX = 'cloudflare://fanview-live-status/';
       const SCOREBOARD_SIZE_KEY = 'courtsideview_fanview_scoreboard_size';
+      const SCOREBOARD_POSITION_KEY = 'courtsideview_fanview_scoreboard_position';
       const SCOREBOARD_SIZE_LABELS = { small: 'Small', standard: 'Standard', large: 'Large' };
+      const SCOREBOARD_POSITION_LABELS = {
+        'top-left': 'Top Left',
+        'top-right': 'Top Right',
+        'bottom-left': 'Bottom Left',
+        'bottom-right': 'Bottom Right',
+        'bottom-center': 'Bottom Center',
+      };
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true },
       });
@@ -869,9 +967,19 @@
         const raw = String(value || '').toLowerCase();
         return raw === 'small' || raw === 'large' ? raw : 'standard';
       }
+      function normalizeScoreboardPosition(value) {
+        const raw = String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
+        return Object.prototype.hasOwnProperty.call(SCOREBOARD_POSITION_LABELS, raw)
+          ? raw
+          : 'bottom-left';
+      }
       function isScoreboardSize(value) {
         const raw = String(value || '').toLowerCase();
         return raw === 'small' || raw === 'standard' || raw === 'large';
+      }
+      function isScoreboardPosition(value) {
+        const raw = String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
+        return Object.prototype.hasOwnProperty.call(SCOREBOARD_POSITION_LABELS, raw);
       }
       function readScoreboardSizeFromUrl() {
         try {
@@ -886,6 +994,19 @@
           return '';
         }
       }
+      function readScoreboardPositionFromUrl() {
+        try {
+          const params = new URLSearchParams(window.location.search || '');
+          const aliases = ['scoreboardPosition', 'scorePosition', 'displayPosition', 'position'];
+          for (const key of aliases) {
+            const value = params.get(key);
+            if (isScoreboardPosition(value)) return normalizeScoreboardPosition(value);
+          }
+          return '';
+        } catch {
+          return '';
+        }
+      }
       function readStoredScoreboardSize() {
         try {
           return localStorage.getItem(SCOREBOARD_SIZE_KEY) || '';
@@ -893,21 +1014,46 @@
           return '';
         }
       }
-      function applyScoreboardSize(size, { persist = false } = {}) {
-        const normalized = normalizeScoreboardSize(size);
-        document.documentElement.dataset.scoreboardSize = normalized;
-        const label = SCOREBOARD_SIZE_LABELS[normalized] || SCOREBOARD_SIZE_LABELS.standard;
+      function readStoredScoreboardPosition() {
+        try {
+          return localStorage.getItem(SCOREBOARD_POSITION_KEY) || '';
+        } catch {
+          return '';
+        }
+      }
+      function updateDisplayLabels() {
+        const size = normalizeScoreboardSize(document.documentElement.dataset.scoreboardSize);
+        const position = normalizeScoreboardPosition(document.documentElement.dataset.scoreboardPosition);
+        const sizeLabel = SCOREBOARD_SIZE_LABELS[size] || SCOREBOARD_SIZE_LABELS.standard;
+        const positionLabel = SCOREBOARD_POSITION_LABELS[position] || SCOREBOARD_POSITION_LABELS['bottom-left'];
         ['displayButton', 'displayHeaderButton'].forEach((id) => {
           const button = $(id);
           if (!button) return;
-          button.textContent = 'Display: ' + label;
+          button.textContent = 'Scoreboard: ' + sizeLabel + ' · ' + positionLabel;
         });
+      }
+      function applyScoreboardSize(size, { persist = false } = {}) {
+        const normalized = normalizeScoreboardSize(size);
+        document.documentElement.dataset.scoreboardSize = normalized;
         document.querySelectorAll('.display-choice').forEach((button) => {
           const active = button.dataset.scoreboardSize === normalized;
-          button.setAttribute('aria-pressed', String(active));
+          if (button.dataset.scoreboardSize) button.setAttribute('aria-pressed', String(active));
         });
+        updateDisplayLabels();
         if (persist) {
           try { localStorage.setItem(SCOREBOARD_SIZE_KEY, normalized); } catch {}
+        }
+      }
+      function applyScoreboardPosition(position, { persist = false } = {}) {
+        const normalized = normalizeScoreboardPosition(position);
+        document.documentElement.dataset.scoreboardPosition = normalized;
+        document.querySelectorAll('.display-choice').forEach((button) => {
+          const active = button.dataset.scoreboardPosition === normalized;
+          if (button.dataset.scoreboardPosition) button.setAttribute('aria-pressed', String(active));
+        });
+        updateDisplayLabels();
+        if (persist) {
+          try { localStorage.setItem(SCOREBOARD_POSITION_KEY, normalized); } catch {}
         }
       }
       function closeDisplayMenu() {
@@ -930,6 +1076,7 @@
         });
       }
       applyScoreboardSize(readScoreboardSizeFromUrl() || readStoredScoreboardSize() || 'standard');
+      applyScoreboardPosition(readScoreboardPositionFromUrl() || readStoredScoreboardPosition() || 'bottom-left');
       function feedAccent(item, row) {
         if (item && item.team === 'myTeam') return row.home_color || '#3B82F6';
         if (item && item.team === 'opponent') return row.away_color || '#EF4444';
@@ -1850,9 +1997,14 @@
       $('displayButton').addEventListener('click', toggleDisplayMenu);
       $('displayHeaderButton').addEventListener('click', toggleDisplayMenu);
       $('displayMenu').addEventListener('click', (event) => {
-        const choice = event.target.closest('[data-scoreboard-size]');
+        const choice = event.target.closest('[data-scoreboard-size], [data-scoreboard-position]');
         if (!choice) return;
-        applyScoreboardSize(choice.dataset.scoreboardSize || 'standard', { persist: true });
+        if (choice.dataset.scoreboardSize) {
+          applyScoreboardSize(choice.dataset.scoreboardSize || 'standard', { persist: true });
+        }
+        if (choice.dataset.scoreboardPosition) {
+          applyScoreboardPosition(choice.dataset.scoreboardPosition || 'bottom-left', { persist: true });
+        }
         closeDisplayMenu();
       });
       document.addEventListener('fullscreenchange', () => {
