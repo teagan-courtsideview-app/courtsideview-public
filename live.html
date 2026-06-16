@@ -49,16 +49,28 @@
       .video-shell { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 44dvh;
         background: #05070a; border: 1px solid var(--border); border-radius: 28px;
         overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.35); margin: 0 auto; }
-      video { width: 100%; height: 100%; object-fit: contain; display: block; background: #05070a; }
+      video { width: 100%; height: 100%; object-fit: cover; display: none; background: #05070a; }
+      body.has-camera video { display: block; }
+      .camera-placeholder { position: absolute; inset: 0; display: grid; place-items: center;
+        color: rgba(255,255,255,0.62); background:
+          radial-gradient(circle at 50% 42%, rgba(255,255,255,0.06), transparent 32%),
+          #05070a; }
+      .camera-placeholder svg { width: 74px; height: 74px; opacity: 0.72; }
+      .camera-placeholder-copy { position: absolute; left: 16px; right: 16px; bottom: 16px;
+        color: var(--muted); font-size: 13px; font-weight: 800; line-height: 1.35;
+        text-align: center; }
+      body.has-camera .camera-placeholder { display: none; }
       .top-overlay { display: none; }
       .viewer-chip { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         min-height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,0.92);
         border: 1px solid rgba(255,255,255,0.45); color: #0b1017; font-size: 13px;
         font-weight: 900; box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
-      .live-chip { display: none; align-items: center; justify-content: center; min-height: 34px;
-        padding: 0 14px; border-radius: 999px; background: var(--red); color: #fff;
+      .state-chip { display: none; align-items: center; justify-content: center; min-height: 34px;
+        padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,0.12); color: #fff;
         font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
-        box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
+        border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
+      body.camera-mode .state-chip { display: inline-flex; }
+      body.camera-mode.is-live .state-chip { background: var(--red); border-color: var(--red); }
       .status { position: absolute; left: 14px; right: 14px; bottom: 14px;
         background: rgba(15,20,27,0.78); backdrop-filter: blur(12px);
         border: 1px solid rgba(255,255,255,0.13); border-radius: 18px;
@@ -71,8 +83,8 @@
         font-size: 16px; font-weight: 900; letter-spacing: 0; text-align: center;
         text-decoration: none; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .primary { color: #fff; background: var(--pink); }
-      .fanview-primary { color: #fff; background: var(--pink); }
-      .fanview-primary:active { background: var(--pink-dark); }
+      .fanview-primary { color: var(--ink); background: rgba(255,255,255,0.12); border: 1px solid var(--border); }
+      .fanview-primary:active { background: rgba(255,255,255,0.16); }
       .primary::after,
       .fanview-primary::after { content: " →"; font-weight: 900; }
       .danger { color: #fff; background: var(--red); }
@@ -103,6 +115,14 @@
       .record-copy span { color: var(--muted); font-size: 12px; line-height: 1.3; font-weight: 700; }
       .record-copy small { color: var(--dim); font-size: 11px; line-height: 1.3; font-weight: 800; }
       .record-panel.is-warning .record-copy small { color: #fbbf24; }
+      .download-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+        gap: 10px; padding: 12px 14px; border-radius: 20px; background: rgba(34,197,94,0.11);
+        border: 1px solid rgba(34,197,94,0.28); color: #d9fbe6; }
+      .download-panel strong { display: block; color: #fff; font-size: 13px; line-height: 1.15; font-weight: 950; }
+      .download-panel span { display: block; color: rgba(217,251,230,0.82); font-size: 12px; line-height: 1.28; font-weight: 740; margin-top: 2px; }
+      .download-button { appearance: none; border-radius: 999px; padding: 10px 12px;
+        color: #0b1017; background: #fff; border: 0; font-size: 12px; font-weight: 950;
+        text-decoration: none; white-space: nowrap; }
       .viewer-row { display: flex; align-items: center; justify-content: center; gap: 8px;
         color: var(--muted); font-size: 13px; font-weight: 800; margin-top: 12px; }
       .viewer-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink);
@@ -150,7 +170,6 @@
         left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
         z-index: 8; display: flex; justify-content: flex-end; align-items: center; gap: 8px;
         pointer-events: none; }
-      body.camera-mode.is-live .live-chip { display: inline-flex; }
       body.camera-mode .handoff-panel { position: fixed; z-index: 10;
         left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
         bottom: calc(max(16px, env(safe-area-inset-bottom)) + 246px);
@@ -173,13 +192,15 @@
       body.camera-mode .record-panel { grid-column: 1 / -1; min-height: 54px; margin: 0;
         padding: 10px 12px; background: rgba(255,255,255,0.08);
         border-color: rgba(255,255,255,0.14); box-shadow: none; }
+      body.camera-mode .download-panel { grid-column: 1 / -1; background: rgba(8,13,21,0.72); }
       body.camera-mode.is-setup .controls,
       body.camera-mode.is-offline .controls { grid-template-columns: 1fr 0.78fr; }
       body.camera-mode.is-setup #cameraBtn,
       body.camera-mode.is-offline #cameraBtn { grid-column: 1 / -1; }
       body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; }
+      body.camera-mode.is-ready #scoreBtn,
+      body.camera-mode.is-ready #shareBtn { grid-column: 1 / -1; }
       body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; }
-      body.camera-mode.is-live .record-panel,
       body.camera-mode.is-live #scoreBtn,
       body.camera-mode.is-live #stopBtn { grid-column: 1 / -1; }
       body.camera-mode.is-live #scoreBtn { min-height: 58px; font-size: 17px; }
@@ -220,23 +241,62 @@
           transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 214px); }
       }
       @media (orientation: landscape) and (max-height: 560px) {
+        body:not(.camera-mode) {
+          padding: max(12px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+          overflow-y: auto;
+        }
+        body:not(.camera-mode) .wrap {
+          width: min(100%, 900px);
+        }
+        body:not(.camera-mode) header {
+          margin-bottom: 8px;
+        }
+        body:not(.camera-mode) .stage {
+          align-items: start;
+          gap: 18px;
+        }
+        body:not(.camera-mode) .hero {
+          margin-bottom: 8px;
+          padding-top: 8px;
+        }
+        body:not(.camera-mode) h1 {
+          font-size: clamp(34px, 7vw, 52px);
+          line-height: 0.94;
+          margin-bottom: 8px;
+        }
+        body:not(.camera-mode) .lead {
+          font-size: 14px;
+          line-height: 1.25;
+        }
+        body:not(.camera-mode) .video-shell {
+          max-height: 38svh;
+          border-radius: 22px;
+        }
+        body:not(.camera-mode) .controls {
+          gap: 8px;
+          margin-top: 10px;
+        }
+        body:not(.camera-mode) .viewer-row {
+          margin-top: 8px;
+        }
         body.camera-mode.is-live .record-panel { display: none; }
         body.camera-mode.is-live .handoff-panel { display: none; }
         body.camera-mode.is-live .controls {
-          width: min(680px, calc(100% - 32px));
+          width: min(780px, calc(100% - 32px));
           max-width: none;
           left: 50%;
           right: auto;
           bottom: max(10px, env(safe-area-inset-bottom));
           transform: translateX(-50%);
-          grid-template-columns: 1.2fr 1fr 1fr;
+          grid-template-columns: minmax(280px, 1.45fr) minmax(170px, 0.85fr) minmax(170px, 0.85fr);
           gap: 8px;
           padding: 10px;
           border-radius: 22px;
         }
-        body.camera-mode.is-live #scoreBtn { grid-column: 1 / -1; }
-        body.camera-mode.is-live #stopBtn { grid-column: 1 / -1; margin-top: 0; }
-        body.camera-mode.is-live #shareBtn,
+        body.camera-mode.is-live #scoreBtn,
+        body.camera-mode.is-live #stopBtn { grid-column: auto; margin-top: 0; }
+        body.camera-mode.is-live #scoreBtn { font-size: 15px; padding-left: 14px; padding-right: 14px; }
+        body.camera-mode.is-live #shareBtn { display: none !important; }
         body.camera-mode.is-live #minimizeBtn { min-width: 0; }
       }
     </style>
@@ -251,19 +311,26 @@
       <div class="stage">
         <section class="hero">
           <h1 id="pageTitle">Start Broadcast</h1>
-          <p id="pageLead" class="lead">This private page sends your Broadcast to FanView. Start the Broadcast, then return to scoring.</p>
+          <p id="pageLead" class="lead">Aim at the court. You decide when to go live.</p>
         </section>
         <section class="broadcast-panel">
           <div class="video-shell">
             <video id="preview" muted autoplay playsinline></video>
+            <div id="cameraPlaceholder" class="camera-placeholder" aria-hidden="true">
+              <svg viewBox="0 0 64 64" fill="none" role="img">
+                <path d="M18 23.5h6.2l3.1-4.5h9.4l3.1 4.5H46c3.3 0 6 2.7 6 6v15c0 3.3-2.7 6-6 6H18c-3.3 0-6-2.7-6-6v-15c0-3.3 2.7-6 6-6Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                <path d="M32 43.5a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" stroke="currentColor" stroke-width="4"/>
+              </svg>
+              <div class="camera-placeholder-copy">Start Camera when you are ready to frame the court.</div>
+            </div>
             <div class="top-overlay" aria-live="polite">
               <span class="viewer-chip">
                 <span class="viewer-dot"></span>
                 <span id="viewerCountTop" class="viewer-count"><strong>0</strong> watching</span>
               </span>
-              <span class="live-chip">LIVE</span>
+              <span id="broadcastStateChip" class="state-chip">READY</span>
             </div>
-            <div id="status" class="status"><strong>Broadcast off.</strong> Get Broadcast Ready when ready.</div>
+            <div id="status" class="status"><strong>Broadcast off.</strong> Tap Start Camera when ready.</div>
           </div>
           <div class="viewer-row" aria-live="polite">
             <span class="viewer-dot"></span>
@@ -271,7 +338,7 @@
           </div>
           <div id="handoffPanel" class="handoff-panel" aria-live="polite">
             <div id="handoffTitle" class="handoff-title">Broadcast live</div>
-            <div id="handoffCopy" class="handoff-copy">Return to Scoring to keep stats and score updated.</div>
+            <div id="handoffCopy" class="handoff-copy">Return to Score + Stats to keep scoring.</div>
           </div>
           <div class="controls">
             <div id="recordPanel" class="record-panel">
@@ -281,17 +348,24 @@
               </label>
               <div class="record-copy">
                 <strong>Save a Copy</strong>
-                <span>CourtsideView does not save broadcasts. Keep a copy on this phone.</span>
-                <small id="recordEstimate">Saved locally by set.</small>
+                <span>Optional local copy on this phone.</span>
+                <small id="recordEstimate">CourtsideView does not save Broadcasts.</small>
               </div>
             </div>
-            <button id="cameraBtn" class="secondary">Get Broadcast Ready</button>
+            <div id="downloadPanel" class="download-panel is-hidden">
+              <div>
+                <strong>Copy saved to this phone</strong>
+                <span id="downloadMeta">Your Broadcast copy is ready.</span>
+              </div>
+              <a id="downloadLink" class="download-button" href="#" download>Download Video</a>
+            </div>
+            <button id="cameraBtn" class="primary">Start Camera</button>
             <button id="broadcastBtn" class="primary is-hidden" disabled>Start Broadcast</button>
-            <button id="scoreBtn" class="primary is-hidden" disabled>Return to Scoring</button>
+            <button id="scoreBtn" class="secondary is-hidden" disabled>Return to Score + Stats</button>
             <button id="shareBtn" class="fanview-primary">Share Fan Link</button>
-            <button id="minimizeBtn" class="secondary is-hidden" disabled>Float Video</button>
+            <button id="minimizeBtn" class="secondary is-hidden" disabled>Float Broadcast</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End Broadcast</button>
-            <button id="previewBtn" class="preview-link">View FanView</button>
+            <button id="previewBtn" class="preview-link">View Fan Page</button>
           </div>
           <p class="hint">Fans can follow scores even before video starts.</p>
         </section>
@@ -336,6 +410,9 @@
       const stopBtn = document.getElementById('stopBtn');
       const previewBtn = document.getElementById('previewBtn');
       const recordPanel = document.getElementById('recordPanel');
+      const downloadPanel = document.getElementById('downloadPanel');
+      const downloadLink = document.getElementById('downloadLink');
+      const downloadMeta = document.getElementById('downloadMeta');
       const handoffPanel = document.getElementById('handoffPanel');
       const handoffTitle = document.getElementById('handoffTitle');
       const handoffCopy = document.getElementById('handoffCopy');
@@ -343,6 +420,7 @@
       const recordEstimate = document.getElementById('recordEstimate');
       const statusEl = document.getElementById('status');
       const statePill = document.getElementById('statePill');
+      const broadcastStateChip = document.getElementById('broadcastStateChip');
       const pageTitle = document.getElementById('pageTitle');
       const pageLead = document.getElementById('pageLead');
       const hintEl = document.querySelector('.hint');
@@ -379,6 +457,7 @@
       let recorderStopPromise = null;
       let recorderFallbackTimer = null;
       let recorderStartedAt = null;
+      let lastRecordingUrl = '';
       const recorderSupported = typeof MediaRecorder !== 'undefined';
 
       function syncVisibleViewport() {
@@ -474,6 +553,11 @@
         handoffCopy.textContent = copy;
         handoffPanel.classList.toggle('on', Boolean(visible));
       }
+      function setButtonVariant(button, variant) {
+        button.classList.toggle('primary', variant === 'primary');
+        button.classList.toggle('secondary', variant === 'secondary');
+        button.classList.toggle('fanview-primary', variant === 'fanview');
+      }
       function showStatus(options = {}) {
         if (statusTimer) clearTimeout(statusTimer);
         statusEl.classList.add('on');
@@ -486,8 +570,9 @@
         }
       }
       function setUiMode(state) {
-        const cameraMode = state === 'live';
+        const cameraMode = state === 'camera-ready' || state === 'live';
         document.body.classList.toggle('camera-mode', cameraMode);
+        document.body.classList.toggle('has-camera', Boolean(media));
         document.body.classList.toggle('is-setup', state === 'setup');
         document.body.classList.toggle('is-offline', state === 'offline');
         document.body.classList.toggle('is-ready', state === 'camera-ready');
@@ -504,12 +589,13 @@
         const isOffline = state === 'offline';
         showControl(cameraBtn, isSetup || isOffline);
         showControl(broadcastBtn, isCameraReady);
-        showControl(recordPanel, isSetup || isCameraReady || isLive || isOffline);
+        showControl(recordPanel, isSetup || isCameraReady || isOffline);
         const canReturnToScore = Boolean(streamId);
         showControl(scoreBtn, canReturnToScore);
         showControl(minimizeBtn, isLive && canUsePictureInPicture());
         showControl(stopBtn, isLive);
         showControl(previewBtn, !isLive);
+        showControl(shareBtn, true);
         cameraBtn.disabled = !(isSetup || isOffline);
         broadcastBtn.disabled = !isCameraReady;
         scoreBtn.disabled = !canReturnToScore;
@@ -522,15 +608,20 @@
           broadcastBtn.disabled = true;
           recordToggle.disabled = true;
         }
-        scoreBtn.textContent = 'Return to Scoring';
+        setButtonVariant(cameraBtn, 'primary');
+        setButtonVariant(broadcastBtn, 'primary');
+        setButtonVariant(scoreBtn, isLive ? 'primary' : 'secondary');
+        setButtonVariant(shareBtn, 'fanview');
+        scoreBtn.textContent = 'Return to Score + Stats';
         shareBtn.textContent = 'Share Fan Link';
-        minimizeBtn.textContent = 'Float Video';
+        minimizeBtn.textContent = 'Float Broadcast';
         stopBtn.textContent = 'End Broadcast';
+        broadcastStateChip.textContent = isLive ? 'LIVE' : isCameraReady ? 'READY' : statePill.textContent;
         if (isLive) {
           setHandoffPanel(
             'Broadcast live',
             canUsePictureInPicture()
-              ? 'Return to Scoring to keep stats updated. Float Video is optional.'
+              ? 'Return to Score + Stats to keep scoring. Float Broadcast is optional.'
               : broadcastReconnectNote(),
             true,
           );
@@ -754,7 +845,7 @@
         }
         recordEstimate.textContent = recorderTotalBytes > 0
           ? `${formatBytes(recorderTotalBytes)} saved locally so far.`
-          : 'Saved locally by set.';
+          : 'CourtsideView does not save Broadcasts.';
       }
       function chooseRecordingMimeType() {
         if (!recorderSupported || typeof MediaRecorder.isTypeSupported !== 'function') return '';
@@ -799,18 +890,13 @@
           }
         }
         const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = filename;
-        anchor.rel = 'noopener';
-        anchor.textContent = filename;
-        document.body.appendChild(anchor);
-        anchor.click();
-        setTimeout(() => {
-          URL.revokeObjectURL(url);
-          anchor.remove();
-        }, 30000);
-        setStatus([{ text: `Save ${filename} from your downloads.`, strong: true }], live ? 'LIVE' : 'READY', { duration: 5200 });
+        if (lastRecordingUrl) URL.revokeObjectURL(lastRecordingUrl);
+        lastRecordingUrl = url;
+        downloadLink.href = url;
+        downloadLink.download = filename;
+        downloadMeta.textContent = `${formatBytes(blob.size)} saved locally.`;
+        downloadPanel.classList.remove('is-hidden');
+        setStatus([{ text: 'Copy saved to this phone.', strong: true }], live ? 'LIVE' : 'READY', { duration: 5200 });
       }
       function stopRecordingFallbackTimer() {
         if (recorderFallbackTimer) {
@@ -1039,30 +1125,41 @@
       async function enterPictureInPicture() {
         if (!canUsePictureInPicture()) {
           setStatus([
-            { text: 'Float Video is unavailable here.', strong: true },
-            { text: ' Return to Scoring still opens the app.' },
+            { text: 'Float Broadcast is unavailable here.', strong: true },
+            { text: ' Broadcast may pause when you leave this page.' },
           ], 'LIVE', { persistent: true });
-          return;
+          return false;
         }
         try {
           await preview.requestPictureInPicture();
           setStatusHtml(
-            '<strong>Video floated.</strong> Return to CourtsideView to score.',
+            '<strong>Broadcast is floating.</strong> Keep this window open while you score.',
             'LIVE',
             { duration: 4200 },
           );
+          return true;
         } catch {
           setStatus([
-            { text: 'Could not float video.', strong: true },
-            { text: ' Keep this Broadcast page open.' },
+            { text: 'Broadcast may pause when you leave this page.', strong: true },
+            { text: ' Use another device for uninterrupted Broadcast.' },
           ], 'LIVE', { persistent: true });
+          return false;
         }
       }
-      function returnToScoring() {
-        setStatus([
-          { text: 'Returning to CourtsideView to score.', strong: true },
-          { text: ' If CourtsideView does not open, switch back to the app and resume this game.' },
-        ], 'LIVE', { duration: 3600 });
+      async function returnToScoring() {
+        if (live && canUsePictureInPicture() && document.pictureInPictureElement !== preview) {
+          await enterPictureInPicture();
+        } else if (live && !canUsePictureInPicture()) {
+          setStatus([
+            { text: 'Broadcast may pause when you leave this page.', strong: true },
+            { text: ' Use another device for uninterrupted Broadcast.' },
+          ], 'LIVE', { persistent: true });
+        } else {
+          setStatus([
+            { text: 'Returning to CourtsideView.', strong: true },
+            { text: ' If CourtsideView does not open, switch back to the app and resume this game.' },
+          ], 'RETURN TO APP', { duration: 3600 });
+        }
         window.location.href = appUrl();
         setTimeout(() => {
           if (document.visibilityState === 'visible') {
@@ -1079,7 +1176,7 @@
         if (name === 'NotAllowedError' || name === 'SecurityError' || /permission denied/i.test(message)) {
           return [
             { text: 'Camera permission is blocked.', strong: true },
-            { text: ' Open this page’s site settings, allow Camera, then tap Get Broadcast Ready again.' },
+            { text: ' Open this page’s site settings, allow Camera, then tap Start Camera again.' },
           ];
         }
         if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
@@ -1091,7 +1188,7 @@
         if (name === 'NotReadableError' || name === 'TrackStartError') {
           return [
             { text: 'Camera is already in use.', strong: true },
-            { text: ' Close any other app using the camera, then tap Get Broadcast Ready again.' },
+            { text: ' Close any other app using the camera, then tap Start Camera again.' },
           ];
         }
         return [
@@ -1153,15 +1250,15 @@
         }
         media = await requestCameraStream();
         preview.srcObject = media;
-        cameraBtn.textContent = 'Broadcast ready';
+        cameraBtn.textContent = 'Start Camera';
         broadcastBtn.textContent = 'Start Broadcast';
-        setPageCopy('Broadcast ready', 'Check the court view, then start Broadcast.');
+        setPageCopy('Ready To Broadcast', 'Check the court view, then start Broadcast.');
         hintEl.textContent = 'Check the court view, then start Broadcast.';
         setControlState('camera-ready');
         if (audioEnabled) {
-          setStatusHtml('<strong>Broadcast ready.</strong>', 'READY');
+          setStatusHtml('<strong>Ready to Broadcast.</strong>', 'READY');
         } else {
-          setStatusHtml('<strong>Broadcast ready.</strong> Audio is off.', 'READY', { duration: 3600 });
+          setStatusHtml('<strong>Ready to Broadcast.</strong> Audio is off.', 'READY', { duration: 3600 });
         }
       }
       async function startBroadcast({ reconnecting = false } = {}) {
@@ -1200,19 +1297,17 @@
         await pc.setRemoteDescription({ type: 'answer', sdp: answer });
         live = true;
         broadcastBtn.textContent = 'Broadcast live';
-        setPageCopy('Broadcast live', 'Return to Scoring to keep stats and score updated.');
-        hintEl.textContent = 'Broadcast live. Return to Scoring to keep stats and score updated.';
+        setPageCopy('Broadcast Live', 'Return to Score + Stats to keep scoring.');
+        hintEl.textContent = 'Broadcast live. Return to Score + Stats to keep scoring.';
         setControlState('live');
         void requestScreenWakeLock();
         if (!reconnecting) startLocalRecording();
         setStatusHtml(
           reconnecting
             ? '<strong>Broadcast is live again.</strong>'
-            : canUsePictureInPicture()
-              ? '<strong>Broadcast live.</strong> Return to Scoring to keep stats updated.'
-              : (audioEnabled
-                  ? '<strong>Broadcast live.</strong> Return to Scoring to keep stats updated.'
-                  : '<strong>Broadcast live.</strong> Audio is off.'),
+            : audioEnabled
+              ? '<strong>Broadcast live.</strong>'
+              : '<strong>Broadcast live.</strong> Audio off.',
           'LIVE',
           { duration: 4200 },
         );
@@ -1242,9 +1337,9 @@
           setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
           return;
         }
-        cameraBtn.textContent = 'Get Broadcast Ready';
+        cameraBtn.textContent = 'Start Broadcast Again';
         broadcastBtn.textContent = 'Start Broadcast';
-        setPageCopy('Start Broadcast', 'Broadcast ended. The Fan Link still works for scores.');
+        setPageCopy('Broadcast Ended', 'Fans can still follow the score on the Fan Link.');
         hintEl.textContent = 'Fans can follow scores even without video.';
         setControlState('offline');
         setStatus([
@@ -1352,6 +1447,7 @@
       }
       window.addEventListener('beforeunload', () => {
         void stopMatchSync();
+        if (lastRecordingUrl) URL.revokeObjectURL(lastRecordingUrl);
       });
     </script>
   </body>
