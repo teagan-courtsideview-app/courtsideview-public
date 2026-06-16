@@ -61,22 +61,22 @@
         text-align: center; }
       body.has-camera .camera-placeholder { display: none; }
       .top-overlay { display: none; }
-      .camera-brand-chip { display: none; align-items: center; gap: 7px; min-height: 32px;
-        max-width: 162px; padding: 0 12px; border-radius: 999px;
+      .camera-brand-chip { display: none; align-items: center; gap: 5px; min-height: 26px;
+        max-width: 126px; padding: 0 8px; border-radius: 999px;
         background: rgba(8,13,21,0.66); border: 1px solid rgba(255,255,255,0.14);
         color: #fff; font-family: "AvenirNextCondensed-Heavy", "Avenir Next Condensed", "Avenir Next", sans-serif;
-        font-size: 14px; line-height: 1; font-weight: 900; text-transform: uppercase;
+        font-size: 12px; line-height: 1; font-weight: 900; text-transform: uppercase;
         box-shadow: 0 10px 24px rgba(0,0,0,0.18); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .camera-brand-chip::before { content: ""; width: 6px; height: 6px; border-radius: 999px;
-        background: var(--pink); box-shadow: 0 0 0 3px rgba(255,79,147,0.18); flex: 0 0 auto; }
-      .camera-state-row { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-left: auto; }
+      .camera-brand-chip::before { content: ""; width: 5px; height: 5px; border-radius: 999px;
+        background: var(--pink); box-shadow: 0 0 0 2px rgba(255,79,147,0.16); flex: 0 0 auto; }
+      .camera-state-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-left: auto; }
       .viewer-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-        min-height: 32px; min-width: 96px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,0.92);
-        border: 1px solid rgba(255,255,255,0.45); color: #0b1017; font-size: 13px;
+        min-height: 26px; min-width: 82px; padding: 0 9px; border-radius: 999px; background: rgba(255,255,255,0.92);
+        border: 1px solid rgba(255,255,255,0.45); color: #0b1017; font-size: 11px;
         font-weight: 900; box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
-      .state-chip { display: none; align-items: center; justify-content: center; min-height: 32px;
-        min-width: 54px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,0.12); color: #fff;
-        font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+      .state-chip { display: none; align-items: center; justify-content: center; min-height: 26px;
+        min-width: 46px; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,0.12); color: #fff;
+        font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
         border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
       body.camera-mode .camera-brand-chip { display: inline-flex; }
       body.camera-mode .state-chip { display: inline-flex; }
@@ -189,16 +189,17 @@
         border-color: rgba(34,197,94,0.34); backdrop-filter: blur(18px); }
       body.camera-mode .handoff-panel.on { display: none; }
       body.camera-mode .status { position: fixed; z-index: 9; left: 50%; right: auto;
-        top: max(58px, calc(env(safe-area-inset-top) + 58px)); bottom: auto; width: max-content;
+        top: max(46px, calc(env(safe-area-inset-top) + 46px)); bottom: auto; width: max-content;
         max-width: min(86vw, 440px); transform: translate(-50%, -8px); border-radius: 999px;
-        padding: 9px 13px; text-align: center; color: #dbe3ee; background: rgba(15,20,27,0.74);
+        padding: 7px 11px; text-align: center; color: #dbe3ee; background: rgba(15,20,27,0.74);
         opacity: 0; pointer-events: none; box-shadow: 0 16px 40px rgba(0,0,0,0.24);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+      body.camera-mode.is-live .status.on { opacity: 0; transform: translate(-50%, -8px); }
       body.camera-mode .status.on { opacity: 1; transform: translate(-50%, 0); }
       body.camera-mode .controls { position: fixed; z-index: 10; left: max(12px, env(safe-area-inset-left));
         right: max(12px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom));
-        display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: auto; max-width: 480px;
-        margin: 0 auto; padding: 8px; border-radius: 22px; background: rgba(8,13,21,0.72);
+        display: grid; grid-template-columns: 1fr 1fr; gap: 7px; width: auto; max-width: 380px;
+        margin: 0 auto; padding: 6px; border-radius: 18px; background: rgba(8,13,21,0.66);
         border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(18px);
         box-shadow: 0 20px 62px rgba(0,0,0,0.38);
         transition: opacity 190ms ease, transform 210ms ease; }
@@ -208,6 +209,11 @@
       body.camera-mode .record-copy span { font-size: 11px; line-height: 1.25; }
       body.camera-mode .record-copy small { font-size: 10px; line-height: 1.25; }
       body.camera-mode .download-panel { grid-column: 1 / -1; background: rgba(8,13,21,0.72); }
+      body.camera-mode.is-live .record-panel,
+      body.camera-mode.is-live .download-panel,
+      body.camera-mode.is-live #cameraBtn,
+      body.camera-mode.is-live #broadcastBtn,
+      body.camera-mode.is-live #previewBtn { display: none !important; }
       body.camera-mode.is-setup .controls,
       body.camera-mode.is-offline .controls { grid-template-columns: 1fr 0.78fr; }
       body.camera-mode.is-setup #cameraBtn,
@@ -216,14 +222,14 @@
       body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; min-height: 44px; }
       body.camera-mode.is-ready #scoreBtn,
       body.camera-mode.is-ready #shareBtn { grid-column: 1 / -1; min-height: 40px; }
-      body.camera-mode.is-live .controls { grid-template-columns: 1fr 1fr; gap: 7px; padding: 8px; border-radius: 22px; }
-      body.camera-mode.is-live #scoreBtn,
-      body.camera-mode.is-live #stopBtn { grid-column: 1 / -1; }
-      body.camera-mode.is-live #scoreBtn { min-height: 40px; font-size: 13px; }
+      body.camera-mode.is-live .controls { display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 18px; }
+      body.camera-mode.is-live #scoreBtn { flex: 1 1 auto; min-width: 0; min-height: 34px; font-size: 12px; padding: 8px 10px; }
       body.camera-mode.is-live #shareBtn,
-      body.camera-mode.is-live #minimizeBtn { min-height: 38px; padding: 9px 11px; font-size: 12px; }
-      body.camera-mode.is-live #stopBtn { min-height: 38px; margin-top: 2px; color: #ffb4b4;
-        background: rgba(239,68,68,0.16); border: 1px solid rgba(239,68,68,0.36); }
+      body.camera-mode.is-live #minimizeBtn { flex: 0 0 58px; min-height: 34px; padding: 8px 8px; font-size: 11px; min-width: 0; }
+      body.camera-mode.is-live #stopBtn { min-height: 34px; margin-top: 0; color: #fff;
+        flex: 0 0 52px; background: rgba(239,68,68,0.92); border: 1px solid rgba(255,255,255,0.18); padding: 8px 8px; font-size: 11px; }
+      body.camera-mode.is-live .primary::after,
+      body.camera-mode.is-live .fanview-primary::after { content: ""; }
       body.camera-mode.is-live.controls-hidden .controls { opacity: 0; pointer-events: none;
         transform: translateY(calc(100% + 24px)); }
       body.camera-mode .preview-link { grid-column: 1 / -1; color: var(--muted); text-decoration: underline;
@@ -253,11 +259,11 @@
         body.camera-mode .stage { display: block; }
         body.camera-mode .video-shell { height: var(--visible-height, 100svh); }
         body.camera-mode .top-overlay { top: max(8px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
-        body.camera-mode .status { top: 54px;
+        body.camera-mode .status { top: 42px;
           left: auto; right: 16px; transform: translateY(-8px); }
         body.camera-mode .status.on { transform: translateY(0); }
         body.camera-mode .controls {
-          --controls-width: min(480px, calc(100% - 48px));
+          --controls-width: min(380px, calc(100% - 48px));
           width: var(--controls-width); max-width: none;
           left: calc((100% - var(--controls-width)) / 2); right: auto;
           transform: none; bottom: max(12px, env(safe-area-inset-bottom));
@@ -333,30 +339,33 @@
           display: none !important;
         }
         body.camera-mode.is-live .controls {
-          --controls-width: min(560px, calc(100% - 32px));
+          --controls-width: min(460px, calc(100% - 32px));
           width: var(--controls-width);
           max-width: none;
           left: calc((100% - var(--controls-width)) / 2);
           right: auto;
           bottom: max(10px, env(safe-area-inset-bottom));
           transform: none;
-          grid-template-columns: minmax(230px, 1fr) minmax(112px, 0.46fr) 76px;
+          display: flex;
+          align-items: center;
           gap: 6px;
-          padding: 6px;
-          border-radius: 20px;
+          padding: 5px;
+          border-radius: 16px;
         }
         body.camera-mode.is-live #scoreBtn,
-        body.camera-mode.is-live #stopBtn { grid-column: auto; margin-top: 0; }
+        body.camera-mode.is-live #stopBtn { margin-top: 0; }
         body.camera-mode.is-live #scoreBtn,
         body.camera-mode.is-live #stopBtn,
         body.camera-mode.is-live #minimizeBtn {
-          min-height: 36px;
-          font-size: 12px;
-          padding: 8px 10px;
+          min-height: 32px;
+          font-size: 11px;
+          padding: 7px 8px;
         }
-        body.camera-mode.is-live #scoreBtn { font-size: 13px; }
+        body.camera-mode.is-live #scoreBtn { flex: 1 1 auto; min-width: 0; font-size: 12px; }
+        body.camera-mode.is-live #shareBtn,
+        body.camera-mode.is-live #minimizeBtn { flex: 0 0 58px; }
+        body.camera-mode.is-live #stopBtn { flex: 0 0 52px; }
         body.camera-mode.is-live #stopBtn { color: #fff; background: rgba(239,68,68,0.92); border-color: rgba(255,255,255,0.18); }
-        body.camera-mode.is-live #shareBtn { display: none !important; }
         body.camera-mode.is-live #minimizeBtn { min-width: 0; }
         body.camera-mode.is-live.controls-hidden .controls { transform: translateY(calc(100% + 24px)); }
       }
@@ -721,21 +730,11 @@
         setButtonVariant(scoreBtn, isLive ? 'primary' : 'secondary');
         setButtonVariant(shareBtn, 'fanview');
         scoreBtn.textContent = 'Return to score';
-        shareBtn.textContent = 'Share Fan Link';
-        minimizeBtn.textContent = 'Float Broadcast';
+        shareBtn.textContent = isLive ? 'Share' : 'Share Fan Link';
+        minimizeBtn.textContent = isLive ? 'Float' : 'Float Broadcast';
         stopBtn.textContent = 'End';
         broadcastStateChip.textContent = isLive ? 'LIVE' : isCameraReady ? 'READY' : statePill.textContent;
-        if (isLive) {
-          setHandoffPanel(
-            'Broadcast live',
-            canUsePictureInPicture()
-              ? 'Return to score to keep scoring. Float Broadcast is optional.'
-              : broadcastReconnectNote(),
-            true,
-          );
-        } else {
-          setHandoffPanel('', '', false);
-        }
+        setHandoffPanel('', '', false);
         syncLiveControlVisibility(isLive);
         updateRecordingEstimate();
       }
@@ -1416,15 +1415,8 @@
         setControlState('live');
         void requestScreenWakeLock();
         if (!reconnecting) startLocalRecording();
-        setStatusHtml(
-          reconnecting
-            ? '<strong>Broadcast is live again.</strong>'
-            : audioEnabled
-              ? '<strong>Broadcast live.</strong>'
-              : '<strong>Broadcast live.</strong> Audio off.',
-          'LIVE',
-          { duration: 4200 },
-        );
+        statePill.textContent = 'LIVE';
+        statusEl.classList.remove('on');
       }
       async function stopBroadcast(options = {}) {
         intentionalStop = true;
