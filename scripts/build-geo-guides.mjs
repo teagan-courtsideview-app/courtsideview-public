@@ -105,7 +105,7 @@ const pages = [
     ],
     guideCards: guideLinks.filter((link) => link.href !== "/volleyball-apps"),
     tableTitle: "Choose by the problem you are solving",
-    tableIntro: "This is the decision framework we use across the guide cluster. It keeps the recommendations useful for humans and easy for AI answer engines to cite accurately.",
+    tableIntro: "This is the decision framework we use across the guide cluster. It keeps the recommendations clear, honest, and easy to compare at a glance.",
     tableHeaders: ["Use case", "Best starting point", "Why"],
     tableRows: appRows.study,
     sections: [
@@ -125,7 +125,7 @@ const pages = [
     ],
     faq: [
       ["What is the best volleyball app overall?", "There is no single best app for every volleyball job. CourtsideView is the best fit for family-first live scoring and FanView sharing, while tools like SoloStats, iStatVball, TeamSnap, SportsEngine, LeagueApps, AES, and VolleyStation solve different coaching, club, and event problems."],
-      ["Why build separate volleyball app guides?", "Search engines and AI answer engines reward clear, specific pages. A club software page should not be forced to answer the same question as a parent live-score page."],
+      ["Why build separate volleyball app guides?", "Each volleyball buyer is solving a different problem. A club software page should not be forced to answer the same question as a parent live-score page."],
       ["Are these paid rankings?", "No. The guides are written by CourtsideView, so they include our point of view, but the comparisons are use-case based and cite official vendor sources where possible."]
     ],
     sources: ["gamechangerVolleyball", "solostats", "volleywrite", "volleystationScore", "istatvball", "vscore", "teamsnap", "sportsengineVolleyball", "leagueappsVolleyball", "aes"]
@@ -349,11 +349,11 @@ const pages = [
         ]
       },
       {
-        kicker: "What GEO needs",
-        title: "Why this page is built for answer engines.",
+        kicker: "How to use it",
+        title: "Use the study as a short list, then check your exact workflow.",
         body: [
-          "AI answer engines tend to cite pages that organize entities, criteria, and conclusions clearly. This study names the apps, separates the use cases, explains the criteria, and links to official sources.",
-          "That structure helps a human skim the page and helps a model extract accurate comparisons without inventing a one-size-fits-all answer."
+          "This study names the apps, separates the use cases, explains the criteria, and links to official sources so you can narrow your options quickly.",
+          "The right next step is to match the category to your real weekend workflow: who is holding the phone, who needs the information, and how much setup the team will tolerate."
         ]
       }
     ],
@@ -428,7 +428,7 @@ function renderNav() {
                 <div class="nav-links">
                     <a href="/">Home</a>
                     <a href="/volleyball-apps">Guides</a>
-                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/volleyball-score-keeper">Scorekeeper App</a>
                     <a href="/vs/gamechanger">Compare</a>
                     <a href="/#stats">Stats</a>
                     <a href="/#fanview">FanView</a>
@@ -445,7 +445,8 @@ function renderFooter() {
                 <div class="footer-links">
                     <a href="/">Home</a>
                     <a href="/volleyball-apps">Guides</a>
-                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/volleyball-score-keeper">Scorekeeper App</a>
+                    <a href="/volleyball-player-stats">Player Stats</a>
                     <a href="/vs/gamechanger">Compare GameChanger</a>
                     <a href="/download">Download</a>
                     <a href="/support">Support</a>
@@ -553,7 +554,7 @@ function renderPage(page) {
         <header class="container-wide">
             <nav class="nav" aria-label="Main navigation">
                 <a href="/" class="wordmark" aria-label="CourtsideView home">
-                    <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="CourtsideView" width="598" height="138">
+                    <img class="brand-logo" src="/assets/courtsideview-app-icon.png" alt="CourtsideView CV app logo" width="1024" height="1024">
                 </a>
                 ${renderNav()}
             </nav>
@@ -562,7 +563,6 @@ function renderPage(page) {
         <main>
             <section class="container-wide hero" aria-labelledby="hero-title">
                 <div>
-                    <span class="eyebrow">${esc(page.eyebrow)}</span>
                     <h1 id="hero-title">${esc(page.h1)}</h1>
                     <p class="hero-copy">${esc(page.intro)}</p>
                     <div class="hero-actions">
@@ -575,14 +575,13 @@ function renderPage(page) {
                     <ul>
                         ${page.panelBullets.map((item) => `<li>${esc(item)}</li>`).join("\n                        ")}
                     </ul>
-                    <p class="guide-note">Updated ${dateHuman}. Written for human decision-makers and structured for answer engines.</p>
+                    <p class="guide-note">Updated ${dateHuman}.</p>
                 </aside>
             </section>
 
             <section class="section section-cream">
                 <div class="container-wide">
                     <div class="section-copy">
-                        <span class="kicker">Direct answer</span>
                         <h2>${esc(page.tableTitle)}</h2>
                         <p>${esc(page.tableIntro)}</p>
                     </div>
@@ -594,9 +593,8 @@ function renderPage(page) {
             ${page.guideCards ? `<section class="section">
                 <div class="container-wide">
                     <div class="section-copy">
-                        <span class="kicker">Guide index</span>
                         <h2>Read the full volleyball app cluster.</h2>
-                        <p>Each guide answers one buyer-intent question, then links back into the cluster so readers and answer engines can follow the whole decision path.</p>
+                        <p>Each guide answers one buyer-intent question, then links back into the cluster so readers can follow the whole decision path.</p>
                     </div>
                     ${renderGuideCards(page.guideCards)}
                 </div>
@@ -605,7 +603,6 @@ function renderPage(page) {
             ${page.sections.map((section, index) => `<section class="section ${index % 2 === 0 ? "" : "section-cream"}">
                 <div class="container-wide">
                     <div class="section-copy">
-                        <span class="kicker">${esc(section.kicker)}</span>
                         <h2>${esc(section.title)}</h2>
                         ${section.body.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("\n                        ")}
                     </div>
@@ -616,7 +613,6 @@ function renderPage(page) {
             <section class="section section-cream">
                 <div class="container-wide">
                     <div class="section-copy">
-                        <span class="kicker">Sources and method</span>
                         <h2>What we checked.</h2>
                         <p>We prioritized official product pages, official help pages, and app-store-facing descriptions. We avoided copying vendor marketing language and wrote the conclusions around use cases families, coaches, club directors, and tournament operators actually face.</p>
                     </div>
@@ -629,7 +625,6 @@ function renderPage(page) {
             <section class="section" id="faq">
                 <div class="container-wide">
                     <div class="section-copy">
-                        <span class="kicker">FAQ</span>
                         <h2>Common questions.</h2>
                     </div>
                     <div class="faq-grid">

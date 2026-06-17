@@ -70,9 +70,9 @@ a { color: inherit; }
 
 .brand-logo {
     display: block;
-    width: 19rem;
-    height: auto;
-    max-width: min(100%, 22rem);
+    width: 3.25rem;
+    height: 3.25rem;
+    object-fit: contain;
 }
 
 .nav-links {
@@ -458,7 +458,7 @@ td strong { color: #fff; }
         line-height: 1.25;
     }
     .nav { padding: 1.15rem 0 0.6rem; }
-    .brand-logo { width: min(15.8rem, calc(100vw - 3rem)); }
+    .brand-logo { width: 3rem; height: 3rem; }
     .hero { gap: 1.6rem; padding: 0.8rem 0 3.6rem; }
     h1 { max-width: 23rem; font-size: 3rem; line-height: 0.96; }
     h2 { font-size: 2.35rem; line-height: 1; }

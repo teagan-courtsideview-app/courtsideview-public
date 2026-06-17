@@ -32,9 +32,9 @@
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .hero-gradient { background: radial-gradient(circle at top right, rgba(46, 204, 113, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(46, 204, 113, 0.05), transparent 40%); }
         .wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
-        .brand-logo { display: block; width: clamp(18rem, 23vw, 24rem); height: auto; max-width: min(100%, 24rem); }
+        .brand-logo { display: block; width: 3.25rem; height: 3.25rem; object-fit: contain; }
         @media (max-width: 639px) {
-            .brand-logo { width: min(15.75rem, calc(100vw - 3rem)); }
+            .brand-logo { width: 3rem; height: 3rem; }
         }
         .display-heading,
         .prose-cv h2 { font-family: var(--font-display); letter-spacing: 0; }
@@ -67,7 +67,7 @@
     <div class="hero-gradient min-h-screen flex flex-col">
         <nav class="container mx-auto px-6 py-8 flex justify-between items-center">
             <a href="/" class="wordmark" aria-label="CourtsideView home">
-                <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="CourtsideView" width="598" height="138">
+                <img class="brand-logo" src="/assets/courtsideview-app-icon.png" alt="CourtsideView CV app logo" width="1024" height="1024">
             </a>
             <div class="hidden md:flex space-x-8 text-sm font-semibold text-gray-400">
                 <a href="/" class="hover:text-white transition">Home</a>
@@ -136,7 +136,8 @@
             <p>&copy; 2026 CourtsideView. All rights reserved.</p>
             <div class="flex flex-wrap justify-center gap-x-8 gap-y-3">
                 <a href="/volleyball-apps" class="hover:text-white transition">Guides</a>
-                <a href="/volleyball-scorekeeper" class="hover:text-white transition">Scorekeeper App</a>
+                <a href="/volleyball-score-keeper" class="hover:text-white transition">Scorekeeper App</a>
+                <a href="/volleyball-player-stats" class="hover:text-white transition">Player Stats</a>
                 <a href="/vs/gamechanger" class="hover:text-white transition">Compare GameChanger</a>
                 <a href="/privacy" class="hover:text-white transition">Privacy Policy</a>
                 <a href="/support" class="hover:text-white transition">Support</a>

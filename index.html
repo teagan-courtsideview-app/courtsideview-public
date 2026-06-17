@@ -58,7 +58,12 @@
         }
         .container-wide { width: min(100% - 3rem, 1200px); margin: 0 auto; }
         .wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
-        .brand-logo { display: block; width: clamp(16rem, 21vw, 22rem); height: auto; max-width: min(100%, 22rem); }
+        .brand-logo {
+            display: block;
+            width: clamp(2.75rem, 4.8vw, 3.45rem);
+            height: clamp(2.75rem, 4.8vw, 3.45rem);
+            object-fit: contain;
+        }
         .top-banner {
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             background: rgba(7, 17, 31, 0.82);
@@ -524,7 +529,7 @@
                 line-height: 1.25;
             }
             .nav { padding: 1.15rem 0 0.6rem; }
-            .brand-logo { width: min(15.8rem, calc(100vw - 3rem)); }
+            .brand-logo { width: 3rem; height: 3rem; }
             .hero {
                 gap: 1.5rem;
                 padding: 0.6rem 0 3.4rem;
@@ -747,12 +752,12 @@
         <header class="container-wide">
             <nav class="nav" aria-label="Main navigation">
                 <a href="/" class="wordmark" aria-label="CourtsideView home">
-                    <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="CourtsideView" width="598" height="138">
+                    <img class="brand-logo" src="/assets/courtsideview-app-icon.png" alt="CourtsideView CV app logo" width="1024" height="1024">
                 </a>
                 <div class="nav-links">
                     <a href="/volleyball-apps">Guides</a>
                     <a href="#scoring">Scoring</a>
-                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/volleyball-score-keeper">Scorekeeper App</a>
                     <a href="/vs/gamechanger">Compare</a>
                     <a href="#stats">Stats</a>
                     <a href="#fanview">FanView</a>
@@ -832,6 +837,7 @@
                         <h2>Your libero deserves better than "played great."</h2>
                         <span class="scan-label">Player stats, live rotation context, and roster-aware scoring.</span>
                         <p>Track player stats match by match so athletes, parents, and coaches can see the work behind the win. See who is on court, who is serving, and where everyone should be before the next whistle.</p>
+                        <p><a href="/volleyball-player-stats">Explore volleyball player stats</a></p>
                         <span class="pull-quote">Rotation chaos? Not today.</span>
                     </div>
                 </div>
@@ -939,7 +945,8 @@
                 <div class="footer-links">
                     <a href="/volleyball-apps">Guides</a>
                     <a href="#scoring">Scoring</a>
-                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/volleyball-score-keeper">Scorekeeper App</a>
+                    <a href="/volleyball-player-stats">Player Stats</a>
                     <a href="/vs/gamechanger">Compare GameChanger</a>
                     <a href="#stats">Stats</a>
                     <a href="#fanview">FanView</a>

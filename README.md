@@ -20,7 +20,8 @@ python3 -m http.server 8080
 ## File map
 ```
 index.html      Landing page
-volleyball-scorekeeper.html  SEO landing page for volleyball score keeper app queries
+volleyball-scorekeeper.html  SEO landing page served at /volleyball-score-keeper
+volleyball-player-stats.html  SEO landing page served at /volleyball-player-stats
 vs-gamechanger.html  Comparison landing page served at /vs/gamechanger
 volleyball-apps.html  GEO guide index served at /volleyball-apps
 best-volleyball-scorekeeping-apps-2026.html  GEO guide served at /best-volleyball-scorekeeping-apps-2026
