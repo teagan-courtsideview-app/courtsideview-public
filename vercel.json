@@ -9,6 +9,8 @@
     { "source": "/p/(.*)", "destination": "/player.html" },
     { "source": "/t/(.*)", "destination": "/team.html" },
     { "source": "/c/(.*)", "destination": "/club.html" },
+    { "source": "/vs/gamechanger", "destination": "/vs-gamechanger.html" },
+    { "source": "/volleyball-scorekeeper", "destination": "/volleyball-scorekeeper.html" },
     { "source": "/download", "destination": "/download.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/support", "destination": "/support.html" }
@@ -34,6 +36,8 @@
     { "source": "/privacy.html", "destination": "/privacy", "permanent": true },
     { "source": "/support.html", "destination": "/support", "permanent": true },
     { "source": "/download.html", "destination": "/download", "permanent": true },
+    { "source": "/vs-gamechanger.html", "destination": "/vs/gamechanger", "permanent": true },
+    { "source": "/volleyball-scorekeeper.html", "destination": "/volleyball-scorekeeper", "permanent": true },
     { "source": "/index.html", "destination": "/", "permanent": true }
   ]
 }

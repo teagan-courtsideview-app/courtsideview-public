@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CourtsideView | Volleyball Score Keeper & Player Stats App</title>
-    <meta name="description" content="CourtsideView is a volleyball score keeper and player stats app for live scores, rotations, rosters, and FanView updates. Download now on the App Store and Google Play.">
+    <meta name="description" content="CourtsideView is a volleyball score keeper and player stats app for live scores, rotations, rosters, and FanView updates on iPhone, iPad, and Android.">
     <meta name="theme-color" content="#0a0e14">
     <meta name="apple-itunes-app" content="app-id=6766532771, app-argument=https://www.courtsideviewapp.com/">
 
@@ -71,7 +71,7 @@
             justify-content: center;
             gap: 0.85rem;
             text-align: center;
-            color: #d8e2dd;
+            color: #e1e8e4;
             font-size: 0.92rem;
             font-weight: 700;
         }
@@ -87,7 +87,7 @@
             display: flex;
             align-items: center;
             gap: 1.35rem;
-            color: #a8b0ba;
+            color: #b4beca;
             font-size: 0.86rem;
             font-weight: 800;
         }
@@ -128,7 +128,7 @@
         .hero-copy {
             margin-top: 1.25rem;
             max-width: 40rem;
-            color: #b6bec8;
+            color: #c3ccd6;
             font-size: 1.24rem;
             line-height: 1.55;
             font-weight: 600;
@@ -155,7 +155,7 @@
         }
         .hero-helper {
             margin-top: 0.8rem;
-            color: #9fa7b3;
+            color: #aab5c2;
             font-size: 0.93rem;
             font-weight: 700;
         }
@@ -198,7 +198,7 @@
         .signup-card span {
             display: block;
             margin-top: 0.3rem;
-            color: #aab3bf;
+            color: #bac4cf;
             font-size: 0.82rem;
             line-height: 1.35;
             font-weight: 700;
@@ -273,6 +273,7 @@
         .phone-shot {
             position: absolute;
             height: auto;
+            border-radius: 2rem;
             user-select: none;
             filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.44));
         }
@@ -335,12 +336,21 @@
         .section-copy p {
             margin: 1.05rem 0 0;
             max-width: 38rem;
-            color: #aeb7c2;
+            color: #c1cad5;
             font-size: 1.15rem;
             line-height: 1.62;
             font-weight: 650;
         }
-        .section-cream .section-copy p { color: #59615f; }
+        .section-cream .section-copy p { color: #4f5a58; }
+        .scan-label {
+            margin: 1rem 0 0;
+            display: inline-flex;
+            color: #dbe5ef;
+            font-size: 0.9rem;
+            line-height: 1.25;
+            font-weight: 900;
+        }
+        .section-cream .scan-label { color: #26313a; }
         .pull-quote {
             margin-top: 1.3rem;
             display: inline-flex;
@@ -378,6 +388,7 @@
             z-index: 1;
             width: min(100%, 23rem);
             height: auto;
+            border-radius: 2rem;
             filter: drop-shadow(0 30px 58px rgba(0, 0, 0, 0.28));
         }
         .fanview-pair {
@@ -390,6 +401,7 @@
         .fanview-pair img:last-child { width: min(100%, 16rem); margin-top: 5rem; }
         .wide-shot {
             width: 100%;
+            border-radius: 1.35rem;
             filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.36));
         }
         .download-section {
@@ -420,7 +432,7 @@
         }
         .download-box p {
             margin: 0.8rem 0 0;
-            color: #aeb7c2;
+            color: #c1cad5;
             font-size: 1.05rem;
             line-height: 1.55;
             font-weight: 650;
@@ -456,14 +468,14 @@
         }
         .faq-card p {
             margin: 0.7rem 0 0;
-            color: #aeb7c2;
+            color: #c1cad5;
             line-height: 1.55;
             font-weight: 600;
         }
         .footer {
             padding: 2rem 0 3rem;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
-            color: #858e9d;
+            color: #9ca7b3;
             font-size: 0.9rem;
             font-weight: 700;
         }
@@ -533,8 +545,8 @@
             }
             .hero-copy {
                 max-width: 22rem;
-                font-size: 1rem;
-                line-height: 1.45;
+                font-size: 1.05rem;
+                line-height: 1.52;
             }
             .cta-row {
                 align-items: flex-start;
@@ -544,8 +556,8 @@
             .play-store-badge { width: 11.25rem; }
             .hero-helper {
                 max-width: 22rem;
-                font-size: 0.82rem;
-                line-height: 1.35;
+                font-size: 0.86rem;
+                line-height: 1.42;
             }
             .hero-tools {
                 grid-template-columns: 1fr;
@@ -580,8 +592,12 @@
                 line-height: 0.98;
             }
             .section-copy p {
-                font-size: 1rem;
-                line-height: 1.55;
+                font-size: 1.05rem;
+                line-height: 1.62;
+            }
+            .scan-label {
+                font-size: 0.92rem;
+                line-height: 1.32;
             }
             .feature-phone { width: min(100%, 18rem); }
             .fanview-pair {
@@ -675,6 +691,20 @@
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "CourtsideView",
+            "url": "https://www.courtsideviewapp.com/",
+            "logo": "https://www.courtsideviewapp.com/assets/courtsideview-app-icon.png",
+            "email": "teagan@courtsideviewapp.com",
+            "sameAs": [
+                "https://apps.apple.com/us/app/courtsideview/id6766532771",
+                "https://play.google.com/store/apps/details?id=app.courtsideview.android&pli=1"
+            ]
+        }
+    </script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
             "@type": "FAQPage",
             "mainEntity": [
                 {
@@ -717,10 +747,12 @@
         <header class="container-wide">
             <nav class="nav" aria-label="Main navigation">
                 <a href="/" class="wordmark" aria-label="CourtsideView home">
-                    <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="" aria-hidden="true" width="598" height="138">
+                    <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="CourtsideView" width="598" height="138">
                 </a>
                 <div class="nav-links">
                     <a href="#scoring">Scoring</a>
+                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/vs/gamechanger">Compare</a>
                     <a href="#stats">Stats</a>
                     <a href="#fanview">FanView</a>
                     <a href="#download">Download</a>
@@ -769,8 +801,8 @@
                 </div>
 
                 <div class="hero-visual" aria-label="CourtsideView app screenshots">
-                    <img class="phone-shot hero-side-phone" src="/assets/website-fanview-live.webp" alt="CourtsideView FanView live web page showing live score updates" width="900" height="1915" loading="eager" decoding="async">
-                    <img class="phone-shot hero-main-phone" src="/assets/website-scoreboard-command.webp" alt="CourtsideView scorekeeper command center with score, last action, and on-court rotation" width="900" height="1915" loading="eager" decoding="async">
+                    <img class="phone-shot hero-side-phone" src="/assets/website-home-hub.webp" alt="CourtsideView home screen with an active match and role hub options" width="900" height="1957" loading="eager" decoding="async">
+                    <img class="phone-shot hero-main-phone" src="/assets/website-scoreboard-command.webp" alt="CourtsideView full-stats match screen with live score, last action, and on-court rotation" width="900" height="1957" loading="eager" decoding="async">
                 </div>
             </section>
 
@@ -779,11 +811,12 @@
                     <div class="section-copy">
                         <p class="kicker">Scorekeeper</p>
                         <h2>Paper scorebook, we need to talk.</h2>
+                        <span class="scan-label">Built for fast point entry and fewer set-point arguments.</span>
                         <p>Score the match in seconds, keep the set moving, and stop playing detective at set point. No more pencil math, scratched-out points, or asking three people if it is 14-12 or 13-12.</p>
                         <span class="pull-quote">Tap. Score. Breathe.</span>
                     </div>
                     <div class="feature-image-wrap">
-                        <img class="feature-phone" src="/assets/website-scorekeeper-main.webp" alt="CourtsideView scorekeeper screen with score buttons, timeouts, FanView, and end set controls" width="860" height="1830" loading="lazy" decoding="async">
+                        <img class="feature-phone" src="/assets/website-scorekeeper-main.webp" alt="CourtsideView scorekeeper screen with score buttons, timeouts, FanView, and end set controls" width="900" height="1957" loading="lazy" decoding="async">
                     </div>
                 </div>
             </section>
@@ -791,11 +824,12 @@
             <section id="stats" class="section section-dark">
                 <div class="container-wide section-grid reverse">
                     <div class="feature-image-wrap">
-                        <img class="feature-phone" src="/assets/website-scoreboard-command.webp" alt="CourtsideView player stats, rotations, score, and last action in one match screen" width="900" height="1915" loading="lazy" decoding="async">
+                        <img class="feature-phone" src="/assets/website-stats-rotation.webp" alt="CourtsideView player stats and rotation screen showing on-court players and stat tracking" width="900" height="1957" loading="lazy" decoding="async">
                     </div>
                     <div class="section-copy">
                         <p class="kicker">Stats and rotations</p>
                         <h2>Your libero deserves better than "played great."</h2>
+                        <span class="scan-label">Player stats, live rotation context, and roster-aware scoring.</span>
                         <p>Track player stats match by match so athletes, parents, and coaches can see the work behind the win. See who is on court, who is serving, and where everyone should be before the next whistle.</p>
                         <span class="pull-quote">Rotation chaos? Not today.</span>
                     </div>
@@ -807,12 +841,13 @@
                     <div class="section-copy">
                         <p class="kicker">FanView</p>
                         <h2>Grandma can follow from 600 miles away.</h2>
+                        <span class="scan-label">One live link for family, fans, and the parent stuck at work.</span>
                         <p>Send a live FanView link so family, friends, and fans can follow the score without refreshing the group chat. One link, live scores, less sideline tech support.</p>
                         <span class="pull-quote">Live updates for the whole volleyball fam.</span>
                     </div>
                     <div class="feature-image-wrap fanview-pair">
-                        <img class="feature-phone" src="/assets/website-fanview-live.webp" alt="FanView live web scoreboard with activity updates for family and fans" width="900" height="1915" loading="lazy" decoding="async">
-                        <img class="feature-phone" src="/assets/website-share-fanview.webp" alt="CourtsideView Share FanView modal with share link and live video setup controls" width="820" height="1745" loading="lazy" decoding="async">
+                        <img class="feature-phone" src="/assets/website-fanview-live.webp" alt="FanView live web scoreboard with the set score, last play, and on-court view for family and fans" width="900" height="1957" loading="lazy" decoding="async">
+                        <img class="feature-phone" src="/assets/website-share-fanview.webp" alt="CourtsideView FanView sharing screen with share link, broadcast options, and QR code" width="900" height="1957" loading="lazy" decoding="async">
                     </div>
                 </div>
             </section>
@@ -820,11 +855,12 @@
             <section class="section section-cream">
                 <div class="container-wide section-grid reverse">
                     <div class="feature-image-wrap">
-                        <img class="feature-phone" src="/assets/website-roster-hub.webp" alt="CourtsideView roster hub with import and create roster options" width="820" height="1745" loading="lazy" decoding="async">
+                        <img class="feature-phone" src="/assets/website-roster-hub.webp" alt="CourtsideView team hub showing player profiles, positions, and season stats" width="900" height="1957" loading="lazy" decoding="async">
                     </div>
                     <div class="section-copy">
                         <p class="kicker">Roster Hub</p>
                         <h2>Load the team once.</h2>
+                        <span class="scan-label">Rosters and player profiles ready before match day gets loud.</span>
                         <p>Build rosters, import lists, and stop rewriting jersey numbers like it is a homework punishment. When match day hits, your players are already where you need them.</p>
                         <span class="pull-quote">Before first serve, get the lineup handled.</span>
                     </div>
@@ -836,10 +872,11 @@
                     <div class="section-copy" style="max-width: 760px;">
                         <p class="kicker">Big mode</p>
                         <h2>For the parent squinting from the far baseline.</h2>
+                        <span class="scan-label">A larger scoreboard view for benches, scorer tables, and busy gyms.</span>
                         <p>Flip into a big scoreboard view for scorer tables, benches, and tournament chaos. Set point should not require detective work.</p>
                     </div>
                     <div style="margin-top: 2rem;">
-                        <img class="wide-shot" src="/assets/website-big-scoreboard.webp" alt="CourtsideView landscape big scoreboard mode with large team scores" width="1700" height="704" loading="lazy" decoding="async">
+                        <img class="wide-shot" src="/assets/website-big-scoreboard.webp" alt="CourtsideView landscape big scoreboard mode with large team scores" width="1700" height="782" loading="lazy" decoding="async">
                     </div>
                 </div>
             </section>
@@ -900,6 +937,8 @@
                 <p>&copy; 2026 CourtsideView. All rights reserved.</p>
                 <div class="footer-links">
                     <a href="#scoring">Scoring</a>
+                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/vs/gamechanger">Compare GameChanger</a>
                     <a href="#stats">Stats</a>
                     <a href="#fanview">FanView</a>
                     <a href="/support">Support</a>

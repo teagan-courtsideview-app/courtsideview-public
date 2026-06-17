@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourtsideView vs GameChanger for Volleyball Families</title>
+    <meta name="description" content="Compare CourtsideView and GameChanger for volleyball scoring, player stats, rotations, live score sharing, and family-friendly match-day workflows.">
+    <meta name="theme-color" content="#0a0e14">
+    <meta name="apple-itunes-app" content="app-id=6766532771, app-argument=https://www.courtsideviewapp.com/download">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.courtsideviewapp.com/vs/gamechanger">
+    <meta property="og:title" content="CourtsideView vs GameChanger for Volleyball Families">
+    <meta property="og:description" content="A family-first comparison for volleyball scoring, player stats, rotations, FanView live links, and match-day sharing.">
+    <meta property="og:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CourtsideView vs GameChanger for Volleyball Families">
+    <meta name="twitter:description" content="A family-first comparison for volleyball scoring, player stats, rotations, FanView live links, and match-day sharing.">
+    <meta name="twitter:image" content="https://www.courtsideviewapp.com/assets/og-image.png">
+
+    <link rel="icon" type="image/png" href="/assets/courtsideview-app-icon.png">
+    <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png">
+    <link rel="canonical" href="https://www.courtsideviewapp.com/vs/gamechanger">
+
+    <style>
+        :root {
+            --cv-bg: #070b10;
+            --cv-panel: #0d1621;
+            --cv-green: #18d86f;
+            --cv-pink: #ff3b8a;
+            --cv-cream: #f3f4ee;
+            --cv-muted: #c1cad5;
+            --font-display: "Avenir Next Condensed", "AvenirNextCondensed-Heavy", "Avenir Next", "Arial Narrow", "Roboto Condensed", sans-serif;
+            --font-body: "Avenir Next", Avenir, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: var(--font-body);
+            background: var(--cv-bg);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        a { color: inherit; }
+        .page-shell {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 82% 8%, rgba(24, 216, 111, 0.16), transparent 34rem),
+                radial-gradient(circle at 8% 42%, rgba(255, 59, 138, 0.08), transparent 30rem),
+                linear-gradient(180deg, #070b10 0%, #08131d 48%, #070b10 100%);
+        }
+        .container-wide { width: min(100% - 3rem, 1160px); margin: 0 auto; }
+        .top-banner {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(7, 17, 31, 0.9);
+        }
+        .top-banner-inner {
+            min-height: 3.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.85rem;
+            text-align: center;
+            color: #e1e8e4;
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+        .top-banner a { color: var(--cv-green); font-weight: 900; white-space: nowrap; }
+        .nav {
+            padding: 1.45rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.25rem;
+        }
+        .wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
+        .brand-logo { display: block; width: 19rem; height: auto; max-width: min(100%, 22rem); }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            color: #b4beca;
+            font-size: 0.86rem;
+            font-weight: 800;
+        }
+        .nav-links a { text-decoration: none; transition: color 160ms ease; }
+        .nav-links a:hover { color: #fff; }
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr);
+            gap: 4rem;
+            align-items: center;
+            padding: 1.5rem 0 6.5rem;
+        }
+        .eyebrow,
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid rgba(24, 216, 111, 0.34);
+            border-radius: 999px;
+            background: rgba(24, 216, 111, 0.1);
+            color: #6df69b;
+            padding: 0.48rem 0.85rem;
+            font-size: 0.76rem;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+        h1,
+        h2,
+        h3 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+        h1 {
+            margin-top: 1rem;
+            max-width: 48rem;
+            font-size: 5.25rem;
+            line-height: 0.94;
+        }
+        h2 {
+            max-width: 43rem;
+            font-size: 3.35rem;
+            line-height: 1;
+        }
+        h3 {
+            font-size: 1.45rem;
+            line-height: 1.08;
+        }
+        .text-green { color: #5bd16b; }
+        .hero-copy,
+        .section-copy p,
+        .card p,
+        .faq-card p,
+        .comparison-note {
+            color: var(--cv-muted);
+            line-height: 1.62;
+            font-weight: 650;
+        }
+        .hero-copy {
+            margin: 1.25rem 0 0;
+            max-width: 43rem;
+            font-size: 1.2rem;
+        }
+        .store-badges {
+            margin-top: 1.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .app-store-badge,
+        .play-store-badge {
+            display: block;
+            width: 11.8rem;
+            height: auto;
+            filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.28));
+        }
+        .hero-helper {
+            margin-top: 0.85rem;
+            color: #aab5c2;
+            font-size: 0.94rem;
+            line-height: 1.35;
+            font-weight: 750;
+        }
+        .hero-visual {
+            position: relative;
+            min-height: 36rem;
+        }
+        .phone-shot {
+            position: absolute;
+            height: auto;
+            border-radius: 2rem;
+            user-select: none;
+            filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.42));
+        }
+        .phone-main {
+            width: min(24rem, 40vw);
+            right: 0;
+            top: 0;
+            z-index: 2;
+        }
+        .phone-side {
+            width: min(18rem, 30vw);
+            left: 0;
+            top: 7rem;
+            z-index: 1;
+            transform: rotate(-5deg);
+            opacity: 0.92;
+        }
+        .section {
+            padding: 5.5rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .section-cream {
+            background: var(--cv-cream);
+            color: #091018;
+            border-top: 0;
+        }
+        .section-cream .kicker {
+            border-color: rgba(15, 153, 80, 0.25);
+            background: rgba(24, 216, 111, 0.12);
+            color: #0f9950;
+        }
+        .section-copy p {
+            margin: 1rem 0 0;
+            max-width: 43rem;
+            font-size: 1.08rem;
+        }
+        .section-cream .section-copy p,
+        .section-cream .card p,
+        .section-cream .comparison-note { color: #4f5a58; }
+        .section-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(18rem, 0.8fr);
+            gap: 4rem;
+            align-items: start;
+        }
+        .comparison-table-wrap {
+            margin-top: 2rem;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+        }
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            vertical-align: top;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+        }
+        th {
+            color: #fff;
+            font-size: 0.84rem;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+        td {
+            color: var(--cv-muted);
+            line-height: 1.5;
+            font-weight: 650;
+        }
+        tr:last-child td { border-bottom: 0; }
+        td strong { color: #fff; }
+        .section-cream .comparison-table-wrap {
+            border-color: rgba(9, 16, 24, 0.1);
+            background: rgba(255, 255, 255, 0.78);
+        }
+        .section-cream th {
+            color: #091018;
+            border-bottom: 1px solid rgba(9, 16, 24, 0.11);
+        }
+        .section-cream td {
+            color: #4f5a58;
+            border-bottom: 1px solid rgba(9, 16, 24, 0.08);
+        }
+        .section-cream td strong { color: #091018; }
+        .comparison-note,
+        .trademark-note {
+            margin: 0.95rem 0 0;
+            font-size: 0.88rem;
+        }
+        .trademark-note {
+            max-width: 56rem;
+            color: #6b747f;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .card,
+        .faq-card {
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 8px;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .section-cream .card,
+        .section-cream .faq-card {
+            border-color: rgba(9, 16, 24, 0.1);
+            background: rgba(255, 255, 255, 0.72);
+        }
+        .card p,
+        .faq-card p {
+            margin: 0.65rem 0 0;
+            font-size: 0.98rem;
+        }
+        .section-cream .card p,
+        .section-cream .faq-card p { color: #4f5a58; }
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .download-section {
+            padding: 5rem 0;
+            background: #070b10;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .download-box {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 2rem;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.045);
+        }
+        .download-box p {
+            margin: 0.8rem 0 0;
+            color: var(--cv-muted);
+            line-height: 1.55;
+            font-weight: 650;
+        }
+        .footer {
+            padding: 2rem 0 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #9ca7b3;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .footer-links {
+            display: flex;
+            gap: 1.15rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .footer-links a { text-decoration: none; }
+        .footer-links a:hover { color: #fff; }
+        @media (max-width: 1100px) {
+            .nav-links { display: none; }
+            .hero,
+            .section-grid,
+            .download-box {
+                grid-template-columns: 1fr;
+            }
+            .hero-visual {
+                min-height: clamp(29rem, 74vw, 40rem);
+                width: min(100%, 38rem);
+                margin: 0 auto;
+            }
+            .phone-main { width: min(22rem, 54vw); right: 6%; }
+            .phone-side { width: min(17rem, 42vw); left: 8%; top: 6.4rem; }
+        }
+        @media (max-width: 760px) {
+            .container-wide { width: min(100% - 2rem, 1160px); }
+            .top-banner-inner {
+                flex-direction: column;
+                gap: 0.3rem;
+                padding: 0.7rem 0;
+                font-size: 0.78rem;
+                line-height: 1.25;
+            }
+            .nav { padding: 1.15rem 0 0.6rem; }
+            .brand-logo { width: min(15.8rem, calc(100vw - 3rem)); }
+            .hero {
+                gap: 2rem;
+                padding: 0.8rem 0 3.6rem;
+            }
+            h1 {
+                max-width: 23rem;
+                font-size: 2.7rem;
+                line-height: 0.96;
+            }
+            h2 {
+                font-size: 2.45rem;
+                line-height: 1;
+            }
+            .hero-copy,
+            .section-copy p {
+                font-size: 1rem;
+                line-height: 1.56;
+            }
+            .app-store-badge,
+            .play-store-badge { width: 10rem; }
+            .hero-helper { font-size: 0.86rem; }
+            .hero-visual {
+                min-height: clamp(22rem, 68vh, 30rem);
+                overflow: hidden;
+            }
+            .phone-main {
+                width: min(13.8rem, 56vw);
+                top: 0.2rem;
+                right: 0.8rem;
+            }
+            .phone-side {
+                width: min(11.5rem, 46vw);
+                top: 4.2rem;
+                left: 1.2rem;
+            }
+            .section { padding: 3.8rem 0; }
+            .card-grid,
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+            .download-box { padding: 1rem; }
+            .footer-inner { flex-direction: column; text-align: center; }
+        }
+    </style>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "CourtsideView vs GameChanger for Volleyball Families",
+            "url": "https://www.courtsideviewapp.com/vs/gamechanger",
+            "description": "A comparison of CourtsideView and GameChanger for volleyball scoring, player stats, rotations, FanView live links, and family-friendly match-day workflows.",
+            "dateModified": "2026-06-17",
+            "about": [
+                {
+                    "@type": "Thing",
+                    "name": "Volleyball scorekeeping"
+                },
+                {
+                    "@type": "Thing",
+                    "name": "GameChanger comparison"
+                }
+            ],
+            "publisher": {
+                "@type": "Organization",
+                "name": "CourtsideView",
+                "url": "https://www.courtsideviewapp.com/",
+                "logo": "https://www.courtsideviewapp.com/assets/courtsideview-app-icon.png"
+            }
+        }
+    </script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "https://www.courtsideviewapp.com/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "CourtsideView vs GameChanger",
+                    "item": "https://www.courtsideviewapp.com/vs/gamechanger"
+                }
+            ]
+        }
+    </script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "Is CourtsideView a GameChanger alternative for volleyball?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "CourtsideView is a volleyball-first scoring and player stats app for families, scorekeepers, and coaches who want fast match scoring, rotations, and shareable FanView live score links."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Can family follow a match without installing CourtsideView?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Yes. FanView creates a shared web link so family and fans can follow live volleyball scores and match context from a browser."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Does CourtsideView track volleyball player stats?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "CourtsideView tracks volleyball match details such as assists, digs, serves, net touches, substitutions, rotations, and related match context."
+                    }
+                }
+            ]
+        }
+    </script>
+</head>
+<body>
+    <div class="page-shell">
+        <div class="top-banner">
+            <div class="container-wide top-banner-inner">
+                <span>CourtsideView is live on the App Store and Google Play.</span>
+                <a href="/download" aria-label="Download CourtsideView for your device">Download now</a>
+            </div>
+        </div>
+
+        <header class="container-wide">
+            <nav class="nav" aria-label="Main navigation">
+                <a href="/" class="wordmark" aria-label="CourtsideView home">
+                    <img class="brand-logo" src="/assets/courtsideview-wordmark.png" alt="CourtsideView" width="598" height="138">
+                </a>
+                <div class="nav-links">
+                    <a href="/">Home</a>
+                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/vs/gamechanger">Compare</a>
+                    <a href="/#stats">Stats</a>
+                    <a href="/#fanview">FanView</a>
+                    <a href="/download">Download</a>
+                    <a href="/support">Support</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="container-wide hero" aria-labelledby="hero-title">
+                <div>
+                    <span class="eyebrow">CourtsideView vs GameChanger</span>
+                    <h1 id="hero-title">A volleyball scoring app built for <span class="text-green">families</span>, not just team staff.</h1>
+                    <p class="hero-copy">GameChanger is a broad multi-sport platform for teams and organizations. CourtsideView is volleyball-first and family-first: fast tap-to-score, rotations, player stats, big scoreboard mode, and FanView links the whole family can follow.</p>
+                    <div class="store-badges" aria-label="Download CourtsideView">
+                        <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
+                            <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=app.courtsideview.android&amp;pli=1" aria-label="Get CourtsideView on Google Play">
+                            <img class="play-store-badge" src="/assets/get-it-on-google-play.svg" alt="Get it on Google Play" width="180" height="54">
+                        </a>
+                    </div>
+                    <p class="hero-helper">Available now for iPhone, iPad, and Android.</p>
+                </div>
+                <div class="hero-visual" aria-label="CourtsideView app screenshots">
+                    <img class="phone-shot phone-side" src="/assets/website-fanview-live.webp" alt="CourtsideView FanView live volleyball score page for family and fans" width="900" height="1957" loading="eager" decoding="async">
+                    <img class="phone-shot phone-main" src="/assets/website-scoreboard-command.webp" alt="CourtsideView volleyball match screen with live score, rotation, and last action" width="900" height="1957" loading="eager" decoding="async">
+                </div>
+            </section>
+
+            <section class="section section-cream">
+                <div class="container-wide">
+                    <div class="section-copy">
+                        <span class="kicker">Side by side</span>
+                        <h2>How CourtsideView compares.</h2>
+                        <p>Both apps can support real teams. The difference is focus: GameChanger serves many sports and team-management workflows, while CourtsideView is built around volleyball match day for the scorekeeper, parent, athlete, and fan.</p>
+                    </div>
+                    <div class="comparison-table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Match-day need</th>
+                                    <th>CourtsideView</th>
+                                    <th>GameChanger</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Volleyball-first scoring</strong></td>
+                                    <td>Built around sets, sideouts, rotations, rosters, and player stats.</td>
+                                    <td>Broad multi-sport platform with volleyball support.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Family follow-along</strong></td>
+                                    <td>FanView creates a shared live score link for family and fans.</td>
+                                    <td>Best fit when the team already uses the GameChanger ecosystem.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Scorekeeper speed</strong></td>
+                                    <td>Focused tap-to-score workflow for sideline and scorer-table use.</td>
+                                    <td>Part of a larger team app with broader setup and management surfaces.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Big scoreboard visibility</strong></td>
+                                    <td>Big mode helps benches, scorer tables, and far-baseline parents see the score.</td>
+                                    <td>Designed around the larger GameChanger app experience.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Player stat context</strong></td>
+                                    <td>Tracks match details such as assists, digs, serves, rotations, and net touches.</td>
+                                    <td>Strong broader stats and team-management ecosystem.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Who it is for</strong></td>
+                                    <td>Volleyball families, parents, coaches, scorekeepers, athletes, and fans.</td>
+                                    <td>Teams and organizations that want a broad multi-sport platform.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="comparison-note">This comparison is about product fit and match-day focus, not a complete inventory of every feature in either app. Re-check each product's current feature set and pricing before making purchase decisions.</p>
+                    <p class="trademark-note">GameChanger is a trademark of GameChanger Media, Inc., a member of the DICK'S Sporting Goods family of businesses. CourtsideView is independent and is not affiliated with, sponsored by, or endorsed by GameChanger Media, Inc. or DICK'S Sporting Goods, Inc. Third-party names are used only for fair, informational comparison.</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="container-wide">
+                    <div class="section-copy">
+                        <span class="kicker">Why families switch</span>
+                        <h2>Built from the sideline, for the sideline.</h2>
+                        <p>CourtsideView focuses on the real volleyball weekend: someone is keeping score, someone is asking about rotations, someone is trying to follow from home, and everyone wants the set score without hunting through a group chat.</p>
+                    </div>
+                    <div class="card-grid">
+                        <article class="card">
+                            <h3>Volleyball-first, not sport-agnostic</h3>
+                            <p>Every screen centers the volleyball flow: sets, sideouts, rotations, rosters, stats, and the score parents are asking for.</p>
+                        </article>
+                        <article class="card">
+                            <h3>FanView for the whole family</h3>
+                            <p>Send one live link so supporters can follow score and match context from a browser, even when they are not in the gym.</p>
+                        </article>
+                        <article class="card">
+                            <h3>Made for quick match-day use</h3>
+                            <p>Score the set, flip to big mode, track player context, and keep the match moving without making the app the main event.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-cream">
+                <div class="container-wide">
+                    <div class="section-copy">
+                        <span class="kicker">Match-day answers</span>
+                        <h2>GameChanger alternative questions</h2>
+                    </div>
+                    <div class="faq-grid">
+                        <article class="faq-card">
+                            <h3>Is CourtsideView a GameChanger alternative for volleyball?</h3>
+                            <p>Yes, if your priority is volleyball-specific scorekeeping, player stats, rotations, and simple family sharing. GameChanger may be a better fit for teams already standardized on its broader multi-sport tools.</p>
+                        </article>
+                        <article class="faq-card">
+                            <h3>Can family follow without installing CourtsideView?</h3>
+                            <p>Yes. FanView gives you a shared web link so family and fans can follow live volleyball scores and match context from a browser.</p>
+                        </article>
+                        <article class="faq-card">
+                            <h3>Does CourtsideView track volleyball stats coaches care about?</h3>
+                            <p>CourtsideView tracks match details such as assists, digs, serves, net touches, substitutions, rotations, and related player context.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="download-section">
+                <div class="container-wide download-box">
+                    <div>
+                        <h2>Download before the next first serve.</h2>
+                        <p>Try CourtsideView when you want volleyball scoring, stats, rotations, and FanView sharing built around the family match-day experience.</p>
+                    </div>
+                    <div class="store-badges" aria-label="Download CourtsideView">
+                        <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
+                            <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=app.courtsideview.android&amp;pli=1" aria-label="Get CourtsideView on Google Play">
+                            <img class="play-store-badge" src="/assets/get-it-on-google-play.svg" alt="Get it on Google Play" width="180" height="54">
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="container-wide footer-inner">
+                <p>&copy; 2026 CourtsideView. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="/">Home</a>
+                    <a href="/volleyball-scorekeeper">Scorekeeper App</a>
+                    <a href="/vs/gamechanger">Compare GameChanger</a>
+                    <a href="/download">Download</a>
+                    <a href="/support">Support</a>
+                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/sitemap.xml">Sitemap</a>
+                    <a href="mailto:teagan@courtsideviewapp.com">Contact</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

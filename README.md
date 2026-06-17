@@ -20,12 +20,28 @@ python3 -m http.server 8080
 ## File map
 ```
 index.html      Landing page
+volleyball-scorekeeper.html  SEO landing page for volleyball score keeper app queries
+vs-gamechanger.html  Comparison landing page served at /vs/gamechanger
+download.html   Smart app download page (served at /download)
 privacy.html    Privacy policy (served at /privacy)
-vercel.json     Clean URLs, security headers, /privacy.html → /privacy redirect
+support.html    Support page (served at /support)
+vercel.json     Clean URLs, security headers, and clean-route rewrites/redirects
 robots.txt      Allow-all + sitemap pointer
 sitemap.xml     Search-engine sitemap
-assets/         Logo SVGs, favicon, OG image
+assets/         Logo files, screenshots, favicon, OG image
+assets/New App Images for Website & Social/  Raw deployed-app screenshots for website/social use
 ```
+
+## Website screenshots
+The homepage and SEO landing pages use optimized WebP versions in `assets/` that were generated from the raw screenshots in `assets/New App Images for Website & Social/`.
+
+- `website-home-hub.webp` — app home/role hub
+- `website-scorekeeper-main.webp` and `website-scorekeeper-live.webp` — scorekeeper flow
+- `website-scoreboard-command.webp` — full-stats live match screen
+- `website-stats-rotation.webp` — stats and rotation tracking
+- `website-fanview-live.webp` and `website-share-fanview.webp` — FanView follow/share surfaces
+- `website-roster-hub.webp` — team/player hub
+- `website-big-scoreboard.webp` — landscape big scoreboard mode
 
 ## Waitlist
 The homepage inserts email addresses into `public.waitlist` in Supabase project `gnzhdhagvahylcjmyeeh` using the public publishable key. Apply the matching migration in `../supabase/migrations/20260514165000_create_waitlist.sql` before relying on the form in production.

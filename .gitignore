@@ -1,6 +1,7 @@
 .DS_Store
 .vercel
 node_modules
+output/
 *.log
 .env
 .env.local
