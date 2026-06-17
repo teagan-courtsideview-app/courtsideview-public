@@ -9,6 +9,12 @@
     { "source": "/p/(.*)", "destination": "/player.html" },
     { "source": "/t/(.*)", "destination": "/team.html" },
     { "source": "/c/(.*)", "destination": "/club.html" },
+    { "source": "/volleyball-apps", "destination": "/volleyball-apps.html" },
+    { "source": "/best-volleyball-scorekeeping-apps-2026", "destination": "/best-volleyball-scorekeeping-apps-2026.html" },
+    { "source": "/best-volleyball-stat-tracking-apps-2026", "destination": "/best-volleyball-stat-tracking-apps-2026.html" },
+    { "source": "/best-apps-for-volleyball-clubs", "destination": "/best-apps-for-volleyball-clubs.html" },
+    { "source": "/best-apps-for-volleyball-parents", "destination": "/best-apps-for-volleyball-parents.html" },
+    { "source": "/volleyball-app-comparison-study", "destination": "/volleyball-app-comparison-study.html" },
     { "source": "/vs/gamechanger", "destination": "/vs-gamechanger.html" },
     { "source": "/volleyball-scorekeeper", "destination": "/volleyball-scorekeeper.html" },
     { "source": "/download", "destination": "/download.html" },
@@ -38,6 +44,12 @@
     { "source": "/download.html", "destination": "/download", "permanent": true },
     { "source": "/vs-gamechanger.html", "destination": "/vs/gamechanger", "permanent": true },
     { "source": "/volleyball-scorekeeper.html", "destination": "/volleyball-scorekeeper", "permanent": true },
+    { "source": "/volleyball-apps.html", "destination": "/volleyball-apps", "permanent": true },
+    { "source": "/best-volleyball-scorekeeping-apps-2026.html", "destination": "/best-volleyball-scorekeeping-apps-2026", "permanent": true },
+    { "source": "/best-volleyball-stat-tracking-apps-2026.html", "destination": "/best-volleyball-stat-tracking-apps-2026", "permanent": true },
+    { "source": "/best-apps-for-volleyball-clubs.html", "destination": "/best-apps-for-volleyball-clubs", "permanent": true },
+    { "source": "/best-apps-for-volleyball-parents.html", "destination": "/best-apps-for-volleyball-parents", "permanent": true },
+    { "source": "/volleyball-app-comparison-study.html", "destination": "/volleyball-app-comparison-study", "permanent": true },
     { "source": "/index.html", "destination": "/", "permanent": true }
   ]
 }

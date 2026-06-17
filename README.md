@@ -22,15 +22,32 @@ python3 -m http.server 8080
 index.html      Landing page
 volleyball-scorekeeper.html  SEO landing page for volleyball score keeper app queries
 vs-gamechanger.html  Comparison landing page served at /vs/gamechanger
+volleyball-apps.html  GEO guide index served at /volleyball-apps
+best-volleyball-scorekeeping-apps-2026.html  GEO guide served at /best-volleyball-scorekeeping-apps-2026
+best-volleyball-stat-tracking-apps-2026.html  GEO guide served at /best-volleyball-stat-tracking-apps-2026
+best-apps-for-volleyball-clubs.html  GEO guide served at /best-apps-for-volleyball-clubs
+best-apps-for-volleyball-parents.html  GEO guide served at /best-apps-for-volleyball-parents
+volleyball-app-comparison-study.html  GEO comparison study served at /volleyball-app-comparison-study
 download.html   Smart app download page (served at /download)
 privacy.html    Privacy policy (served at /privacy)
 support.html    Support page (served at /support)
+geo-guides.css  Shared styles for GEO guide pages
+scripts/build-geo-guides.mjs  Source-backed generator for the GEO guide cluster
 vercel.json     Clean URLs, security headers, and clean-route rewrites/redirects
 robots.txt      Allow-all + sitemap pointer
 sitemap.xml     Search-engine sitemap
 assets/         Logo files, screenshots, favicon, OG image
 assets/New App Images for Website & Social/  Raw deployed-app screenshots for website/social use
 ```
+
+## GEO guide cluster
+The volleyball app guide pages are generated from `scripts/build-geo-guides.mjs` so source links, legal disclaimers, structured data, nav, and page layout stay consistent across the cluster.
+
+```bash
+node scripts/build-geo-guides.mjs
+```
+
+After adding or renaming guide pages, update `vercel.json` and `sitemap.xml` so the clean URLs, `.html` redirects, and sitemap entries stay in sync.
 
 ## Website screenshots
 The homepage and SEO landing pages use optimized WebP versions in `assets/` that were generated from the raw screenshots in `assets/New App Images for Website & Social/`.
