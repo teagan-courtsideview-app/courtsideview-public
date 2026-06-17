@@ -35,13 +35,13 @@ assets/New App Images for Website & Social/  Raw deployed-app screenshots for we
 ## Website screenshots
 The homepage and SEO landing pages use optimized WebP versions in `assets/` that were generated from the raw screenshots in `assets/New App Images for Website & Social/`.
 
-- `website-home-hub.webp` — app home/role hub
-- `website-scorekeeper-main.webp` and `website-scorekeeper-live.webp` — scorekeeper flow
-- `website-scoreboard-command.webp` — full-stats live match screen
-- `website-stats-rotation.webp` — stats and rotation tracking
-- `website-fanview-live.webp` and `website-share-fanview.webp` — FanView follow/share surfaces
-- `website-roster-hub.webp` — team/player hub
-- `website-big-scoreboard.webp` — landscape big scoreboard mode
+- `website-20260617-home-hub.webp` — app home/role hub
+- `website-20260617-scorekeeper-main.webp` and `website-20260617-scorekeeper-live.webp` — scorekeeper flow
+- `website-20260617-scoreboard-command.webp` — full-stats live match screen
+- `website-20260617-stats-rotation.webp` — stats and rotation tracking
+- `website-20260617-fanview-live.webp` and `website-20260617-share-fanview.webp` — FanView follow/share surfaces
+- `website-20260617-roster-hub.webp` — team/player hub
+- `website-20260617-big-scoreboard.webp` — landscape big scoreboard mode
 
 ## Waitlist
 The homepage inserts email addresses into `public.waitlist` in Supabase project `gnzhdhagvahylcjmyeeh` using the public publishable key. Apply the matching migration in `../supabase/migrations/20260514165000_create_waitlist.sql` before relying on the form in production.
