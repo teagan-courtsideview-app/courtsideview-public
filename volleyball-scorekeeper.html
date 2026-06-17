@@ -28,8 +28,9 @@
             --cv-panel: #0d1621;
             --cv-ink: #ffffff;
             --cv-muted: #aeb7c2;
-            --cv-green: #18d86f;
-            --cv-green-dark: #0f9950;
+            --cv-green: #20A66B;
+            --cv-green-rgb: 32, 166, 107;
+            --cv-green-dark: var(--cv-green);
             --cv-pink: #ff3b8a;
             --cv-blue: #2f80ed;
             --cv-yellow: #f5c542;
@@ -83,7 +84,7 @@
             gap: 1.1rem;
             color: #a8b0ba;
             font-size: 0.86rem;
-            font-weight: 800;
+            font-weight: 600;
         }
         .nav-links a { text-decoration: none; transition: color 160ms ease; }
         .nav-links a:hover { color: #fff; }
@@ -97,10 +98,10 @@
         .eyebrow {
             display: inline-flex;
             align-items: center;
-            border: 1px solid rgba(24, 216, 111, 0.34);
+            border: 1px solid rgba(var(--cv-green-rgb), 0.34);
             border-radius: 999px;
-            background: rgba(24, 216, 111, 0.1);
-            color: #6df69b;
+            background: rgba(var(--cv-green-rgb), 0.1);
+            color: var(--cv-green);
             padding: 0.48rem 0.85rem;
             font-size: 0.76rem;
             line-height: 1;
@@ -126,7 +127,7 @@
             font-size: 3.4rem;
             line-height: 1;
         }
-        .text-green { color: #5bd16b; }
+        .text-green { color: var(--cv-green); }
         .hero-copy {
             margin: 1.25rem 0 0;
             max-width: 42rem;
@@ -365,6 +366,10 @@
                 font-size: 0.78rem;
                 line-height: 1.25;
             }
+            .top-banner-inner span {
+                display: block;
+                width: 100%;
+            }
             .nav { padding: 1.15rem 0 0.6rem; }
             .brand-logo { width: 3rem; height: 3rem; }
             .hero {
@@ -494,7 +499,7 @@
     <div class="page-shell">
         <div class="top-banner">
             <div class="container-wide top-banner-inner">
-                <span>CourtsideView is live on the App Store and Google Play.</span>
+                <span>CourtsideView is live now.</span>
                 <a href="/download" aria-label="Download CourtsideView for your device">Download now</a>
             </div>
         </div>

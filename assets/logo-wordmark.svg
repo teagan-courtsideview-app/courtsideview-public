@@ -2,7 +2,7 @@
   <style>
     .cs { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; font-size: 168px; letter-spacing: -4px; }
     .courtside { fill: #FFFFFF; }
-    .view { fill: #2ECC71; font-style: italic; }
+    .view { fill: #20A66B; font-style: italic; }
   </style>
   <text x="20" y="170" class="cs courtside">Courtside</text>
   <text x="650" y="170" class="cs view">View</text>

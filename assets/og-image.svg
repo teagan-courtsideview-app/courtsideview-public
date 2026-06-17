@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
   <defs>
     <radialGradient id="g1" cx="80%" cy="20%" r="60%">
-      <stop offset="0%" stop-color="#2ECC71" stop-opacity="0.25"/>
+      <stop offset="0%" stop-color="#20A66B" stop-opacity="0.25"/>
       <stop offset="100%" stop-color="#0a0e14" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="g2" cx="10%" cy="90%" r="60%">
-      <stop offset="0%" stop-color="#2ECC71" stop-opacity="0.10"/>
+      <stop offset="0%" stop-color="#20A66B" stop-opacity="0.10"/>
       <stop offset="100%" stop-color="#0a0e14" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="ogVbHi" cx="38%" cy="32%" r="60%">
-      <stop offset="0%" stop-color="#6FE39A" stop-opacity="0.55"/>
-      <stop offset="60%" stop-color="#2ECC71" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="60%" stop-color="#20A66B" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect width="1200" height="630" fill="#0a0e14"/>
@@ -21,9 +21,9 @@
   <g transform="translate(220 220)">
     <!-- volleyball -->
     <g transform="translate(0 -10) scale(2.6)">
-      <circle cx="32" cy="32" r="28" fill="#2ECC71" stroke="#0F6B3A" stroke-width="2.5"/>
+      <circle cx="32" cy="32" r="28" fill="#20A66B" stroke="#0a0e14" stroke-width="2.5"/>
       <circle cx="32" cy="32" r="28" fill="url(#ogVbHi)"/>
-      <g fill="none" stroke="#0F6B3A" stroke-width="2.2" stroke-linecap="round">
+      <g fill="none" stroke="#0a0e14" stroke-width="2.2" stroke-linecap="round">
         <path d="M 32 4 C 22 18, 22 46, 32 60"/>
         <path d="M 32 4 C 42 18, 42 46, 32 60"/>
         <path d="M 4 32 C 18 22, 46 22, 60 32"/>
@@ -31,10 +31,10 @@
       </g>
     </g>
     <!-- wordmark -->
-    <text x="200" y="130" font-family="Inter, -apple-system, sans-serif" font-weight="800" font-size="120" letter-spacing="-3" fill="#FFFFFF">Courtside<tspan fill="#2ECC71" font-style="italic">View</tspan></text>
+    <text x="200" y="130" font-family="Inter, -apple-system, sans-serif" font-weight="800" font-size="120" letter-spacing="-3" fill="#FFFFFF">Courtside<tspan fill="#20A66B" font-style="italic">View</tspan></text>
   </g>
 
   <text x="600" y="430" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="36" fill="#9CA3AF" font-weight="600" letter-spacing="-1">Real-time scores &amp; stats. Real proud parents.</text>
-  <rect x="510" y="480" width="180" height="48" rx="24" fill="rgba(46,204,113,0.12)" stroke="#2ECC71" stroke-opacity="0.4"/>
-  <text x="600" y="511" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" fill="#2ECC71" font-weight="700" letter-spacing="3">MADE BY VB FOR VB</text>
+  <rect x="510" y="480" width="180" height="48" rx="24" fill="rgba(32,166,107,0.12)" stroke="#20A66B" stroke-opacity="0.4"/>
+  <text x="600" y="511" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" fill="#20A66B" font-weight="700" letter-spacing="3">MADE BY VB FOR VB</text>
 </svg>

@@ -11,7 +11,7 @@
     <style>
       :root {
         --bg: #f6f7f2; --card: #fff; --ink: #11141a; --muted: #68707c;
-        --dim: #9aa3ad; --border: #e1e4de; --green: #10884c;
+        --dim: #9aa3ad; --border: #e1e4de; --green: #20A66B;
         --gold: #d79a1e; --pink: #f84a92;
         --font-sans: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         --font-display: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -236,7 +236,7 @@
       }
       function render(row) {
         const stats = safeStats(row);
-        const teamColor = /^#[0-9a-f]{6}$/i.test(row.team_color || '') ? row.team_color : '#10884C';
+        const teamColor = /^#[0-9a-f]{6}$/i.test(row.team_color || '') ? row.team_color : '#20A66B';
         document.documentElement.style.setProperty('--team', teamColor);
         document.title = `${row.display_name} · CourtsideView`;
         $('season').textContent = row.season || 'Season Stats';

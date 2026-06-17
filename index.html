@@ -30,8 +30,9 @@
         :root {
             --cv-bg: #070b10;
             --cv-navy: #07111f;
-            --cv-green: #18d86f;
-            --cv-green-soft: #b6f23a;
+            --cv-green: #20A66B;
+            --cv-green-soft: var(--cv-green);
+            --cv-green-rgb: 32, 166, 107;
             --cv-pink: #ff3b8a;
             --cv-blue: #2f80ed;
             --cv-cream: #f3f4ee;
@@ -48,11 +49,12 @@
             color: #fff;
             overflow-x: hidden;
         }
+        ::selection { background: rgba(var(--cv-green-rgb), 0.35); color: #fff; }
         a { color: inherit; }
         .page-shell {
             min-height: 100vh;
             background:
-                radial-gradient(circle at 82% 8%, rgba(24, 216, 111, 0.18), transparent 34rem),
+                radial-gradient(circle at 82% 8%, rgba(var(--cv-green-rgb), 0.18), transparent 34rem),
                 radial-gradient(circle at 6% 42%, rgba(47, 128, 237, 0.08), transparent 28rem),
                 linear-gradient(180deg, #070b10 0%, #07110f 45%, #070b10 100%);
         }
@@ -94,7 +96,7 @@
             gap: 1.35rem;
             color: #b4beca;
             font-size: 0.86rem;
-            font-weight: 800;
+            font-weight: 600;
         }
         .nav-links a { transition: color 160ms ease; }
         .nav-links a:hover { color: #fff; }
@@ -109,10 +111,10 @@
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            border: 1px solid rgba(24, 216, 111, 0.34);
+            border: 1px solid rgba(var(--cv-green-rgb), 0.34);
             border-radius: 999px;
-            background: rgba(24, 216, 111, 0.1);
-            color: #6df69b;
+            background: rgba(var(--cv-green-rgb), 0.1);
+            color: var(--cv-green);
             padding: 0.48rem 0.85rem;
             font-size: 0.76rem;
             line-height: 1;
@@ -132,7 +134,7 @@
         }
         .hero-title-line { display: block; }
         .text-green {
-            color: #78e987;
+            color: var(--cv-green);
             font-weight: inherit;
         }
         .hero-copy {
@@ -240,8 +242,8 @@
             font-size: 0.88rem;
         }
         .signup-form input:focus {
-            border-color: rgba(24, 216, 111, 0.7);
-            box-shadow: 0 0 0 3px rgba(24, 216, 111, 0.14);
+            border-color: rgba(var(--cv-green-rgb), 0.7);
+            box-shadow: 0 0 0 3px rgba(var(--cv-green-rgb), 0.14);
         }
         .notify-button {
             border: 0;
@@ -264,7 +266,7 @@
             line-height: 1.35;
             font-weight: 700;
         }
-        .signup-status.success { color: #6df69b; }
+        .signup-status.success { color: var(--cv-green); }
         .signup-status.error { color: #ff8da8; }
         .privacy-note {
             margin-top: 0.35rem;
@@ -273,7 +275,7 @@
             line-height: 1.35;
             font-weight: 700;
         }
-        .privacy-note a { color: #62df8d; }
+        .privacy-note a { color: var(--cv-green); }
         .hero-visual {
             position: relative;
             min-height: clamp(36rem, 60vw, 50rem);
@@ -283,7 +285,7 @@
             content: "";
             position: absolute;
             inset: 9% 4% 1% 2%;
-            background: radial-gradient(circle, rgba(24, 216, 111, 0.34), transparent 62%);
+            background: radial-gradient(circle, rgba(var(--cv-green-rgb), 0.34), transparent 62%);
             filter: blur(52px);
             z-index: -1;
         }
@@ -340,7 +342,7 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
         }
-        .section-cream .section-copy .kicker { color: #0f9950; }
+        .section-cream .section-copy .kicker { color: var(--cv-green); }
         .section-copy h2 {
             margin: 0;
             max-width: 42rem;
@@ -371,18 +373,18 @@
         .pull-quote {
             margin-top: 1.3rem;
             display: inline-flex;
-            border: 1px solid rgba(24, 216, 111, 0.28);
+            border: 1px solid rgba(var(--cv-green-rgb), 0.28);
             border-radius: 999px;
             padding: 0.55rem 0.85rem;
-            color: #86f4a8;
-            background: rgba(24, 216, 111, 0.08);
+            color: var(--cv-green);
+            background: rgba(var(--cv-green-rgb), 0.08);
             font-size: 0.88rem;
             line-height: 1.2;
             font-weight: 900;
         }
         .section-cream .pull-quote {
-            background: rgba(24, 216, 111, 0.12);
-            color: #0b7c42;
+            background: rgba(var(--cv-green-rgb), 0.12);
+            color: var(--cv-green);
         }
         .feature-image-wrap {
             position: relative;
@@ -396,7 +398,7 @@
             position: absolute;
             inset: 14% 8%;
             border-radius: 999px;
-            background: rgba(24, 216, 111, 0.18);
+            background: rgba(var(--cv-green-rgb), 0.18);
             filter: blur(42px);
             z-index: 0;
         }
@@ -424,7 +426,7 @@
         .download-section {
             padding: clamp(4rem, 8vw, 6.5rem) 0;
             background:
-                radial-gradient(circle at 50% 20%, rgba(24, 216, 111, 0.18), transparent 32rem),
+                radial-gradient(circle at 50% 20%, rgba(var(--cv-green-rgb), 0.18), transparent 32rem),
                 #070b10;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -538,6 +540,10 @@
                 padding: 0.7rem 0;
                 font-size: 0.78rem;
                 line-height: 1.25;
+            }
+            .top-banner-inner span {
+                display: block;
+                width: 100%;
             }
             .nav { padding: 1.15rem 0 0.6rem; }
             .brand-logo { width: 3rem; height: 3rem; }
@@ -750,11 +756,11 @@
         }
     </script>
 </head>
-<body class="selection:bg-green-500 selection:text-black">
+<body>
     <div class="page-shell">
         <div class="top-banner">
             <div class="container-wide top-banner-inner">
-                <span>CourtsideView is live on the App Store and Google Play.</span>
+                <span>CourtsideView is live now.</span>
                 <a href="/download" aria-label="Download CourtsideView for your device">Download now</a>
             </div>
         </div>

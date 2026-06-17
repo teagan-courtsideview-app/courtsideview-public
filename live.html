@@ -21,7 +21,8 @@
         --ink: #f8fafc;
         --muted: #aab3c0;
         --dim: #707b89;
-        --green: #22c55e;
+        --green: #20A66B;
+        --green-rgb: 32,166,107;
         --pink: #ff4f93;
         --pink-dark: #e83f82;
         --red: #ef4444;
@@ -128,10 +129,10 @@
       .record-copy small { color: var(--dim); font-size: 11px; line-height: 1.3; font-weight: 800; }
       .record-panel.is-warning .record-copy small { color: #fbbf24; }
       .download-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
-        gap: 10px; padding: 12px 14px; border-radius: 20px; background: rgba(34,197,94,0.11);
-        border: 1px solid rgba(34,197,94,0.28); color: #d9fbe6; }
+        gap: 10px; padding: 12px 14px; border-radius: 20px; background: rgba(var(--green-rgb),0.11);
+        border: 1px solid rgba(var(--green-rgb),0.28); color: #e8eef4; }
       .download-panel strong { display: block; color: #fff; font-size: 13px; line-height: 1.15; font-weight: 950; }
-      .download-panel span { display: block; color: rgba(217,251,230,0.82); font-size: 12px; line-height: 1.28; font-weight: 740; margin-top: 2px; }
+      .download-panel span { display: block; color: rgba(232,238,244,0.82); font-size: 12px; line-height: 1.28; font-weight: 740; margin-top: 2px; }
       .download-button { appearance: none; border-radius: 999px; padding: 10px 12px;
         color: #0b1017; background: #fff; border: 0; font-size: 12px; font-weight: 950;
         text-decoration: none; white-space: nowrap; }
@@ -142,12 +143,12 @@
       .viewer-count strong { color: var(--ink); }
       .viewer-chip .viewer-count strong { color: #0b1017; }
       .handoff-panel { display: none; margin-top: 12px; padding: 13px 14px;
-        border-radius: 20px; background: rgba(34,197,94,0.11);
-        border: 1px solid rgba(34,197,94,0.28); color: #d9fbe6;
+        border-radius: 20px; background: rgba(var(--green-rgb),0.11);
+        border: 1px solid rgba(var(--green-rgb),0.28); color: #e8eef4;
         box-shadow: 0 14px 34px rgba(0,0,0,0.20); }
       .handoff-panel.on { display: grid; gap: 4px; }
       .handoff-title { color: #fff; font-size: 14px; line-height: 1.12; font-weight: 950; }
-      .handoff-copy { color: rgba(217,251,230,0.84); font-size: 12px; line-height: 1.32; font-weight: 760; }
+      .handoff-copy { color: rgba(232,238,244,0.84); font-size: 12px; line-height: 1.32; font-weight: 760; }
       .join-toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom));
         transform: translate(-50%, 18px); z-index: 20; opacity: 0; pointer-events: none;
         background: rgba(23,30,39,0.94); color: var(--ink); border: 1px solid var(--border);
@@ -186,7 +187,7 @@
         left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
         bottom: calc(max(16px, env(safe-area-inset-bottom)) + 246px);
         width: auto; max-width: 520px; margin: 0 auto; background: rgba(8,13,21,0.78);
-        border-color: rgba(34,197,94,0.34); backdrop-filter: blur(18px); }
+        border-color: rgba(var(--green-rgb),0.34); backdrop-filter: blur(18px); }
       body.camera-mode .handoff-panel.on { display: none; }
       body.camera-mode .status { position: fixed; z-index: 9; left: 50%; right: auto;
         top: max(46px, calc(env(safe-area-inset-top) + 46px)); bottom: auto; width: max-content;
