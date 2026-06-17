@@ -554,7 +554,7 @@ function renderPage(page) {
         <header class="container-wide">
             <nav class="nav" aria-label="Main navigation">
                 <a href="/" class="wordmark" aria-label="CourtsideView home">
-                    <img class="brand-logo" src="/assets/courtsideview-app-icon.png" alt="CourtsideView CV app logo" width="1024" height="1024">
+                    <img class="brand-logo" src="/assets/courtsideview-app-icon-mark.png" alt="CourtsideView CV app logo" width="850" height="626">
                 </a>
                 ${renderNav()}
             </nav>
