@@ -122,19 +122,24 @@
         }
         .hero h1 {
             margin: 0;
-            max-width: 46rem;
-            font-size: 6.2rem;
-            line-height: 0.92;
+            max-width: 39rem;
+            font-size: clamp(2.5rem, 4.05vw, 3.45rem);
+            line-height: 1.16;
             font-family: var(--font-display);
-            font-weight: 900;
+            font-weight: 700;
             letter-spacing: 0;
+            text-wrap: balance;
         }
-        .text-green { color: #5bd16b; }
+        .hero-title-line { display: block; }
+        .text-green {
+            color: #78e987;
+            font-weight: inherit;
+        }
         .hero-copy {
-            margin-top: 1.25rem;
-            max-width: 40rem;
-            color: #c3ccd6;
-            font-size: 1.24rem;
+            margin-top: 1.15rem;
+            max-width: 37rem;
+            color: #cbd5df;
+            font-size: clamp(1.02rem, 1.4vw, 1.18rem);
             line-height: 1.55;
             font-weight: 600;
         }
@@ -167,31 +172,34 @@
         .hero-tools {
             margin-top: 1.45rem;
             display: grid;
-            grid-template-columns: minmax(0, 15.5rem) minmax(0, 1fr);
-            gap: 1rem;
+            grid-template-columns: minmax(0, 12.75rem) minmax(0, 1fr);
+            gap: 0.9rem;
             align-items: stretch;
-            max-width: 40rem;
+            max-width: 42.5rem;
         }
         .qr-card,
         .signup-card {
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(255, 255, 255, 0.045);
             border-radius: 1.35rem;
-            padding: 1rem;
+            padding: 1.05rem;
             box-shadow: 0 24px 50px rgba(0, 0, 0, 0.2);
         }
         .qr-card {
-            display: grid;
-            grid-template-columns: 6.4rem minmax(0, 1fr);
-            gap: 0.85rem;
-            align-items: center;
+            display: flex;
+            min-height: 13.5rem;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.95rem;
+            align-items: flex-start;
         }
         .qr-card img {
-            width: 6.4rem;
+            width: 7rem;
             aspect-ratio: 1;
             border-radius: 0.75rem;
             background: #f8fafc;
         }
+        .signup-card { min-width: 0; }
         .qr-card strong,
         .signup-card strong {
             display: block;
@@ -211,23 +219,25 @@
         .signup-form {
             margin-top: 0.75rem;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: 0.55rem;
+            grid-template-columns: 1fr;
+            gap: 0.65rem;
         }
         .signup-form input {
+            width: 100%;
             min-width: 0;
+            min-height: 3.05rem;
             border: 1px solid rgba(255, 255, 255, 0.13);
             border-radius: 0.85rem;
             background: rgba(255, 255, 255, 0.09);
             color: #fff;
             padding: 0.8rem 0.9rem;
             outline: none;
-            font-size: 0.82rem;
+            font-size: 0.9rem;
             font-weight: 800;
         }
         .signup-form input::placeholder {
             color: #858e9d;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
         }
         .signup-form input:focus {
             border-color: rgba(24, 216, 111, 0.7);
@@ -242,6 +252,8 @@
             font-weight: 900;
             cursor: pointer;
             white-space: nowrap;
+            min-height: 3.05rem;
+            width: 100%;
         }
         .notify-button:disabled { opacity: 0.7; cursor: not-allowed; }
         .signup-status {
@@ -450,7 +462,6 @@
         }
         .final-actions .qr-card {
             width: 17rem;
-            grid-template-columns: 6rem minmax(0, 1fr);
         }
         .faq-grid {
             display: grid;
@@ -544,8 +555,8 @@
                 letter-spacing: 0.04em;
             }
             .hero h1 {
-                font-size: 3.35rem;
-                line-height: 0.95;
+                font-size: clamp(2.2rem, 10.5vw, 2.75rem);
+                line-height: 1.08;
                 max-width: 22rem;
             }
             .hero-copy {
@@ -631,13 +642,12 @@
                 align-items: flex-start;
             }
             .final-actions .qr-card {
-                display: grid;
+                display: flex;
                 width: min(100%, 20rem);
-                grid-template-columns: 5.5rem minmax(0, 1fr);
-                gap: 0.75rem;
+                gap: 0.8rem;
             }
             .final-actions .qr-card img {
-                width: 5.5rem;
+                width: 6.25rem;
             }
             .footer-inner { flex-direction: column; text-align: center; }
         }
@@ -771,8 +781,8 @@
         <main>
             <section class="container-wide hero" aria-labelledby="hero-title">
                 <div>
-                    <h1 id="hero-title">Volleyball Match Day, <span class="text-green">Finally in One App</span></h1>
-                    <p class="hero-copy">CourtsideView turns your phone into a match-day command center for scores, rotations, player stats, and live FanView updates. Built by volleyball families, for volleyball families.</p>
+                    <h1 id="hero-title"><span class="hero-title-line">Volleyball match day,</span><span class="hero-title-line text-green">finally in one app.</span></h1>
+                    <p class="hero-copy">Score the match, track rotations and player stats, and share live FanView updates from one easy place. Built by volleyball families, for volleyball families.</p>
                     <div class="cta-row">
                         <div class="store-badges" aria-label="Download CourtsideView">
                             <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
@@ -788,8 +798,8 @@
                         <div class="qr-card" aria-label="QR code to download CourtsideView">
                             <img src="/assets/smart-download-qr.png" alt="QR code linking to the CourtsideView smart download page" width="768" height="768">
                             <div>
-                                <strong>Scan to download before first serve.</strong>
-                                <span>Opens the App Store or Google Play for your device.</span>
+                                <strong>Scan before first serve.</strong>
+                                <span>Opens the right app store for your device.</span>
                             </div>
                         </div>
                         <div class="signup-card" id="android">
