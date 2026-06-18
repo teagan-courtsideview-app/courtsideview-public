@@ -24,7 +24,6 @@
     <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png">
     <link rel="canonical" href="https://www.courtsideviewapp.com/">
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -91,16 +90,93 @@
             justify-content: space-between;
             gap: 1.25rem;
         }
-        .nav-links {
+.nav-links {
             display: flex;
             align-items: center;
-            gap: 1.35rem;
+            gap: 1.2rem;
             color: #b4beca;
             font-size: 0.86rem;
             font-weight: 600;
         }
-        .nav-links a { transition: color 160ms ease; }
-        .nav-links a:hover { color: #fff; }
+        .nav-links > a,
+        .nav-dropdown summary {
+            text-decoration: none;
+            transition: color 160ms ease;
+        }
+        .nav-links > a:hover,
+        .nav-dropdown summary:hover { color: #fff; }
+        .nav-dropdown { position: relative; }
+        .nav-dropdown summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: inherit;
+            cursor: pointer;
+            list-style: none;
+        }
+        .nav-dropdown summary::-webkit-details-marker { display: none; }
+        .nav-dropdown summary::after {
+            content: "";
+            width: 0.42rem;
+            height: 0.42rem;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: translateY(-0.12rem) rotate(45deg);
+            opacity: 0.82;
+        }
+        .nav-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.85rem);
+            right: 0;
+            z-index: 20;
+            width: min(24rem, calc(100vw - 2rem));
+            display: grid;
+            gap: 0.2rem;
+            padding: 0.65rem;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 0.95rem;
+            background: rgba(9, 16, 24, 0.98);
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-0.35rem);
+            transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+        }
+        .nav-dropdown[open] .nav-dropdown-menu,
+        .nav-dropdown:hover .nav-dropdown-menu,
+        .nav-dropdown:focus-within .nav-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .nav-dropdown-menu a {
+            display: block;
+            padding: 0.68rem 0.72rem;
+            border-radius: 0.65rem;
+            color: #c8d0da;
+            text-decoration: none;
+        }
+        .nav-dropdown-menu a:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        .nav-dropdown-menu strong {
+            display: block;
+            color: #fff;
+            font-size: 0.84rem;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+        .nav-dropdown-menu span {
+            display: block;
+            margin-top: 0.2rem;
+            color: #8f9aa8;
+            font-size: 0.73rem;
+            line-height: 1.25;
+            font-weight: 600;
+        }
         .hero {
             display: grid;
             grid-template-columns: minmax(0, 0.95fr) minmax(24rem, 1.05fr);
@@ -855,14 +931,19 @@
                 <div class="nav-links">
                     <a href="/volleyball-apps">Guides</a>
                     <a href="/courtsideview-app">CourtsideView App</a>
-                    <a href="#scoring">Scoring</a>
-                    <a href="/volleyball-score-keeper">Scorekeeper App</a>
-                    <a href="/vs/gamechanger">Compare</a>
-                    <a href="#stats">Stats</a>
-                    <a href="#fanview">FanView</a>
-                    <a href="#download">Download</a>
-                    <a href="/support">Support</a>
-                    <a href="/privacy">Privacy</a>
+                    <details class="nav-dropdown">
+                        <summary>Compare</summary>
+                        <div class="nav-dropdown-menu">
+                            <a href="/vs/gamechanger"><strong>CourtsideView vs GameChanger</strong><span>Family-first volleyball scoring comparison.</span></a>
+                            <a href="/volleyball-apps"><strong>Volleyball App Guide</strong><span>Index for scoring, stats, clubs, and parents.</span></a>
+                            <a href="/best-volleyball-scorekeeping-apps-2026"><strong>Scorekeeping Apps 2026</strong><span>Compare volleyball scoring and scorebook tools.</span></a>
+                            <a href="/best-volleyball-stat-tracking-apps-2026"><strong>Stat Tracking Apps 2026</strong><span>Compare volleyball stats and player context tools.</span></a>
+                            <a href="/best-apps-for-volleyball-clubs"><strong>Apps for Clubs</strong><span>Club software, scheduling, scoring, and operations.</span></a>
+                            <a href="/best-apps-for-volleyball-parents"><strong>Apps for Parents</strong><span>Live scores, schedules, streaming, and family follow-along.</span></a>
+                            <a href="/volleyball-app-comparison-study"><strong>Comparison Study</strong><span>Use-case study across the volleyball app category.</span></a>
+                        </div>
+                    </details>
+                    <a href="/download">Download</a>
                 </div>
             </nav>
         </header>
@@ -1070,8 +1151,10 @@
                 <div class="footer-links">
                     <a href="/courtsideview-app">CourtsideView App</a>
                     <a href="/volleyball-apps">Guides</a>
-                    <a href="/volleyball-score-keeper">Scorekeeper App</a>
+                    <a href="#scoring">Scoring</a>
+                    <a href="/volleyball-score-keeper">Scorekeeper</a>
                     <a href="/volleyball-player-stats">Player Stats</a>
+                    <a href="#fanview">FanView</a>
                     <a href="/vs/gamechanger">Compare</a>
                     <a href="/download">Download</a>
                     <a href="/support">Support</a>
