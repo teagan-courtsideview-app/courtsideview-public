@@ -51,6 +51,10 @@
         }
         ::selection { background: rgba(var(--cv-green-rgb), 0.35); color: #fff; }
         a { color: inherit; }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
         .page-shell {
             min-height: 100vh;
             background:
@@ -273,8 +277,10 @@
             align-items: flex-start;
         }
         .qr-card img {
+            display: block;
             width: 7rem;
-            aspect-ratio: 1;
+            height: 7rem;
+            object-fit: contain;
             border-radius: 0.75rem;
             background: #f8fafc;
         }
@@ -757,6 +763,7 @@
             }
             .final-actions .qr-card img {
                 width: 6.25rem;
+                height: 6.25rem;
             }
             .footer-inner { flex-direction: column; text-align: center; }
             .footer-links {
