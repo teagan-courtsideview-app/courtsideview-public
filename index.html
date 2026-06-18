@@ -36,7 +36,6 @@
             --cv-pink: #ff3b8a;
             --cv-blue: #2f80ed;
             --cv-cream: #f3f4ee;
-            --cv-yellow: #f5c542;
             --font-display: "Avenir Next Condensed", "AvenirNextCondensed-Heavy", "Avenir Next", "Arial Narrow", "Roboto Condensed", sans-serif;
             --font-body: "Avenir Next", Avenir, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
@@ -248,14 +247,15 @@
         .notify-button {
             border: 0;
             border-radius: 0.85rem;
-            background: var(--cv-yellow);
-            color: #07110f;
+            background: var(--cv-green);
+            color: #fff;
             padding: 0.8rem 1rem;
             font-weight: 900;
             cursor: pointer;
             white-space: nowrap;
             min-height: 3.05rem;
             width: 100%;
+            box-shadow: 0 12px 28px rgba(var(--cv-green-rgb), 0.24);
         }
         .notify-button:disabled { opacity: 0.7; cursor: not-allowed; }
         .signup-status {
