@@ -1,12 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0a0e14"/>
-  <g transform="translate(8 8) scale(0.75)">
-    <circle cx="32" cy="32" r="28" fill="#20A66B" stroke="#0a0e14" stroke-width="2.5"/>
-    <g fill="none" stroke="#0a0e14" stroke-width="2.2" stroke-linecap="round">
-      <path d="M 32 4 C 22 18, 22 46, 32 60"/>
-      <path d="M 32 4 C 42 18, 42 46, 32 60"/>
-      <path d="M 4 32 C 18 22, 46 22, 60 32"/>
-      <path d="M 4 32 C 18 42, 46 42, 60 32"/>
-    </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CourtsideView CV logo">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M38.5 12.5A22 22 0 1 0 38 51.8" stroke="#20A66B" stroke-width="11"/>
+    <circle cx="29" cy="32" r="11.8" fill="#f4f6f8" stroke="#111820" stroke-width="1.8"/>
+    <path d="M25.4 20.8c3.5 4 4.5 18.2-.3 22.4M32.6 20.8c-3.5 4-4.5 18.2.3 22.4M18.8 32c4.2-3.1 16.2-3.1 20.4 0M18.8 32c4.2 3.1 16.2 3.1 20.4 0" stroke="#111820" stroke-width="1.4"/>
+    <path d="M42.2 22.4 52.6 51.5 62 22.4" stroke="#20A66B" stroke-width="11"/>
   </g>
 </svg>

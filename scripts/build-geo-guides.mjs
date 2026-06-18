@@ -443,16 +443,16 @@ function renderFooter() {
   return `
         <footer class="footer">
             <div class="container-wide footer-inner">
-                <p>&copy; 2026 CourtsideView. All rights reserved.</p>
+                <p>&copy; 2026 CourtsideView</p>
                 <div class="footer-links">
-                    <a href="/">Home</a>
+                    <a href="/courtsideview-app">CourtsideView App</a>
                     <a href="/volleyball-apps">Guides</a>
                     <a href="/volleyball-score-keeper">Scorekeeper App</a>
                     <a href="/volleyball-player-stats">Player Stats</a>
-                    <a href="/vs/gamechanger">Compare GameChanger</a>
+                    <a href="/vs/gamechanger">Compare</a>
                     <a href="/download">Download</a>
                     <a href="/support">Support</a>
-                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/privacy">Privacy</a>
                     <a href="/sitemap.xml">Sitemap</a>
                     <a href="mailto:teagan@courtsideviewapp.com">Contact</a>
                 </div>
@@ -534,7 +534,9 @@ function renderPage(page) {
     <meta name="twitter:description" content="${esc(page.ogDescription)}">
     <meta name="twitter:image" content="${site}/assets/og-image-20260617.png">
 
-    <link rel="icon" type="image/png" href="/assets/courtsideview-app-icon.png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png">
     <link rel="canonical" href="${esc(url)}">
     <link rel="stylesheet" href="/geo-guides.css">
