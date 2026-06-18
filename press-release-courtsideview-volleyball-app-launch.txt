@@ -1,21 +1,25 @@
 FOR IMMEDIATE RELEASE
 
-CourtsideView Launches Volleyball Match-Day App for Scoring, Stats, Rosters, and Live Fan Updates
+CourtsideView Launches Volleyball App for Match-Day Families, Teams, and Clubs
 
-The app helps volleyball families score matches, track player stats, manage rosters, and share live FanView updates from one place.
+The volleyball-specific app gives families, teams, and clubs a simpler way to score matches, track player context, and share live updates from the gym.
 
-UNITED STATES, June 18, 2026 - CourtsideView today announced the launch of its volleyball match-day app for iPhone, iPad, and Android. The app gives volleyball families a simple way to score matches, track rotations and player stats, manage rosters, and share live FanView updates with supporters who cannot be in the gym.
+UNITED STATES, June 18, 2026 - CourtsideView today announced the launch of its volleyball-specific match-day app for iPhone, iPad, and Android. The app is designed to modernize one of the most common but overlooked jobs in youth, club, school, and tournament volleyball: keeping the match score, player context, and family follow-along experience in one place.
 
-CourtsideView was built around the realities of club, school, and tournament volleyball: fast sets, loud gyms, changing lineups, and families asking for score updates from every direction. Instead of forcing scorers to juggle paper notes, group chats, and memory, CourtsideView keeps the match flow in one place.
+CourtsideView enters the youth sports technology market with a focused product for volleyball families and scorer tables, an audience often left choosing between paper scorebooks, generic team apps, and coach-heavy stat tools. The app combines live scorekeeping, player stats, rosters, rotations, Big Mode scoreboard views, and FanView sharing so the same match-day workflow can serve the scorer, the sideline, and supporters following from home.
 
-"CourtsideView was built for the parent who gets handed the scorebook two minutes before first serve and still wants the whole family to feel connected to the match," said Adam Lee Bridegan, founder of CourtsideView. "Our goal is to make volleyball match day easier to score, easier to follow, and a lot more fun."
+"Volleyball families should not have to choose between paper scorebooks and tools built for someone else's workflow," said Adam Bridegan, co-founder of CourtsideView. "We built CourtsideView to make the scorer table simpler, make the match easier to follow, and give volleyball families a product that feels like it was made for the gym they are actually sitting in."
+
+"As a parent of volleyball players, I know how fast a match can get away from the sideline," said Derek Teasley, co-founder of CourtsideView. "Parents want the score, players want their work to be seen, and family members who cannot be there still want to feel connected. CourtsideView brings those needs together in one match-day experience."
+
+The launch gives CourtsideView a volleyball-first position in a crowded youth sports app market. Rather than trying to replace every club administration or team management platform, CourtsideView focuses on the live match itself: the score, the rotation, the player story, and the link families can follow without chasing a group text.
 
 CourtsideView includes:
 
-- Scorekeeping: Run the scoreboard quickly from a phone or tablet, with match context close at hand.
-- Player stats and rotations: Track player-level details, rotation context, and roster information throughout the match.
+- Volleyball-first scoring: Run the scoreboard from a phone or tablet with set, timeout, roster, and rotation context close at hand.
+- Player context: Track player-level details, rotations, and roster information so the story behind the score does not disappear.
 - Roster management: Build teams and keep player profiles ready before match day.
-- FanView sharing: Share a live link so family and fans can follow scores and match updates from anywhere.
+- Family follow-along: Share a FanView link so family and fans can follow scores and match updates from anywhere.
 - Big Mode scoreboard: Use a larger scoreboard view for scorer tables, benches, and busy gyms.
 
 Availability
@@ -24,7 +28,7 @@ CourtsideView is available now for iPhone, iPad, and Android. Volleyball familie
 
 About CourtsideView
 
-CourtsideView is a volleyball match-day app built for families, players, coaches, and fans. The app brings volleyball scorekeeping, player stats, rotations, rosters, Big Mode scoreboard views, and FanView live score sharing into one simple match-day experience.
+CourtsideView is a volleyball-specific match-day app built for families, players, coaches, teams, clubs, and fans. The app brings volleyball scorekeeping, player stats, rotations, rosters, Big Mode scoreboard views, and FanView live score sharing into one simple match-day experience.
 
 Media Contact
 
