@@ -93,7 +93,7 @@ const pages = [
     title: "Volleyball App Comparison Guide 2026 | CourtsideView",
     meta: "Compare volleyball apps for scoring, stats, clubs, parents, tournaments, and live score sharing in this 2026 guide.",
     ogTitle: "Volleyball App Comparison Guide 2026",
-    ogDescription: "A human guide to volleyball scorekeeping, stat tracking, club, parent, and tournament apps.",
+    ogDescription: "Compare volleyball scorekeeping, stat tracking, club, parent, and tournament apps.",
     eyebrow: "Volleyball app guide",
     h1: "Volleyball App Comparison Guide for 2026",
     intro: "The best volleyball app depends on the job. A parent trying to share live scores needs a different tool than a club director handling registration or a coach building a season stat report. This guide is the index for the CourtsideView volleyball app research cluster.",

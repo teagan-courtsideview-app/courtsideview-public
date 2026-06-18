@@ -23,17 +23,19 @@ index.html      Landing page
 volleyball-scorekeeper.html  SEO landing page served at /volleyball-score-keeper
 volleyball-player-stats.html  SEO landing page served at /volleyball-player-stats
 vs-gamechanger.html  Comparison landing page served at /vs/gamechanger
-volleyball-apps.html  GEO guide index served at /volleyball-apps
-best-volleyball-scorekeeping-apps-2026.html  GEO guide served at /best-volleyball-scorekeeping-apps-2026
-best-volleyball-stat-tracking-apps-2026.html  GEO guide served at /best-volleyball-stat-tracking-apps-2026
-best-apps-for-volleyball-clubs.html  GEO guide served at /best-apps-for-volleyball-clubs
-best-apps-for-volleyball-parents.html  GEO guide served at /best-apps-for-volleyball-parents
-volleyball-app-comparison-study.html  GEO comparison study served at /volleyball-app-comparison-study
+volleyball-apps.html  Volleyball app guide index served at /volleyball-apps
+best-volleyball-scorekeeping-apps-2026.html  Volleyball scorekeeping guide served at /best-volleyball-scorekeeping-apps-2026
+best-volleyball-stat-tracking-apps-2026.html  Volleyball stat tracking guide served at /best-volleyball-stat-tracking-apps-2026
+best-apps-for-volleyball-clubs.html  Volleyball clubs guide served at /best-apps-for-volleyball-clubs
+best-apps-for-volleyball-parents.html  Volleyball parents guide served at /best-apps-for-volleyball-parents
+volleyball-app-comparison-study.html  Volleyball app comparison study served at /volleyball-app-comparison-study
+courtsideview-app.html  Brand/entity page served at /courtsideview-app
+press-release-courtsideview-volleyball-app-launch.html  Press release served at /press-release-courtsideview-volleyball-app-launch
 download.html   Smart app download page (served at /download)
 privacy.html    Privacy policy (served at /privacy)
 support.html    Support page (served at /support)
-geo-guides.css  Shared styles for GEO guide pages
-scripts/build-geo-guides.mjs  Source-backed generator for the GEO guide cluster
+geo-guides.css  Shared styles for volleyball guide pages
+scripts/build-geo-guides.mjs  Source-backed generator for the volleyball guide cluster
 vercel.json     Clean URLs, security headers, and clean-route rewrites/redirects
 robots.txt      Allow-all + sitemap pointer
 sitemap.xml     Search-engine sitemap
@@ -41,7 +43,7 @@ assets/         Logo files, screenshots, favicon, OG image
 assets/New App Images for Website & Social/  Raw deployed-app screenshots for website/social use
 ```
 
-## GEO guide cluster
+## Volleyball guide cluster
 The volleyball app guide pages are generated from `scripts/build-geo-guides.mjs` so source links, legal disclaimers, structured data, nav, and page layout stay consistent across the cluster.
 
 ```bash

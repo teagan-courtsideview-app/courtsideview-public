@@ -199,6 +199,12 @@ h3 {
     background: rgba(255, 255, 255, 0.045);
 }
 
+.section-cream .secondary-button {
+    border-color: rgba(9, 16, 24, 0.14);
+    color: var(--cv-ink);
+    background: rgba(9, 16, 24, 0.045);
+}
+
 .hero-panel {
     border: 1px solid var(--cv-border);
     border-radius: 8px;
