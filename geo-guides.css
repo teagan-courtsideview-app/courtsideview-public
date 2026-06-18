@@ -79,7 +79,7 @@ a { color: inherit; }
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 1.1rem;
+    gap: 1.35rem;
     color: #b4beca;
     font-size: 0.86rem;
     font-weight: 600;
@@ -104,18 +104,18 @@ a { color: inherit; }
 
 .eyebrow,
 .kicker {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid rgba(var(--cv-green-rgb), 0.34);
-    border-radius: 999px;
-    background: rgba(var(--cv-green-rgb), 0.1);
+    display: block;
     color: var(--cv-green-soft);
-    padding: 0.48rem 0.85rem;
     font-size: 0.76rem;
-    line-height: 1;
+    line-height: 1.2;
     font-weight: 900;
     letter-spacing: 0;
     text-transform: uppercase;
+}
+
+.hero .eyebrow,
+.hero .kicker {
+    display: none;
 }
 
 h1,
@@ -123,21 +123,23 @@ h2,
 h3 {
     margin: 0;
     font-family: var(--font-display);
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: 0;
 }
 
 h1 {
-    margin-top: 1rem;
-    max-width: 50rem;
-    font-size: clamp(3.1rem, 7vw, 5.6rem);
-    line-height: 0.94;
+    max-width: 39rem;
+    font-size: clamp(2.5rem, 4.05vw, 3.45rem);
+    line-height: 1.16;
+    font-weight: 700;
+    text-wrap: balance;
 }
 
 h2 {
     max-width: 46rem;
-    font-size: clamp(2.45rem, 4vw, 3.55rem);
-    line-height: 1;
+    font-size: clamp(2.05rem, 3.25vw, 3rem);
+    line-height: 1.08;
+    font-weight: 800;
 }
 
 h3 {
@@ -239,8 +241,6 @@ h3 {
 }
 
 .section-cream .kicker {
-    border-color: rgba(var(--cv-green-rgb), 0.25);
-    background: rgba(var(--cv-green-rgb), 0.12);
     color: var(--cv-green);
 }
 
@@ -473,8 +473,8 @@ td strong { color: #fff; }
     .nav { padding: 1.15rem 0 0.6rem; }
     .brand-logo { width: 3rem; height: 3rem; }
     .hero { gap: 1.6rem; padding: 0.8rem 0 3.6rem; }
-    h1 { max-width: 23rem; font-size: 3rem; line-height: 0.96; }
-    h2 { font-size: 2.35rem; line-height: 1; }
+    h1 { max-width: 23rem; font-size: clamp(2.2rem, 10.5vw, 2.75rem); line-height: 1.08; }
+    h2 { font-size: 2.25rem; line-height: 1.08; }
     .hero-copy,
     .section-copy p { font-size: 1rem; line-height: 1.56; }
     .section { padding: 3.8rem 0; }

@@ -188,7 +188,7 @@ const pages = [
     title: "Best Volleyball Stat Tracking Apps 2026 | CourtsideView",
     meta: "Compare volleyball stat tracking apps for coaches, families, players, rotations, reports, and live match context in 2026.",
     ogTitle: "Best Volleyball Stat Tracking Apps in 2026",
-    ogDescription: "A human comparison of volleyball stat apps for coaches, families, and player development.",
+    ogDescription: "Compare volleyball stat apps for coaches, families, and player development.",
     eyebrow: "Stat tracking apps",
     h1: "Best Volleyball Stat Tracking Apps in 2026",
     intro: "A volleyball stat app should answer more than who won the set. Coaches want tendencies. Players want credit for work that does not always show up in the final score. Families want the story of the match without needing a spreadsheet.",
@@ -206,7 +206,7 @@ const pages = [
     tableRows: appRows.stats,
     sections: [
       {
-        kicker: "Human standard",
+        kicker: "Readable stats",
         title: "Great volleyball stats need to be readable after the match.",
         body: [
           "The danger with stat tracking is collecting more than anyone will actually use. For coaches, detail is valuable when it leads to better decisions. For families and athletes, stats are valuable when they explain what happened in plain language.",
@@ -426,14 +426,16 @@ function renderGuideCards(cards) {
 function renderNav() {
   return `
                 <div class="nav-links">
-                    <a href="/">Home</a>
                     <a href="/volleyball-apps">Guides</a>
+                    <a href="/courtsideview-app">CourtsideView App</a>
+                    <a href="/#scoring">Scoring</a>
                     <a href="/volleyball-score-keeper">Scorekeeper App</a>
                     <a href="/vs/gamechanger">Compare</a>
-                    <a href="/#stats">Stats</a>
+                    <a href="/volleyball-player-stats">Stats</a>
                     <a href="/#fanview">FanView</a>
                     <a href="/download">Download</a>
                     <a href="/support">Support</a>
+                    <a href="/privacy">Privacy</a>
                 </div>`;
 }
 

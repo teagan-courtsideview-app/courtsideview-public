@@ -80,7 +80,7 @@
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 1.1rem;
+            gap: 1.35rem;
             color: #a8b0ba;
             font-size: 0.86rem;
             font-weight: 600;
@@ -95,15 +95,10 @@
             padding: 1.5rem 0 6.5rem;
         }
         .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            border: 1px solid rgba(var(--cv-green-rgb), 0.34);
-            border-radius: 999px;
-            background: rgba(var(--cv-green-rgb), 0.1);
+            display: none;
             color: var(--cv-green);
-            padding: 0.48rem 0.85rem;
             font-size: 0.76rem;
-            line-height: 1;
+            line-height: 1.2;
             font-weight: 900;
             letter-spacing: 0;
             text-transform: uppercase;
@@ -112,19 +107,21 @@
         h2 {
             margin: 0;
             font-family: var(--font-display);
-            font-weight: 900;
+            font-weight: 800;
             letter-spacing: 0;
         }
         h1 {
-            margin-top: 1rem;
-            max-width: 47rem;
-            font-size: 5.5rem;
-            line-height: 0.94;
+            max-width: 39rem;
+            font-size: clamp(2.5rem, 4.05vw, 3.45rem);
+            line-height: 1.16;
+            font-weight: 700;
+            text-wrap: balance;
         }
         h2 {
             max-width: 43rem;
-            font-size: 3.4rem;
-            line-height: 1;
+            font-size: clamp(2.15rem, 3.4vw, 3.1rem);
+            line-height: 1.08;
+            font-weight: 800;
         }
         .text-green { color: var(--cv-green); }
         .hero-copy {
@@ -377,12 +374,12 @@
             }
             h1 {
                 max-width: 22rem;
-                font-size: 3.35rem;
-                line-height: 0.95;
+                font-size: clamp(2.2rem, 10.5vw, 2.75rem);
+                line-height: 1.08;
             }
             h2 {
-                font-size: 2.5rem;
-                line-height: 1;
+                font-size: 2.25rem;
+                line-height: 1.08;
             }
             .hero-copy,
             .section-copy p {
@@ -509,14 +506,16 @@
                     <img class="brand-logo" src="/assets/courtsideview-app-icon-mark.png" alt="CourtsideView CV app logo" width="850" height="626">
                 </a>
                 <div class="nav-links">
-                    <a href="/">Home</a>
                     <a href="/volleyball-apps">Guides</a>
+                    <a href="/courtsideview-app">CourtsideView App</a>
                     <a href="/#scoring">Scoring</a>
+                    <a href="/volleyball-score-keeper">Scorekeeper App</a>
                     <a href="/vs/gamechanger">Compare</a>
-                    <a href="/#stats">Stats</a>
+                    <a href="/volleyball-player-stats">Stats</a>
                     <a href="/#fanview">FanView</a>
                     <a href="/download">Download</a>
                     <a href="/support">Support</a>
+                    <a href="/privacy">Privacy</a>
                 </div>
             </nav>
         </header>
