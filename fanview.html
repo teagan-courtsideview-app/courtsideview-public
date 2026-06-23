@@ -141,6 +141,12 @@
         padding: 4px 2px 12px; margin-bottom: 8px; }
       .brand-mark { width: 32px; height: 32px; border-radius: 9px; object-fit: contain; }
       .brand-word { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: 0; }
+      .container.has-video .brand-mark,
+      .container.has-video .brand-word,
+      .container.no-video-mode .brand-mark,
+      .container.no-video-mode .brand-word {
+        display: none;
+      }
       .header-actions { margin-left: auto; display: flex; align-items: center; justify-content: flex-end;
         gap: 8px; min-width: 0; flex-shrink: 0; }
       .fanview-pill { background: var(--pink); color: #fff; border: 1px solid var(--pink);
@@ -330,6 +336,46 @@
         margin: 10px 4px 0; }
       .fanview-layout { display: block; }
       .score-column { min-width: 0; }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .fanview-layout {
+        min-height: 100vh;
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .score-column {
+        position: fixed;
+        left: var(--scoreboard-tv-left);
+        right: var(--scoreboard-tv-right);
+        top: var(--scoreboard-tv-top);
+        bottom: var(--scoreboard-tv-bottom);
+        transform: var(--scoreboard-tv-transform);
+        width: min(var(--scoreboard-tv-width), calc(100vw - 24px));
+        max-width: none;
+        z-index: 9;
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .scoreboard {
+        margin: 0 0 12px;
+        border-radius: 14px;
+        box-shadow: 0 20px 50px rgba(13,19,26,0.2);
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .score-grid {
+        grid-template-columns: minmax(0, 1fr) clamp(70px, 16vw, 112px) minmax(0, 1fr);
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .side {
+        min-height: var(--scoreboard-tv-side-height);
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .score {
+        font-size: var(--scoreboard-tv-score-size);
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .side.leading .score {
+        font-size: var(--scoreboard-tv-leading-size);
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .side.trailing .score {
+        font-size: var(--scoreboard-tv-trailing-size);
+      }
+      html[data-scoreboard-floating="true"] .container.no-video-mode .activity-section,
+      html[data-scoreboard-floating="true"] .container.no-video-mode .court-section,
+      html[data-scoreboard-floating="true"] .container.no-video-mode .tracked-summary,
+      html[data-scoreboard-floating="true"] .container.no-video-mode .meta-row {
+        display: none !important;
+      }
       .video-wrap { position: relative; margin-bottom: 20px; display: none; }
       .video-wrap.on { display: block; }
       .video-frame { position: relative; aspect-ratio: 16 / 9; height: auto;
@@ -339,6 +385,16 @@
         width: 100%; height: 100%; border: 0; }
       .video-frame video { position: absolute; inset: 0;
         width: 100%; height: 100%; border: 0; object-fit: cover; display: none; }
+      .video-frame video::-webkit-media-controls,
+      .video-frame video::-webkit-media-controls-panel,
+      .video-frame video::-webkit-media-controls-play-button,
+      .video-frame video::-webkit-media-controls-start-playback-button,
+      .video-frame video::-webkit-media-controls-timeline,
+      .video-frame video::-webkit-media-controls-current-time-display,
+      .video-frame video::-webkit-media-controls-time-remaining-display {
+        display: none !important;
+        -webkit-appearance: none;
+      }
       .video-status { position: absolute; inset: 0; z-index: 3;
         background: linear-gradient(180deg, rgba(5,5,5,0.78), rgba(5,5,5,0.88));
         color: #fff; display: none; align-items: center; justify-content: center;
@@ -599,6 +655,32 @@
         .display-header-button { display: none; }
         .container.has-video .display-button,
         .container.no-video-mode .display-button { display: inline-flex; align-items: center; justify-content: center; }
+        .container.no-video-mode .score-column { position: fixed; left: var(--scoreboard-tv-left);
+          right: var(--scoreboard-tv-right); top: var(--scoreboard-tv-top); bottom: var(--scoreboard-tv-bottom);
+          transform: var(--scoreboard-tv-transform); width: min(var(--scoreboard-tv-width), calc(100vw - 24px));
+          z-index: 9; }
+        .container.no-video-mode .scoreboard { margin: 0 0 12px; border-radius: 14px; padding: 10px;
+          box-shadow: 0 18px 44px rgba(13,19,26,0.18); }
+        .container.no-video-mode .score-grid { grid-template-columns: minmax(0,1fr) clamp(68px, 18vw, 94px) minmax(0,1fr);
+          gap: 10px; }
+        .container.no-video-mode .side { min-height: var(--scoreboard-tv-side-height); border-radius: 11px;
+          padding: 13px 10px 12px; display: grid; grid-template-rows: minmax(22px, auto) minmax(0, 1fr) auto auto;
+          justify-items: center; align-items: center; gap: 6px; }
+        .container.no-video-mode .side::before { width: 6px; }
+        .container.no-video-mode .side .name { min-height: 22px; font-size: clamp(13px, 3vw, 17px);
+          line-height: 1.1; letter-spacing: 1px; }
+        .container.no-video-mode .side .dot { width: 11px; height: 11px; }
+        .container.no-video-mode .score { align-self: center; display: flex; align-items: center; justify-content: center;
+          font-size: var(--scoreboard-tv-score-size); line-height: 1.04; }
+        .container.no-video-mode .side.leading .score { font-size: var(--scoreboard-tv-leading-size); }
+        .container.no-video-mode .side.trailing .score { font-size: var(--scoreboard-tv-trailing-size); }
+        .container.no-video-mode .sets-won { font-size: clamp(10px, 2.2vw, 13px); letter-spacing: 1.2px; }
+        .container.no-video-mode .team-logo-below { width: clamp(24px, 6vw, 36px);
+          height: clamp(24px, 6vw, 36px); border-radius: 10px; margin-top: 2px; }
+        .container.no-video-mode .divider { border-radius: 11px; font-size: clamp(9px, 2.3vw, 13px);
+          letter-spacing: 1.7px; align-content: center; gap: 7px; }
+        .container.no-video-mode .divider strong { font-size: clamp(22px, 5.8vw, 34px); }
+        .container.no-video-mode .target { margin-top: 9px; font-size: clamp(14px, 3.5vw, 20px); letter-spacing: 2px; }
         .fanview-pill { min-height: 36px; padding: 9px 16px; font-size: 11px; letter-spacing: 1.4px; }
         .no-video-viewers { top: 10px; right: 10px; min-height: 26px; padding: 5px 9px;
           font-size: 10px; }
@@ -669,7 +751,7 @@
               <iframe id="videoFrame"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
-              <video id="liveVideo" autoplay playsinline controls muted></video>
+              <video id="liveVideo" autoplay playsinline muted></video>
               <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
               <div id="broadcastScoreRail" class="broadcast-score-rail" aria-label="Live match score">
                 <div class="broadcast-meta-row">
@@ -1034,6 +1116,9 @@
           button.textContent = 'Scoreboard: ' + sizeLabel + ' · ' + positionLabel;
         });
       }
+      function enableScoreboardFloating() {
+        document.documentElement.dataset.scoreboardFloating = 'true';
+      }
       function applyScoreboardSize(size, { persist = false } = {}) {
         const normalized = normalizeScoreboardSize(size);
         document.documentElement.dataset.scoreboardSize = normalized;
@@ -1077,8 +1162,11 @@
           if (button) button.setAttribute('aria-expanded', String(open));
         });
       }
-      applyScoreboardSize(readScoreboardSizeFromUrl() || readStoredScoreboardSize() || 'standard');
-      applyScoreboardPosition(readScoreboardPositionFromUrl() || readStoredScoreboardPosition() || 'bottom-left');
+      const initialScoreboardSize = readScoreboardSizeFromUrl() || readStoredScoreboardSize();
+      const initialScoreboardPosition = readScoreboardPositionFromUrl() || readStoredScoreboardPosition();
+      applyScoreboardSize(initialScoreboardSize || 'standard');
+      applyScoreboardPosition(initialScoreboardPosition || 'bottom-left');
+      if (initialScoreboardSize || initialScoreboardPosition) enableScoreboardFloating();
       function feedAccent(item, row) {
         if (item && item.team === 'myTeam') return row.home_color || '#3B82F6';
         if (item && item.team === 'opponent') return row.away_color || '#EF4444';
@@ -1485,10 +1573,6 @@
           element.webkitRequestFullscreen();
           return true;
         }
-        if (element.webkitEnterFullscreen) {
-          element.webkitEnterFullscreen();
-          return true;
-        }
         return false;
       }
       function activateWebFullscreen(orientation) {
@@ -1531,8 +1615,6 @@
       async function enterVideoFullscreen(orientation) {
         closeFullscreenMenu();
         const frame = document.querySelector('.video-frame');
-        const liveVideo = $('liveVideo');
-        const usingLiveVideo = liveVideo && liveVideo.style.display !== 'none';
         setFullscreenFit(orientation);
         try {
           const entered = await requestElementFullscreen(frame);
@@ -1544,22 +1626,16 @@
             updateFullscreenButton();
             return;
           }
-        } catch {
-          if (usingLiveVideo && liveVideo.webkitEnterFullscreen) {
-            try {
-              liveVideo.webkitEnterFullscreen();
-              return;
-            } catch {}
-          }
-        }
+        } catch {}
         activateWebFullscreen(orientation);
       }
       function setVideoStatus(title, body = '', visible = true) {
         const box = $('videoStatus');
         if (visible) {
+          const titleHtml = title ? '<div class="video-status-title">' + escapeHtml(title) + '</div>' : '';
           box.innerHTML =
             '<div class="video-status-card">' +
-              '<div class="video-status-title">' + escapeHtml(title) + '</div>' +
+              titleHtml +
               (body ? '<div class="video-status-body">' + escapeHtml(body) + '</div>' : '') +
             '</div>';
           box.classList.add('on');
@@ -1612,6 +1688,9 @@
       }
       async function connectCloudflareViewer(streamId) {
         const video = $('liveVideo');
+        video.controls = false;
+        video.removeAttribute('controls');
+        video.disablePictureInPicture = true;
         const pc = createPeerConnection();
         cloudflareViewer.pc = pc;
         cloudflareViewer.connected = false;
@@ -2001,6 +2080,7 @@
       $('displayMenu').addEventListener('click', (event) => {
         const choice = event.target.closest('[data-scoreboard-size], [data-scoreboard-position]');
         if (!choice) return;
+        enableScoreboardFloating();
         if (choice.dataset.scoreboardSize) {
           applyScoreboardSize(choice.dataset.scoreboardSize || 'standard', { persist: true });
         }

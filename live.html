@@ -418,14 +418,14 @@
           </div>
           <div class="controls">
             <div id="recordPanel" class="record-panel">
-              <label class="record-toggle" aria-label="Create a video copy">
+              <label class="record-toggle" aria-label="Save a copy on this device">
                 <input id="recordToggle" type="checkbox" checked />
                 <span class="record-switch" aria-hidden="true"></span>
               </label>
               <div class="record-copy">
-                <strong>Create a Video Copy</strong>
-                <span>After Broadcast, tap Save Video.</span>
-                <small id="recordEstimate">CourtsideView does not store Broadcasts.</small>
+                <strong>Save a Copy on This Device</strong>
+                <span>Keep this on to save the Broadcast after it ends.</span>
+                <small id="recordEstimate">After you end the Broadcast, tap Save Video. CourtsideView does not store video.</small>
               </div>
             </div>
             <div id="downloadPanel" class="download-panel is-hidden">
@@ -1006,7 +1006,7 @@
         lastRecordingUrl = url;
         downloadLink.href = url;
         downloadLink.download = filename;
-        downloadMeta.textContent = `${formatBytes(blob.size)} ready. Tap Save Video to keep it on this phone.`;
+        downloadMeta.textContent = `${formatBytes(blob.size)} ready. Tap Save Video before leaving this screen.`;
         if (!live) {
           downloadPanel.classList.remove('is-hidden');
         }
