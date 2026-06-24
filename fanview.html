@@ -1465,8 +1465,17 @@
           row.video_url.startsWith(CLOUDFLARE_STATUS_URL_PREFIX)
         );
       }
+      function rememberCloudflareVideoStatus(row, status) {
+        if (!row || !status) return;
+        row.__cloudflareVideoStatus = {
+          isLive: status.isLive === true,
+          state: String(status.state || (status.isLive === true ? 'live' : 'waiting')),
+          updatedAt: status.updatedAt || null,
+        };
+      }
       function syncCloudflareVideoFromStatus(row, status) {
         if (!row || !row.share_id || !status) return false;
+        rememberCloudflareVideoStatus(row, status);
         if (status.isLive === true) {
           if (!hasRenderableCloudflareVideo(row)) {
             row.video_type = 'cloudflare_realtime';
@@ -1483,17 +1492,22 @@
         return false;
       }
       function mergeFreshMatchRow(current, fresh) {
+        const previousVideoStatus = current && current.__cloudflareVideoStatus;
         if (
           isSyntheticCloudflareVideo(current) &&
+          previousVideoStatus?.state !== 'stopped' &&
           fresh &&
           (!fresh.video_url || fresh.video_url === CLOUDFLARE_PLACEHOLDER_URL)
         ) {
-          return {
+          const merged = {
             ...fresh,
             video_type: 'cloudflare_realtime',
             video_url: current.video_url,
           };
+          if (previousVideoStatus) merged.__cloudflareVideoStatus = previousVideoStatus;
+          return merged;
         }
+        if (fresh && previousVideoStatus) fresh.__cloudflareVideoStatus = previousVideoStatus;
         return fresh;
       }
       function startPresence(row) {
@@ -1676,6 +1690,45 @@
         $('liveVideo').muted = true;
         showSoundButton(false);
       }
+      function setNoVideoCopy(row) {
+        const hero = $('noVideoHero');
+        if (!hero) return;
+        const title = hero.querySelector('.no-video-copy b');
+        const body = hero.querySelector('.no-video-copy span');
+        const videoState = row && row.__cloudflareVideoStatus;
+        const broadcastEnded = videoState && videoState.isLive !== true && videoState.state === 'stopped';
+        if (title) title.textContent = broadcastEnded ? 'Broadcast ended' : 'Scores are live';
+        if (body) {
+          body.textContent = broadcastEnded
+            ? 'Video is no longer broadcasting. Scores and activity remain available here.'
+            : 'No video right now. Video can be added anytime.';
+        }
+      }
+      function markCloudflareBroadcastEnded(streamId, status) {
+        if (cloudflareViewer.streamId === streamId) stopCloudflareViewer();
+        if (matchRow && matchRow.share_id === streamId) {
+          rememberCloudflareVideoStatus(matchRow, status || { isLive: false, state: 'stopped' });
+          if (matchRow.video_type === 'cloudflare_realtime') {
+            matchRow.video_type = null;
+            matchRow.video_url = null;
+          }
+          render();
+        } else {
+          setVideoStatus('Broadcast ended', 'Video is no longer broadcasting. Scores and activity remain available here.');
+        }
+      }
+      async function handleCloudflareViewerOffline(streamId, title, body) {
+        const status = await getCloudflareStatus(streamId);
+        if (status && matchRow && matchRow.share_id === streamId) {
+          setViewerCount(typeof status.viewerCount === 'number' ? status.viewerCount : 0);
+          if (status.isLive !== true && status.state === 'stopped') {
+            markCloudflareBroadcastEnded(streamId, status);
+            return;
+          }
+        }
+        setVideoStatus(title, body);
+        retryCloudflareViewer(streamId);
+      }
       function createPeerConnection() {
         return new RTCPeerConnection({
           iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }],
@@ -1706,8 +1759,11 @@
           if (track.kind === 'audio') showSoundButton(true);
           track.addEventListener('ended', () => {
             if (cloudflareViewer.streamId !== streamId) return;
-            setVideoStatus('Broadcast paused', 'The game is still active. We will reconnect automatically if the broadcaster restarts.');
-            retryCloudflareViewer(streamId);
+            void handleCloudflareViewerOffline(
+              streamId,
+              'Broadcast paused',
+              'The game is still active. We will reconnect automatically if the broadcaster restarts.',
+            );
           });
         });
         pc.addEventListener('connectionstatechange', () => {
@@ -1717,8 +1773,11 @@
             setVideoStatus('', '', false);
           }
           if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-            setVideoStatus('Broadcast interrupted', 'The game is still active. We will reconnect automatically.');
-            retryCloudflareViewer(streamId);
+            void handleCloudflareViewerOffline(
+              streamId,
+              'Broadcast interrupted',
+              'The game is still active. We will reconnect automatically.',
+            );
           }
         });
         try {
@@ -1751,7 +1810,8 @@
           if (err instanceof Error && err.message === 'waiting') {
             setVideoStatus('Video has not started yet', 'The game is active. Video will appear here when the broadcaster goes live.');
           } else if (err instanceof Error && err.message === 'stopped') {
-            setVideoStatus('Broadcast ended', 'The video was stopped by the broadcaster. Score updates may still continue.');
+            markCloudflareBroadcastEnded(streamId, { isLive: false, state: 'stopped' });
+            return;
           } else {
             setVideoStatus('Video disconnected', 'The broadcaster may have lost signal. We will keep checking for the video.');
           }
@@ -1996,6 +2056,7 @@
         const container = document.querySelector('.container');
         $('board').querySelector('.score-column').classList.toggle('no-video', !hasVideo);
         container.classList.toggle('no-video-mode', !hasVideo);
+        setNoVideoCopy(matchRow);
         renderLatestAction(s, matchRow);
         renderCourt(s);
         renderTrackedSummary(s);
