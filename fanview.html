@@ -857,9 +857,9 @@
       const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
       const FANVIEW_EXPIRE_MS = 15 * 60 * 1000;
-      const PRESENCE_INTERVAL_MS = 15000;
-      const VIDEO_STATUS_INTERVAL_MS = 5000;
-      const FANVIEW_POLL_INTERVAL_MS = 30000;
+      const PRESENCE_INTERVAL_MS = 30000;
+      const VIDEO_STATUS_INTERVAL_MS = 30000;
+      const FANVIEW_POLL_INTERVAL_MS = 120000;
       const CLOUDFLARE_PLACEHOLDER_URL = 'cloudflare://fanview-live';
       const CLOUDFLARE_STATUS_URL_PREFIX = 'cloudflare://fanview-live-status/';
       const SCOREBOARD_SIZE_KEY = 'courtsideview_fanview_scoreboard_size';
@@ -1404,6 +1404,7 @@
       let presenceTimer = null;
       let presenceShareId = null;
       let viewerStatusTimer = null;
+      let broadcastChannelReady = false;
       const viewerId = getViewerId();
       async function sendPresence(method = 'POST', keepalive = false) {
         if (!presenceShareId || !viewerId) return;
@@ -2145,7 +2146,9 @@
           applyStateBroadcast(payload);
         });
         broadcastChannel.subscribe((status, err) => {
+          broadcastChannelReady = status === 'SUBSCRIBED';
           if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            broadcastChannelReady = false;
             console.warn('[FanView] broadcast channel status', status, err);
           } else {
             console.log('[FanView] broadcast channel status', status);
@@ -2153,6 +2156,7 @@
         });
         setInterval(async () => {
           if (document.hidden) return;
+          if (broadcastChannelReady && !isSyntheticCloudflareVideo(matchRow)) return;
           await refreshMatchFromServer('poll');
         }, FANVIEW_POLL_INTERVAL_MS);
       }
