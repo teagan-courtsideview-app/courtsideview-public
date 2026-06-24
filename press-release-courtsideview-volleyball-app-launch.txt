@@ -4,7 +4,7 @@ CourtsideView Expands Volleyball App for Clubs, Coaches, and Families
 
 The volleyball-specific app now brings Scorekeeper, Courtside mode, team rosters, Club Pages, Coach Hub, FanView sharing, and Big Mode into one fast-moving match-day platform.
 
-UNITED STATES, June 24, 2026 - CourtsideView today announced an expanded volleyball-specific match-day platform for iPhone, iPad, and Android. The app now brings Scorekeeper, Courtside mode, team rosters, Club Pages, Coach Hub, player stats, Big Mode scoreboard views, and FanView sharing into one volleyball-first workflow.
+ORLANDO, Fla., June 24, 2026 - CourtsideView today announced an expanded volleyball-specific match-day platform for iPhone, iPad, and Android. The app now brings Scorekeeper, Courtside mode, team rosters, Club Pages, Coach Hub, player stats, Big Mode scoreboard views, and FanView sharing into one volleyball-first workflow.
 
 CourtsideView is building for the part of volleyball that broad sports platforms often miss: the scorer table, the sideline, the parent trying to follow the match, the coach who wants useful context, and the club that needs a simple match-day layer without the cost or weight of a full administration system.
 
@@ -35,5 +35,6 @@ CourtsideView is a volleyball-specific match-day app built for families, players
 Media Contact
 
 CourtsideView
-Email: teagan@courtsideviewapp.com
+Location: Orlando, Florida
+Email: Teagan@courtsideviewapp.com
 Website: https://www.courtsideviewapp.com/
