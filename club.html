@@ -1005,35 +1005,60 @@
         els.teams.innerHTML = '';
       }
 
-      async function loadClub() {
+      const CLUB_POLL_LIVE_MS = 15000;
+      const CLUB_POLL_IDLE_MS = 60000;
+      let clubPollTimer = null;
+      let clubLoadInFlight = false;
+      let clubHasActiveFanView = false;
+
+      function scheduleClubRefresh() {
+        if (clubPollTimer) clearTimeout(clubPollTimer);
+        const delay = document.hidden ? CLUB_POLL_IDLE_MS : (clubHasActiveFanView ? CLUB_POLL_LIVE_MS : CLUB_POLL_IDLE_MS);
+        clubPollTimer = setTimeout(() => {
+          loadClub({ scheduled: true }).catch((error) => console.warn('[Club Hub] refresh failed', error));
+        }, delay);
+      }
+
+      async function loadClub({ scheduled = false } = {}) {
+        if (clubLoadInFlight) return;
+        clubLoadInFlight = true;
         const slug = getSlug();
-        if (!slug) {
-          render404();
-          return;
-        }
-        const { data, error } = await supabase.rpc('club_live_summary', {
-          club_slug: slug,
-        });
-        if (error || !data || !data.club) {
-          render404();
-          return;
-        }
+        try {
+          if (!slug) {
+            render404();
+            return;
+          }
+          const { data, error } = await supabase.rpc('club_live_summary', {
+            club_slug: slug,
+          });
+          if (error || !data || !data.club) {
+            render404();
+            return;
+          }
 
-        const club = data.club;
-        const color = club.color || '#F4B400';
-        const teams = data.teams || [];
-        latestClubName = cleanDisplayName(club.name || 'CourtsideView Club');
-        document.title = `${latestClubName} - CourtsideView Club Hub`;
-        document.documentElement.style.setProperty('--club-color', color);
-        els.clubName.textContent = latestClubName;
-        els.clubMeta.textContent = `${plural(teams.length, 'team', 'teams')} - Live scores, schedules, rosters, and results`;
-        els.clubMark.textContent = (club.logo_text || latestClubName || 'CV').slice(0, 4).toUpperCase();
-        els.clubMark.style.background = color;
+          const club = data.club;
+          const color = club.color || '#F4B400';
+          const teams = data.teams || [];
+          clubHasActiveFanView = [
+            ...(Array.isArray(data.live) ? data.live : []),
+            ...(Array.isArray(data.schedule) ? data.schedule : []),
+          ].some((row) => fanviewLinks(row).length > 0);
+          latestClubName = cleanDisplayName(club.name || 'CourtsideView Club');
+          document.title = `${latestClubName} - CourtsideView Club Hub`;
+          document.documentElement.style.setProperty('--club-color', color);
+          els.clubName.textContent = latestClubName;
+          els.clubMeta.textContent = `${plural(teams.length, 'team', 'teams')} - Live scores, schedules, rosters, and results`;
+          els.clubMark.textContent = (club.logo_text || latestClubName || 'CV').slice(0, 4).toUpperCase();
+          els.clubMark.style.background = color;
 
-        renderHero(data);
-        renderSchedule(data.schedule || []);
-        renderResults(data.results || []);
-        renderTeams(teams);
+          renderHero(data);
+          renderSchedule(data.schedule || []);
+          renderResults(data.results || []);
+          renderTeams(teams);
+        } finally {
+          clubLoadInFlight = false;
+          if (scheduled || latestClubName) scheduleClubRefresh();
+        }
       }
 
       document.addEventListener('click', (event) => {
@@ -1044,8 +1069,13 @@
       });
       els.shareHub.addEventListener('click', () => void shareHub());
 
-      loadClub();
-      window.setInterval(loadClub, 5000);
+      loadClub().catch((error) => console.warn('[Club Hub] initial load failed', error));
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && latestClubName) {
+          if (clubPollTimer) clearTimeout(clubPollTimer);
+          loadClub({ scheduled: true }).catch((error) => console.warn('[Club Hub] visible refresh failed', error));
+        }
+      });
     </script>
   </body>
 </html>

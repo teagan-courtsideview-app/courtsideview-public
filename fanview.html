@@ -2008,22 +2008,35 @@
       }
       async function fetchMatch() {
         const { data, error } = await supabase
-          .from('matches')
-          .select('id, share_id, format, home_name, home_color, away_name, away_color, state, is_published, is_complete, video_url, video_type, video_started_at, created_at, updated_at')
-          .eq('share_id', shareId)
-          .eq('is_published', true)
+          .rpc('fanview_public_match', { match_share_id: shareId })
           .maybeSingle();
         if (error) { console.warn('[FanView] fetch error', error); return null; }
         return data;
       }
-      window.forceRefresh = async () => {
-        const fresh = await fetchMatch();
-        if (fresh) {
-          const previous = lastScoreSnapshot;
-          matchRow = mergeFreshMatchRow(matchRow, fresh);
-          inferActivityFromDelta(previous, matchRow.state, matchRow);
-          render();
+      let matchFetchInFlight = false;
+      async function refreshMatchFromServer(reason) {
+        if (matchFetchInFlight) return;
+        matchFetchInFlight = true;
+        try {
+          const fresh = await fetchMatch();
+          if (!fresh) return;
+          const mergedFresh = mergeFreshMatchRow(matchRow, fresh);
+          const stateChanged = JSON.stringify(mergedFresh.state) !== JSON.stringify(matchRow?.state ?? {});
+          const videoChanged = mergedFresh.video_url !== matchRow?.video_url || mergedFresh.video_type !== matchRow?.video_type;
+          const completeChanged = mergedFresh.is_complete !== matchRow?.is_complete;
+          if (!matchRow || stateChanged || videoChanged || completeChanged) {
+            if (reason) console.log('[FanView] compact refresh', reason);
+            const previous = lastScoreSnapshot;
+            matchRow = mergedFresh;
+            inferActivityFromDelta(previous, matchRow.state, matchRow);
+            render();
+          }
+        } finally {
+          matchFetchInFlight = false;
         }
+      }
+      window.forceRefresh = async () => {
+        await refreshMatchFromServer('manual');
       };
       function applyScoreBroadcast(payload) {
         if (!payload || !matchRow) return;
@@ -2123,30 +2136,12 @@
         setInterval(() => {
           if (matchRow && isFanViewExpired(matchRow)) showExpired();
         }, 30000);
-        const channel = supabase.channel('match:' + shareId);
-        channel.on('postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'matches', filter: 'share_id=eq.' + shareId },
-          (payload) => {
-            if (!payload.new) return;
-            console.log('[FanView] UPDATE', payload.new);
-            const previous = lastScoreSnapshot;
-            matchRow = mergeFreshMatchRow(matchRow, { ...matchRow, ...payload.new });
-            inferActivityFromDelta(previous, matchRow.state, matchRow);
-            render();
-          });
         const broadcastChannel = supabase.channel('game:' + shareId);
         broadcastChannel.on('broadcast', { event: 'score' }, ({ payload }) => {
           applyScoreBroadcast(payload);
         });
         broadcastChannel.on('broadcast', { event: 'state' }, ({ payload }) => {
           applyStateBroadcast(payload);
-        });
-        channel.subscribe((status, err) => {
-          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-            console.warn('[FanView] channel status', status, err);
-          } else {
-            console.log('[FanView] channel status', status);
-          }
         });
         broadcastChannel.subscribe((status, err) => {
           if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
@@ -2156,20 +2151,9 @@
           }
         });
         setInterval(async () => {
-          const fresh = await fetchMatch();
-          if (!fresh) return;
-          const mergedFresh = mergeFreshMatchRow(matchRow, fresh);
-          const stateChanged = JSON.stringify(mergedFresh.state) !== JSON.stringify(matchRow.state ?? {});
-          const videoChanged = mergedFresh.video_url !== matchRow.video_url || mergedFresh.video_type !== matchRow.video_type;
-          const completeChanged = mergedFresh.is_complete !== matchRow.is_complete;
-          if (stateChanged || videoChanged || completeChanged) {
-            console.log('[FanView] poll update');
-            const previous = lastScoreSnapshot;
-            matchRow = mergedFresh;
-            inferActivityFromDelta(previous, matchRow.state, matchRow);
-            render();
-          }
-        }, 2000);
+          if (document.hidden) return;
+          await refreshMatchFromServer('poll');
+        }, 10000);
       }
       window.addEventListener('pagehide', () => {
         if (!presenceShareId || !viewerId) return;

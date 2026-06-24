@@ -833,18 +833,46 @@
         renderRoster();
       }
 
-      async function loadTeam() {
+      const TEAM_POLL_LIVE_MS = 10000;
+      const TEAM_POLL_IDLE_MS = 60000;
+      let teamPollTimer = null;
+      let teamLoadInFlight = false;
+
+      function hasActiveFanView() {
+        return state.matches.some((match) => fanviewLinks(match).length > 0);
+      }
+
+      function nextTeamPollMs() {
+        if (document.hidden) return TEAM_POLL_IDLE_MS;
+        return hasActiveFanView() ? TEAM_POLL_LIVE_MS : TEAM_POLL_IDLE_MS;
+      }
+
+      function scheduleTeamRefresh() {
+        if (teamPollTimer) clearTimeout(teamPollTimer);
+        teamPollTimer = setTimeout(() => {
+          loadTeam({ scheduled: true }).catch((error) => console.warn('[Team Hub] refresh failed', error));
+        }, nextTeamPollMs());
+      }
+
+      async function loadTeam({ scheduled = false } = {}) {
+        if (teamLoadInFlight) return;
+        teamLoadInFlight = true;
         const slug = getSlug();
-        if (!slug) throw new Error('Missing team page address.');
-        const { data, error } = await supabase.rpc('team_hub_summary', { team_slug: slug });
-        if (error) throw error;
-        if (!data?.team) throw new Error('This team page is private or does not exist.');
-        state.team = data.team;
-        state.matches = Array.isArray(data.matches) ? data.matches : [];
-        if (state.team.redirect && state.team.slug && state.team.slug !== slug) {
-          window.history.replaceState(null, '', `/t/${encodeURIComponent(state.team.slug)}`);
+        try {
+          if (!slug) throw new Error('Missing team page address.');
+          const { data, error } = await supabase.rpc('team_hub_summary', { team_slug: slug });
+          if (error) throw error;
+          if (!data?.team) throw new Error('This team page is private or does not exist.');
+          state.team = data.team;
+          state.matches = Array.isArray(data.matches) ? data.matches : [];
+          if (state.team.redirect && state.team.slug && state.team.slug !== slug) {
+            window.history.replaceState(null, '', `/t/${encodeURIComponent(state.team.slug)}`);
+          }
+          render();
+        } finally {
+          teamLoadInFlight = false;
+          if (scheduled || state.team) scheduleTeamRefresh();
         }
-        render();
       }
 
       $('followForm').addEventListener('submit', async (event) => {
@@ -867,7 +895,6 @@
       (async function init() {
         try {
           await loadTeam();
-          setInterval(loadTeam, 10000);
         } catch (error) {
           $('teamName').textContent = 'Team page unavailable';
           $('teamMeta').textContent = error.message || 'This team page is private or unknown.';
@@ -875,6 +902,13 @@
           document.querySelector('.layout').style.display = 'none';
         }
       })();
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && state.team) {
+          if (teamPollTimer) clearTimeout(teamPollTimer);
+          loadTeam({ scheduled: true }).catch((error) => console.warn('[Team Hub] visible refresh failed', error));
+        }
+      });
     </script>
   </body>
 </html>
