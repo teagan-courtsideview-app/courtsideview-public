@@ -1,6 +1,6 @@
-# CourtsideView — Go-Live Guide
+# CourtsideView - Go-Live Guide
 
-Everything you need to take the static site from this folder to **www.courtsideviewapp.com** on Vercel. Estimated total time: **20–30 minutes**, almost all of which is waiting on DNS.
+Everything you need to take the static site from this folder to **www.courtsideviewapp.com** on Vercel. Estimated total time: **20-30 minutes**, almost all of which is waiting on DNS.
 
 ---
 
@@ -25,11 +25,11 @@ web/
 
 ---
 
-## Step 1 — Push the site to GitHub
+## Step 1 - Push the site to GitHub
 
 The dedicated repo is at **github.com/teagan-courtsideview-app/courtsideview-public**.
 
-> ⚠️ **Per your git rule:** run all of this from ONE Terminal — don't let the Cowork sandbox touch `.git/`.
+> ⚠️ **Per your git rule:** run all of this from ONE Terminal - don't let the Cowork sandbox touch `.git/`.
 
 Open Terminal and run **exactly** these commands:
 
@@ -59,7 +59,7 @@ git push -u origin main
 
 ---
 
-## Step 2 — Connect the repo to Vercel
+## Step 2 - Connect the repo to Vercel
 
 You already have the Vercel project at **vercel.com/teagan-7484s-projects/courtsideview-public**. Two paths depending on what you see:
 
@@ -85,7 +85,7 @@ When the deploy finishes, Vercel gives you a URL like `courtsideview-public-xxxx
 
 ---
 
-## Step 3 — Attach courtsideviewapp.com to Vercel
+## Step 3 - Attach courtsideviewapp.com to Vercel
 
 In Vercel, on the project page:
 
@@ -99,13 +99,13 @@ In Vercel, on the project page:
    | A     | @    | `76.76.21.21`          |
    | CNAME | www  | `cname.vercel-dns.com` |
 
-   *(Exact values come from Vercel — copy them from your dashboard, don't trust this table.)*
+   *(Exact values come from Vercel - copy them from your dashboard, don't trust this table.)*
 
-Leave this tab open — you'll need those values in Step 4.
+Leave this tab open - you'll need those values in Step 4.
 
 ---
 
-## Step 4 — Update DNS at Squarespace / Google Workspace
+## Step 4 - Update DNS at Squarespace / Google Workspace
 
 Your domain was bought through Google Workspace, which redirects DNS management to Squarespace Domains. You'll need to log in there.
 
@@ -120,7 +120,7 @@ Squarespace currently points the domain at its own site. You need to **remove**:
 - The existing **CNAME** for `www` pointing to `ext-cust.squarespace.com` (or similar).
 
 Don't touch:
-- ✅ MX records (those are your Google Workspace email — leaving them alone keeps `teagan@courtsideviewapp.com` working).
+- ✅ MX records (those are your Google Workspace email - leaving them alone keeps `teagan@courtsideviewapp.com` working).
 - ✅ TXT records for SPF / DKIM / Google site verification.
 
 ### 4c. Add the Vercel records
@@ -131,13 +131,13 @@ Add **both** records Vercel showed you:
 Save.
 
 ### 4d. Wait for propagation
-- DNS usually flips in **5–30 minutes** but can take up to 24 hours.
-- You can check progress at **dnschecker.org** — paste in `www.courtsideviewapp.com` and watch it go green globally.
+- DNS usually flips in **5-30 minutes** but can take up to 24 hours.
+- You can check progress at **dnschecker.org** - paste in `www.courtsideviewapp.com` and watch it go green globally.
 - Vercel will auto-provision a free SSL certificate once it sees the DNS resolve. The Domains page in Vercel will show a green checkmark next to both `courtsideviewapp.com` and `www.courtsideviewapp.com` when it's done.
 
 ---
 
-## Step 5 — Verify everything works
+## Step 5 - Verify everything works
 
 Once DNS is live:
 
@@ -193,7 +193,7 @@ You probably deleted or modified an MX record. Go back to Squarespace DNS and re
 ```
 
 **"Privacy page 404s."**
-Vercel needs `cleanUrls: true` to serve `privacy.html` at `/privacy`. The included `vercel.json` already has this — make sure that file made it into the repo (`git ls-files | grep vercel.json`).
+Vercel needs `cleanUrls: true` to serve `privacy.html` at `/privacy`. The included `vercel.json` already has this - make sure that file made it into the repo (`git ls-files | grep vercel.json`).
 
 **"The CDN Tailwind warns about production use."**
-That's just a console warning, harmless for a marketing page. If you want to silence it later, swap the CDN script for the Tailwind CLI build — but for v1 launch traffic, the CDN is totally fine.
+That's just a console warning, harmless for a marketing page. If you want to silence it later, swap the CDN script for the Tailwind CLI build - but for v1 launch traffic, the CDN is totally fine.

@@ -244,7 +244,7 @@
         $('season').textContent = row.season || 'Season Stats';
         $('jersey').textContent = String(row.jersey_number ?? '');
         $('name').textContent = row.display_name || 'Player';
-        $('meta').textContent = `#${row.jersey_number ?? ''} · ${row.position || '—'} · ${row.team_name || 'Team'}`;
+        $('meta').textContent = `#${row.jersey_number ?? ''} · ${row.position || '-'} · ${row.team_name || 'Team'}`;
         const headline = headlineFor(row, stats);
         $('headlineValue').textContent = String(headline.value);
         $('headlineLabel').textContent = headline.label;

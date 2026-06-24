@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="theme-color" content="#FAFAF7" />
-    <title>CourtsideView — FanView</title>
+    <title>CourtsideView | FanView</title>
     <meta name="robots" content="noindex,nofollow" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
@@ -1004,7 +1004,7 @@
         })[position] || '';
       }
       function firstName(name) {
-        return String(name || '').trim().split(/\s+/)[0] || '—';
+        return String(name || '').trim().split(/\s+/)[0] || '-';
       }
       function statNumber(stats, key) {
         const value = stats && stats[key];
@@ -1854,7 +1854,7 @@
                   (cell.serving ? '<span class="serve-dot"></span>' : '') +
                 '</div>' +
               '</div>' +
-              '<div class="jersey">' + escapeHtml(cell.number ?? '—') + '</div>' +
+              '<div class="jersey">' + escapeHtml(cell.number ?? '-') + '</div>' +
               '<div class="player-line">' + escapeHtml(firstName(cell.name)) +
                 (abbr ? ' · ' + escapeHtml(abbr) : '') + '</div>' +
               '<div class="cell-sub ' + (libero ? 'libero' : '') + '">' + escapeHtml(sub) + '</div>' +
@@ -1983,7 +1983,7 @@
         $('setChips').classList.toggle('on', completedSets.length > 0);
         $('teamTally').innerHTML =
           '<span style="color:' + readableTextColor(matchRow.home_color) + '">' + escapeHtml(compactTeamName(matchRow.home_name, 'Home', 18)) + '</span>' +
-          '<span class="dim"> ' + homeSets + ' </span><span class="dim">—</span><span class="dim"> ' + awaySets + ' </span>' +
+          '<span class="dim"> ' + homeSets + ' </span><span class="dim">-</span><span class="dim"> ' + awaySets + ' </span>' +
           '<span style="color:' + readableTextColor(matchRow.away_color) + '">' + escapeHtml(compactTeamName(matchRow.away_name, 'Away', 18)) + '</span>';
         const servingName = scoreOnly
           ? (s.myTeamServing ? (matchRow.home_name || 'Home') : (matchRow.away_name || 'Away'))

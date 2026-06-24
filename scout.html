@@ -354,7 +354,7 @@
     function renderTracker() {
       const player = selectedPlayer();
       const obsCount = player ? observationsFor(player.id).length : 0;
-      $('trackingLabel').textContent = player ? `Tracking #${player.jersey_number} — ${player.position}` : 'Select a player';
+      $('trackingLabel').textContent = player ? `Tracking #${player.jersey_number} - ${player.position}` : 'Select a player';
       $('trackingObs').textContent = `${obsCount} obs`;
       $('detailTitle').textContent = label(state.type);
       $('directionLabel').classList.toggle('hidden', state.type !== 'attack' && state.type !== 'block');
