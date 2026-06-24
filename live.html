@@ -811,29 +811,8 @@
           );
           return false;
         }
-        try {
-          const { data, error } = await supabase
-            .from('matches')
-            .select('share_id, state, is_published, is_complete, updated_at')
-            .eq('share_id', streamId)
-            .maybeSingle();
-          if (error) throw error;
-          const reason = broadcastUnavailableReason(data);
-          if (reason) {
-            setBroadcastBlocked(reason, data?.is_complete ? 'MATCH ENDED' : 'EXPIRED');
-            return false;
-          }
-          clearBroadcastBlocked();
-          handleMatchRow(data);
-          return true;
-        } catch (error) {
-          console.warn('[CourtsideView] broadcast access unavailable', error);
-          setBroadcastBlocked(
-            'Broadcast setup could not be verified. Return to CourtsideView and try again.',
-            'CHECK FAILED',
-          );
-          return false;
-        }
+        clearBroadcastBlocked();
+        return true;
       }
       function resetBroadcastControls(label = 'Start Broadcast') {
         broadcastBtn.textContent = label;
