@@ -773,11 +773,11 @@
         </div>
       </main>
       <section class="app-promo" aria-label="Download CourtsideView">
-        <div class="app-promo-title">Following from the sidelines?</div>
-        <div class="app-promo-body">Score games, share live updates, and keep family connected with CourtsideView.</div>
+        <div class="app-promo-title" id="appPromoTitle">Following from the sidelines?</div>
+        <div class="app-promo-body" id="appPromoBody">Score games, share live updates, and keep family connected with CourtsideView.</div>
         <div class="app-promo-actions">
-          <a class="app-promo-button" href="https://www.courtsideviewapp.com/">Get the app</a>
-          <a class="app-promo-link" href="https://www.courtsideviewapp.com/">Learn more</a>
+          <a class="app-promo-button" id="appPromoPrimary" href="https://www.courtsideviewapp.com/">Get the app</a>
+          <a class="app-promo-link" id="appPromoSecondary" href="https://www.courtsideviewapp.com/">Learn more</a>
         </div>
         <div class="app-promo-note">Live video is not recorded or stored. FanView links close 15 minutes after the game ends.</div>
       </section>
@@ -1881,6 +1881,31 @@
           '</div>';
         section.classList.add('on');
       }
+      function renderAppPromo(row) {
+        const teamSlug = row && row.team_slug ? String(row.team_slug) : '';
+        const teamName = row && row.team_name ? String(row.team_name).trim() : '';
+        const title = $('appPromoTitle');
+        const body = $('appPromoBody');
+        const primary = $('appPromoPrimary');
+        const secondary = $('appPromoSecondary');
+        if (!title || !body || !primary || !secondary) return;
+        if (teamSlug) {
+          const teamUrl = '/t/' + encodeURIComponent(teamSlug);
+          title.textContent = teamName ? 'Follow ' + teamName : 'Follow this team';
+          body.textContent = 'Use the permanent Team Hub for future live FanView links, final scores, schedule reminders, and highlights.';
+          primary.textContent = 'Open Team Hub';
+          primary.href = teamUrl;
+          secondary.textContent = 'Get the free app';
+          secondary.href = '/download';
+          return;
+        }
+        title.textContent = 'Following from the sidelines?';
+        body.textContent = 'Score games, share live updates, and keep family connected with CourtsideView.';
+        primary.textContent = 'Get the app';
+        primary.href = 'https://www.courtsideviewapp.com/';
+        secondary.textContent = 'Learn more';
+        secondary.href = 'https://www.courtsideviewapp.com/';
+      }
       let matchRow = null;
       let shareId = null;
       let lastScoreSnapshot = null;
@@ -1996,6 +2021,7 @@
         renderMoments(s, matchRow);
         renderVideo(matchRow);
         updatePrivacyLine(matchRow);
+        renderAppPromo(matchRow);
         startPresence(matchRow);
         startViewerStatus(matchRow);
         lastScoreSnapshot = scoreOnly ? scoreSnapshot(s) : null;
