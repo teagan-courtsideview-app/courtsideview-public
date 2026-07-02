@@ -34,6 +34,10 @@
       .avatar { width: 86px; height: 86px; border-radius: 50%; display: grid; place-items: center; background: var(--team, var(--green)); color: #fff; font-size: 38px; line-height: 1; font-weight: 950; font-variant-numeric: tabular-nums; }
       h1 { margin: 0; font-family: var(--font-display); font-size: clamp(42px, 11vw, 76px); line-height: .92; font-weight: 950; letter-spacing: 0; text-transform: uppercase; overflow-wrap: anywhere; }
       .meta { margin-top: 8px; color: var(--muted); font-size: 14px; line-height: 1.35; font-weight: 800; }
+      .resume { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+      .resume-item { min-height: 74px; border-radius: 16px; background: #f1f3ef; border: 1px solid #e5e9e1; padding: 14px; }
+      .resume-label { color: var(--muted); font-size: 10px; line-height: 1; letter-spacing: 1.3px; text-transform: uppercase; font-weight: 900; }
+      .resume-value { margin-top: 8px; color: var(--ink); font-family: var(--font-display); font-size: 28px; line-height: .95; font-weight: 950; overflow-wrap: anywhere; }
       .headline { margin-top: 24px; border-radius: 18px; background: #f1f3ef; padding: 18px; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
       .headline-value { font-family: var(--font-display); font-size: clamp(44px, 13vw, 72px); line-height: .9; font-weight: 950; color: var(--green); font-variant-numeric: tabular-nums; }
       .headline-label { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 900; }
@@ -45,12 +49,14 @@
       .best { display: none; margin-top: 14px; border-radius: 18px; background: #fff8e6; padding: 16px; color: var(--ink); }
       .best.on { display: block; }
       .best .eyebrow { color: var(--gold); margin-bottom: 8px; }
+      .best-title { font-weight: 900; line-height: 1.35; }
       .section { margin-top: 18px; border-radius: 22px; background: var(--card); border: 1px solid var(--border); padding: 20px; }
       .section-title { font-family: var(--font-display); font-size: 22px; line-height: 1; font-weight: 950; margin-bottom: 12px; }
       .highlight-list { display: grid; gap: 12px; }
       .highlight { display: grid; gap: 8px; border-radius: 16px; background: #fafaf7; border: 1px solid #edf0ea; overflow: hidden; }
       .highlight iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; display: block; background: #050505; }
       .highlight-copy { padding: 0 14px 14px; }
+      .verified { display: inline-flex; align-items: center; min-height: 24px; border-radius: 999px; background: rgba(32,166,107,.12); color: var(--green); padding: 0 10px; font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
       .highlight-label { font-weight: 900; color: var(--ink); }
       .highlight-stat { margin-top: 3px; color: var(--muted); font-size: 13px; line-height: 1.3; }
       .highlight-note { color: var(--muted); font-size: 13px; line-height: 1.35; border: 1px dashed #d9ded6;
@@ -64,6 +70,7 @@
         .hero-body { padding: 24px 18px 20px; }
         .headline { align-items: flex-start; flex-direction: column; }
         .games { text-align: left; }
+        .resume { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -89,6 +96,7 @@
                 <div class="meta" id="meta"></div>
               </div>
             </div>
+            <div class="resume" id="resumeGrid"></div>
             <div class="headline">
               <div>
                 <div class="headline-value" id="headlineValue">.000</div>
@@ -200,6 +208,18 @@
           ['Aces', statNumber(stats, 'aces')],
         ];
       }
+      function resumeCells(row, stats) {
+        return [
+          ['Position', row.position || '-'],
+          ['Grad Year', row.grad_year || 'Add in app'],
+          ['Height', row.height || 'Add in app'],
+          ['Team', row.team_name || 'Team'],
+          ['Season', row.season || 'Season'],
+          ['Best Game', statNumber(stats, 'bestGameKills') > 0
+            ? `${statNumber(stats, 'bestGameKills')} kills`
+            : `${statNumber(stats, 'gamesPlayed')} games`],
+        ];
+      }
       function youTubeEmbedUrl(url, seconds) {
         try {
           const parsed = new URL(String(url));
@@ -226,6 +246,7 @@
             return `<div class="highlight">
               <iframe src="${escapeHtml(embed)}" allow="accelerometer; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
               <div class="highlight-copy">
+                <div class="verified">Verified CourtsideView moment</div>
                 <div class="highlight-label">${escapeHtml(item.label || 'Highlight')}</div>
                 <div class="highlight-stat">${escapeHtml(item.stat_line || '')}</div>
               </div>
@@ -244,7 +265,16 @@
         $('season').textContent = row.season || 'Season Stats';
         $('jersey').textContent = String(row.jersey_number ?? '');
         $('name').textContent = row.display_name || 'Player';
-        $('meta').textContent = `#${row.jersey_number ?? ''} · ${row.position || '-'} · ${row.team_name || 'Team'}`;
+        $('meta').textContent = [
+          `#${row.jersey_number ?? ''}`,
+          row.position || '-',
+          row.grad_year ? `Grad ${row.grad_year}` : '',
+          row.height || '',
+          row.team_name || 'Team',
+        ].filter(Boolean).join(' · ');
+        $('resumeGrid').innerHTML = resumeCells(row, stats)
+          .map(([label, value]) => `<div class="resume-item"><div class="resume-label">${escapeHtml(label)}</div><div class="resume-value">${escapeHtml(value)}</div></div>`)
+          .join('');
         const headline = headlineFor(row, stats);
         $('headlineValue').textContent = String(headline.value);
         $('headlineLabel').textContent = headline.label;
@@ -254,7 +284,7 @@
           .join('');
         if (statNumber(stats, 'bestGameKills') > 0) {
           $('bestGame').classList.add('on');
-          $('bestText').textContent = `${statNumber(stats, 'bestGameKills')} kills vs ${stats.bestGameOpponent || 'Opponent'} · ${stats.bestGameDate || ''}`;
+          $('bestText').innerHTML = `<div class="best-title">${escapeHtml(statNumber(stats, 'bestGameKills'))} kills vs ${escapeHtml(stats.bestGameOpponent || 'Opponent')}</div><div class="highlight-stat">${escapeHtml(stats.bestGameDate || '')}</div>`;
         }
         renderHighlights(row);
         $('loading').style.display = 'none';
@@ -269,7 +299,7 @@
         }
         const { data, error } = await supabase
           .from('player_profiles')
-          .select('share_id, display_name, jersey_number, position, team_name, team_color, season, season_stats, highlight_links, is_public, updated_at')
+          .select('share_id, display_name, jersey_number, position, team_name, team_color, season, grad_year, height, season_stats, highlight_links, is_public, updated_at')
           .eq('share_id', shareId)
           .eq('is_public', true)
           .maybeSingle();

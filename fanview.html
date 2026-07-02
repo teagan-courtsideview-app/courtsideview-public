@@ -1622,18 +1622,47 @@
         $('liveVideo').muted = true;
         showSoundButton(false);
       }
+      function viewerConfidenceCopy(row) {
+        if (row && row.is_complete) {
+          return {
+            title: 'Final',
+            body: 'The match is final. Scores and activity remain available here.',
+          };
+        }
+        const videoState = row && row.__cloudflareVideoStatus;
+        const state = String(videoState?.state || '').toLowerCase();
+        if (videoState && videoState.isLive === true) {
+          return {
+            title: 'Live now',
+            body: 'Broadcast is live. If video pauses, CourtsideView will reconnect automatically.',
+          };
+        }
+        if (state === 'stopped') {
+          return {
+            title: 'Broadcast ended',
+            body: 'Video is no longer broadcasting. Scores and activity remain available here.',
+          };
+        }
+        if (state === 'paused' || state === 'reconnecting' || state === 'interrupted') {
+          return {
+            title: state === 'paused' ? 'Broadcaster paused' : 'Reconnecting video',
+            body: 'The match is still active. We will reconnect automatically when video returns.',
+          };
+        }
+        return {
+          title: 'Scores are live',
+          body: 'No video right now. Video can be added anytime.',
+        };
+      }
       function setNoVideoCopy(row) {
         const hero = $('noVideoHero');
         if (!hero) return;
         const title = hero.querySelector('.no-video-copy b');
         const body = hero.querySelector('.no-video-copy span');
-        const videoState = row && row.__cloudflareVideoStatus;
-        const broadcastEnded = videoState && videoState.isLive !== true && videoState.state === 'stopped';
-        if (title) title.textContent = broadcastEnded ? 'Broadcast ended' : 'Scores are live';
+        const copy = viewerConfidenceCopy(row);
+        if (title) title.textContent = copy.title;
         if (body) {
-          body.textContent = broadcastEnded
-            ? 'Video is no longer broadcasting. Scores and activity remain available here.'
-            : 'No video right now. Video can be added anytime.';
+          body.textContent = copy.body;
         }
       }
       function markCloudflareBroadcastEnded(streamId, status) {
@@ -1693,8 +1722,8 @@
             if (cloudflareViewer.streamId !== streamId) return;
             void handleCloudflareViewerOffline(
               streamId,
-              'Broadcast paused',
-              'The game is still active. We will reconnect automatically if the broadcaster restarts.',
+              'Broadcaster paused',
+              'The match is still active. We will reconnect automatically when video returns.',
             );
           });
         });
@@ -1707,13 +1736,13 @@
           if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
             void handleCloudflareViewerOffline(
               streamId,
-              'Broadcast interrupted',
-              'The game is still active. We will reconnect automatically.',
+              'Reconnecting video',
+              'The match is still active. We will reconnect automatically.',
             );
           }
         });
         try {
-          setVideoStatus('Waiting for broadcast', 'The game is live. Video will appear here when the broadcaster starts.');
+          setVideoStatus('Waiting for broadcaster', 'The match is live. Video will appear here when the broadcaster starts.');
           const response = await fetch(`${LIVE_WORKER_URL}/play/${encodeURIComponent(streamId)}`, {
             method: 'POST',
             headers: { 'content-type': 'application/sdp' },
@@ -1735,17 +1764,17 @@
             body: answer.sdp || '',
           });
           if (!renegotiate.ok) throw new Error('interrupted');
-          setVideoStatus('Connecting to broadcast', 'Video should start in a moment.');
+          setVideoStatus('Live now', 'Connecting video. This should start in a moment.');
         } catch (err) {
           pc.close();
           if (cloudflareViewer.streamId !== streamId) return;
           if (err instanceof Error && err.message === 'waiting') {
-            setVideoStatus('Video has not started yet', 'The game is active. Video will appear here when the broadcaster goes live.');
+            setVideoStatus('Waiting for broadcaster', 'The match is active. Video will appear here when the broadcaster goes live.');
           } else if (err instanceof Error && err.message === 'stopped') {
             markCloudflareBroadcastEnded(streamId, { isLive: false, state: 'stopped' });
             return;
           } else {
-            setVideoStatus('Video disconnected', 'The broadcaster may have lost signal. We will keep checking for the video.');
+            setVideoStatus('Reconnecting video', 'The broadcaster may have lost signal. We will keep checking for video.');
           }
           retryCloudflareViewer(streamId);
         }
@@ -1765,7 +1794,7 @@
           if (vf.src) vf.src = '';
           if (row.is_complete) {
             stopCloudflareViewer();
-            setVideoStatus('Broadcast ended', 'Final match details are still available below.');
+            setVideoStatus('Final', 'The match is final. Scores and activity remain available below.');
           } else {
             void startCloudflareViewer(row.share_id);
           }
