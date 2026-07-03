@@ -529,6 +529,11 @@
         return cleaned || 'Team';
       }
 
+      function displayMatchTeamName(value, fallback) {
+        const source = String(value || '').trim() || String(fallback || '').trim();
+        return displayTeamName(source);
+      }
+
       function displayTeamMark(team, displayName) {
         const saved = String(team?.logo_text || '').trim();
         if (saved && !/^\d+$/.test(saved)) return saved.slice(0, 4).toUpperCase();
@@ -636,8 +641,14 @@
           <div class="live-feed-list" aria-label="Live FanView choices">
             ${choices.map(({ match, link, index }) => {
               const score = scoreFromState(link);
-              const homeName = link.homeName || match.fanview_home_name || displayTeamName(state.team?.name);
-              const awayName = link.awayName || match.fanview_away_name || match.opponent || 'Opponent';
+              const homeName = displayMatchTeamName(
+                link.homeName || match.fanview_home_name,
+                state.team?.name,
+              );
+              const awayName = displayMatchTeamName(
+                link.awayName || match.fanview_away_name,
+                match.opponent || 'Opponent',
+              );
               return `
                 <a class="live-feed-card" href="/v/${encodeURIComponent(link.shareId)}">
                   <span>
@@ -716,8 +727,8 @@
           $('scoreline').innerHTML = links.length > 1
             ? renderFanViewChoices(liveMatches)
             : `
-              <span class="score-chip">${escapeHtml(firstLink?.homeName || live.fanview_home_name || displayTeamName(state.team.name))} ${score.home}</span>
-              <span class="score-chip">${escapeHtml(firstLink?.awayName || live.fanview_away_name || live.opponent || 'Opponent')} ${score.away}</span>
+              <span class="score-chip">${escapeHtml(displayMatchTeamName(firstLink?.homeName || live.fanview_home_name, state.team.name))} ${score.home}</span>
+              <span class="score-chip">${escapeHtml(displayMatchTeamName(firstLink?.awayName || live.fanview_away_name, live.opponent || 'Opponent'))} ${score.away}</span>
               <span class="score-chip">Sets ${score.homeSets}-${score.awaySets}</span>
             `;
           $('heroAction').textContent = links.length > 1 ? 'Watch Latest' : 'Watch FanView';
