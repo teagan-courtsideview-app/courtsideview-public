@@ -138,6 +138,21 @@
       .download-button { appearance: none; border-radius: 999px; padding: 10px 12px;
         color: #0b1017; background: #fff; border: 0; font-size: 12px; font-weight: 950;
         text-decoration: none; white-space: nowrap; }
+      .save-backdrop { position: fixed; inset: 0; z-index: 48; display: flex; align-items: flex-end;
+        padding: 18px max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+        background: rgba(0,0,0,0.66); opacity: 0; pointer-events: none; transition: opacity 160ms ease; }
+      .save-backdrop.on { opacity: 1; pointer-events: auto; }
+      .save-sheet { width: min(100%, 460px); margin: 0 auto; border-radius: 28px;
+        background: #f8fafc; color: #0b1017; padding: 22px; box-shadow: 0 28px 80px rgba(0,0,0,0.42); }
+      .save-sheet h2 { margin: 0 0 8px; font-family: "AvenirNextCondensed-Heavy", "Avenir Next Condensed", "Avenir Next", sans-serif;
+        font-size: 30px; line-height: 1.05; letter-spacing: 0; text-transform: uppercase; }
+      .save-sheet p { margin: 0 0 16px; color: #5f6875; font-size: 15px; line-height: 1.38; font-weight: 740; }
+      .save-meta { margin-bottom: 16px; color: #0b1017; font-size: 13px; line-height: 1.2; font-weight: 900; }
+      .save-actions { display: grid; gap: 10px; }
+      .save-actions .save-now { display: block; color: #fff; background: var(--green); border-radius: 999px;
+        padding: 14px 16px; text-align: center; text-decoration: none; font-size: 15px; font-weight: 950; }
+      .save-actions .save-later { color: #0b1017; background: #fff; border: 1px solid rgba(11,16,23,0.14);
+        padding: 13px 16px; font-size: 15px; }
       .viewer-row { display: flex; align-items: center; justify-content: center; gap: 8px;
         color: var(--muted); font-size: 13px; font-weight: 800; margin-top: 12px; }
       .viewer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink);
@@ -448,6 +463,17 @@
       </div>
     </main>
     <div id="joinToast" class="join-toast" role="status" aria-live="polite">A fan joined FanView</div>
+    <div id="savePrompt" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savePromptTitle" aria-hidden="true">
+      <div class="save-sheet">
+        <h2 id="savePromptTitle">Save your video?</h2>
+        <p>Your Broadcast copy is ready. Save it now before leaving this screen.</p>
+        <div id="savePromptMeta" class="save-meta">Video ready.</div>
+        <div class="save-actions">
+          <a id="savePromptLink" class="save-now" href="#" download>Save Video</a>
+          <button id="savePromptDismiss" class="save-later" type="button">Not now</button>
+        </div>
+      </div>
+    </div>
     <div id="endConfirm" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="endConfirmTitle" aria-hidden="true">
       <div class="confirm-sheet">
         <h2 id="endConfirmTitle">End Broadcast?</h2>
@@ -469,6 +495,7 @@
       const RECORDING_CHUNK_MAX_MS = 25 * 60 * 1000;
       const RECORDING_WARNING_BYTES = 4 * 1024 * 1024 * 1024;
       const streamId = getStreamId();
+      const initialRecordEnabled = getInitialRecordEnabled();
       const broadcastToken = getBroadcastToken();
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
@@ -503,6 +530,10 @@
       const viewerCountEl = document.getElementById('viewerCount');
       const viewerCountTopEl = document.getElementById('viewerCountTop');
       const joinToast = document.getElementById('joinToast');
+      const savePrompt = document.getElementById('savePrompt');
+      const savePromptLink = document.getElementById('savePromptLink');
+      const savePromptMeta = document.getElementById('savePromptMeta');
+      const savePromptDismiss = document.getElementById('savePromptDismiss');
       const endConfirm = document.getElementById('endConfirm');
       const cancelEndBtn = document.getElementById('cancelEndBtn');
       const confirmEndBtn = document.getElementById('confirmEndBtn');
@@ -526,7 +557,7 @@
       let reconnectTimer = null;
       let matchChannel = null;
       let currentSetFromMatch = 1;
-      let recordEnabled = true;
+      let recordEnabled = initialRecordEnabled;
       let mediaRecorder = null;
       let recorderChunks = [];
       let recorderChunkBytes = 0;
@@ -579,6 +610,12 @@
         } catch {
           return '';
         }
+      }
+      function getInitialRecordEnabled() {
+        const params = new URLSearchParams(window.location.search);
+        const value = (params.get('save') || params.get('record') || '').trim().toLowerCase();
+        if (value === '0' || value === 'false' || value === 'off') return false;
+        return true;
       }
       function broadcastTokenHeaders(extra = {}) {
         if (!broadcastToken) return extra;
@@ -846,6 +883,21 @@
         endConfirm.classList.remove('on');
         endConfirm.setAttribute('aria-hidden', 'true');
       }
+      function openSavePrompt({ url, filename, size }) {
+        if (!savePrompt || !savePromptLink || !url) return;
+        savePromptLink.href = url;
+        savePromptLink.download = filename;
+        if (savePromptMeta) {
+          savePromptMeta.textContent = `${formatBytes(size)} ready to save on this phone.`;
+        }
+        savePrompt.classList.add('on');
+        savePrompt.setAttribute('aria-hidden', 'false');
+      }
+      function closeSavePrompt() {
+        if (!savePrompt) return;
+        savePrompt.classList.remove('on');
+        savePrompt.setAttribute('aria-hidden', 'true');
+      }
       async function refreshViewerPresence() {
         if (!streamId) return;
         try {
@@ -988,6 +1040,9 @@
         downloadMeta.textContent = `${formatBytes(blob.size)} ready. Tap Save Video before leaving this screen.`;
         if (!live) {
           downloadPanel.classList.remove('is-hidden');
+          if (meta.reason === 'video-ended' || meta.reason === 'match-complete' || meta.reason === 'manual') {
+            openSavePrompt({ url, filename, size: blob.size });
+          }
         }
         setStatus([{ text: 'Video ready to save.', strong: true }], live ? 'LIVE' : 'READY', { duration: 5200 });
       }
@@ -1471,9 +1526,19 @@
       endConfirm.addEventListener('click', (event) => {
         if (event.target === endConfirm) closeEndConfirm();
       });
+      savePromptDismiss.addEventListener('click', closeSavePrompt);
+      savePromptLink.addEventListener('click', () => {
+        setTimeout(closeSavePrompt, 650);
+      });
+      savePrompt.addEventListener('click', (event) => {
+        if (event.target === savePrompt) closeSavePrompt();
+      });
       window.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && endConfirm.classList.contains('on')) {
           closeEndConfirm();
+        }
+        if (event.key === 'Escape' && savePrompt.classList.contains('on')) {
+          closeSavePrompt();
         }
       });
       shareBtn.addEventListener('click', () => {
@@ -1533,6 +1598,7 @@
         recordToggle.disabled = true;
         setStatus([{ text: 'Missing FanView share ID. Open this page from the CourtsideView FanView modal.' }], 'ERROR');
       } else {
+        recordToggle.checked = recordEnabled;
         if (!recorderSupported) {
           recordEnabled = false;
           recordToggle.checked = false;
