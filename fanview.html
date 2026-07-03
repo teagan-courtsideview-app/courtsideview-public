@@ -887,6 +887,10 @@
         if (normalized.length <= max) return normalized;
 
         const words = normalized.split(' ').filter(Boolean);
+        for (let count = Math.min(3, words.length); count >= 2; count -= 1) {
+          const candidate = words.slice(-count).join(' ');
+          if (candidate.length <= max) return candidate;
+        }
         if (words.length >= 2) {
           const last = words[words.length - 1];
           const initials = words.slice(0, -1).map((word) => word.charAt(0)).join('');
@@ -1184,7 +1188,9 @@
           : durable;
       }
       function teamNameFor(team, row) {
-        return team === 'myTeam' ? (row.home_name || 'Home') : (row.away_name || 'Away');
+        return team === 'myTeam'
+          ? normalizeDisplayName(row.home_name, 'Home')
+          : normalizeDisplayName(row.away_name, 'Away');
       }
       function scoreSnapshot(state) {
         return {
@@ -1265,7 +1271,7 @@
           list.innerHTML = '<div class="activity-empty">Waiting for the first point.</div>';
         } else {
           list.innerHTML = feed.map((item) => {
-            const message = String(item && item.message ? item.message : '');
+            const message = displayActivityText(item && item.message ? item.message : '', row);
             return '' +
               '<div class="activity-row" style="border-left-color:' + escapeHtml(feedAccent(item, row)) + '">' +
                 '<div class="activity-message">' + escapeHtml(message) + '</div>' +
