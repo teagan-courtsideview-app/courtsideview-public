@@ -1,0 +1,23 @@
+/* Cache-safe storefront badge alignment correction. */
+[data-challenger-home] .store-buttons .store-button {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 60px;
+  min-height: 60px;
+  overflow: hidden;
+}
+
+[data-challenger-home] .store-buttons .store-button--apple img {
+  width: 180px;
+  height: auto;
+  max-width: none;
+}
+
+[data-challenger-home] .store-buttons .store-button--google img {
+  width: 207px;
+  height: auto;
+  max-width: none;
+}
