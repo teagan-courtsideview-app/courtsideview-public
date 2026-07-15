@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="/assets/home-20260714/home.css">
     <link rel="stylesheet" href="/assets/home-20260714/home-port.css">
     <link rel="stylesheet" href="/assets/home-20260714/home-badges-v2.css">
+    <link rel="stylesheet" href="/assets/home-20260715/home-refinements-v3.css">
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -205,39 +206,26 @@
 
         <main id="main-content" tabindex="-1">
             <section class="hero section-dark" aria-labelledby="hero-title">
-                <div class="live-ticker" role="group" aria-label="Example live match score">
-                    <span class="live-dot" aria-hidden="true"></span>
-                    <strong>Live now</strong>
-                    <span class="ticker-team" role="group" aria-label="Atlanta Scout Team 17U"><span class="ticker-team-full" aria-hidden="true">Atlanta Scout Team 17U</span><span class="ticker-team-short" aria-hidden="true">ATL</span></span>
-                    <b>7</b>
-                    <span class="ticker-set">Set 1</span>
-                    <span class="ticker-team" role="group" aria-label="Detroit Stars 17U"><span class="ticker-team-full" aria-hidden="true">Detroit Stars 17U</span><span class="ticker-team-short" aria-hidden="true">DET</span></span>
-                    <b class="ticker-away">8</b>
-                </div>
-
                 <div class="hero-grid page-shell">
                     <div class="hero-copy">
                         <h1 id="hero-title">Built for six rotations.<span>Not six sports.</span></h1>
-                        <p class="hero-category-line">CourtsideView is a volleyball match-day app for scorekeeping, player stats, rotations, rosters, and FanView live score sharing.</p>
-                        <p class="hero-enemy">Other apps support volleyball. <strong>CourtsideView starts with it.</strong></p>
-                        <p class="hero-outcome">Score every rally. Track every rotation.</p>
+                        <p class="hero-enemy">Other apps may support volleyball. <strong>CourtsideView is <span class="hero-built-underline">built for volleyball</span>.</strong></p>
                         <p class="hero-promise">Bring everyone courtside.</p>
                         <div class="hero-actions">
                             <a class="button button-primary" href="#download">Get CourtsideView — free <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
-                            <a class="hero-secondary-action" href="#fanview">See FanView live <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
                         </div>
-                        <p class="verified-line">Free · iPhone · iPad · Android</p>
                     </div>
 
                     <div class="hero-media hero-media--broadcast-focus" role="group" aria-label="CourtsideView FanView broadcasting a live volleyball rally">
                         <figure class="hero-broadcast">
-                            <div class="hero-broadcast-device">
+                            <div class="hero-broadcast-device iphone17-device">
                                 <picture>
                                     <source type="image/avif" srcset="/assets/home-20260714/fanview-live-crisp-900.avif 900w, /assets/home-20260714/fanview-live-crisp-1440.avif 1440w" sizes="(max-width: 900px) 92vw, 44vw">
-                                    <img class="hero-device-screen" src="/assets/home-20260714/fanview-live-crisp.png" alt="Current CourtsideView FanView live match screen" width="1800" height="3914" loading="eager" decoding="async" fetchpriority="high">
+                                    <img class="hero-device-screen iphone17-screen" src="/assets/home-20260714/fanview-live-crisp.png" alt="Current CourtsideView FanView live match screen" width="1800" height="3914" loading="eager" decoding="async" fetchpriority="high">
                                 </picture>
-                                <video class="hero-fanview-video" data-src="/assets/home-20260714/fanview-rally-embed.mp4" poster="/assets/home-20260714/fanview-rally-embed-poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-                                <img class="hero-device-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="eager" decoding="async">
+                                <div class="hero-screen-brandbar" aria-hidden="true"><img src="/assets/courtsideview-app-icon.png" alt=""><span>CourtsideView</span></div>
+                                <video class="hero-fanview-video" data-src="/assets/home-20260715/fanview-rally-court-v2.mp4" poster="/assets/home-20260715/fanview-rally-court-v2-poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+                                <img class="hero-device-frame iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="eager" decoding="async">
                             </div>
                             <button class="video-control hero-broadcast-control" type="button" aria-label="Play FanView preview">
                                 <svg aria-hidden="true" viewBox="0 0 256 256"><path d="M240 128a15.74 15.74 0 0 1-7.6 13.51L88.32 229.65A16 16 0 0 1 64 216.13V39.87a16 16 0 0 1 24.32-13.52l144.08 88.14A15.74 15.74 0 0 1 240 128Z"/></svg>
@@ -281,7 +269,10 @@
                     <div class="comparison-mark" aria-hidden="true">vs</div>
                     <div class="comparison comparison--cv">
                         <span class="comparison-label">CourtsideView</span>
-                        <img src="/assets/home-20260714/scoreboard-command.webp" alt="CourtsideView volleyball scorekeeping screen" width="900" height="1957" loading="lazy" decoding="async">
+                        <div class="comparison-device iphone17-device">
+                            <img class="comparison-device-screen iphone17-screen" src="/assets/home-20260714/scoreboard-command.webp" alt="CourtsideView volleyball scorekeeping screen" width="900" height="1957" loading="lazy" decoding="async">
+                            <img class="comparison-device-frame iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                        </div>
                         <p>Score · Rotate · Broadcast</p>
                     </div>
                 </div>
@@ -294,6 +285,7 @@
                         <div>
                             <p class="act-label">02 / One scorer</p>
                             <h2 id="demo-title">One match. <span>One volleyball-native system.</span></h2>
+                            <p class="demo-section-lede">Score every rally. Track every rotation.</p>
                         </div>
                         <button class="text-button" type="button">
                             <svg aria-hidden="true" viewBox="0 0 256 256"><path d="M128 24a104 104 0 1 0 104 104 8 8 0 0 0-16 0 88 88 0 1 1-26.2-62.4L168 87.43V48a8 8 0 0 0-16 0v58.34a8 8 0 0 0 8 8h58.34a8 8 0 0 0 0-16h-39.2l21.95-21.95A103.31 103.31 0 0 0 128 24Z"/></svg> Reset flow
@@ -308,7 +300,10 @@
                         </div>
                         <article id="demo-panel" class="demo-campaign-panel" role="tabpanel" aria-labelledby="demo-tab-score" tabindex="0">
                             <div class="demo-campaign-image">
-                                <img src="/assets/home-20260714/scorekeeper-main.webp" alt="CourtsideView scorekeeper screen with scores, timeouts, and end set controls" width="900" height="1957" loading="lazy" decoding="async">
+                                <div class="demo-campaign-device iphone17-device">
+                                    <img class="iphone17-screen" src="/assets/home-20260714/scorekeeper-main.webp" alt="CourtsideView scorekeeper screen with scores, timeouts, and end set controls" width="900" height="1957" loading="lazy" decoding="async">
+                                    <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                                </div>
                             </div>
                             <div class="demo-campaign-copy">
                                 <p>1 · Score</p>
@@ -364,7 +359,11 @@
                     </div>
                     <div class="fanview-official-grid" role="group" aria-label="CourtsideView FanView match screen">
                         <figure class="fanview-official-screen fanview-official-screen--live">
-                            <img src="/assets/home-20260714/fanview-live.webp" alt="Current CourtsideView FanView live web screen showing the match score and activity" width="900" height="1957" loading="lazy" decoding="async">
+                            <div class="fanview-official-device iphone17-device">
+                                <img class="iphone17-screen" src="/assets/home-20260714/fanview-live.webp" alt="Current CourtsideView FanView live web screen showing the match score and activity" width="900" height="1957" loading="lazy" decoding="async">
+                                <div class="iphone17-brandbar" aria-hidden="true"><img src="/assets/courtsideview-app-icon.png" alt=""><span>CourtsideView</span></div>
+                                <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                            </div>
                             <figcaption>Watch from any modern browser. No app required.</figcaption>
                         </figure>
                     </div>
@@ -459,7 +458,10 @@
                     </div>
                     <div id="feature-panel" class="feature-stage" role="tabpanel" aria-labelledby="feature-tab-rotations" tabindex="0">
                         <div class="feature-image">
-                            <img src="/assets/home-20260714/stats-rotation.webp" alt="CourtsideView rotation and player statistics screen" width="900" height="1957" loading="lazy" decoding="async">
+                            <div class="feature-device iphone17-device">
+                                <img class="iphone17-screen" src="/assets/home-20260714/stats-rotation.webp" alt="CourtsideView rotation and player statistics screen" width="900" height="1957" loading="lazy" decoding="async">
+                                <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                            </div>
                         </div>
                         <div class="feature-caption">
                             <p>Six-position rotations</p>
@@ -477,6 +479,7 @@
                         <p class="download-prelude">Start with the next serve</p>
                         <h2 id="download-title" tabindex="-1">Bring everyone courtside.</h2>
                         <p>CourtsideView is free. Download for iPhone, iPad, and Android.</p>
+                        <p class="download-platforms">Free · iPhone · iPad · Android</p>
                     </div>
                     <div class="store-buttons" role="group" aria-label="Download CourtsideView">
                         <a class="store-button store-button--apple" href="https://apps.apple.com/us/app/courtsideview/id6766532771" target="_blank" rel="noopener noreferrer"><img src="/assets/home-20260714/app-store.svg" alt="Download CourtsideView on the App Store" width="178" height="54" loading="lazy" decoding="async"></a>
@@ -551,7 +554,7 @@
 
         <footer class="site-footer section-dark">
             <div class="page-shell footer-grid">
-                <a class="brand" href="/" aria-label="CourtsideView home"><img src="/assets/home-20260714/cv-mark-184.png" alt="" width="46" height="34" loading="lazy" decoding="async"><span>CourtsideView</span></a>
+                <div class="footer-brand-lockup"><a class="brand" href="/" aria-label="CourtsideView home"><img src="/assets/home-20260714/cv-mark-184.png" alt="" width="46" height="34" loading="lazy" decoding="async"><span>CourtsideView</span></a><p>Bring everyone courtside.</p></div>
                 <nav aria-label="Footer navigation"><a href="#why">Why volleyball</a><a href="#matchday">Match day</a><a href="#fanview">FanView</a><a href="#real-app">Real app</a><a href="#download">Get the app</a></nav>
                 <div><a href="/privacy">Privacy</a><span>© 2026 CourtsideView</span></div>
             </div>
@@ -564,14 +567,21 @@
             <div class="modal-live"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m229.66 77.66-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69 218.34 66.34a8 8 0 0 1 11.32 11.32Z"/></svg> FanView preview</div>
             <h2 id="fanview-modal-title">One link. Everyone courtside.</h2>
             <div class="modal-official-grid">
-                <img src="/assets/home-20260714/fanview-live.webp" alt="CourtsideView FanView live match screen" width="900" height="1957" loading="lazy" decoding="async">
-                <img src="/assets/home-20260714/share-fanview.webp" alt="CourtsideView FanView sharing screen" width="900" height="1957" loading="lazy" decoding="async">
+                <div class="modal-official-device iphone17-device">
+                    <img class="iphone17-screen" src="/assets/home-20260714/fanview-live.webp" alt="CourtsideView FanView live match screen" width="900" height="1957" loading="lazy" decoding="async">
+                    <div class="iphone17-brandbar" aria-hidden="true"><img src="/assets/courtsideview-app-icon.png" alt=""><span>CourtsideView</span></div>
+                    <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                </div>
+                <div class="modal-official-device iphone17-device">
+                    <img class="iphone17-screen" src="/assets/home-20260714/share-fanview.webp" alt="CourtsideView FanView sharing screen" width="900" height="1957" loading="lazy" decoding="async">
+                    <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                </div>
             </div>
             <p id="fanview-modal-description">FanView lets families follow the score and match activity from any modern browser. These screens come from the live app.</p>
             <a class="button button-primary" href="#download">Get CourtsideView — free <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
         </div>
     </div>
 
-    <script src="/assets/home-20260714/home.js" defer></script>
+    <script src="/assets/home-20260714/home.js?v=20260715-iphone17" defer></script>
 </body>
 </html>

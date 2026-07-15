@@ -187,7 +187,7 @@
       tab.tabIndex = active ? 0 : -1;
     });
     demoPanel.setAttribute("aria-labelledby", `demo-tab-${data.id}`);
-    const image = demoPanel.querySelector("img");
+    const image = demoPanel.querySelector(".iphone17-screen");
     if (image) {
       image.src = data.image;
       image.alt = data.alt;
@@ -285,9 +285,12 @@
       tab.tabIndex = active ? 0 : -1;
     });
     featurePanel.setAttribute("aria-labelledby", `feature-tab-${data.id}`);
+    featurePanel.classList.toggle("feature-stage--wide", data.id === "big-mode");
     const imageWrap = featurePanel.querySelector(".feature-image");
     imageWrap?.classList.toggle("feature-image--wide", data.id === "big-mode");
-    const image = imageWrap?.querySelector("img");
+    const imageDevice = imageWrap?.querySelector(".feature-device");
+    imageDevice?.classList.toggle("iphone17-device--landscape", data.id === "big-mode");
+    const image = imageWrap?.querySelector(".iphone17-screen");
     if (image) {
       image.src = data.image;
       image.alt = data.alt;

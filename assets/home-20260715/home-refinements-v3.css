@@ -1,0 +1,450 @@
+/* July 15 approval preview: quieter hero, court-first FanView, and collision-safe SEO proof. */
+
+[data-challenger-home] .hero-copy {
+  max-width: 680px;
+}
+
+[data-challenger-home] .hero-enemy {
+  max-width: 590px;
+  margin-bottom: 24px;
+}
+
+[data-challenger-home] .hero-built-underline {
+  text-decoration-line: underline;
+  text-decoration-color: var(--green);
+  text-decoration-thickness: 0.13em;
+  text-underline-offset: 0.16em;
+  text-decoration-skip-ink: none;
+}
+
+/* One production-device system for every standalone CourtsideView screen. */
+[data-challenger-home] .iphone17-device,
+[data-fanview-modal] .iphone17-device {
+  position: relative;
+  aspect-ratio: 864 / 1821;
+  overflow: visible;
+}
+
+[data-challenger-home] .iphone17-device > .iphone17-screen,
+[data-challenger-home] .iphone17-device > picture > .iphone17-screen,
+[data-fanview-modal] .iphone17-device > .iphone17-screen {
+  position: absolute;
+  z-index: 1;
+  top: 5.6%;
+  left: 9.25%;
+  width: 81.5%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  border: 0;
+  border-radius: 12% / 5.5%;
+  box-shadow: none;
+  object-fit: contain;
+}
+
+[data-challenger-home] .iphone17-device > .iphone17-frame,
+[data-fanview-modal] .iphone17-device > .iphone17-frame {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  object-fit: fill;
+  filter: grayscale(1) saturate(0) contrast(1.04) drop-shadow(0 22px 24px rgba(0, 0, 0, 0.34));
+  pointer-events: none;
+}
+
+[data-challenger-home] .iphone17-brandbar,
+[data-fanview-modal] .iphone17-brandbar {
+  position: absolute;
+  z-index: 3;
+  top: 11.4%;
+  left: 10.95%;
+  display: flex;
+  width: 48.5%;
+  height: 6.2%;
+  align-items: center;
+  gap: 4%;
+  padding: 0 4.5%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #eef1ee 0%, #e8ece8 100%);
+  color: #080b0f;
+  pointer-events: none;
+}
+
+[data-challenger-home] .iphone17-brandbar img,
+[data-fanview-modal] .iphone17-brandbar img {
+  width: 17%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 22%;
+  flex: 0 0 auto;
+}
+
+[data-challenger-home] .iphone17-brandbar span,
+[data-fanview-modal] .iphone17-brandbar span {
+  font-family: var(--font-display);
+  font-size: clamp(10px, 1.25vw, 18px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+[data-challenger-home] .iphone17-device--landscape {
+  aspect-ratio: 1821 / 864;
+}
+
+[data-challenger-home] .iphone17-device--landscape > .iphone17-screen {
+  top: 9.25%;
+  left: 5.6%;
+  width: 84.1%;
+  height: 81.5%;
+  border-radius: 5.5% / 12%;
+  object-fit: fill;
+}
+
+[data-challenger-home] .iphone17-device--landscape > .iphone17-frame {
+  inset: auto;
+  top: -55.38%;
+  left: 26.28%;
+  width: 47.45%;
+  height: 210.76%;
+  transform: rotate(90deg);
+  transform-origin: center;
+}
+
+[data-challenger-home] .hero-screen-brandbar {
+  position: absolute;
+  z-index: 3;
+  top: 11.95%;
+  left: 10.95%;
+  display: flex;
+  width: 48.5%;
+  height: 6.2%;
+  align-items: center;
+  gap: 4%;
+  padding: 0 4.5%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #eef1ee 0%, #e8ece8 100%);
+  color: #080b0f;
+  pointer-events: none;
+}
+
+[data-challenger-home] .hero-screen-brandbar img {
+  width: 17%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 22%;
+  flex: 0 0 auto;
+}
+
+[data-challenger-home] .hero-screen-brandbar span {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.5vw, 22px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+[data-challenger-home] .hero-command-line {
+  margin-top: 20px;
+}
+
+[data-challenger-home] .comparison-device {
+  position: relative;
+  align-self: end;
+  justify-self: center;
+  width: min(74%, 189px);
+  aspect-ratio: 864 / 1821;
+  overflow: visible;
+}
+
+[data-challenger-home] .comparison--cv .comparison-device-screen {
+  position: absolute;
+  z-index: 1;
+  top: 5.6%;
+  left: 9.25%;
+  width: 81.5%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  border-radius: 12% / 5.5%;
+  object-fit: contain;
+}
+
+[data-challenger-home] .comparison--cv .comparison-device-frame {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  object-fit: fill;
+  filter: grayscale(1) saturate(0) contrast(1.04) drop-shadow(0 18px 18px rgba(0, 0, 0, 0.28));
+  pointer-events: none;
+}
+
+[data-challenger-home] .demo-campaign-image {
+  min-height: 920px;
+}
+
+[data-challenger-home] .demo-campaign-device {
+  align-self: end;
+  justify-self: center;
+  width: min(90%, 420px);
+}
+
+[data-challenger-home] .fanview-official-screen,
+[data-challenger-home] .fanview-official-screen--live {
+  display: grid;
+  width: min(100%, 480px);
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  justify-items: center;
+}
+
+[data-challenger-home] .fanview-official-device {
+  width: 100%;
+}
+
+[data-challenger-home] .fanview-official-screen figcaption {
+  width: 81.5%;
+  border-top: 2px solid var(--green);
+}
+
+[data-challenger-home] .feature-stage:not(.feature-stage--wide) {
+  min-height: 860px;
+  grid-template-columns: minmax(390px, 0.92fr) minmax(0, 1.08fr);
+}
+
+[data-challenger-home] .feature-image {
+  display: grid;
+  width: 400px;
+  height: 848px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  place-items: end center;
+}
+
+[data-challenger-home] .feature-device {
+  width: min(100%, 400px);
+}
+
+[data-challenger-home] .feature-stage--wide {
+  grid-template-columns: 1fr;
+  min-height: 0;
+}
+
+[data-challenger-home] .feature-stage--wide .feature-image--wide {
+  align-self: center;
+  width: min(100% - 64px, 680px);
+  height: auto;
+  aspect-ratio: 1821 / 864;
+  margin: 42px auto;
+  overflow: visible;
+}
+
+[data-challenger-home] .feature-stage--wide .feature-device {
+  width: 100%;
+}
+
+[data-challenger-home] .feature-stage--wide .feature-caption {
+  border-top: 1px solid var(--line-dark);
+  border-left: 0;
+}
+
+[data-fanview-modal] .modal-official-grid {
+  align-items: end;
+}
+
+[data-fanview-modal] .modal-official-device {
+  justify-self: center;
+  width: min(100%, 270px);
+}
+
+.demo-section-lede {
+  margin: 20px 0 0;
+  color: rgba(243, 239, 230, 0.7);
+  font-family: var(--font-display);
+  font-size: clamp(17px, 1.6vw, 22px);
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.seo-proof-grid {
+  gap: clamp(48px, 5vw, 76px);
+  grid-template-columns: minmax(0, 1.12fr) minmax(480px, 0.88fr);
+}
+
+.seo-proof-intro {
+  min-width: 0;
+}
+
+.seo-proof-intro h2 {
+  max-width: 100%;
+  font-size: clamp(60px, 5.4vw, 88px);
+  line-height: 0.82;
+}
+
+.seo-proof-intro h2 span {
+  font-size: 0.78em;
+}
+
+.download-section .download-platforms {
+  margin-top: 13px !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.footer-brand-lockup {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+}
+
+.footer-brand-lockup p {
+  margin: 0;
+  color: var(--gray);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 901px) {
+  [data-challenger-home] .hero-grid,
+  [data-challenger-home] .hero-media--broadcast-focus {
+    min-height: clamp(900px, 50vw, 940px);
+  }
+
+  [data-challenger-home] .hero-media--broadcast-focus .hero-broadcast {
+    width: clamp(380px, 29vw, 440px);
+  }
+}
+
+@media (max-width: 1180px) {
+  [data-challenger-home] .demo-campaign-image {
+    min-height: 720px;
+  }
+
+  [data-challenger-home] .demo-campaign-device {
+    width: min(88%, 340px);
+  }
+
+  .seo-proof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .seo-proof-intro {
+    position: static;
+    max-width: 760px;
+  }
+
+  .seo-faq-list {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 900px) {
+  [data-challenger-home] .hero-copy {
+    padding-bottom: 20px;
+  }
+
+  [data-challenger-home] .hero-media--broadcast-focus {
+    min-height: 960px;
+  }
+
+  [data-challenger-home] .demo-campaign-image {
+    min-height: 680px;
+  }
+
+  [data-challenger-home] .demo-campaign-device {
+    width: min(88%, 320px);
+  }
+}
+
+@media (max-width: 620px) {
+  [data-challenger-home] .hero-copy {
+    padding-top: 48px;
+  }
+
+  [data-challenger-home] .hero-enemy {
+    margin-bottom: 20px;
+  }
+
+  [data-challenger-home] .hero-media--broadcast-focus {
+    min-height: clamp(740px, 182vw, 830px);
+  }
+
+  [data-challenger-home] .hero-command-line {
+    margin-top: 16px;
+  }
+
+  [data-challenger-home] .comparison-device {
+    width: min(76%, 210px);
+  }
+
+  [data-challenger-home] .demo-campaign-image {
+    min-height: 700px;
+  }
+
+  [data-challenger-home] .demo-campaign-device {
+    width: min(92%, 320px);
+  }
+
+  [data-challenger-home] .feature-stage:not(.feature-stage--wide) {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  [data-challenger-home] .feature-image {
+    width: min(88%, 320px);
+    height: auto;
+    aspect-ratio: 864 / 1821;
+  }
+
+  [data-challenger-home] .feature-device {
+    width: 100%;
+  }
+
+  [data-challenger-home] .feature-stage--wide .feature-image--wide {
+    width: calc(100% - 32px);
+    margin-block: 32px;
+  }
+
+  [data-challenger-home] .hero-screen-brandbar span {
+    font-size: clamp(12px, 4vw, 15px);
+  }
+
+  .demo-section-lede {
+    max-width: 330px;
+    font-size: 17px;
+  }
+
+  .seo-proof-intro h2 {
+    font-size: clamp(42px, 12.5vw, 56px);
+  }
+
+  .seo-proof-intro h2 span {
+    font-size: 0.78em;
+  }
+}
