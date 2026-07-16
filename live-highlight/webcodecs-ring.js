@@ -198,6 +198,20 @@ export class EncodedMediaRing {
             epochCount: this.epochs.size,
         });
     }
+    coverage(epochId) {
+        const epoch = this.epochs.get(epochId);
+        if (!epoch)
+            throw new EncodedRingError('invalid_epoch', 'Encoded epoch was not found.');
+        const video = this.packets.filter((packet) => packet.epochId === epochId && packet.track === 'video');
+        const newestVideoEndUs = video.reduce((maximum, packet) => Math.max(maximum, packet.timestampUs + packet.durationUs), -1);
+        return Object.freeze({
+            videoPacketCount: video.length,
+            newestVideoMonotonicMs: newestVideoEndUs < 0
+                ? null
+                : epoch.startedMonotonicMs + newestVideoEndUs / 1_000,
+            endedMonotonicMs: epoch.endedMonotonicMs,
+        });
+    }
     mutableActiveEpoch(epochId) {
         const epoch = this.epochs.get(epochId);
         if (!epoch)

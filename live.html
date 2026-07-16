@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="theme-color" content="#0F141B" />
     <title>CourtsideView Broadcast</title>
@@ -153,6 +154,17 @@
         padding: 14px 16px; text-align: center; text-decoration: none; font-size: 15px; font-weight: 950; }
       .save-actions .save-later { color: #0b1017; background: #fff; border: 1px solid rgba(11,16,23,0.14);
         padding: 13px 16px; font-size: 15px; }
+      .saved-list { display: grid; gap: 10px; max-height: min(52vh, 430px); overflow: auto; margin: 14px 0; }
+      .saved-empty { margin: 8px 0 18px; padding: 18px; border-radius: 18px; color: #5f6875;
+        background: #eef2f5; text-align: center; font-size: 14px; font-weight: 800; }
+      .saved-card { display: grid; gap: 9px; padding: 14px; border-radius: 18px;
+        background: #fff; border: 1px solid rgba(11,16,23,0.10); }
+      .saved-card strong { color: #0b1017; font-size: 14px; line-height: 1.2; overflow-wrap: anywhere; }
+      .saved-card span { color: #69727f; font-size: 12px; font-weight: 760; }
+      .saved-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .saved-card-actions button { padding: 10px 12px; font-size: 13px; }
+      .saved-download { color: #fff; background: var(--green); }
+      .saved-delete { color: #b42318; background: #fff; border: 1px solid rgba(180,35,24,0.20); }
       .viewer-row { display: flex; align-items: center; justify-content: center; gap: 8px;
         color: var(--muted); font-size: 13px; font-weight: 800; margin-top: 12px; }
       .viewer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink);
@@ -440,7 +452,7 @@
               <div class="record-copy">
                 <strong>Save a Copy on This Device</strong>
                 <span>Keep this on to save the Broadcast after it ends.</span>
-                <small id="recordEstimate">After you end the Broadcast, tap Save Video. CourtsideView does not store video.</small>
+                <small id="recordEstimate">After you end the Broadcast, tap Save Video. Highlight requests may also keep local clips on this device.</small>
               </div>
             </div>
             <div id="downloadPanel" class="download-panel is-hidden">
@@ -453,6 +465,7 @@
             <button id="cameraBtn" class="primary">Start Camera</button>
             <button id="broadcastBtn" class="primary is-hidden" disabled>Start Broadcast</button>
             <button id="scoreBtn" class="secondary is-hidden" disabled>Return to score</button>
+            <button id="clearHighlightStorageBtn" class="secondary is-hidden" type="button">Saved highlights</button>
             <button id="shareBtn" class="fanview-primary">Share Fan Link</button>
             <button id="minimizeBtn" class="secondary is-hidden" disabled>Float Broadcast</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End</button>
@@ -471,6 +484,16 @@
         <div class="save-actions">
           <a id="savePromptLink" class="save-now" href="#" download>Save Video</a>
           <button id="savePromptDismiss" class="save-later" type="button">Not now</button>
+        </div>
+      </div>
+    </div>
+    <div id="savedHighlights" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savedHighlightsTitle" aria-hidden="true">
+      <div class="save-sheet">
+        <h2 id="savedHighlightsTitle">Saved Highlights</h2>
+        <p>Download a play to Photos or Files, or remove a local copy when you no longer need it.</p>
+        <div id="savedHighlightsList" class="saved-list" aria-live="polite"></div>
+        <div class="save-actions">
+          <button id="savedHighlightsClose" class="save-later" type="button">Done</button>
         </div>
       </div>
     </div>
@@ -494,15 +517,33 @@
     </script>
     <script type="module">
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
-      import { createFanViewHighlightRuntime } from './live-highlight/runtime.js';
+      import {
+        createFanViewHighlightRuntime,
+        deleteFanViewSavedHighlight,
+        flushFanViewHighlightReceiptOutbox,
+        listFanViewSavedHighlights,
+        readFanViewSavedHighlight,
+      } from '/live-highlight/runtime.js';
+      import {
+        canUseFinalRallyTokenGrace,
+        shouldClearFinalRallyTimer,
+      } from '/live-highlight/match-lifecycle.js';
 
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
       const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
       const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
       const VIEWER_POLL_MS = 30000;
+      const MATCH_SYNC_REFRESH_MS = 10000;
       const RECORDING_CHUNK_MAX_MS = 25 * 60 * 1000;
       const RECORDING_WARNING_BYTES = 4 * 1024 * 1024 * 1024;
+      const FINAL_RALLY_HIGHLIGHT_GRACE_MS = 60 * 1000;
       const streamId = getStreamId();
+      if (streamId) {
+        void flushFanViewHighlightReceiptOutbox({
+          workerUrl: LIVE_WORKER_URL,
+          streamId,
+        }).catch(() => {});
+      }
       const initialRecordEnabled = getInitialRecordEnabled();
       const broadcastToken = getBroadcastToken();
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -516,6 +557,7 @@
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
       const scoreBtn = document.getElementById('scoreBtn');
+      const clearHighlightStorageBtn = document.getElementById('clearHighlightStorageBtn');
       const shareBtn = document.getElementById('shareBtn');
       const minimizeBtn = document.getElementById('minimizeBtn');
       const stopBtn = document.getElementById('stopBtn');
@@ -542,6 +584,9 @@
       const savePromptLink = document.getElementById('savePromptLink');
       const savePromptMeta = document.getElementById('savePromptMeta');
       const savePromptDismiss = document.getElementById('savePromptDismiss');
+      const savedHighlights = document.getElementById('savedHighlights');
+      const savedHighlightsList = document.getElementById('savedHighlightsList');
+      const savedHighlightsClose = document.getElementById('savedHighlightsClose');
       const endConfirm = document.getElementById('endConfirm');
       const cancelEndBtn = document.getElementById('cancelEndBtn');
       const confirmEndBtn = document.getElementById('confirmEndBtn');
@@ -563,7 +608,11 @@
       let toastTimer = null;
       let statusTimer = null;
       let reconnectTimer = null;
+      let reconnectAttempt = 0;
+      let finalRallyStopTimer = null;
       let matchChannel = null;
+      let matchRefreshTimer = null;
+      let matchRefreshInFlight = false;
       let currentSetFromMatch = 1;
       let recordEnabled = initialRecordEnabled;
       let mediaRecorder = null;
@@ -581,6 +630,7 @@
       let highlightRuntime = null;
       let highlightStartSequence = 0;
       let lastHighlightUrl = '';
+      let lastHighlightStorageKey = '';
       const recorderSupported = typeof MediaRecorder !== 'undefined';
 
       function syncVisibleViewport() {
@@ -598,23 +648,26 @@
         return match ? decodeURIComponent(match[1]) : null;
       }
       function getBroadcastToken() {
-        const params = new URLSearchParams(window.location.search);
-        const queryToken = (params.get('b') || params.get('bt') || '').trim();
-        if (!streamId) return queryToken;
+        const fragment = window.location.hash.startsWith('#')
+          ? window.location.hash.slice(1)
+          : '';
+        const fragmentParams = new URLSearchParams(fragment);
+        const fragmentToken = (fragmentParams.get('b') || fragmentParams.get('bt') || '').trim();
+        if (!streamId) return fragmentToken;
         const storageKey = `courtsideview.broadcastToken.${streamId}`;
-        if (queryToken) {
+        if (fragmentToken) {
           try {
-            sessionStorage.setItem(storageKey, queryToken);
+            sessionStorage.setItem(storageKey, fragmentToken);
           } catch {
             // Session storage is a convenience only; the current page keeps the token in memory.
           }
           try {
-            const cleanUrl = `${window.location.origin}/live/${encodeURIComponent(streamId)}${window.location.hash || ''}`;
+            const cleanUrl = `${window.location.origin}/live/${encodeURIComponent(streamId)}${window.location.search || ''}`;
             window.history.replaceState(null, '', cleanUrl);
           } catch {
             // Keep the original URL if the browser blocks history updates.
           }
-          return queryToken;
+          return fragmentToken;
         }
         try {
           return (sessionStorage.getItem(storageKey) || '').trim();
@@ -894,20 +947,107 @@
         endConfirm.classList.remove('on');
         endConfirm.setAttribute('aria-hidden', 'true');
       }
-      function openSavePrompt({ url, filename, size }) {
+      function openSavePrompt({ url, filename, size, storageKey = '' }) {
         if (!savePrompt || !savePromptLink || !url) return;
         savePromptLink.href = url;
         savePromptLink.download = filename;
+        lastHighlightStorageKey = storageKey;
         if (savePromptMeta) {
           savePromptMeta.textContent = `${formatBytes(size)} ready to save on this phone.`;
         }
         savePrompt.classList.add('on');
         savePrompt.setAttribute('aria-hidden', 'false');
+        void refreshSavedHighlightsButton();
       }
       function closeSavePrompt() {
         if (!savePrompt) return;
         savePrompt.classList.remove('on');
         savePrompt.setAttribute('aria-hidden', 'true');
+      }
+      function closeSavedHighlights() {
+        savedHighlights.classList.remove('on');
+        savedHighlights.setAttribute('aria-hidden', 'true');
+      }
+      async function refreshSavedHighlightsButton() {
+        const clips = await listFanViewSavedHighlights().catch(() => []);
+        clearHighlightStorageBtn.classList.toggle('is-hidden', clips.length === 0);
+        return clips;
+      }
+      async function downloadStoredHighlight(summary, button) {
+        button.disabled = true;
+        try {
+          const clip = await readFanViewSavedHighlight(summary.storageKey);
+          const file = new File([clip.data], clip.filename, { type: clip.mimeType });
+          if (navigator.canShare?.({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'CourtsideView highlight' });
+          } else {
+            const url = URL.createObjectURL(clip.data);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = clip.filename;
+            link.rel = 'noopener';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 60_000);
+          }
+        } catch (error) {
+          if (!(error instanceof DOMException && error.name === 'AbortError')) {
+            setStatus([{ text: 'That highlight could not be opened. Try again.' }], 'HIGHLIGHTS', { duration: 3000 });
+          }
+        } finally {
+          button.disabled = false;
+        }
+      }
+      async function renderSavedHighlights() {
+        const clips = await refreshSavedHighlightsButton();
+        savedHighlightsList.replaceChildren();
+        if (clips.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'saved-empty';
+          empty.textContent = 'Your saved plays will appear here.';
+          savedHighlightsList.appendChild(empty);
+          return;
+        }
+        for (const clip of clips) {
+          const card = document.createElement('div');
+          card.className = 'saved-card';
+          const title = document.createElement('strong');
+          title.textContent = clip.filename;
+          const meta = document.createElement('span');
+          meta.textContent = `${formatBytes(clip.bytes)} · ${new Date(clip.createdAtEpochMs).toLocaleString()}`;
+          const actions = document.createElement('div');
+          actions.className = 'saved-card-actions';
+          const download = document.createElement('button');
+          download.type = 'button';
+          download.className = 'saved-download';
+          download.textContent = 'Download';
+          download.addEventListener('click', () => void downloadStoredHighlight(clip, download));
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'saved-delete';
+          remove.textContent = 'Delete';
+          remove.addEventListener('click', async () => {
+            if (!window.confirm(`Delete ${clip.filename}? This cannot be undone.`)) return;
+            remove.disabled = true;
+            try {
+              await deleteFanViewSavedHighlight(clip.storageKey);
+              await renderSavedHighlights();
+            } catch {
+              remove.disabled = false;
+              setStatus([{ text: 'That highlight could not be removed. Try again.' }], 'STORAGE', { duration: 3000 });
+            }
+          });
+          actions.append(download, remove);
+          card.append(title, meta, actions);
+          savedHighlightsList.appendChild(card);
+        }
+      }
+      async function openSavedHighlights() {
+        await renderSavedHighlights();
+        savedHighlights.classList.add('on');
+        savedHighlights.setAttribute('aria-hidden', 'false');
+        savedHighlightsClose.focus();
       }
       async function refreshViewerPresence() {
         if (!streamId) return;
@@ -999,7 +1139,7 @@
         }
         recordEstimate.textContent = recorderTotalBytes > 0
           ? `${formatBytes(recorderTotalBytes)} ready to save.`
-          : 'CourtsideView does not store Broadcasts.';
+          : 'No full-Broadcast copy is stored on CourtsideView servers.';
       }
       function chooseRecordingMimeType() {
         if (!recorderSupported || typeof MediaRecorder.isTypeSupported !== 'function') return '';
@@ -1160,11 +1300,41 @@
       }
       function readSetNumberFromRow(row) {
         const state = row && row.state && typeof row.state === 'object' ? row.state : null;
-        const raw = state && typeof state.currentSet === 'number' ? state.currentSet : null;
+        const raw = state && typeof state.currentSet === 'number'
+          ? state.currentSet
+          : typeof row?.current_set === 'number'
+            ? row.current_set
+            : null;
         return raw && Number.isFinite(raw) && raw > 0 ? raw : currentSetFromMatch || 1;
       }
       function handleMatchRow(row) {
         if (!row) return;
+        if (shouldClearFinalRallyTimer(row) && finalRallyStopTimer) {
+          clearTimeout(finalRallyStopTimer);
+          finalRallyStopTimer = null;
+        }
+        if (row.is_complete === true && row.is_published === true) {
+          const closedAt = Date.parse(row.ended_at || '');
+          const remaining = Number.isFinite(closedAt)
+            ? Math.max(0, closedAt + FINAL_RALLY_HIGHLIGHT_GRACE_MS - Date.now())
+            : 0;
+          if ((media || highlightRuntime || broadcastDesired) && remaining > 0) {
+            if (!finalRallyStopTimer) {
+              finalRallyStopTimer = setTimeout(() => {
+                finalRallyStopTimer = null;
+                void stopBroadcast({
+                  blockReason: 'This match has ended. Your final-rally highlight window is complete.',
+                  blockState: 'MATCH ENDED',
+                });
+              }, remaining);
+            }
+            setStatus([
+              { text: 'Final rally ready to save.', strong: true },
+              { text: ' Keep this page open while the scorer saves the last play.' },
+            ], 'FINAL PLAY', { persistent: true });
+            return;
+          }
+        }
         const unavailable = broadcastUnavailableReason(row);
         if (unavailable) {
           if (media || mediaRecorder || broadcastDesired) {
@@ -1186,7 +1356,54 @@
       }
       async function startMatchSync() {
         if (!streamId) return;
-        await validateBroadcastAccess();
+        if (matchRefreshTimer || matchChannel) return;
+        const refreshAuthoritativeMatch = async () => {
+          if (matchRefreshInFlight) return;
+          matchRefreshInFlight = true;
+          try {
+            const response = await fetch(`${LIVE_WORKER_URL}/broadcast-token/${encodeURIComponent(streamId)}/state`, {
+              method: 'POST',
+              headers: broadcastTokenHeaders({ 'content-type': 'application/json' }),
+              cache: 'no-store',
+            });
+            const result = await response.json().catch(() => null);
+            if (!response.ok || result?.ok !== true) {
+              throw new Error(result?.reason || `match_state_${response.status}`);
+            }
+            const row = {
+              is_published: result.is_published === true,
+              is_complete: result.is_complete === true,
+              current_set: result.current_set,
+              state: null,
+              ended_at: Number.isSafeInteger(result.ended_at_epoch_ms)
+                ? new Date(result.ended_at_epoch_ms).toISOString()
+                : null,
+            };
+            handleMatchRow(row);
+
+            const finalRallyGraceActive = canUseFinalRallyTokenGrace({
+              isComplete: row.is_complete,
+              isPublished: row.is_published,
+              endedAtEpochMs: result.ended_at_epoch_ms,
+              tokenStatus: result.token_status,
+              revokedReason: result.revoked_reason,
+            }, Date.now(), FINAL_RALLY_HIGHLIGHT_GRACE_MS);
+            const tokenActive = result.token_status === 'active';
+            if (!tokenActive && !finalRallyGraceActive) {
+              const reason = result.revoked_reason || result.token_status || 'revoked';
+              const unavailable = broadcastTokenUnavailableReason(reason);
+              if (media || mediaRecorder || broadcastDesired) {
+                await stopBroadcast({ blockReason: unavailable, blockState: broadcastTokenState(reason) });
+              } else {
+                setBroadcastBlocked(unavailable, broadcastTokenState(reason));
+              }
+            }
+          } catch (error) {
+            console.warn('[CourtsideView] authoritative match refresh unavailable', error);
+          } finally {
+            matchRefreshInFlight = false;
+          }
+        };
         try {
           matchChannel = supabase.channel(`live-recorder:${streamId}`);
           matchChannel
@@ -1195,12 +1412,18 @@
               { event: 'UPDATE', schema: 'public', table: 'matches', filter: `share_id=eq.${streamId}` },
               (payload) => handleMatchRow(payload.new),
             )
-            .subscribe();
+            .subscribe((status) => {
+              if (status === 'SUBSCRIBED') void refreshAuthoritativeMatch();
+            });
         } catch (error) {
           console.warn('[CourtsideView] match sync subscription unavailable', error);
         }
+        await refreshAuthoritativeMatch();
+        matchRefreshTimer = setInterval(() => void refreshAuthoritativeMatch(), MATCH_SYNC_REFRESH_MS);
       }
       async function stopMatchSync() {
+        if (matchRefreshTimer) clearInterval(matchRefreshTimer);
+        matchRefreshTimer = null;
         if (!matchChannel) return;
         const channel = matchChannel;
         matchChannel = null;
@@ -1256,7 +1479,7 @@
         }
       }
       function cameraTracksAreLive() {
-        return Boolean(media && media.getTracks().some((track) => track.readyState === 'live'));
+        return Boolean(media && media.getVideoTracks().some((track) => track.readyState === 'live'));
       }
       async function reconnectBroadcast(reason = 'Reconnecting Broadcast...') {
         if (!broadcastDesired || intentionalStop) return;
@@ -1272,15 +1495,27 @@
             preview.srcObject = null;
           }
           await startCamera();
+          if (!media) throw new Error('Camera could not be reacquired.');
         }
         await startBroadcast({ reconnecting: true });
+        if (!live) throw new Error('Broadcast ingest did not reconnect.');
       }
       function scheduleReconnect(reason = 'Reconnecting Broadcast...') {
         if (!broadcastDesired || intentionalStop || reconnectTimer) return;
+        const delayMs = Math.min(1_500 * (2 ** reconnectAttempt), 15_000);
+        reconnectAttempt += 1;
         reconnectTimer = setTimeout(() => {
           reconnectTimer = null;
-          void reconnectBroadcast(reason);
-        }, 1500);
+          void reconnectBroadcast(reason).catch((error) => {
+            console.warn('[CourtsideView] Broadcast reconnect failed', error);
+            if (!broadcastDesired || intentionalStop) return;
+            setStatus([
+              { text: 'Broadcast is still reconnecting.', strong: true },
+              { text: ' Keep this page open.' },
+            ], 'RECONNECTING', { persistent: true });
+            scheduleReconnect('Retrying Broadcast...');
+          });
+        }, delayMs);
       }
       async function enterPictureInPicture() {
         if (!canUsePictureInPicture()) {
@@ -1410,6 +1645,11 @@
         }
         broadcastHasEnded = false;
         media = await requestCameraStream();
+        const activeVideoTrack = media.getVideoTracks()[0];
+        activeVideoTrack?.addEventListener('ended', () => {
+          if (!broadcastDesired || intentionalStop || media?.getVideoTracks()[0] !== activeVideoTrack) return;
+          scheduleReconnect('Camera video paused. Reconnecting Broadcast...');
+        }, { once: true });
         preview.srcObject = media;
         cameraBtn.textContent = 'Start Camera';
         broadcastBtn.textContent = 'Start Broadcast';
@@ -1441,13 +1681,15 @@
                 url: lastHighlightUrl,
                 filename: clip.filename,
                 size: clip.data.size,
+                storageKey: clip.storageKey,
               });
             },
             onStatus(update) {
               if (update.kind === 'saved') {
                 setStatus([{ text: 'Highlight saved on this phone.', strong: true }], 'SAVED', { duration: 2600 });
               } else if (update.kind === 'storage_full') {
-                setStatus([{ text: update.message, strong: true }], 'STORAGE FULL', { persistent: true });
+                clearHighlightStorageBtn.classList.remove('is-hidden');
+                setStatus([{ text: 'Download highlights you want to keep, or remove the oldest local copy below.', strong: true }], 'STORAGE FULL', { persistent: true });
               } else if (update.kind === 'failed') {
                 setStatus([{ text: update.message }], 'HIGHLIGHT', { duration: 2800 });
               }
@@ -1458,7 +1700,6 @@
             return;
           }
           highlightRuntime = runtime;
-          runtime.updateSet(currentSetFromMatch || 1);
         } catch (error) {
           console.warn('[CourtsideView] highlight replay unavailable', error);
           if (sequence === highlightStartSequence) {
@@ -1512,6 +1753,7 @@
         const answer = await response.text();
         await pc.setRemoteDescription({ type: 'answer', sdp: answer });
         live = true;
+        reconnectAttempt = 0;
         broadcastBtn.textContent = 'Broadcast live';
         setPageCopy('Broadcast Live', 'Return to score to keep scoring.');
         hintEl.textContent = 'Broadcast live. Return to score to keep scoring.';
@@ -1522,6 +1764,10 @@
         statusEl.classList.remove('on');
       }
       async function stopBroadcast(options = {}) {
+        if (finalRallyStopTimer) {
+          clearTimeout(finalRallyStopTimer);
+          finalRallyStopTimer = null;
+        }
         intentionalStop = true;
         broadcastDesired = false;
         live = false;
@@ -1550,14 +1796,15 @@
           setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
           return;
         }
-        cameraBtn.textContent = 'Start Broadcast Again';
+        cameraBtn.textContent = 'Camera setup ended';
         broadcastBtn.textContent = 'Start Broadcast';
         setPageCopy('Broadcast Ended', 'Fans can still follow the score on the Fan Link.');
         hintEl.textContent = 'Fans can follow scores even without video.';
+        broadcastBlocked = true;
         setControlState('offline');
         setStatus([
           { text: 'Broadcast ended.', strong: true },
-          { text: ' Fans can still follow the score.' },
+          { text: ' Fans can still follow the score. Create a new private camera setup in CourtsideView to broadcast again.' },
         ], 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
@@ -1594,8 +1841,15 @@
         if (event.target === endConfirm) closeEndConfirm();
       });
       savePromptDismiss.addEventListener('click', closeSavePrompt);
+      // A click only starts a browser download; it does not prove the user kept
+      // a durable copy. Keep the IndexedDB clip protected until the user makes
       savePromptLink.addEventListener('click', () => {
         setTimeout(closeSavePrompt, 650);
+      });
+      clearHighlightStorageBtn.addEventListener('click', () => void openSavedHighlights());
+      savedHighlightsClose.addEventListener('click', closeSavedHighlights);
+      savedHighlights.addEventListener('click', (event) => {
+        if (event.target === savedHighlights) closeSavedHighlights();
       });
       savePrompt.addEventListener('click', (event) => {
         if (event.target === savePrompt) closeSavePrompt();
@@ -1606,6 +1860,9 @@
         }
         if (event.key === 'Escape' && savePrompt.classList.contains('on')) {
           closeSavePrompt();
+        }
+        if (event.key === 'Escape' && savedHighlights.classList.contains('on')) {
+          closeSavedHighlights();
         }
       });
       shareBtn.addEventListener('click', () => {
@@ -1655,6 +1912,7 @@
           { text: 'Returning to scoring. If video pauses, come back here to reconnect.', strong: true },
         ], 'LIVE', { persistent: true });
       });
+      void refreshSavedHighlightsButton();
       if (!streamId) {
         cameraBtn.disabled = true;
         broadcastBtn.disabled = true;

@@ -672,7 +672,7 @@
       <div id="errorBox" class="status err" style="display:none"></div>
       <section id="expiredPanel" class="expired-panel">
         <div class="expired-title">This FanView link has expired.</div>
-        <p class="expired-body">Live game links close 15 minutes after the match ends to keep things private and temporary. No video was recorded or stored by CourtsideView.</p>
+        <p class="expired-body">Live game links close 15 minutes after the match ends. A paired camera may keep requested highlights locally; this link no longer serves the live broadcast.</p>
       </section>
       <main id="board" style="display:none">
         <div class="fanview-layout">
@@ -779,7 +779,7 @@
           <a class="app-promo-button" id="appPromoPrimary" href="https://www.courtsideviewapp.com/">Get the app</a>
           <a class="app-promo-link" id="appPromoSecondary" href="https://www.courtsideviewapp.com/">Learn more</a>
         </div>
-        <div class="app-promo-note">Live video is not recorded or stored. FanView links close 15 minutes after the game ends.</div>
+        <div class="app-promo-note">The paired camera uses a temporary local replay buffer and may save requested highlights on that device. FanView links close 15 minutes after the game ends.</div>
       </section>
       <div class="footer-hint">Powered by <a href="https://www.courtsideviewapp.com/">CourtsideView</a></div>
     </div>
@@ -1340,8 +1340,8 @@
           return;
         }
         line.textContent = row.is_complete
-          ? 'Broadcast ended. No video was recorded or stored by CourtsideView.'
-          : 'Live video only. CourtsideView does not record or store this broadcast.';
+          ? 'Broadcast ended. Saved highlights remain on the paired camera unless its owner chooses to share them.'
+          : 'The paired camera may buffer video locally so the scorer can request a highlight.';
         line.style.display = 'block';
       }
       function getViewerId() {

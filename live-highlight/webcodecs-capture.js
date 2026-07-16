@@ -43,6 +43,8 @@ export class SharedWebCodecsCapture {
     clock;
     idFactory;
     active = null;
+    startInFlight = null;
+    startAbort = null;
     sequence = 0;
     constructor(ring, options = {}) {
         this.ring = ring;
@@ -58,9 +60,41 @@ export class SharedWebCodecsCapture {
     get activeEpochId() {
         return this.active?.epochId ?? null;
     }
-    async start(stream, profile) {
-        if (this.active)
-            throw new EncodedRingError('invalid_epoch', 'WebCodecs capture is already active.');
+    get health() {
+        const active = this.active;
+        if (!active)
+            return Object.freeze({ status: 'inactive', failure: null });
+        if (active.failure || (!active.stopped && active.controller.signal.aborted)) {
+            return Object.freeze({ status: 'failed', failure: active.failure });
+        }
+        return Object.freeze({ status: 'capturing', failure: null });
+    }
+    start(stream, profile, options = {}) {
+        if (this.active || this.startInFlight) {
+            return Promise.reject(new EncodedRingError('invalid_epoch', 'WebCodecs capture is already active.'));
+        }
+        const controller = new AbortController();
+        const abort = () => controller.abort();
+        if (options.signal?.aborted)
+            controller.abort();
+        else
+            options.signal?.addEventListener('abort', abort, { once: true });
+        this.startAbort = controller;
+        const operation = this.startCapture(stream, profile, controller)
+            .finally(() => {
+            options.signal?.removeEventListener('abort', abort);
+            if (this.startInFlight === operation)
+                this.startInFlight = null;
+            if (this.startAbort === controller)
+                this.startAbort = null;
+        });
+        this.startInFlight = operation;
+        return operation;
+    }
+    async startCapture(stream, profile, controller) {
+        if (controller.signal.aborted) {
+            throw new EncodedRingError('aborted', 'WebCodecs capture start was cancelled.');
+        }
         if (typeof MediaStreamTrackProcessor !== 'function') {
             throw new EncodedRingError('invalid_config', 'MediaStreamTrackProcessor is unavailable.');
         }
@@ -81,6 +115,11 @@ export class SharedWebCodecsCapture {
         const audioReader = audioTrack
             ? new MediaStreamTrackProcessor({ track: audioTrack, maxBufferSize: 4 }).readable.getReader()
             : null;
+        const cancelStartupReaders = () => {
+            void videoReader.cancel().catch(() => { });
+            void audioReader?.cancel().catch(() => { });
+        };
+        controller.signal.addEventListener('abort', cancelStartupReaders, { once: true });
         let firstVideo = null;
         let firstAudio = null;
         let openedEpoch = null;
@@ -89,13 +128,17 @@ export class SharedWebCodecsCapture {
         try {
             const firstVideoResult = await withTimeout(videoReader.read(), this.firstFrameTimeoutMs, 'Timed out waiting for the first video frame.');
             if (firstVideoResult.done || !firstVideoResult.value) {
-                throw new EncodedRingError('no_video', 'Video track ended before its first frame.');
+                throw new EncodedRingError(controller.signal.aborted ? 'aborted' : 'no_video', controller.signal.aborted
+                    ? 'WebCodecs capture start was cancelled.'
+                    : 'Video track ended before its first frame.');
             }
             firstVideo = firstVideoResult.value;
             if (audioReader) {
                 const firstAudioResult = await withTimeout(audioReader.read(), this.firstFrameTimeoutMs, 'Timed out waiting for the first audio sample.');
                 if (firstAudioResult.done || !firstAudioResult.value) {
-                    throw new EncodedRingError('invalid_config', 'Audio track ended before its first sample; audio is not silently dropped.');
+                    throw new EncodedRingError(controller.signal.aborted ? 'aborted' : 'invalid_config', controller.signal.aborted
+                        ? 'WebCodecs capture start was cancelled.'
+                        : 'Audio track ended before its first sample; audio is not silently dropped.');
                 }
                 firstAudio = firstAudioResult.value;
             }
@@ -114,16 +157,19 @@ export class SharedWebCodecsCapture {
                 frameRate: profile.videoEncoderConfig.framerate ?? 30,
             });
             openedEpoch = { id: epoch.id, startedMonotonicMs: epoch.startedMonotonicMs };
-            const controller = new AbortController();
+            if (controller.signal.aborted) {
+                throw new EncodedRingError('aborted', 'WebCodecs capture start was cancelled.');
+            }
             const pendingVideoDurations = new Map();
             const pendingAudioDurations = new Map();
             const defaultAudioDurationUs = firstAudio?.duration ?? 20_000;
             const defaultVideoDurationUs = Math.round(1_000_000 / (profile.videoEncoderConfig.framerate ?? 30));
             let activeReference = null;
             const captureFailure = (error) => {
-                if (activeReference && !activeReference.failure)
-                    activeReference.failure = error;
-                controller.abort();
+                if (activeReference)
+                    this.failActiveCapture(activeReference, error);
+                else
+                    controller.abort();
             };
             const videoEncoder = new VideoEncoder({
                 output: (chunk, metadata) => {
@@ -210,8 +256,16 @@ export class SharedWebCodecsCapture {
             }
             throw error;
         }
+        finally {
+            controller.signal.removeEventListener('abort', cancelStartupReaders);
+        }
     }
     async stop(reason = 'manual_stop') {
+        const pendingStart = this.startInFlight;
+        if (pendingStart) {
+            this.startAbort?.abort();
+            await pendingStart.catch(() => { });
+        }
         const active = this.active;
         if (!active)
             return null;
@@ -242,7 +296,10 @@ export class SharedWebCodecsCapture {
         }
         const ended = this.clock();
         validateClock(ended);
-        const epoch = this.ring.endEpoch(active.epochId, ended.monotonicMs, reason);
+        const existingEpoch = this.ring.getEpoch(active.epochId);
+        const epoch = existingEpoch?.endedMonotonicMs === null
+            ? this.ring.endEpoch(active.epochId, ended.monotonicMs, reason)
+            : existingEpoch;
         this.active = null;
         if (active.failure)
             throw active.failure;
@@ -268,15 +325,18 @@ export class SharedWebCodecsCapture {
                 current.close();
                 current = null;
                 const next = await active.videoReader.read();
-                if (next.done)
+                if (next.done) {
+                    if (!active.stopped) {
+                        this.failActiveCapture(active, new EncodedRingError('capture_interrupted', 'Video capture ended unexpectedly.'));
+                    }
                     break;
+                }
                 current = next.value;
             }
         }
         catch (error) {
             if (!active.stopped && !active.controller.signal.aborted)
-                active.failure = error;
-            active.controller.abort();
+                this.failActiveCapture(active, error);
         }
         finally {
             current?.close();
@@ -295,15 +355,18 @@ export class SharedWebCodecsCapture {
                 current.close();
                 current = null;
                 const next = await active.audioReader.read();
-                if (next.done)
+                if (next.done) {
+                    if (!active.stopped) {
+                        this.failActiveCapture(active, new EncodedRingError('capture_interrupted', 'Audio capture ended unexpectedly.'));
+                    }
                     break;
+                }
                 current = next.value;
             }
         }
         catch (error) {
             if (!active.stopped && !active.controller.signal.aborted)
-                active.failure = error;
-            active.controller.abort();
+                this.failActiveCapture(active, error);
         }
         finally {
             current?.close();
@@ -326,6 +389,27 @@ export class SharedWebCodecsCapture {
             durationUs,
             data,
         });
+    }
+    failActiveCapture(active, error) {
+        if (!active.failure)
+            active.failure = error;
+        const epoch = this.ring.getEpoch(active.epochId);
+        if (epoch?.endedMonotonicMs === null) {
+            try {
+                const failedAt = this.clock();
+                validateClock(failedAt);
+                this.ring.endEpoch(active.epochId, Math.max(active.startedMonotonicMs, failedAt.monotonicMs), 'capture_failed');
+            }
+            catch {
+                // Preserve the originating capture failure.
+            }
+        }
+        active.controller.abort();
+        // Encoder and track failures are terminal for this continuity epoch. Drain
+        // readers and close codecs even if the UI never calls stop explicitly.
+        void Promise.resolve()
+            .then(() => this.stop('capture_failed'))
+            .catch(() => { });
     }
 }
 export class SharedWebCodecsReplayExporter {

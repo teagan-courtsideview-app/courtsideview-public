@@ -21,6 +21,7 @@ const PERMANENT_REPLAY_FAILURES = new Set([
     'stale_command',
     'stale_context',
     'mismatched_game',
+    'match_closed',
     'request_conflict',
     'invalid_gateway_response',
     'invalid_input',
@@ -214,9 +215,9 @@ export class BroadcasterLiveHighlightController {
             throw new LiveHighlightControlError('offline', 'FanView control transport is offline.');
         }
         assertCommandRoute(command, lifecycle.binding, this.clock.nowEpochMs());
-        if (this.state.buffer.phase === 'inactive' ||
-            this.state.buffer.phase === 'interrupted' ||
-            this.state.buffer.phase === 'failed') {
+        if (this.state.buffer.phase !== 'ready' ||
+            !this.state.buffer.continuous ||
+            this.state.buffer.bufferedDurationMs < command.requestedWindow.preRollMs) {
             throw new LiveHighlightControlError('buffer_unavailable', 'FanView replay buffer is not available.');
         }
         return this.track(this.authorizeThenSave(command, lifecycle));
@@ -617,7 +618,12 @@ function assertCommandRoute(command, binding, nowEpochMsInput) {
         command.broadcasterId !== binding.broadcasterId) {
         throw new LiveHighlightControlError('mismatched_game', 'Command does not target this paired FanView session.');
     }
-    if (command.context.setNumber !== binding.setNumber) {
+    // A set-winning command can be committed just before the scoring device
+    // advances the match. The camera may learn about N+1 before its next poll;
+    // accept only the immediately previous set while the signed command TTL is
+    // still valid. Future or older-set commands remain stale.
+    if (command.context.setNumber > binding.setNumber ||
+        command.context.setNumber < Math.max(1, binding.setNumber - 1)) {
         throw new LiveHighlightControlError('stale_context', 'Command set is stale.');
     }
     const nowEpochMs = validEpoch(nowEpochMsInput, 'nowEpochMs');

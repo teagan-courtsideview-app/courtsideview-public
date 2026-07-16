@@ -170,6 +170,8 @@ export class IndexedDbReplaySink {
             matchId: input.identity.matchId,
             requestId: input.requestId,
             epochId: input.epochId,
+            durationMs: input.durationMs ?? null,
+            deliveryReceipt: input.deliveryReceipt ? Object.freeze({ ...input.deliveryReceipt }) : null,
             createdAtEpochMs,
             lastAccessedAtEpochMs: createdAtEpochMs,
             syncState: input.retention?.syncState ?? 'local_only',
@@ -185,7 +187,9 @@ export class IndexedDbReplaySink {
             committed.data.size !== input.data.size ||
             committed.mimeType !== input.mimeType ||
             committed.requestId !== input.requestId ||
-            committed.epochId !== input.epochId) {
+            committed.epochId !== input.epochId ||
+            committed.durationMs !== (input.durationMs ?? null) ||
+            JSON.stringify(committed.deliveryReceipt) !== JSON.stringify(input.deliveryReceipt ?? null)) {
             throw new Error('Replay storage read-back metadata did not match the saved clip.');
         }
         if (sha256 && committed.sha256 !== sha256) {
@@ -205,6 +209,9 @@ export class IndexedDbReplaySink {
     }
     listByMatch(matchId) {
         return this.store.listByMatch(matchId);
+    }
+    listAll() {
+        return this.store.listAll();
     }
     delete(storageKey) {
         return this.store.delete(storageKey);
@@ -361,6 +368,28 @@ function validateSaveInput(input) {
     if (input.data.type && input.data.type !== input.mimeType) {
         throw new Error('Replay Blob type does not match the declared MIME type.');
     }
+    if (input.durationMs !== undefined &&
+        (!Number.isSafeInteger(input.durationMs) || input.durationMs <= 0 || input.durationMs > 120_000)) {
+        throw new Error('Replay duration must be a positive safe integer no greater than 120 seconds.');
+    }
+    if (input.deliveryReceipt) {
+        const receipt = input.deliveryReceipt;
+        if (!/^[A-Za-z0-9_-]{6,80}$/.test(receipt.controlStreamId)) {
+            throw new Error('Replay delivery control stream is invalid.');
+        }
+        if (!/^[0-9a-f]{64}$/.test(receipt.bindingDigest)) {
+            throw new Error('Replay delivery binding digest is invalid.');
+        }
+        if (!Number.isSafeInteger(receipt.expiresAtEpochMs) || receipt.expiresAtEpochMs <= 0) {
+            throw new Error('Replay delivery expiry is invalid.');
+        }
+        if (!/^[A-Za-z0-9._:-]{8,128}$/.test(receipt.clipId)) {
+            throw new Error('Replay delivery clip ID is invalid.');
+        }
+        if (input.durationMs === undefined) {
+            throw new Error('Replay delivery receipts require an exact duration.');
+        }
+    }
     if (input.retention)
         validateRetentionPatch(input.retention);
 }
@@ -372,10 +401,33 @@ function normalizeStoredClip(record) {
     const syncState = candidate.syncState === 'synced' ? 'synced' : 'local_only';
     return Object.freeze({
         ...record,
+        durationMs: Number.isSafeInteger(candidate.durationMs) && candidate.durationMs > 0
+            ? candidate.durationMs
+            : null,
+        deliveryReceipt: normalizeDeliveryReceipt(candidate.deliveryReceipt),
         lastAccessedAtEpochMs,
         syncState,
         pinned: candidate.pinned === true,
         recruiting: candidate.recruiting === true,
+    });
+}
+function normalizeDeliveryReceipt(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+        return null;
+    const receipt = value;
+    if (typeof receipt.controlStreamId !== 'string' ||
+        !/^[A-Za-z0-9_-]{6,80}$/.test(receipt.controlStreamId) ||
+        typeof receipt.bindingDigest !== 'string' ||
+        !/^[0-9a-f]{64}$/.test(receipt.bindingDigest) ||
+        !Number.isSafeInteger(receipt.expiresAtEpochMs) ||
+        typeof receipt.clipId !== 'string' ||
+        !/^[A-Za-z0-9._:-]{8,128}$/.test(receipt.clipId))
+        return null;
+    return Object.freeze({
+        controlStreamId: receipt.controlStreamId,
+        bindingDigest: receipt.bindingDigest,
+        expiresAtEpochMs: receipt.expiresAtEpochMs,
+        clipId: receipt.clipId,
     });
 }
 function validateRetentionPatch(patch) {
