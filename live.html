@@ -485,8 +485,16 @@
       </div>
     </div>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "mediabunny": "/live-highlight/vendor/mediabunny.min.mjs"
+        }
+      }
+    </script>
     <script type="module">
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
+      import { createFanViewHighlightRuntime } from './live-highlight/runtime.js';
 
       const LIVE_WORKER_URL = window.COURTSIDEVIEW_LIVE_WORKER_URL || 'https://courtsideview-live.courtsideview.workers.dev';
       const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
@@ -570,6 +578,9 @@
       let recorderStartedAt = null;
       let lastRecordingUrl = '';
       let controlsHideTimer = null;
+      let highlightRuntime = null;
+      let highlightStartSequence = 0;
+      let lastHighlightUrl = '';
       const recorderSupported = typeof MediaRecorder !== 'undefined';
 
       function syncVisibleViewport() {
@@ -1167,6 +1178,7 @@
         const nextSet = readSetNumberFromRow(row);
         const previousSet = currentSetFromMatch || nextSet;
         currentSetFromMatch = nextSet;
+        highlightRuntime?.updateSet(nextSet);
         if (mediaRecorder && nextSet > previousSet) {
           recorderSetNumber = previousSet;
           void finalizeRecordingChunk('set-complete', { restart: true });
@@ -1404,11 +1416,65 @@
         setPageCopy('Ready To Broadcast', 'Check the court view, then start Broadcast.');
         hintEl.textContent = 'Check the court view, then start Broadcast.';
         setControlState('camera-ready');
+        void startHighlightReplay(media);
         if (audioEnabled) {
           setStatusHtml('<strong>Ready to Broadcast.</strong>', 'READY');
         } else {
           setStatusHtml('<strong>Ready to Broadcast.</strong> Audio is off.', 'READY', { duration: 3600 });
         }
+      }
+      async function startHighlightReplay(stream) {
+        const sequence = ++highlightStartSequence;
+        const previous = highlightRuntime;
+        highlightRuntime = null;
+        await previous?.stop().catch(() => {});
+        try {
+          const runtime = await createFanViewHighlightRuntime({
+            workerUrl: LIVE_WORKER_URL,
+            streamId,
+            broadcastToken,
+            stream,
+            onClip(clip) {
+              if (lastHighlightUrl) URL.revokeObjectURL(lastHighlightUrl);
+              lastHighlightUrl = URL.createObjectURL(clip.data);
+              openSavePrompt({
+                url: lastHighlightUrl,
+                filename: clip.filename,
+                size: clip.data.size,
+              });
+            },
+            onStatus(update) {
+              if (update.kind === 'saved') {
+                setStatus([{ text: 'Highlight saved on this phone.', strong: true }], 'SAVED', { duration: 2600 });
+              } else if (update.kind === 'storage_full') {
+                setStatus([{ text: update.message, strong: true }], 'STORAGE FULL', { persistent: true });
+              } else if (update.kind === 'failed') {
+                setStatus([{ text: update.message }], 'HIGHLIGHT', { duration: 2800 });
+              }
+            },
+          });
+          if (sequence !== highlightStartSequence || stream !== media) {
+            await runtime.stop().catch(() => {});
+            return;
+          }
+          highlightRuntime = runtime;
+          runtime.updateSet(currentSetFromMatch || 1);
+        } catch (error) {
+          console.warn('[CourtsideView] highlight replay unavailable', error);
+          if (sequence === highlightStartSequence) {
+            setStatus(
+              [{ text: 'Broadcast is ready. This browser cannot save instant highlights.' }],
+              'LIVE VIDEO',
+              { duration: 3200 },
+            );
+          }
+        }
+      }
+      async function stopHighlightReplay() {
+        highlightStartSequence += 1;
+        const runtime = highlightRuntime;
+        highlightRuntime = null;
+        await runtime?.stop().catch(() => {});
       }
       async function startBroadcast({ reconnecting = false } = {}) {
         ensureStreamId();
@@ -1462,6 +1528,7 @@
         broadcastHasEnded = true;
         clearControlsHideTimer();
         document.body.classList.remove('controls-hidden');
+        await stopHighlightReplay();
         void finalizeRecordingChunk(options.blockReason ? 'match-complete' : 'video-ended', { restart: false });
         closePeerConnection({ stopTracks: true });
         if (media) {
@@ -1610,6 +1677,8 @@
       }
       window.addEventListener('beforeunload', () => {
         void stopMatchSync();
+        void stopHighlightReplay();
+        if (lastHighlightUrl) URL.revokeObjectURL(lastHighlightUrl);
         if (lastRecordingUrl) URL.revokeObjectURL(lastRecordingUrl);
       });
     </script>
