@@ -4,6 +4,7 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/scout/(.*)", "destination": "/scout.html" },
+    { "source": "/live", "destination": "/live.html" },
     { "source": "/live/(.*)", "destination": "/live.html" },
     { "source": "/v/(.*)", "destination": "/fanview.html" },
     { "source": "/p/(.*)", "destination": "/player.html" },
@@ -39,6 +40,13 @@
       "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/live",
+      "headers": [
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Cache-Control", "value": "no-store" }
       ]
     },
     {
