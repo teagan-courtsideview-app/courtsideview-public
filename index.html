@@ -24,756 +24,11 @@
     <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png">
     <link rel="canonical" href="https://www.courtsideviewapp.com/">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --cv-bg: #070b10;
-            --cv-navy: #07111f;
-            --cv-green: #20A66B;
-            --cv-green-soft: var(--cv-green);
-            --cv-green-rgb: 32, 166, 107;
-            --cv-pink: #ff3b8a;
-            --cv-blue: #2f80ed;
-            --cv-cream: #f3f4ee;
-            --font-display: "Avenir Next Condensed", "AvenirNextCondensed-Heavy", "Avenir Next", "Arial Narrow", "Roboto Condensed", sans-serif;
-            --font-body: "Avenir Next", Avenir, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        }
-        * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            margin: 0;
-            font-family: var(--font-body);
-            background: var(--cv-bg);
-            color: #fff;
-            overflow-x: hidden;
-        }
-        ::selection { background: rgba(var(--cv-green-rgb), 0.35); color: #fff; }
-        a { color: inherit; }
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-        .page-shell {
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at 82% 8%, rgba(var(--cv-green-rgb), 0.18), transparent 34rem),
-                radial-gradient(circle at 6% 42%, rgba(47, 128, 237, 0.08), transparent 28rem),
-                linear-gradient(180deg, #070b10 0%, #07110f 45%, #070b10 100%);
-        }
-        .container-wide { width: min(100% - 3rem, 1200px); margin: 0 auto; }
-        .wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
-        .brand-logo {
-            display: block;
-            width: clamp(2.75rem, 4.8vw, 3.45rem);
-            height: clamp(2.75rem, 4.8vw, 3.45rem);
-            object-fit: contain;
-        }
-        .top-banner {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(7, 17, 31, 0.82);
-            backdrop-filter: blur(14px);
-        }
-        .top-banner-inner {
-            min-height: 3.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.85rem;
-            text-align: center;
-            color: #e1e8e4;
-            font-size: 0.92rem;
-            font-weight: 700;
-        }
-        .top-banner a { color: var(--cv-green); font-weight: 900; white-space: nowrap; }
-        .nav {
-            padding: 1.45rem 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1.25rem;
-        }
-.nav-links {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            color: #b4beca;
-            font-size: 0.86rem;
-            font-weight: 600;
-        }
-        .nav-links > a,
-        .nav-dropdown summary {
-            text-decoration: none;
-            transition: color 160ms ease;
-        }
-        .nav-links > a:hover,
-        .nav-dropdown summary:hover { color: #fff; }
-        .nav-dropdown { position: relative; }
-        .nav-dropdown summary {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            color: inherit;
-            cursor: pointer;
-            list-style: none;
-        }
-        .nav-dropdown summary::-webkit-details-marker { display: none; }
-        .nav-dropdown summary::after {
-            content: "";
-            width: 0.42rem;
-            height: 0.42rem;
-            border-right: 2px solid currentColor;
-            border-bottom: 2px solid currentColor;
-            transform: translateY(-0.12rem) rotate(45deg);
-            opacity: 0.82;
-        }
-        .nav-dropdown-menu {
-            position: absolute;
-            top: calc(100% + 0.85rem);
-            right: 0;
-            z-index: 20;
-            width: min(24rem, calc(100vw - 2rem));
-            display: grid;
-            gap: 0.2rem;
-            padding: 0.65rem;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 0.95rem;
-            background: rgba(9, 16, 24, 0.98);
-            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transform: translateY(-0.35rem);
-            transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
-        }
-        .nav-dropdown[open] .nav-dropdown-menu,
-        .nav-dropdown:hover .nav-dropdown-menu,
-        .nav-dropdown:focus-within .nav-dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-            transform: translateY(0);
-        }
-        .nav-dropdown-menu a {
-            display: block;
-            padding: 0.68rem 0.72rem;
-            border-radius: 0.65rem;
-            color: #c8d0da;
-            text-decoration: none;
-        }
-        .nav-dropdown-menu a:hover {
-            background: rgba(255, 255, 255, 0.06);
-            color: #fff;
-        }
-        .nav-dropdown-menu strong {
-            display: block;
-            color: #fff;
-            font-size: 0.84rem;
-            line-height: 1.2;
-            font-weight: 700;
-        }
-        .nav-dropdown-menu span {
-            display: block;
-            margin-top: 0.2rem;
-            color: #8f9aa8;
-            font-size: 0.73rem;
-            line-height: 1.25;
-            font-weight: 600;
-        }
-        .hero {
-            display: grid;
-            grid-template-columns: minmax(0, 0.95fr) minmax(24rem, 1.05fr);
-            align-items: start;
-            gap: clamp(2.5rem, 5vw, 5rem);
-            padding: clamp(0.5rem, 1.8vw, 1.75rem) 0 clamp(4rem, 8vw, 7rem);
-        }
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            border: 1px solid rgba(var(--cv-green-rgb), 0.34);
-            border-radius: 999px;
-            background: rgba(var(--cv-green-rgb), 0.1);
-            color: var(--cv-green);
-            padding: 0.48rem 0.85rem;
-            font-size: 0.76rem;
-            line-height: 1;
-            font-weight: 900;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-        .hero h1 {
-            margin: 0;
-            max-width: 39rem;
-            font-size: clamp(2.5rem, 4.05vw, 3.45rem);
-            line-height: 1.16;
-            font-family: var(--font-display);
-            font-weight: 700;
-            letter-spacing: 0;
-            text-wrap: balance;
-        }
-        .hero-title-line { display: block; }
-        .text-green {
-            color: var(--cv-green);
-            font-weight: inherit;
-        }
-        .hero-copy {
-            margin-top: 1.15rem;
-            max-width: 37rem;
-            color: #cbd5df;
-            font-size: clamp(1.02rem, 1.4vw, 1.18rem);
-            line-height: 1.55;
-            font-weight: 600;
-        }
-        .cta-row {
-            margin-top: 1.7rem;
-            display: flex;
-            align-items: center;
-            gap: 1.1rem;
-            flex-wrap: wrap;
-        }
-        .store-badges {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-        .app-store-badge,
-        .play-store-badge {
-            display: block;
-            width: 11.8rem;
-            height: auto;
-            filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.28));
-        }
-        .hero-helper {
-            margin-top: 0.8rem;
-            color: #aab5c2;
-            font-size: 0.93rem;
-            font-weight: 700;
-        }
-        .hero-tools {
-            margin-top: 1.45rem;
-            display: grid;
-            grid-template-columns: minmax(0, 12.75rem) minmax(0, 1fr);
-            gap: 0.9rem;
-            align-items: stretch;
-            max-width: 42.5rem;
-        }
-        .qr-card,
-        .signup-card {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.045);
-            border-radius: 1.35rem;
-            padding: 1.05rem;
-            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.2);
-        }
-        .qr-card {
-            display: flex;
-            min-height: 13.5rem;
-            flex-direction: column;
-            justify-content: center;
-            gap: 0.95rem;
-            align-items: flex-start;
-        }
-        .qr-card img {
-            display: block;
-            width: 7rem;
-            height: 7rem;
-            object-fit: contain;
-            border-radius: 0.75rem;
-            background: #f8fafc;
-        }
-        .signup-card { min-width: 0; }
-        .qr-card strong,
-        .signup-card strong {
-            display: block;
-            color: #fff;
-            font-size: 0.98rem;
-            line-height: 1.2;
-        }
-        .qr-card span,
-        .signup-card span {
-            display: block;
-            margin-top: 0.3rem;
-            color: #bac4cf;
-            font-size: 0.82rem;
-            line-height: 1.35;
-            font-weight: 700;
-        }
-        .signup-form {
-            margin-top: 0.75rem;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.65rem;
-        }
-        .signup-form input {
-            width: 100%;
-            min-width: 0;
-            min-height: 3.05rem;
-            border: 1px solid rgba(255, 255, 255, 0.13);
-            border-radius: 0.85rem;
-            background: rgba(255, 255, 255, 0.09);
-            color: #fff;
-            padding: 0.8rem 0.9rem;
-            outline: none;
-            font-size: 0.9rem;
-            font-weight: 800;
-        }
-        .signup-form input::placeholder {
-            color: #858e9d;
-            font-size: 0.88rem;
-        }
-        .signup-form input:focus {
-            border-color: rgba(var(--cv-green-rgb), 0.7);
-            box-shadow: 0 0 0 3px rgba(var(--cv-green-rgb), 0.14);
-        }
-        .notify-button {
-            border: 0;
-            border-radius: 0.85rem;
-            background: var(--cv-green);
-            color: #fff;
-            padding: 0.8rem 1rem;
-            font-family: var(--font-body);
-            font-size: 0.95rem;
-            line-height: 1.2;
-            font-weight: 600;
-            letter-spacing: 0;
-            cursor: pointer;
-            white-space: nowrap;
-            min-height: 3.05rem;
-            width: 100%;
-            box-shadow: 0 12px 28px rgba(var(--cv-green-rgb), 0.24);
-        }
-        .notify-button:disabled { opacity: 0.7; cursor: not-allowed; }
-        .signup-status {
-            margin-top: 0.55rem;
-            min-height: 1.1rem;
-            color: #9fa7b3;
-            font-size: 0.78rem;
-            line-height: 1.35;
-            font-weight: 700;
-        }
-        .signup-status.success { color: var(--cv-green); }
-        .signup-status.error { color: #ff8da8; }
-        .privacy-note {
-            margin-top: 0.35rem;
-            color: #7f8793;
-            font-size: 0.72rem;
-            line-height: 1.35;
-            font-weight: 700;
-        }
-        .privacy-note a { color: var(--cv-green); }
-        .hero-visual {
-            position: relative;
-            min-height: clamp(36rem, 60vw, 50rem);
-            isolation: isolate;
-        }
-        .hero-visual::before {
-            content: "";
-            position: absolute;
-            inset: 9% 4% 1% 2%;
-            background: radial-gradient(circle, rgba(var(--cv-green-rgb), 0.34), transparent 62%);
-            filter: blur(52px);
-            z-index: -1;
-        }
-        .phone-shot {
-            position: absolute;
-            height: auto;
-            border-radius: 2rem;
-            user-select: none;
-            filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.44));
-        }
-        .hero-main-phone {
-            width: min(26rem, 44vw);
-            top: 0;
-            right: 0;
-            z-index: 2;
-        }
-        .hero-side-phone {
-            width: min(20.5rem, 34vw);
-            top: 8.5rem;
-            left: 0;
-            z-index: 1;
-            opacity: 0.92;
-            transform: rotate(-5deg);
-        }
-        .section {
-            padding: clamp(4rem, 8vw, 7rem) 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
-        }
-        .section-cream {
-            background: var(--cv-cream);
-            color: #091018;
-            border-top: 0;
-        }
-        .section-dark {
-            background:
-                radial-gradient(circle at 82% 12%, rgba(255, 59, 138, 0.14), transparent 30rem),
-                linear-gradient(180deg, #07111f, #070b10);
-        }
-        .section-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 0.9fr) minmax(17rem, 0.7fr);
-            gap: clamp(2rem, 5vw, 4.5rem);
-            align-items: center;
-        }
-        .section-grid.reverse {
-            grid-template-columns: minmax(17rem, 0.7fr) minmax(0, 0.9fr);
-        }
-        .section-copy .kicker {
-            margin: 0 0 0.75rem;
-            color: var(--cv-green);
-            font-size: 0.8rem;
-            line-height: 1;
-            font-weight: 900;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-        .section-cream .section-copy .kicker { color: var(--cv-green); }
-        .section-copy h2 {
-            margin: 0;
-            max-width: 42rem;
-            font-size: 4.2rem;
-            line-height: 0.96;
-            font-family: var(--font-display);
-            letter-spacing: 0;
-            font-weight: 900;
-        }
-        .section-copy p {
-            margin: 1.05rem 0 0;
-            max-width: 38rem;
-            color: #c1cad5;
-            font-size: 1.15rem;
-            line-height: 1.62;
-            font-weight: 650;
-        }
-        .section-cream .section-copy p { color: #4f5a58; }
-        .scan-label {
-            margin: 1rem 0 0;
-            display: inline-flex;
-            color: #dbe5ef;
-            font-size: 0.9rem;
-            line-height: 1.25;
-            font-weight: 900;
-        }
-        .section-cream .scan-label { color: #26313a; }
-        .pull-quote {
-            margin-top: 1.3rem;
-            display: inline-flex;
-            border: 1px solid rgba(var(--cv-green-rgb), 0.28);
-            border-radius: 999px;
-            padding: 0.55rem 0.85rem;
-            color: var(--cv-green);
-            background: rgba(var(--cv-green-rgb), 0.08);
-            font-size: 0.88rem;
-            line-height: 1.2;
-            font-weight: 900;
-        }
-        .section-cream .pull-quote {
-            background: rgba(var(--cv-green-rgb), 0.12);
-            color: var(--cv-green);
-        }
-        .feature-image-wrap {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-width: 0;
-        }
-        .feature-image-wrap::before {
-            content: "";
-            position: absolute;
-            inset: 14% 8%;
-            border-radius: 999px;
-            background: rgba(var(--cv-green-rgb), 0.18);
-            filter: blur(42px);
-            z-index: 0;
-        }
-        .feature-phone {
-            position: relative;
-            z-index: 1;
-            width: min(100%, 23rem);
-            height: auto;
-            border-radius: 2rem;
-            filter: drop-shadow(0 30px 58px rgba(0, 0, 0, 0.28));
-        }
-        .fanview-pair {
-            display: grid;
-            grid-template-columns: minmax(0, 0.95fr) minmax(0, 0.72fr);
-            gap: 1rem;
-            align-items: center;
-        }
-        .fanview-pair img:first-child { width: min(100%, 22rem); }
-        .fanview-pair img:last-child { width: min(100%, 16rem); margin-top: 5rem; }
-        .wide-shot {
-            width: 100%;
-            border-radius: 1.35rem;
-            filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.36));
-        }
-        .download-section {
-            padding: clamp(4rem, 8vw, 6.5rem) 0;
-            background:
-                radial-gradient(circle at 50% 20%, rgba(var(--cv-green-rgb), 0.18), transparent 32rem),
-                #070b10;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .download-box {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: 2rem;
-            align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-            padding: clamp(1.4rem, 4vw, 2.5rem);
-            background: rgba(255, 255, 255, 0.045);
-        }
-        .download-box > * { min-width: 0; }
-        .download-box h2 {
-            margin: 0;
-            font-size: 3.7rem;
-            line-height: 0.98;
-            font-family: var(--font-display);
-            font-weight: 900;
-            letter-spacing: 0;
-        }
-        .download-box p {
-            margin: 0.8rem 0 0;
-            color: #c1cad5;
-            font-size: 1.05rem;
-            line-height: 1.55;
-            font-weight: 650;
-        }
-        .final-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.8rem;
-        }
-        .final-actions .qr-card {
-            width: 17rem;
-        }
-        .faq-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .faq-card {
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            border-radius: 1.2rem;
-            padding: 1.35rem;
-            background: rgba(255, 255, 255, 0.04);
-        }
-        .faq-card h3 {
-            margin: 0;
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 900;
-            line-height: 1.2;
-        }
-        .faq-card p {
-            margin: 0.7rem 0 0;
-            color: #c1cad5;
-            line-height: 1.55;
-            font-weight: 600;
-        }
-        .footer {
-            padding: 1.35rem 0 1.85rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            color: #9ca7b3;
-            font-size: 0.82rem;
-            font-weight: 700;
-        }
-        .footer-inner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: nowrap;
-        }
-        .footer-inner p {
-            margin: 0;
-            flex: 0 0 auto;
-            white-space: nowrap;
-        }
-        .footer-links {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: clamp(0.55rem, 0.8vw, 0.95rem);
-            flex-wrap: nowrap;
-            min-width: 0;
-            white-space: nowrap;
-        }
-        .footer-links a {
-            flex: 0 0 auto;
-        }
-        .footer-links a:hover { color: #fff; }
-        @media (max-width: 1180px) {
-            .nav-links { display: none; }
-            .hero {
-                grid-template-columns: 1fr;
-                padding-top: 1rem;
-            }
-            .hero-visual {
-                min-height: clamp(30rem, 76vw, 42rem);
-                width: min(100%, 42rem);
-                margin: 0 auto;
-            }
-            .hero-main-phone { width: min(23rem, 55vw); right: 6%; }
-            .hero-side-phone { width: min(18.5rem, 44vw); left: 7%; top: 6.5rem; }
-            .section-grid,
-            .section-grid.reverse,
-            .download-box {
-                grid-template-columns: 1fr;
-            }
-            .section-grid.reverse .feature-image-wrap { order: 2; }
-            .section-grid.reverse .section-copy { order: 1; }
-            .section-copy { text-align: left; }
-        }
-        @media (max-width: 980px) {
-            .footer-inner { flex-direction: column; text-align: center; }
-            .footer-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                row-gap: 0.65rem;
-                white-space: normal;
-            }
-        }
-        @media (max-width: 760px) {
-            .container-wide { width: min(100% - 2rem, 1200px); }
-            .top-banner-inner {
-                flex-direction: column;
-                gap: 0.3rem;
-                padding: 0.7rem 0;
-                font-size: 0.78rem;
-                line-height: 1.25;
-            }
-            .top-banner-inner span {
-                display: block;
-                width: 100%;
-            }
-            .nav { padding: 1.15rem 0 0.6rem; }
-            .brand-logo { width: 3rem; height: 3rem; }
-            .hero {
-                gap: 1.5rem;
-                padding: 0.6rem 0 3.4rem;
-            }
-            .eyebrow {
-                width: 100%;
-                justify-content: center;
-                font-size: 0.64rem;
-                line-height: 1.15;
-                text-align: center;
-                padding: 0.56rem 0.7rem;
-                letter-spacing: 0.04em;
-            }
-            .hero h1 {
-                font-size: clamp(2.2rem, 10.5vw, 2.75rem);
-                line-height: 1.08;
-                max-width: 22rem;
-            }
-            .hero-copy {
-                max-width: 22rem;
-                font-size: 1.05rem;
-                line-height: 1.52;
-            }
-            .cta-row {
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-            .app-store-badge,
-            .play-store-badge { width: 11.25rem; }
-            .hero-helper {
-                max-width: 22rem;
-                font-size: 0.86rem;
-                line-height: 1.42;
-            }
-            .hero-tools {
-                grid-template-columns: 1fr;
-                max-width: 22rem;
-            }
-            .qr-card { display: none; }
-            .signup-card {
-                padding: 0.95rem;
-                border-radius: 1rem;
-            }
-            .signup-form {
-                grid-template-columns: 1fr;
-            }
-            .notify-button { width: 100%; }
-            .hero-visual {
-                min-height: clamp(22rem, 68vh, 30rem);
-                overflow: hidden;
-            }
-            .hero-main-phone {
-                width: min(13.8rem, 56vw);
-                top: 0.2rem;
-                right: 0.8rem;
-            }
-            .hero-side-phone {
-                width: min(11.5rem, 46vw);
-                top: 4.2rem;
-                left: 1.2rem;
-            }
-            .section { padding: 3.6rem 0; }
-            .section-copy h2 {
-                font-size: 2.75rem;
-                line-height: 0.98;
-            }
-            .section-copy p {
-                font-size: 1.05rem;
-                line-height: 1.62;
-            }
-            .scan-label {
-                font-size: 0.92rem;
-                line-height: 1.32;
-            }
-            .feature-phone { width: min(100%, 18rem); }
-            .fanview-pair {
-                grid-template-columns: 1fr 0.72fr;
-                gap: 0.55rem;
-            }
-            .fanview-pair img:first-child { width: min(100%, 17rem); }
-            .fanview-pair img:last-child { width: min(100%, 11rem); margin-top: 4rem; }
-            .wide-shot { width: 100%; max-width: 100%; margin-left: 0; }
-            .faq-grid { grid-template-columns: 1fr; }
-            .download-box { gap: 1.25rem; }
-            .download-box {
-                padding: 1rem;
-                border-radius: 1.25rem;
-            }
-            .download-box h2 {
-                font-size: 2.35rem;
-                line-height: 1.02;
-            }
-            .download-box p {
-                font-size: 0.98rem;
-            }
-            .final-actions { align-items: flex-start; }
-            .final-actions .store-badges {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .final-actions .qr-card {
-                display: flex;
-                width: min(100%, 20rem);
-                gap: 0.8rem;
-            }
-            .final-actions .qr-card img {
-                width: 6.25rem;
-                height: 6.25rem;
-            }
-            .footer-inner { flex-direction: column; text-align: center; }
-            .footer-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                row-gap: 0.65rem;
-                white-space: normal;
-            }
-        }
-    </style>
+    <link rel="preload" href="/assets/home-20260714/fanview-live-crisp-900.avif" as="image" type="image/avif" imagesrcset="/assets/home-20260714/fanview-live-crisp-900.avif 900w, /assets/home-20260714/fanview-live-crisp-1440.avif 1440w" imagesizes="(max-width: 900px) 92vw, 44vw" fetchpriority="high">
+    <link rel="stylesheet" href="/assets/home-20260714/home.css">
+    <link rel="stylesheet" href="/assets/home-20260714/home-port.css">
+    <link rel="stylesheet" href="/assets/home-20260714/home-badges-v2.css">
+    <link rel="stylesheet" href="/assets/home-20260715/home-refinements-v3.css">
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -922,321 +177,411 @@
     </script>
 </head>
 <body>
-    <div class="page-shell">
-        <div class="top-banner">
-            <div class="container-wide top-banner-inner">
-                <span>CourtsideView is live now.</span>
-                <a href="/download" aria-label="Download CourtsideView for your device">Download now</a>
-            </div>
-        </div>
+    <div id="top" data-challenger-home>
+        <a class="skip-link" href="#main-content">Skip to main content</a>
 
-        <header class="container-wide">
-            <nav class="nav" aria-label="Main navigation">
-                <a href="/" class="wordmark" aria-label="CourtsideView home">
-                    <img class="brand-logo" src="/assets/courtsideview-app-icon-mark.png" alt="CourtsideView CV app logo" width="850" height="626">
-                </a>
-                <div class="nav-links">
-                    <a href="/volleyball-apps">Guides</a>
-                    <a href="/courtsideview-app">CourtsideView App</a>
-                    <details class="nav-dropdown">
-                        <summary>Compare</summary>
-                        <div class="nav-dropdown-menu">
-                            <a href="/vs/gamechanger"><strong>CourtsideView vs GameChanger</strong><span>Family-first volleyball scoring comparison.</span></a>
-                            <a href="/volleyball-apps"><strong>Volleyball App Guide</strong><span>Index for scoring, stats, clubs, and parents.</span></a>
-                            <a href="/best-volleyball-scorekeeping-apps-2026"><strong>Scorekeeping Apps 2026</strong><span>Compare volleyball scoring and scorebook tools.</span></a>
-                            <a href="/best-volleyball-stat-tracking-apps-2026"><strong>Stat Tracking Apps 2026</strong><span>Compare volleyball stats and player context tools.</span></a>
-                            <a href="/best-apps-for-volleyball-clubs"><strong>Apps for Clubs</strong><span>Club software, scheduling, scoring, and operations.</span></a>
-                            <a href="/best-apps-for-volleyball-parents"><strong>Apps for Parents</strong><span>Live scores, schedules, streaming, and family follow-along.</span></a>
-                            <a href="/volleyball-app-comparison-study"><strong>Comparison Study</strong><span>Use-case study across the volleyball app category.</span></a>
-                        </div>
-                    </details>
-                    <a href="/download">Download</a>
-                </div>
+        <header class="site-header">
+            <a class="brand" href="#top" aria-label="CourtsideView home">
+                <img src="/assets/home-20260714/cv-mark-184.png" alt="" width="46" height="34" fetchpriority="high">
+                <span>CourtsideView</span>
+            </a>
+            <nav class="desktop-nav" aria-label="Primary navigation">
+                <a href="#why">Why volleyball</a>
+                <a href="#matchday">Match day</a>
+                <a href="#fanview">FanView</a>
+                <a href="#real-app">Real app</a>
+                <a class="nav-download" href="#download">Get the app</a>
+            </nav>
+            <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-navigation" aria-label="Open navigation">
+                <svg aria-hidden="true" viewBox="0 0 256 256"><path d="M224 128a8 8 0 0 1-8 8H40a8 8 0 0 1 0-16h176a8 8 0 0 1 8 8ZM40 72h176a8 8 0 0 0 0-16H40a8 8 0 0 0 0 16Zm176 112H40a8 8 0 0 0 0 16h176a8 8 0 0 0 0-16Z"/></svg>
+            </button>
+            <nav id="mobile-navigation" class="mobile-nav" aria-label="Mobile navigation" hidden>
+                <a href="#why">Why volleyball</a>
+                <a href="#matchday">Match day</a>
+                <a href="#fanview">FanView</a>
+                <a href="#real-app">Real app</a>
+                <a href="#download">Get the app</a>
             </nav>
         </header>
 
-        <main>
-            <section class="container-wide hero" aria-labelledby="hero-title">
-                <div>
-                    <h1 id="hero-title"><span class="hero-title-line">Volleyball match day,</span><span class="hero-title-line text-green">finally in one app.</span></h1>
-                    <p class="hero-copy">Score the match, track rotations and player stats, and share live FanView updates from one easy place. Built by volleyball families, for volleyball families.</p>
-                    <div class="cta-row">
-                        <div class="store-badges" aria-label="Download CourtsideView">
-                            <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
-                                <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
-                            </a>
-                            <a href="https://play.google.com/store/apps/details?id=app.courtsideview.android&amp;pli=1" aria-label="Get CourtsideView on Google Play">
-                                <img class="play-store-badge" src="/assets/get-it-on-google-play.svg" alt="Get it on Google Play" width="180" height="54">
-                            </a>
+        <main id="main-content" tabindex="-1">
+            <section class="hero section-dark" aria-labelledby="hero-title">
+                <div class="hero-grid page-shell">
+                    <div class="hero-copy">
+                        <h1 id="hero-title">Built for six rotations.<span>Not six sports.</span></h1>
+                        <p class="hero-enemy">Other apps may support volleyball. <strong>CourtsideView is <span class="hero-built-underline">built for volleyball</span>.</strong></p>
+                        <p class="hero-promise">Bring everyone courtside.</p>
+                        <div class="hero-actions">
+                            <a class="button button-primary" href="#download">Get CourtsideView — free <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
                         </div>
                     </div>
-                    <p class="hero-helper">Available now for iPhone, iPad, and Android. Because "what's the score?" is not a lifestyle.</p>
-                    <div class="hero-tools">
-                        <div class="qr-card" aria-label="QR code to download CourtsideView">
-                            <img src="/assets/smart-download-qr.png" alt="QR code linking to the CourtsideView smart download page" width="768" height="768">
-                            <div>
-                                <strong>Scan before first serve.</strong>
-                                <span>Opens the right app store for your device.</span>
+
+                    <div class="hero-media hero-media--broadcast-focus" role="group" aria-label="CourtsideView FanView broadcasting a live volleyball rally">
+                        <figure class="hero-broadcast">
+                            <div class="hero-broadcast-device iphone17-device">
+                                <picture>
+                                    <source type="image/avif" srcset="/assets/home-20260714/fanview-live-crisp-900.avif 900w, /assets/home-20260714/fanview-live-crisp-1440.avif 1440w" sizes="(max-width: 900px) 92vw, 44vw">
+                                    <img class="hero-device-screen iphone17-screen" src="/assets/home-20260714/fanview-live-crisp.png" alt="Current CourtsideView FanView live match screen" width="1800" height="3914" loading="eager" decoding="async" fetchpriority="high">
+                                </picture>
+                                <div class="hero-screen-brandbar" aria-hidden="true"><img src="/assets/courtsideview-app-icon.png" alt=""><span>CourtsideView</span></div>
+                                <video class="hero-fanview-video" data-src="/assets/home-20260715/fanview-rally-court-v2.mp4" poster="/assets/home-20260715/fanview-rally-court-v2-poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+                                <img class="hero-device-frame iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="eager" decoding="async">
                             </div>
+                            <button class="video-control hero-broadcast-control" type="button" aria-label="Play FanView preview">
+                                <svg aria-hidden="true" viewBox="0 0 256 256"><path d="M240 128a15.74 15.74 0 0 1-7.6 13.51L88.32 229.65A16 16 0 0 1 64 216.13V39.87a16 16 0 0 1 24.32-13.52l144.08 88.14A15.74 15.74 0 0 1 240 128Z"/></svg>
+                            </button>
+                            <figcaption class="sr-only">Show the rally. Share the score.</figcaption>
+                        </figure>
+                    </div>
+                </div>
+
+                <div class="hero-command-line page-shell" role="group" aria-label="Score, rotate, and broadcast with CourtsideView">
+                    <span>Score</span><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg><span>Rotate</span><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg><span>Broadcast</span>
+                </div>
+            </section>
+
+            <section class="courtside-manifesto" aria-labelledby="courtside-manifesto-title">
+                <div class="page-shell courtside-manifesto-grid">
+                    <h2 id="courtside-manifesto-title">Bring <span>everyone</span> courtside.</h2>
+                    <div class="courtside-manifesto-copy">
+                        <p>The gym has four walls. The match doesn’t.</p>
+                        <div role="list" aria-label="People who can follow with FanView">
+                            <span role="listitem">Grandparents</span><span role="listitem">Traveling parents</span><span role="listitem">Teammates</span><span role="listitem">Fans</span>
                         </div>
-                        <div class="signup-card" id="android">
-                            <strong>Keep up with CourtsideView.</strong>
-                            <span>Get occasional product updates, FanView tips, and volleyball-family notes. No spam.</span>
-                            <form id="updates-form" class="signup-form" novalidate>
-                                <label class="sr-only" for="updates-email">Email address</label>
-                                <input id="updates-email" name="email" type="email" autocomplete="email" required placeholder="Email address">
-                                <button id="updates-submit" class="notify-button" type="submit">Join updates</button>
-                            </form>
-                            <p id="updates-status" class="signup-status" role="status" aria-live="polite"></p>
-                            <p class="privacy-note">By signing up, you agree to receive CourtsideView updates. <a href="/privacy">Privacy Policy</a></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="why" class="enemy-section section-light" aria-labelledby="enemy-title">
+                <div class="page-shell enemy-grid">
+                    <div class="enemy-copy">
+                        <p class="act-label act-label--dark">01 / The challenger</p>
+                        <h2 id="enemy-title">Volleyball isn’t another menu item.</h2>
+                        <p>When software starts with every sport, volleyball inherits the compromises.</p>
+                    </div>
+                    <div class="comparison comparison--generic">
+                        <span class="comparison-label">Generic sports stack</span>
+                        <div class="sport-menu" role="list" aria-label="Example generic sports list">
+                            <span role="listitem">Baseball</span><span role="listitem">Basketball</span><span role="listitem">Soccer</span><span role="listitem">Football</span><span role="listitem" class="muted">Volleyball</span><span role="listitem">Other</span>
+                        </div>
+                        <p>Sports menus · Extra setup · Patched-on volleyball</p>
+                    </div>
+                    <div class="comparison-mark" aria-hidden="true">vs</div>
+                    <div class="comparison comparison--cv">
+                        <span class="comparison-label">CourtsideView</span>
+                        <div class="comparison-device iphone17-device">
+                            <img class="comparison-device-screen iphone17-screen" src="/assets/home-20260714/scoreboard-command.webp" alt="CourtsideView volleyball scorekeeping screen" width="900" height="1957" loading="lazy" decoding="async">
+                            <img class="comparison-device-frame iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                        </div>
+                        <p>Score · Rotate · Broadcast</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="live-demo" class="demo-section section-dark" aria-labelledby="demo-title" data-product-video-ready="true">
+                <span id="scoring" class="anchor-alias" aria-hidden="true"></span>
+                <div class="page-shell">
+                    <div class="section-heading section-heading--row">
+                        <div>
+                            <p class="act-label">02 / One scorer</p>
+                            <h2 id="demo-title">One match. <span>One volleyball-native system.</span></h2>
+                            <p class="demo-section-lede">Score every rally. Track every rotation.</p>
+                        </div>
+                        <button class="text-button" type="button">
+                            <svg aria-hidden="true" viewBox="0 0 256 256"><path d="M128 24a104 104 0 1 0 104 104 8 8 0 0 0-16 0 88 88 0 1 1-26.2-62.4L168 87.43V48a8 8 0 0 0-16 0v58.34a8 8 0 0 0 8 8h58.34a8 8 0 0 0 0-16h-39.2l21.95-21.95A103.31 103.31 0 0 0 128 24Z"/></svg> Reset flow
+                        </button>
+                    </div>
+
+                    <div class="demo-campaign-stage">
+                        <div class="demo-campaign-tabs" role="tablist" aria-orientation="vertical" aria-label="CourtsideView match-day flow">
+                            <button id="demo-tab-score" type="button" role="tab" aria-selected="true" aria-controls="demo-panel" tabindex="0" class="is-active"><b>01</b><span>score</span></button>
+                            <button id="demo-tab-rotate" type="button" role="tab" aria-selected="false" aria-controls="demo-panel" tabindex="-1"><b>02</b><span>rotate</span></button>
+                            <button id="demo-tab-share" type="button" role="tab" aria-selected="false" aria-controls="demo-panel" tabindex="-1"><b>03</b><span>share</span></button>
+                        </div>
+                        <article id="demo-panel" class="demo-campaign-panel" role="tabpanel" aria-labelledby="demo-tab-score" tabindex="0">
+                            <div class="demo-campaign-image">
+                                <div class="demo-campaign-device iphone17-device">
+                                    <img class="iphone17-screen" src="/assets/home-20260714/scorekeeper-main.webp" alt="CourtsideView scorekeeper screen with scores, timeouts, and end set controls" width="900" height="1957" loading="lazy" decoding="async">
+                                    <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                                </div>
+                            </div>
+                            <div class="demo-campaign-copy">
+                                <p>1 · Score</p>
+                                <h3>Run the point from the real scorekeeper.</h3>
+                                <span>Fast controls, timeouts, end-set actions, and FanView access stay together while the rally moves.</span>
+                                <strong>Score <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg> Rotate <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg> Broadcast</strong>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="demo-runner">
+                        <button class="button button-primary" type="button"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="M240 128a15.74 15.74 0 0 1-7.6 13.51L88.32 229.65A16 16 0 0 1 64 216.13V39.87a16 16 0 0 1 24.32-13.52l144.08 88.14A15.74 15.74 0 0 1 240 128Z"/></svg> <span data-demo-next-label>Next: rotate</span></button>
+                        <p aria-live="polite">Now showing: Run the point from the real scorekeeper.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="matchday" class="matchday-section section-dark" aria-labelledby="matchday-title">
+                <div class="page-shell">
+                    <div class="matchday-heading">
+                        <p class="act-label">03 / The gym</p>
+                        <h2 id="matchday-title">Built for the walk in. <span>Ready when the gym gets loud.</span></h2>
+                        <p>Courts in every direction. Thousands in the building. Someone you love still can’t be at this court.</p>
+                    </div>
+                    <div class="matchday-media-grid">
+                        <article class="atmosphere-card atmosphere-card--venue">
+                            <video data-src="/assets/home-20260714/venue-scale-loop.mp4" data-poster="/assets/home-20260714/venue-scale-poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+                            <div class="atmosphere-card__copy"><span>Tournament scale</span><p>Every court is full. Every family can’t be.</p></div>
+                            <button type="button" class="atmosphere-control" aria-label="Play Tournament scale video"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="M240 128a15.74 15.74 0 0 1-7.6 13.51L88.32 229.65A16 16 0 0 1 64 216.13V39.87a16 16 0 0 1 24.32-13.52l144.08 88.14A15.74 15.74 0 0 1 240 128Z"/></svg></button>
+                        </article>
+                        <article class="atmosphere-card atmosphere-card--arrival">
+                            <video data-src="/assets/home-20260714/hall-arrival-loop.mp4" data-poster="/assets/home-20260714/hall-arrival-poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+                            <div class="atmosphere-card__copy"><span>The walk in</span><p>From South Hall B to first serve, CourtsideView is ready for match day.</p></div>
+                            <button type="button" class="atmosphere-control" aria-label="Play The walk in video"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="M240 128a15.74 15.74 0 0 1-7.6 13.51L88.32 229.65A16 16 0 0 1 64 216.13V39.87a16 16 0 0 1 24.32-13.52l144.08 88.14A15.74 15.74 0 0 1 240 128Z"/></svg></button>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="fanview" class="fanview-section section-dark" aria-labelledby="fanview-title">
+                <div class="page-shell fanview-grid">
+                    <div class="fanview-copy">
+                        <p class="act-label act-label--pink"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="M128 72a56 56 0 1 0 56 56 56.06 56.06 0 0 0-56-56Zm0 96a40 40 0 1 1 40-40 40 40 0 0 1-40 40Zm0-136a96 96 0 1 0 96 96 96.11 96.11 0 0 0-96-96Zm0 176a80 80 0 1 1 80-80 80.09 80.09 0 0 1-80 80Zm0-96a16 16 0 1 0 16 16 16 16 0 0 0-16-16Z"/></svg> 04 / Everyone</p>
+                        <h2 id="fanview-title">Bring everyone <span>courtside.</span></h2>
+                        <p class="fanview-lede">One link. The whole cheering section.</p>
+                        <p>No app required. Just the score and match activity in any modern browser.</p>
+                        <div class="fanview-audience" role="list" aria-label="FanView audience">
+                            <span role="listitem">Grandparents</span><span role="listitem">Traveling parents</span><span role="listitem">Teammates</span><span role="listitem">Fans</span>
+                        </div>
+                        <div class="fanview-actions">
+                            <button class="button button-pink" type="button" data-fanview-open>Preview FanView <svg aria-hidden="true" viewBox="0 0 256 256"><path d="M128 72a56 56 0 1 0 56 56 56.06 56.06 0 0 0-56-56Zm0 96a40 40 0 1 1 40-40 40 40 0 0 1-40 40Zm0-136a96 96 0 1 0 96 96 96.11 96.11 0 0 0-96-96Zm0 176a80 80 0 1 1 80-80 80.09 80.09 0 0 1-80 80Zm0-96a16 16 0 1 0 16 16 16 16 0 0 0-16-16Z"/></svg></button>
+                            <a class="fanview-download-link" href="#download">Get CourtsideView — free <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
                         </div>
                     </div>
-                </div>
-
-                <div class="hero-visual" aria-label="CourtsideView app screenshots">
-                    <img class="phone-shot hero-side-phone" src="/assets/website-20260617-home-hub.webp" alt="CourtsideView home screen with an active match and role hub options" width="900" height="1957" loading="eager" decoding="async">
-                    <img class="phone-shot hero-main-phone" src="/assets/website-20260617-scoreboard-command.webp" alt="CourtsideView full-stats match screen with live score, last action, and on-court rotation" width="900" height="1957" loading="eager" decoding="async">
-                </div>
-            </section>
-
-            <section id="scoring" class="section section-cream">
-                <div class="container-wide section-grid">
-                    <div class="section-copy">
-                        <p class="kicker">Scorekeeper</p>
-                        <h2>Paper scorebook, we need to talk.</h2>
-                        <span class="scan-label">Built for fast point entry and fewer set-point arguments.</span>
-                        <p>Score the match in seconds, keep the set moving, and stop playing detective at set point. No more pencil math, scratched-out points, or asking three people if it is 14-12 or 13-12.</p>
-                        <span class="pull-quote">Tap. Score. Breathe.</span>
-                    </div>
-                    <div class="feature-image-wrap">
-                        <img class="feature-phone" src="/assets/website-20260617-scorekeeper-main.webp" alt="CourtsideView scorekeeper screen with score buttons, timeouts, FanView, and end set controls" width="900" height="1957" loading="lazy" decoding="async">
+                    <div class="fanview-official-grid" role="group" aria-label="CourtsideView FanView match screen">
+                        <figure class="fanview-official-screen fanview-official-screen--live">
+                            <div class="fanview-official-device iphone17-device">
+                                <img class="iphone17-screen" src="/assets/home-20260714/fanview-live.webp" alt="Current CourtsideView FanView live web screen showing the match score and activity" width="900" height="1957" loading="lazy" decoding="async">
+                                <div class="iphone17-brandbar" aria-hidden="true"><img src="/assets/courtsideview-app-icon.png" alt=""><span>CourtsideView</span></div>
+                                <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                            </div>
+                            <figcaption>Watch from any modern browser. No app required.</figcaption>
+                        </figure>
                     </div>
                 </div>
             </section>
 
-            <section id="stats" class="section section-dark">
-                <div class="container-wide section-grid reverse">
-                    <div class="feature-image-wrap">
-                        <img class="feature-phone" src="/assets/website-20260617-stats-rotation.webp" alt="CourtsideView player stats and rotation screen showing on-court players and stat tracking" width="900" height="1957" loading="lazy" decoding="async">
-                    </div>
-                    <div class="section-copy">
-                        <p class="kicker">Stats and rotations</p>
-                        <h2>Your libero deserves better than "played great."</h2>
-                        <span class="scan-label">Player stats, live rotation context, and roster-aware scoring.</span>
-                        <p>Track player stats match by match so athletes, parents, and coaches can see the work behind the win. See who is on court, who is serving, and where everyone should be before the next whistle.</p>
-                        <p><a href="/volleyball-player-stats">Explore volleyball player stats</a></p>
-                        <span class="pull-quote">Rotation chaos? Not today.</span>
-                    </div>
-                </div>
-            </section>
-
-            <section id="fanview" class="section">
-                <div class="container-wide section-grid">
-                    <div class="section-copy">
-                        <p class="kicker">FanView</p>
-                        <h2>Grandma can follow from 600 miles away.</h2>
-                        <span class="scan-label">One live link for family, fans, and the parent stuck at work.</span>
-                        <p>Send a live FanView link so family, friends, and fans can follow the score without refreshing the group chat. One link, live scores, less sideline tech support.</p>
-                        <span class="pull-quote">Live updates for the whole volleyball fam.</span>
-                    </div>
-                    <div class="feature-image-wrap fanview-pair">
-                        <img class="feature-phone" src="/assets/website-20260617-fanview-live.webp" alt="FanView live web scoreboard with the set score, last play, and on-court view for family and fans" width="900" height="1957" loading="lazy" decoding="async">
-                        <img class="feature-phone" src="/assets/website-20260617-share-fanview.webp" alt="CourtsideView FanView sharing screen with share link, broadcast options, and QR code" width="900" height="1957" loading="lazy" decoding="async">
-                    </div>
-                </div>
-            </section>
-
-            <section class="section section-cream">
-                <div class="container-wide section-grid reverse">
-                    <div class="feature-image-wrap">
-                        <img class="feature-phone" src="/assets/website-20260617-roster-hub.webp" alt="CourtsideView team hub showing player profiles, positions, and season stats" width="900" height="1957" loading="lazy" decoding="async">
-                    </div>
-                    <div class="section-copy">
-                        <p class="kicker">Roster Hub</p>
-                        <h2>Load the team once.</h2>
-                        <span class="scan-label">Rosters and player profiles ready before match day gets loud.</span>
-                        <p>Build rosters, import lists, and stop rewriting jersey numbers like it is a homework punishment. When match day hits, your players are already where you need them.</p>
-                        <span class="pull-quote">Before first serve, get the lineup handled.</span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <div class="container-wide">
-                    <div class="section-copy" style="max-width: 760px;">
-                        <p class="kicker">Big mode</p>
-                        <h2>For the parent squinting from the far baseline.</h2>
-                        <span class="scan-label">A larger scoreboard view for benches, scorer tables, and busy gyms.</span>
-                        <p>Flip into a big scoreboard view for scorer tables, benches, and tournament chaos. Set point should not require detective work.</p>
-                    </div>
-                    <div style="margin-top: 2rem;">
-                        <img class="wide-shot" src="/assets/website-20260617-big-scoreboard.webp" alt="CourtsideView landscape big scoreboard mode with large team scores" width="1700" height="782" loading="lazy" decoding="async">
-                    </div>
-                </div>
-            </section>
-
-            <section id="courtsideview-app" class="section section-dark">
-                <div class="container-wide">
-                    <div class="section-copy" style="max-width: 820px;">
-                        <p class="kicker">CourtsideView app</p>
-                        <h2>What is CourtsideView?</h2>
-                        <p>CourtsideView is a volleyball match-day app for scorekeeping, player stats, rotations, rosters, and FanView live score sharing. Some families search for it as CourtsideView app, CourtsideViewApp, courtsideviewapp, or Courtside View app.</p>
-                        <p>The short version: it helps volleyball families score the match, track the story, and keep everyone following along from one easy place.</p>
-                    </div>
-                    <div class="faq-grid">
-                        <article class="faq-card">
-                            <h3>Is CourtsideView for volleyball?</h3>
-                            <p>Yes. CourtsideView is built for volleyball match day, not basketball streaming or a generic courtside viewing product.</p>
-                        </article>
-                        <article class="faq-card">
-                            <h3>Where can I get the app?</h3>
-                            <p>CourtsideView is available for iPhone, iPad, and Android through the smart download page.</p>
-                        </article>
-                        <article class="faq-card">
-                            <h3>What does FanView do?</h3>
-                            <p>FanView lets you share a live link so family and fans can follow the score and match updates from anywhere.</p>
-                        </article>
-                    </div>
-                    <p style="margin-top: 1.5rem; color: #c1cad5; font-weight: 800;"><a href="/courtsideview-app">Learn more about the CourtsideView app</a></p>
-                </div>
-            </section>
-
-            <section id="faq" class="section section-dark">
-                <div class="container-wide">
-                    <div class="section-copy" style="max-width: 820px;">
-                        <p class="kicker">Match-day answers</p>
-                        <h2>A volleyball tracking app built from the sideline.</h2>
-                        <p>CourtsideView is for parents, coaches, players, and fans who want the score, the rotation, and the story behind the set without turning the group chat into a full-time job.</p>
-                    </div>
-                    <div class="faq-grid">
-                        <article class="faq-card">
-                            <h3>Can CourtsideView be used as a volleyball score keeper?</h3>
-                            <p>Yes. CourtsideView is built for fast volleyball scorekeeping, with roster context, match flow, rotations, and player stats in one focused app.</p>
-                        </article>
-                        <article class="faq-card">
-                            <h3>What volleyball player stats can I track?</h3>
-                            <p>Track match details that help athletes get credit for the work: assists, digs, serves, net touches, substitutions, rotations, and more.</p>
-                        </article>
-                        <article class="faq-card">
-                            <h3>Can family and fans follow live volleyball scores?</h3>
-                            <p>Yes. FanView lets supporters follow live volleyball scores and match context from a shared web link.</p>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <section id="download" class="download-section">
-                <div class="container-wide download-box">
+            <section id="real-app" class="storefront-section section-dark" aria-labelledby="storefront-title">
+                <div class="page-shell storefront-heading">
                     <div>
-                        <h2>Download before the next first serve.</h2>
-                        <p>CourtsideView is available now for iPhone, iPad, and Android. Score the match before the group chat asks again.</p>
+                        <p class="act-label">05 / The receipts</p>
+                        <h2 id="storefront-title">Six screens. <span>Zero concept art.</span></h2>
                     </div>
-                    <div class="final-actions">
-                        <div class="store-badges" aria-label="Download CourtsideView">
-                            <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">
-                                <img class="app-store-badge" src="/assets/download-on-app-store.svg" alt="Download on the App Store" width="180" height="54">
-                            </a>
-                            <a href="https://play.google.com/store/apps/details?id=app.courtsideview.android&amp;pli=1" aria-label="Get CourtsideView on Google Play">
-                                <img class="play-store-badge" src="/assets/get-it-on-google-play.svg" alt="Get it on Google Play" width="180" height="54">
-                            </a>
+                    <div class="storefront-proof-copy">
+                        <p>Every image below comes from the current US App Store listing. The live app is the proof.</p>
+                        <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" target="_blank" rel="noopener noreferrer">Verify on the App Store <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
+                    </div>
+                </div>
+                <div class="page-shell storefront-spotlight">
+                    <figure class="storefront-spotlight-image">
+                        <img src="/assets/home-20260714/storefront/app-store-01.jpg" alt="Start scoring fast, current CourtsideView App Store screenshot" width="600" height="1298" loading="lazy" decoding="async">
+                    </figure>
+                    <div class="storefront-spotlight-copy">
+                        <p class="storefront-position" aria-live="polite">01 / 06</p>
+                        <h3>Start scoring fast</h3>
+                        <p>Open the volleyball tools you need without walking through a multi-sport setup.</p>
+                        <div class="storefront-index" role="group" aria-label="Choose an App Store screenshot">
+                            <button type="button" class="is-active" aria-label="Show screenshot 1: Start scoring fast" aria-pressed="true">01</button>
+                            <button type="button" aria-label="Show screenshot 2: Run the match live" aria-pressed="false">02</button>
+                            <button type="button" aria-label="Show screenshot 3: Big match energy" aria-pressed="false">03</button>
+                            <button type="button" aria-label="Show screenshot 4: Share it live" aria-pressed="false">04</button>
+                            <button type="button" aria-label="Show screenshot 5: Track every rally" aria-pressed="false">05</button>
+                            <button type="button" aria-label="Show screenshot 6: Set up in seconds" aria-pressed="false">06</button>
                         </div>
-                        <div class="qr-card" aria-label="QR code to download CourtsideView">
-                            <img src="/assets/smart-download-qr.png" alt="QR code linking to the CourtsideView smart download page" width="768" height="768">
-                            <div>
-                                <strong>Scan to download.</strong>
-                                <span>Android opens Google Play. iPhone opens the App Store.</span>
+                        <div class="storefront-controls" role="group" aria-label="Browse current CourtsideView App Store screenshots">
+                            <button type="button" aria-label="Previous App Store screenshot"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m34.34 122.34 72-72a8 8 0 0 1 11.32 11.32L59.31 120H216a8 8 0 0 1 0 16H59.31l58.35 58.34a8 8 0 0 1-11.32 11.32l-72-72a8 8 0 0 1 0-11.32Z"/></svg></button>
+                            <span>Browse the live app</span>
+                            <button type="button" aria-label="Next App Store screenshot"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="origin" class="origin-section section-light" aria-labelledby="origin-title">
+                <div class="page-shell origin-grid">
+                    <figure class="origin-story-media">
+                        <img src="/assets/home-20260714/rally-reset-poster.png" alt="Volleyball teams and families between rallies at a live tournament" width="576" height="1024" loading="lazy" decoding="async">
+                        <figcaption>The sideline was the product brief.</figcaption>
+                    </figure>
+                    <div class="origin-copy">
+                        <p class="act-label act-label--dark">06 / The origin</p>
+                        <h2 id="origin-title">Built from the sideline.</h2>
+                        <p class="origin-lede">Made by volleyball families who were tired of paper math, rotation panic, and the text every absent parent sends: “What’s the score?”</p>
+                        <div class="review-grid">
+                            <blockquote><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><p>“Very user friendly and easy to use.”</p><cite>App Store review</cite></blockquote>
+                            <blockquote><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><p>“Keeping track of the score is fun &amp; easy.”</p><cite>App Store review</cite></blockquote>
+                        </div>
+                        <a class="review-receipt" href="https://apps.apple.com/us/app/courtsideview/id6766532771" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m229.66 77.66-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69 218.34 66.34a8 8 0 0 1 11.32 11.32Z"/></svg><span>Real reviews. Read the receipts on the App Store.</span><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="growth" class="growth-section section-light" aria-labelledby="growth-title">
+                <div class="page-shell">
+                    <div class="section-heading section-heading--dark">
+                        <p class="act-label act-label--dark">07 / The ripple</p>
+                        <h2 id="growth-title">One scorer. One link. <span>Everyone courtside.</span></h2>
+                    </div>
+                    <div class="growth-broadcast-rail" role="list" aria-label="How one scorer brings everyone courtside">
+                        <div role="listitem"><b>One</b><span>Scorer</span><small>Keeps the match moving.</small></div>
+                        <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg>
+                        <div role="listitem"><b>One</b><span>Link</span><small>Opens in any modern browser.</small></div>
+                        <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg>
+                        <div role="listitem"><b>Every</b><span>Rally</span><small>Travels beyond the gym.</small></div>
+                        <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg>
+                        <div role="listitem" class="growth-broadcast-final"><b>Everyone</b><span>Courtside</span><small>Part of match day.</small></div>
+                    </div>
+                    <p class="growth-audience-line">Grandparents / Traveling parents / Teammates / Fans</p>
+                </div>
+            </section>
+
+            <section id="stats" class="depth-section section-dark" aria-labelledby="depth-title">
+                <div class="page-shell depth-grid">
+                    <div class="depth-copy">
+                        <p class="act-label">08 / The whole match</p>
+                        <h2 id="depth-title">The whole match. <span>Not just the score.</span></h2>
+                        <div class="feature-tabs" role="tablist" aria-orientation="vertical" aria-label="CourtsideView product features">
+                            <button id="feature-tab-rotations" type="button" role="tab" aria-selected="true" aria-controls="feature-panel" tabindex="0" class="active"><span>Six-position rotations</span><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></button>
+                            <button id="feature-tab-stats" type="button" role="tab" aria-selected="false" aria-controls="feature-panel" tabindex="-1"><span>Player stats that matter</span><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></button>
+                            <button id="feature-tab-rosters" type="button" role="tab" aria-selected="false" aria-controls="feature-panel" tabindex="-1"><span>Rosters ready to play</span><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></button>
+                            <button id="feature-tab-big-mode" type="button" role="tab" aria-selected="false" aria-controls="feature-panel" tabindex="-1"><span>Big scoreboard mode</span><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></button>
+                        </div>
+                    </div>
+                    <div id="feature-panel" class="feature-stage" role="tabpanel" aria-labelledby="feature-tab-rotations" tabindex="0">
+                        <div class="feature-image">
+                            <div class="feature-device iphone17-device">
+                                <img class="iphone17-screen" src="/assets/home-20260714/stats-rotation.webp" alt="CourtsideView rotation and player statistics screen" width="900" height="1957" loading="lazy" decoding="async">
+                                <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
                             </div>
                         </div>
+                        <div class="feature-caption">
+                            <p>Six-position rotations</p>
+                            <h3>Always know who’s in, who’s up next, and why.</h3>
+                            <span>See the court in context while the match is moving—without rebuilding the lineup between rallies.</span>
+                            <small><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m229.66 77.66-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69 218.34 66.34a8 8 0 0 1 11.32 11.32Z"/></svg> From the live app</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="download" class="download-section section-dark" aria-labelledby="download-title">
+                <div class="page-shell download-grid">
+                    <div>
+                        <p class="download-prelude">Start with the next serve</p>
+                        <h2 id="download-title" tabindex="-1">Bring everyone courtside.</h2>
+                        <p>CourtsideView is free. Download for iPhone, iPad, and Android.</p>
+                        <p class="download-platforms">Free · iPhone · iPad · Android</p>
+                    </div>
+                    <div class="store-buttons" role="group" aria-label="Download CourtsideView">
+                        <a class="store-button store-button--apple" href="https://apps.apple.com/us/app/courtsideview/id6766532771" target="_blank" rel="noopener noreferrer"><img src="/assets/home-20260714/app-store.svg" alt="Download CourtsideView on the App Store" width="178" height="54" loading="lazy" decoding="async"></a>
+                        <a class="store-button store-button--google" href="https://play.google.com/store/apps/details?id=app.courtsideview.android&amp;pli=1" target="_blank" rel="noopener noreferrer"><img src="/assets/home-20260714/google-play-official.png" alt="Get CourtsideView on Google Play" width="646" height="250" loading="lazy" decoding="async"></a>
+                    </div>
+                    <div class="download-qr"><img src="/assets/home-20260714/download-qr.png" alt="Scan to download CourtsideView" width="176" height="176" loading="lazy" decoding="async"><span>Get CourtsideView — free</span></div>
+                </div>
+            </section>
+
+            <section id="courtsideview-app" class="seo-proof-section section-light" aria-labelledby="seo-proof-title">
+                <span id="faq" class="anchor-alias" aria-hidden="true"></span>
+                <div class="page-shell seo-proof-grid">
+                    <div class="seo-proof-intro">
+                        <p class="act-label act-label--dark">The volleyball app</p>
+                        <h2 id="seo-proof-title">What is <span>CourtsideView?</span></h2>
+                        <p>CourtsideView is a volleyball match-day app for scorekeeping, player stats, rotations, rosters, and FanView live score sharing. It helps volleyball families score the match, track the story behind every set, and keep supporters following from one easy place.</p>
+                        <nav class="seo-chapter-links" aria-label="Explore CourtsideView product guides">
+                            <a href="/courtsideview-app">Explore the CourtsideView app</a>
+                            <a href="/volleyball-score-keeper">Volleyball score keeper</a>
+                            <a href="/volleyball-player-stats">Volleyball player stats</a>
+                            <a href="/vs/gamechanger">Compare CourtsideView and GameChanger</a>
+                        </nav>
+                    </div>
+                    <div class="seo-faq-list" role="region" aria-label="CourtsideView match-day answers">
+                        <details>
+                            <summary>What is the CourtsideView app?</summary>
+                            <div class="seo-faq-answer"><p>CourtsideView is a volleyball match-day app for scorekeeping, player stats, rotations, rosters, and FanView live score sharing.</p></div>
+                        </details>
+                        <details>
+                            <summary>Can CourtsideView be used as a volleyball score keeper?</summary>
+                            <div class="seo-faq-answer"><p>Yes. CourtsideView is built for fast volleyball scorekeeping, live match flow, roster context, rotations, and player stats in one focused app.</p></div>
+                        </details>
+                        <details>
+                            <summary>What volleyball player stats can I track?</summary>
+                            <div class="seo-faq-answer"><p>CourtsideView helps track player-level match details such as assists, digs, serves, net touches, substitutions, rotations, and other volleyball stats.</p></div>
+                        </details>
+                        <details>
+                            <summary>Can family and fans follow live volleyball scores?</summary>
+                            <div class="seo-faq-answer"><p>Yes. FanView lets supporters follow live volleyball scores and match context from a shared web link.</p></div>
+                        </details>
                     </div>
                 </div>
             </section>
         </main>
 
-        <footer class="footer">
-            <div class="container-wide footer-inner">
-                <p>&copy; 2026 CourtsideView</p>
-                <div class="footer-links">
+        <aside class="resource-band" aria-labelledby="resource-band-title">
+            <div class="page-shell resource-band-inner">
+                <div class="resource-band-heading">
+                    <p>CourtsideView field guide</p>
+                    <h2 id="resource-band-title">Volleyball match day, researched.</h2>
+                </div>
+                <nav class="resource-links" aria-label="CourtsideView resources">
                     <a href="/courtsideview-app">CourtsideView App</a>
-                    <a href="/volleyball-apps">Guides</a>
-                    <a href="#scoring">Scoring</a>
-                    <a href="/volleyball-score-keeper">Scorekeeper</a>
-                    <a href="/volleyball-player-stats">Player Stats</a>
-                    <a href="#fanview">FanView</a>
-                    <a href="/vs/gamechanger">Compare</a>
-                    <a href="/press">Press</a>
+                    <a href="/volleyball-score-keeper">Volleyball Score Keeper</a>
+                    <a href="/volleyball-player-stats">Volleyball Player Stats</a>
+                    <a href="/volleyball-apps">Volleyball App Guide</a>
+                    <a href="/best-volleyball-scorekeeping-apps-2026">Best Scorekeeping Apps 2026</a>
+                    <a href="/best-volleyball-stat-tracking-apps-2026">Best Stat Tracking Apps 2026</a>
+                    <a href="/best-apps-for-volleyball-clubs">Best Apps for Clubs</a>
+                    <a href="/best-apps-for-volleyball-parents">Best Apps for Parents</a>
+                    <a href="/volleyball-app-comparison-study">Volleyball App Comparison Study</a>
+                    <a href="/vs/gamechanger">CourtsideView vs GameChanger</a>
                     <a href="/download">Download</a>
+                    <a href="/press">Press Room</a>
+                    <a href="/press-release-courtsideview-volleyball-app-launch">Launch Press Release</a>
                     <a href="/support">Support</a>
                     <a href="/privacy">Privacy</a>
                     <a href="/sitemap.xml">Sitemap</a>
-                    <a href="mailto:teagan@courtsideviewapp.com">Contact</a>
-                </div>
+                </nav>
+            </div>
+        </aside>
+
+        <footer class="site-footer section-dark">
+            <div class="page-shell footer-grid">
+                <div class="footer-brand-lockup"><a class="brand" href="/" aria-label="CourtsideView home"><img src="/assets/home-20260714/cv-mark-184.png" alt="" width="46" height="34" loading="lazy" decoding="async"><span>CourtsideView</span></a><p>Bring everyone courtside.</p></div>
+                <nav aria-label="Footer navigation"><a href="#why">Why volleyball</a><a href="#matchday">Match day</a><a href="#fanview">FanView</a><a href="#real-app">Real app</a><a href="#download">Get the app</a></nav>
+                <div><a href="/privacy">Privacy</a><span>© 2026 CourtsideView</span></div>
             </div>
         </footer>
     </div>
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-        const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_91GTH_Tp2G0vGseUYUp9og_YtM-qlG0';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-            auth: {
-                persistSession: false,
-                autoRefreshToken: false,
-                detectSessionInUrl: false,
-            },
-        });
+    <div class="modal-backdrop" data-fanview-modal hidden>
+        <div class="fanview-modal fanview-modal--official" role="dialog" aria-modal="true" aria-labelledby="fanview-modal-title" aria-describedby="fanview-modal-description" tabindex="-1">
+            <button class="modal-close" type="button" data-modal-close aria-label="Close FanView preview"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="M205.66 194.34a8 8 0 0 1-11.32 11.32L128 139.31l-66.34 66.35a8 8 0 0 1-11.32-11.32L116.69 128 50.34 61.66a8 8 0 0 1 11.32-11.32L128 116.69l66.34-66.35a8 8 0 0 1 11.32 11.32L139.31 128Z"/></svg></button>
+            <div class="modal-live"><svg aria-hidden="true" viewBox="0 0 256 256"><path d="m229.66 77.66-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69 218.34 66.34a8 8 0 0 1 11.32 11.32Z"/></svg> FanView preview</div>
+            <h2 id="fanview-modal-title">One link. Everyone courtside.</h2>
+            <div class="modal-official-grid">
+                <div class="modal-official-device iphone17-device">
+                    <img class="iphone17-screen" src="/assets/home-20260714/fanview-live.webp" alt="CourtsideView FanView live match screen" width="900" height="1957" loading="lazy" decoding="async">
+                    <div class="iphone17-brandbar" aria-hidden="true"><img src="/assets/courtsideview-app-icon.png" alt=""><span>CourtsideView</span></div>
+                    <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                </div>
+                <div class="modal-official-device iphone17-device">
+                    <img class="iphone17-screen" src="/assets/home-20260714/share-fanview.webp" alt="CourtsideView FanView sharing screen" width="900" height="1957" loading="lazy" decoding="async">
+                    <img class="iphone17-frame" src="/assets/home-20260714/iphone17-pro-glass-frame.png" alt="" aria-hidden="true" width="864" height="1821" loading="lazy" decoding="async">
+                </div>
+            </div>
+            <p id="fanview-modal-description">FanView lets families follow the score and match activity from any modern browser. These screens come from the live app.</p>
+            <a class="button button-primary" href="#download">Get CourtsideView — free <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
+        </div>
+    </div>
 
-        const form = document.getElementById('updates-form');
-        const emailInput = document.getElementById('updates-email');
-        const submitButton = document.getElementById('updates-submit');
-        const status = document.getElementById('updates-status');
-
-        const setStatus = (message, tone = 'neutral') => {
-            status.textContent = message;
-            status.className = 'signup-status' + (
-                tone === 'success'
-                    ? ' success'
-                    : tone === 'error'
-                        ? ' error'
-                        : ''
-            );
-        };
-
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const email = emailInput.value.trim().toLowerCase();
-            emailInput.value = email;
-            if (!emailInput.checkValidity() || !email) {
-                setStatus('Enter a valid email address.', 'error');
-                emailInput.focus();
-                return;
-            }
-
-            submitButton.disabled = true;
-            submitButton.textContent = 'Saving...';
-            setStatus('Adding you to CourtsideView updates...');
-
-            const { error } = await supabase
-                .from('waitlist')
-                .insert({ email, source: 'website-updates' });
-
-            if (error) {
-                if (error.code === '23505') {
-                    setStatus("You're already on the list. We'll keep you posted.", 'success');
-                    form.reset();
-                } else {
-                    console.error('[website-updates] insert failed', error);
-                    setStatus('Could not join right now. Email teagan@courtsideviewapp.com and we will add you manually.', 'error');
-                }
-            } else {
-                setStatus("You're on the CourtsideView update list. We'll keep it useful.", 'success');
-                form.reset();
-            }
-
-            submitButton.disabled = false;
-            submitButton.textContent = 'Join updates';
-        });
-    </script>
+    <script src="/assets/home-20260714/home.js?v=20260715-iphone17" defer></script>
 </body>
 </html>
