@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>CourtsideView | FanView Community Preview</title>
+    <link rel="icon" href="/assets/favicon.png" />
+    <link rel="stylesheet" href="/assets/fanview-community/fanview-community.css" />
+    <style>
+      :root {
+        --pink: #f22b78;
+        --navy: #101620;
+        --home: #6044d8;
+        --away: #ef6b38;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { min-height: 100%; }
+      body {
+        margin: 0;
+        color: #fff;
+        background:
+          radial-gradient(circle at 20% 10%, rgba(96, 68, 216, 0.28), transparent 32%),
+          radial-gradient(circle at 85% 24%, rgba(242, 43, 120, 0.17), transparent 28%),
+          #090e16;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .preview-shell {
+        display: grid;
+        min-height: 100dvh;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .preview-bar {
+        display: flex;
+        min-height: 64px;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(9, 14, 22, 0.8);
+        backdrop-filter: blur(16px);
+      }
+
+      .preview-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+      }
+
+      .preview-brand {
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+      }
+
+      .preview-label {
+        margin-left: auto;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        padding: 7px 10px;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .match-stage {
+        position: relative;
+        display: grid;
+        min-height: 0;
+        place-items: center;
+        overflow: hidden;
+        padding: 28px;
+        background:
+          linear-gradient(rgba(6, 10, 17, 0.12), rgba(6, 10, 17, 0.62)),
+          url("/assets/home-20260714/fanview-rally-embed-poster.jpg") center/cover;
+      }
+
+      .match-stage::after {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(7, 11, 18, 0.18), rgba(7, 11, 18, 0.5));
+        content: "";
+      }
+
+      .scorebug {
+        position: absolute;
+        z-index: 2;
+        bottom: 24px;
+        left: 24px;
+        width: min(440px, calc(100vw - 48px));
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 17px;
+        background: rgba(11, 16, 25, 0.9);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(12px);
+      }
+
+      .scorebug-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 11px;
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .live-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #fff;
+      }
+
+      .live-label::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--pink);
+        box-shadow: 0 0 0 4px rgba(242, 43, 120, 0.12);
+        content: "";
+      }
+
+      .team-row {
+        display: grid;
+        grid-template-columns: 7px minmax(0, 1fr) 64px;
+        min-height: 50px;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.09);
+      }
+
+      .team-accent { align-self: stretch; background: var(--team); }
+      .team-name {
+        overflow: hidden;
+        padding: 0 14px;
+        font-size: 18px;
+        font-weight: 950;
+        letter-spacing: -0.02em;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .team-score {
+        display: grid;
+        align-self: stretch;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 28px;
+        font-weight: 950;
+      }
+
+      .viewer-pill {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        z-index: 2;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        padding: 8px 11px;
+        background: rgba(7, 11, 18, 0.68);
+        font-size: 11px;
+        font-weight: 800;
+        backdrop-filter: blur(12px);
+      }
+
+      .preview-note {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        max-width: 360px;
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.5;
+        text-align: center;
+        transform: translateY(-50%);
+      }
+
+      @media (max-width: 720px) {
+        .match-stage { padding: 16px; }
+        .scorebug {
+          right: 14px;
+          bottom: 82px;
+          left: 14px;
+          width: auto;
+        }
+        .preview-note { top: 38%; padding: 0 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-shell">
+      <header class="preview-bar">
+        <img class="preview-mark" src="/assets/courtsideview-app-icon.png" alt="CourtsideView" />
+        <div>
+          <div class="preview-brand">CourtsideView</div>
+          <div style="color:rgba(255,255,255,.58);font-size:10px;font-weight:700">FanView Community design QA</div>
+        </div>
+        <span class="preview-label">Preview only</span>
+      </header>
+      <main class="match-stage">
+        <span class="viewer-pill">● 18 watching</span>
+        <div class="preview-note">Open “Cheer together” to review the desktop panel. On a phone, it becomes a thumb-friendly bottom sheet.</div>
+        <section class="scorebug" aria-label="Live match score">
+          <div class="scorebug-meta"><span class="live-label">FanView Live</span><span>Set 2 · To 25</span></div>
+          <div class="team-row" style="--team:var(--home)">
+            <span class="team-accent"></span><span class="team-name">14s Blue</span><span class="team-score">18</span>
+          </div>
+          <div class="team-row" style="--team:var(--away)">
+            <span class="team-accent"></span><span class="team-name">Momentum</span><span class="team-score">16</span>
+          </div>
+        </section>
+      </main>
+    </div>
+    <fanview-community start-open></fanview-community>
+    <script type="module">
+      import '/assets/fanview-community/fanview-community.js';
+      const community = document.querySelector('fanview-community');
+      community.configure({
+        title: '14s Blue Cheering Section',
+        subtitle: '18 cheering together',
+        startOpen: true,
+        demo: true,
+        demoProfile: {
+          name: 'Falcon Fan',
+          relationship: 'Verified adult',
+          color: '#6D5CE7',
+        },
+      });
+    </script>
+  </body>
+</html>

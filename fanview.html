@@ -783,6 +783,7 @@
       </section>
       <div class="footer-hint">Powered by <a href="https://www.courtsideviewapp.com/">CourtsideView</a></div>
     </div>
+    <fanview-community id="fanViewCommunity" hidden></fanview-community>
     <script type="module">
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
       const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
@@ -807,6 +808,41 @@
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true },
       });
+      function communityPreviewEnabled() {
+        try {
+          return new URLSearchParams(window.location.search).get('community') === 'preview';
+        } catch {
+          return false;
+        }
+      }
+      async function mountCommunityPreview(row) {
+        if (!communityPreviewEnabled()) return;
+        try {
+          if (!$('fanViewCommunityStyles')) {
+            const stylesheet = document.createElement('link');
+            stylesheet.id = 'fanViewCommunityStyles';
+            stylesheet.rel = 'stylesheet';
+            stylesheet.href = '/assets/fanview-community/fanview-community.css';
+            document.head.appendChild(stylesheet);
+          }
+          await import('/assets/fanview-community/fanview-community.js');
+          const community = $('fanViewCommunity');
+          if (!community) return;
+          community.hidden = false;
+          const teamName = normalizeDisplayName(
+            row?.team_name || row?.home_name,
+            'FanView',
+          );
+          community.configure({
+            title: `${teamName} Community`,
+            subtitle: 'Cheering together',
+            shareId,
+            demo: true,
+          });
+        } catch (error) {
+          console.warn('[FanView] community preview unavailable', error);
+        }
+      }
       function getShareId() {
         const m = window.location.pathname.match(/^\/v\/([^/?#]+)/);
         return m ? decodeURIComponent(m[1]) : null;
@@ -2210,6 +2246,7 @@
         if (!initial) { showError('This match is not available. The link may be expired or unpublished.'); return; }
         matchRow = initial;
         render();
+        void mountCommunityPreview(matchRow);
         setInterval(() => {
           if (matchRow && isFanViewExpired(matchRow)) showExpired();
         }, 30000);
