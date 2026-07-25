@@ -248,10 +248,27 @@
       body.camera-mode.is-offline .controls { grid-template-columns: 1fr 0.78fr; }
       body.camera-mode.is-setup #cameraBtn,
       body.camera-mode.is-offline #cameraBtn { grid-column: 1 / -1; }
-      body.camera-mode.is-ready .controls { gap: 7px; padding: 8px; }
-      body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; min-height: 44px; }
+      body.camera-mode.is-ready .controls {
+        grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
+        gap: 7px;
+        padding: 7px;
+        max-width: 420px;
+      }
+      body.camera-mode.is-ready .record-panel {
+        min-height: 50px;
+        padding: 8px 10px;
+      }
+      body.camera-mode.is-ready .record-copy small { display: none; }
+      body.camera-mode.is-ready #broadcastBtn,
       body.camera-mode.is-ready #scoreBtn,
-      body.camera-mode.is-ready #shareBtn { grid-column: 1 / -1; min-height: 40px; }
+      body.camera-mode.is-ready #shareBtn,
+      body.camera-mode.is-ready #previewBtn {
+        grid-column: auto;
+        min-width: 0;
+        min-height: 44px;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
       body.camera-mode.is-live .controls { display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 18px; }
       body.camera-mode.is-live #scoreBtn { flex: 1 1 auto; min-width: 0; min-height: 34px; font-size: 12px; padding: 8px 10px; }
       body.camera-mode.is-live #shareBtn,
@@ -1696,7 +1713,10 @@
               } else if (update.kind === 'storage_full') {
                 clearHighlightStorageBtn.classList.remove('is-hidden');
                 setStatus([{ text: 'Download highlights you want to keep, or remove the oldest local copy below.', strong: true }], 'STORAGE FULL', { persistent: true });
-              } else if (update.kind === 'failed') {
+              } else if (
+                update.kind === 'failed'
+                && !String(update.message || '').startsWith('Highlight replay is unavailable')
+              ) {
                 setStatus([{ text: update.message }], 'HIGHLIGHT', { duration: 2800 });
               }
             },
@@ -1708,13 +1728,6 @@
           highlightRuntime = runtime;
         } catch (error) {
           console.warn('[CourtsideView] highlight replay unavailable', error);
-          if (sequence === highlightStartSequence) {
-            setStatus(
-              [{ text: 'Broadcast is ready. This browser cannot save instant highlights.' }],
-              'LIVE VIDEO',
-              { duration: 3200 },
-            );
-          }
         }
       }
       async function stopHighlightReplay() {
