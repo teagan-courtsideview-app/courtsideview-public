@@ -87,6 +87,19 @@ export function CommunityPanel({
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      closeCommunity();
+    };
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
+
   function closeCommunity() {
     setOpen(false);
     setStatus("");
@@ -180,19 +193,25 @@ export function CommunityPanel({
       ) : null}
 
       <button
+        aria-hidden={!open}
         aria-label="Close Cheering Section"
         className="community-scrim"
         data-open={open}
+        disabled={!open}
+        hidden={!open}
         onClick={closeCommunity}
         tabIndex={open ? 0 : -1}
         type="button"
       />
 
       <aside
+        aria-hidden={!open}
         aria-label={`${teamName} Cheering Section`}
         aria-modal="true"
         className="community-panel"
         data-open={open}
+        hidden={!open}
+        inert={!open}
         onKeyDown={onDialogKeyDown}
         ref={panelRef}
         role="dialog"

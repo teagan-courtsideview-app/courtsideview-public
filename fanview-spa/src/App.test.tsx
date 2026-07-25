@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { App } from "./App";
 import type { CommunityAdapter } from "./adapters/contracts";
@@ -69,5 +69,28 @@ describe("FanView SPA isolation", () => {
         "Cheer kindly. No player criticism or personal information.",
       ),
     ).toBeVisible();
+  });
+
+  it("closes with Escape and removes the sheet from the accessibility tree", async () => {
+    render(
+      <App
+        communityAdapter={createFixtureCommunityAdapter()}
+        flags={{ communityEnabled: true }}
+        shareId="test-share"
+      />,
+    );
+
+    expect(
+      await screen.findByRole("dialog", {
+        name: "14s Blue Cheering Section",
+      }),
+    ).toBeVisible();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /cheer together/i }),
+    ).toHaveFocus();
   });
 });

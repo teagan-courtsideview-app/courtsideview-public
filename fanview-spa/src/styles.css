@@ -251,6 +251,11 @@ input:focus-visible,
   transform: translateX(0);
 }
 
+.community-scrim[hidden],
+.community-panel[hidden] {
+  display: none !important;
+}
+
 .community-panel:focus {
   outline: none;
 }
