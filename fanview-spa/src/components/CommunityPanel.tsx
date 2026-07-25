@@ -1,8 +1,6 @@
-import {
-  Heart,
-  PaperPlaneTilt,
-  X,
-} from "@phosphor-icons/react";
+import { Heart } from "@phosphor-icons/react/dist/csr/Heart";
+import { PaperPlaneTilt } from "@phosphor-icons/react/dist/csr/PaperPlaneTilt";
+import { X } from "@phosphor-icons/react/dist/csr/X";
 import {
   type FormEvent,
   type KeyboardEvent,
@@ -28,18 +26,22 @@ const EMPTY_ROOM: CommunityRoomSnapshot = {
 
 interface Props {
   adapter: CommunityAdapter;
+  hideWhenUnavailable?: boolean;
   matchComplete: boolean;
   shareId: string;
+  startOpen?: boolean;
   teamName: string;
 }
 
 export function CommunityPanel({
   adapter,
+  hideWhenUnavailable = false,
   matchComplete,
   shareId,
+  startOpen = true,
   teamName,
 }: Props) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(startOpen);
   const [room, setRoom] = useState<CommunityRoomSnapshot>(EMPTY_ROOM);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
@@ -175,6 +177,8 @@ export function CommunityPanel({
 
   const readOnly =
     failed || matchComplete || !room.canWriteText || room.connection === "closed";
+
+  if (failed && hideWhenUnavailable) return null;
 
   return (
     <>

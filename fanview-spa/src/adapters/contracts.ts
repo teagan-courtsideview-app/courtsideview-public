@@ -40,7 +40,7 @@ export interface FanViewAdapter {
   ): () => void;
 }
 
-export type CommunityRole = "Family" | "Coach" | "Teammate";
+export type CommunityRole = "Family" | "Coach" | "Teammate" | "Fan";
 export type CheerEmoji = "👏" | "💗" | "🔥" | "🙌" | "🏐" | "💪";
 
 export interface CommunityReaction {

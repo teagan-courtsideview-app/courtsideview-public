@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>CourtsideView | FanView Community Preview</title>
     <link rel="icon" href="/assets/favicon.png" />
-    <link rel="stylesheet" href="/assets/fanview-community/fanview-community.css" />
     <style>
       :root {
         --pink: #f22b78;
@@ -220,20 +219,16 @@
         </section>
       </main>
     </div>
-    <fanview-community start-open></fanview-community>
+    <fanview-community-widget></fanview-community-widget>
     <script type="module">
-      import '/assets/fanview-community/fanview-community.js';
-      const community = document.querySelector('fanview-community');
+      import '/assets/fanview-community/fanview-community-react-v1.js';
+      const community = document.querySelector('fanview-community-widget');
       community.configure({
-        title: '14s Blue Cheering Section',
-        subtitle: '18 cheering together',
-        startOpen: true,
         demo: true,
-        demoProfile: {
-          name: 'Falcon Fan',
-          relationship: 'Verified adult',
-          color: '#6D5CE7',
-        },
+        matchComplete: false,
+        shareId: 'fanview-community-design-qa',
+        startOpen: true,
+        teamName: '14s Blue',
       });
     </script>
   </body>

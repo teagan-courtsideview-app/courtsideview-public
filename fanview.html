@@ -783,7 +783,7 @@
       </section>
       <div class="footer-hint">Powered by <a href="https://www.courtsideviewapp.com/">CourtsideView</a></div>
     </div>
-    <fanview-community id="fanViewCommunity" hidden></fanview-community>
+    <fanview-community-widget id="fanViewCommunity" hidden></fanview-community-widget>
     <script type="module">
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.4';
       const SUPABASE_URL = 'https://gnzhdhagvahylcjmyeeh.supabase.co';
@@ -808,24 +808,21 @@
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true },
       });
-      function communityPreviewEnabled() {
+      function communityActivationMode() {
         try {
-          return new URLSearchParams(window.location.search).get('community') === 'preview';
+          const requested = new URLSearchParams(window.location.search).get('community');
+          if (requested === 'preview') return 'preview';
+          if (requested === 'live') return 'live';
         } catch {
-          return false;
+          return 'off';
         }
+        return window.COURTSIDEVIEW_FANVIEW_COMMUNITY_ENABLED === true ? 'live' : 'off';
       }
-      async function mountCommunityPreview(row) {
-        if (!communityPreviewEnabled()) return;
+      async function mountCommunity(row) {
+        const mode = communityActivationMode();
+        if (mode === 'off') return;
         try {
-          if (!$('fanViewCommunityStyles')) {
-            const stylesheet = document.createElement('link');
-            stylesheet.id = 'fanViewCommunityStyles';
-            stylesheet.rel = 'stylesheet';
-            stylesheet.href = '/assets/fanview-community/fanview-community.css';
-            document.head.appendChild(stylesheet);
-          }
-          await import('/assets/fanview-community/fanview-community.js');
+          await import('/assets/fanview-community/fanview-community-react-v1.js');
           const community = $('fanViewCommunity');
           if (!community) return;
           community.hidden = false;
@@ -834,14 +831,24 @@
             'FanView',
           );
           community.configure({
-            title: `${teamName} Community`,
-            subtitle: 'Cheering together',
+            client: supabase,
+            demo: mode === 'preview',
+            displayName: 'Fan',
+            gatewayUrl: `${SUPABASE_URL}/functions/v1/fanview-community`,
+            matchComplete: row?.is_complete === true,
+            publishableKey: SUPABASE_KEY,
             shareId,
-            demo: true,
+            startOpen: true,
+            teamName,
           });
         } catch (error) {
-          console.warn('[FanView] community preview unavailable', error);
+          // Community is an optional viewer layer. Never interrupt video,
+          // scoring, presence, polling, or match expiration when it fails.
+          console.warn('[FanView] community unavailable', error);
         }
+      }
+      function syncCommunityMatchState(row) {
+        $('fanViewCommunity')?.setMatchComplete?.(row?.is_complete === true);
       }
       function getShareId() {
         const m = window.location.pathname.match(/^\/v\/([^/?#]+)/);
@@ -2116,6 +2123,7 @@
         renderAppPromo(matchRow);
         startPresence(matchRow);
         startViewerStatus(matchRow);
+        syncCommunityMatchState(matchRow);
         lastScoreSnapshot = scoreOnly ? scoreSnapshot(s) : null;
         showBoard();
       }
@@ -2246,7 +2254,7 @@
         if (!initial) { showError('This match is not available. The link may be expired or unpublished.'); return; }
         matchRow = initial;
         render();
-        void mountCommunityPreview(matchRow);
+        void mountCommunity(matchRow);
         setInterval(() => {
           if (matchRow && isFanViewExpired(matchRow)) showExpired();
         }, 30000);
