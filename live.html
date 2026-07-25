@@ -867,10 +867,10 @@
       }
       function broadcastUnavailableReason(row) {
         if (!row) {
-          return 'Broadcast link unavailable. Return to CourtsideView to create a fresh Broadcast setup.';
+          return 'Broadcast link unavailable. Return to CourtsideView and scan the Broadcast QR again.';
         }
         if (row.is_published !== true) {
-          return 'Broadcast link expired. Return to CourtsideView to create a fresh Broadcast setup.';
+          return 'Broadcast link expired. Return to CourtsideView and scan the Broadcast QR again.';
         }
         if (row.is_complete === true) {
           return 'This match has ended. Broadcast is closed for this FanView.';
@@ -882,12 +882,12 @@
           return 'This match has ended. Broadcast is closed for this FanView.';
         }
         if (reason === 'expired' || reason === 'revoked') {
-          return 'Broadcast setup expired. Return to CourtsideView to create a fresh Broadcast setup.';
+          return 'Broadcast setup expired. Return to CourtsideView and scan the Broadcast QR again.';
         }
         if (reason === 'missing_token') {
           return 'Private Broadcast setup required. Return to CourtsideView and scan the Broadcast QR again.';
         }
-        return 'Broadcast setup could not be verified. Return to CourtsideView and create a fresh Broadcast setup.';
+        return 'Broadcast setup could not be verified. Return to CourtsideView and scan the Broadcast QR again.';
       }
       function broadcastTokenState(reason) {
         if (reason === 'match_closed') return 'MATCH ENDED';
@@ -1821,10 +1821,10 @@
         hintEl.textContent = 'Fans can follow scores even without video.';
         broadcastBlocked = true;
         setControlState('offline');
-        setStatus([
-          { text: 'Broadcast ended.', strong: true },
-          { text: ' Fans can still follow the score. Create a new private camera setup in CourtsideView to broadcast again.' },
-        ], 'OFFLINE');
+          setStatus([
+            { text: 'Broadcast ended.', strong: true },
+            { text: ' Fans can still follow the score. Return to CourtsideView to broadcast again.' },
+          ], 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
         cameraBtn.disabled = true;
