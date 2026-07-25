@@ -1821,10 +1821,10 @@
         hintEl.textContent = 'Fans can follow scores even without video.';
         broadcastBlocked = true;
         setControlState('offline');
-          setStatus([
-            { text: 'Broadcast ended.', strong: true },
-            { text: ' Fans can still follow the score. Return to CourtsideView to broadcast again.' },
-          ], 'OFFLINE');
+        setStatus([
+          { text: 'Broadcast ended.', strong: true },
+          { text: ' Fans can still follow the score. Return to CourtsideView to broadcast again.' },
+        ], 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
         cameraBtn.disabled = true;
