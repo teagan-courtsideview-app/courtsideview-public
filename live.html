@@ -653,21 +653,27 @@
           : '';
         const fragmentParams = new URLSearchParams(fragment);
         const fragmentToken = (fragmentParams.get('b') || fragmentParams.get('bt') || '').trim();
-        if (!streamId) return fragmentToken;
+        const queryParams = new URLSearchParams(window.location.search);
+        const queryToken = (queryParams.get('b') || queryParams.get('bt') || '').trim();
+        const incomingToken = fragmentToken || queryToken;
+        if (!streamId) return incomingToken;
         const storageKey = `courtsideview.broadcastToken.${streamId}`;
-        if (fragmentToken) {
+        if (incomingToken) {
           try {
-            sessionStorage.setItem(storageKey, fragmentToken);
+            sessionStorage.setItem(storageKey, incomingToken);
           } catch {
             // Session storage is a convenience only; the current page keeps the token in memory.
           }
           try {
-            const cleanUrl = `${window.location.origin}/live/${encodeURIComponent(streamId)}${window.location.search || ''}`;
+            queryParams.delete('b');
+            queryParams.delete('bt');
+            const remainingQuery = queryParams.toString();
+            const cleanUrl = `${window.location.origin}/live/${encodeURIComponent(streamId)}${remainingQuery ? `?${remainingQuery}` : ''}`;
             window.history.replaceState(null, '', cleanUrl);
           } catch {
             // Keep the original URL if the browser blocks history updates.
           }
-          return fragmentToken;
+          return incomingToken;
         }
         try {
           return (sessionStorage.getItem(storageKey) || '').trim();
