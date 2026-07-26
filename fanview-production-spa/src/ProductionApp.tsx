@@ -182,14 +182,6 @@ export function ProductionApp({
           </div>
         ) : null}
 
-        <div className="match-stage__links">
-          {snapshot.match.teamHub ? (
-            <a href={`/t/${encodeURIComponent(snapshot.match.teamHub.slug)}`}>
-              Open {snapshot.match.teamHub.name}
-            </a>
-          ) : null}
-          <a href={legacyFanViewUrl(shareId)}>Use classic FanView</a>
-        </div>
       </section>
 
       {communityEnabled ? (

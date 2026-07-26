@@ -72,26 +72,6 @@
   right: 418px;
 }
 
-.match-stage__links {
-  position: absolute;
-  z-index: 4;
-  right: 28px;
-  bottom: 18px;
-  display: flex;
-  gap: 12px;
-}
-
-.fanview-app[data-community-enabled="true"] .match-stage__links {
-  right: 418px;
-}
-
-.match-stage__links a {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 12px;
-  font-weight: 750;
-  text-decoration: none;
-}
-
 .match-status--action {
   max-width: min(440px, calc(100vw - 56px));
   overflow: hidden;
@@ -163,16 +143,7 @@
   }
 
   .fanview-app[data-community-enabled="true"] .media-control--fullscreen,
-  .fanview-app[data-community-enabled="true"] .viewer-pill,
-  .fanview-app[data-community-enabled="true"] .match-stage__links {
+  .fanview-app[data-community-enabled="true"] .viewer-pill {
     right: max(12px, env(safe-area-inset-right));
-  }
-
-  .match-stage__links {
-    right: 12px;
-    bottom: 8px;
-    flex-direction: column;
-    gap: 4px;
-    text-align: right;
   }
 }

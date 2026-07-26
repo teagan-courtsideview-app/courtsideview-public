@@ -63,7 +63,7 @@ const FAQ_QUESTIONS = [
 const EXPECTED_REWRITES = [
   ["/scout/(.*)", "/scout.html"],
   ["/live/(.*)", "/live.html"],
-  ["/v/(.*)", "/fanview.html"],
+  ["/v/(.*)", "/fanview-react.html"],
   ["/p/(.*)", "/player.html"],
   ["/t/(.*)", "/team.html"],
   ["/c/(.*)", "/club.html"],
