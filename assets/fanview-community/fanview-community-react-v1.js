@@ -16,18 +16,18 @@ function fm() {
   if (b1) return Eu;
   b1 = 1;
   var g = Symbol.for("react.transitional.element"), O = Symbol.for("react.fragment");
-  function T(r, $, el) {
+  function T(r, k, el) {
     var L = null;
-    if (el !== void 0 && (L = "" + el), $.key !== void 0 && (L = "" + $.key), "key" in $) {
+    if (el !== void 0 && (L = "" + el), k.key !== void 0 && (L = "" + k.key), "key" in k) {
       el = {};
-      for (var Sl in $)
-        Sl !== "key" && (el[Sl] = $[Sl]);
-    } else el = $;
-    return $ = el.ref, {
+      for (var Sl in k)
+        Sl !== "key" && (el[Sl] = k[Sl]);
+    } else el = k;
+    return k = el.ref, {
       $$typeof: g,
       type: r,
       key: L,
-      ref: $ !== void 0 ? $ : null,
+      ref: k !== void 0 ? k : null,
       props: el
     };
   }
@@ -55,7 +55,7 @@ function sm() {
       b.push(_);
       l: for (; 0 < Z; ) {
         var ml = Z - 1 >>> 1, pl = b[ml];
-        if (0 < $(pl, _))
+        if (0 < k(pl, _))
           b[ml] = _, b[Z] = pl, Z = ml;
         else break l;
       }
@@ -70,16 +70,16 @@ function sm() {
         b[0] = Z;
         l: for (var ml = 0, pl = b.length, s = pl >>> 1; ml < s; ) {
           var z = 2 * (ml + 1) - 1, M = b[z], N = z + 1, K = b[N];
-          if (0 > $(M, Z))
-            N < pl && 0 > $(K, M) ? (b[ml] = K, b[N] = Z, ml = N) : (b[ml] = M, b[z] = Z, ml = z);
-          else if (N < pl && 0 > $(K, Z))
+          if (0 > k(M, Z))
+            N < pl && 0 > k(K, M) ? (b[ml] = K, b[N] = Z, ml = N) : (b[ml] = M, b[z] = Z, ml = z);
+          else if (N < pl && 0 > k(K, Z))
             b[ml] = K, b[N] = Z, ml = N;
           else break l;
         }
       }
       return _;
     }
-    function $(b, _) {
+    function k(b, _) {
       var Z = b.sortIndex - _.sortIndex;
       return Z !== 0 ? Z : b.id - _.id;
     }
@@ -113,7 +113,7 @@ function sm() {
           _ !== null && Xl(El, _.startTime - b);
         }
     }
-    var _l = !1, k = -1, Ml = 5, Fl = -1;
+    var _l = !1, $ = -1, Ml = 5, Fl = -1;
     function Ut() {
       return ol ? !0 : !(g.unstable_now() - Fl < Ml);
     }
@@ -124,7 +124,7 @@ function sm() {
         var _ = !0;
         try {
           l: {
-            U = !1, V && (V = !1, xl(k), k = -1), q = !0;
+            U = !1, V && (V = !1, xl($), $ = -1), q = !0;
             var Z = il;
             try {
               t: {
@@ -178,7 +178,7 @@ function sm() {
         sl(nt, 0);
       };
     function Xl(b, _) {
-      k = sl(function() {
+      $ = sl(function() {
         b(g.unstable_now());
       }, _);
     }
@@ -252,7 +252,7 @@ function sm() {
         startTime: Z,
         expirationTime: pl,
         sortIndex: -1
-      }, Z > ml ? (b.sortIndex = Z, O(A, b), T(D) === null && b === T(A) && (V ? (xl(k), k = -1) : V = !0, Xl(El, Z - ml))) : (b.sortIndex = pl, O(D, b), U || q || (U = !0, _l || (_l = !0, Y()))), b;
+      }, Z > ml ? (b.sortIndex = Z, O(A, b), T(D) === null && b === T(A) && (V ? (xl($), $ = -1) : V = !0, Xl(El, Z - ml))) : (b.sortIndex = pl, O(D, b), U || q || (U = !0, _l || (_l = !0, Y()))), b;
     }, g.unstable_shouldYield = Ut, g.unstable_wrapCallback = function(b) {
       var _ = il;
       return function() {
@@ -285,7 +285,7 @@ var A1;
 function rm() {
   if (A1) return Q;
   A1 = 1;
-  var g = Symbol.for("react.transitional.element"), O = Symbol.for("react.portal"), T = Symbol.for("react.fragment"), r = Symbol.for("react.strict_mode"), $ = Symbol.for("react.profiler"), el = Symbol.for("react.consumer"), L = Symbol.for("react.context"), Sl = Symbol.for("react.forward_ref"), D = Symbol.for("react.suspense"), A = Symbol.for("react.memo"), w = Symbol.for("react.lazy"), j = Symbol.for("react.activity"), il = Symbol.iterator;
+  var g = Symbol.for("react.transitional.element"), O = Symbol.for("react.portal"), T = Symbol.for("react.fragment"), r = Symbol.for("react.strict_mode"), k = Symbol.for("react.profiler"), el = Symbol.for("react.consumer"), L = Symbol.for("react.context"), Sl = Symbol.for("react.forward_ref"), D = Symbol.for("react.suspense"), A = Symbol.for("react.memo"), w = Symbol.for("react.lazy"), j = Symbol.for("react.activity"), il = Symbol.iterator;
   function q(s) {
     return s === null || typeof s != "object" ? null : (s = il && s[il] || s["@@iterator"], typeof s == "function" ? s : null);
   }
@@ -323,7 +323,7 @@ function rm() {
   var El = Array.isArray;
   function _l() {
   }
-  var k = { H: null, A: null, T: null, S: null }, Ml = Object.prototype.hasOwnProperty;
+  var $ = { H: null, A: null, T: null, S: null }, Ml = Object.prototype.hasOwnProperty;
   function Fl(s, z, M) {
     var N = M.ref;
     return {
@@ -412,10 +412,10 @@ function rm() {
         ) + "/") + fl
       )), z.push(K)), 1;
     fl = 0;
-    var $l = N === "" ? "." : N + ":";
+    var kl = N === "" ? "." : N + ":";
     if (El(s))
       for (var Cl = 0; Cl < s.length; Cl++)
-        N = s[Cl], F = $l + Jl(N, Cl), fl += b(
+        N = s[Cl], F = kl + Jl(N, Cl), fl += b(
           N,
           z,
           M,
@@ -424,7 +424,7 @@ function rm() {
         );
     else if (Cl = q(s), typeof Cl == "function")
       for (s = Cl.call(s), Cl = 0; !(N = s.next()).done; )
-        N = N.value, F = $l + Jl(N, Cl++), fl += b(
+        N = N.value, F = kl + Jl(N, Cl++), fl += b(
           N,
           z,
           M,
@@ -512,10 +512,10 @@ function rm() {
       return s;
     }
   };
-  return Q.Activity = j, Q.Children = pl, Q.Component = sl, Q.Fragment = T, Q.Profiler = $, Q.PureComponent = X, Q.StrictMode = r, Q.Suspense = D, Q.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = k, Q.__COMPILER_RUNTIME = {
+  return Q.Activity = j, Q.Children = pl, Q.Component = sl, Q.Fragment = T, Q.Profiler = k, Q.PureComponent = X, Q.StrictMode = r, Q.Suspense = D, Q.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = $, Q.__COMPILER_RUNTIME = {
     __proto__: null,
     c: function(s) {
-      return k.H.useMemoCache(s);
+      return $.H.useMemoCache(s);
     }
   }, Q.cache = function(s) {
     return function() {
@@ -535,8 +535,8 @@ function rm() {
     var F = arguments.length - 2;
     if (F === 1) N.children = M;
     else if (1 < F) {
-      for (var fl = Array(F), $l = 0; $l < F; $l++)
-        fl[$l] = arguments[$l + 2];
+      for (var fl = Array(F), kl = 0; kl < F; kl++)
+        fl[kl] = arguments[kl + 2];
       N.children = fl;
     }
     return Fl(s.type, K, N);
@@ -560,9 +560,9 @@ function rm() {
     var fl = arguments.length - 2;
     if (fl === 1) K.children = M;
     else if (1 < fl) {
-      for (var $l = Array(fl), Cl = 0; Cl < fl; Cl++)
-        $l[Cl] = arguments[Cl + 2];
-      K.children = $l;
+      for (var kl = Array(fl), Cl = 0; Cl < fl; Cl++)
+        kl[Cl] = arguments[Cl + 2];
+      K.children = kl;
     }
     if (s && s.defaultProps)
       for (N in fl = s.defaultProps, fl)
@@ -585,59 +585,59 @@ function rm() {
       compare: z === void 0 ? null : z
     };
   }, Q.startTransition = function(s) {
-    var z = k.T, M = {};
-    k.T = M;
+    var z = $.T, M = {};
+    $.T = M;
     try {
-      var N = s(), K = k.S;
+      var N = s(), K = $.S;
       K !== null && K(M, N), typeof N == "object" && N !== null && typeof N.then == "function" && N.then(_l, ml);
     } catch (F) {
       ml(F);
     } finally {
-      z !== null && M.types !== null && (z.types = M.types), k.T = z;
+      z !== null && M.types !== null && (z.types = M.types), $.T = z;
     }
   }, Q.unstable_useCacheRefresh = function() {
-    return k.H.useCacheRefresh();
+    return $.H.useCacheRefresh();
   }, Q.use = function(s) {
-    return k.H.use(s);
+    return $.H.use(s);
   }, Q.useActionState = function(s, z, M) {
-    return k.H.useActionState(s, z, M);
+    return $.H.useActionState(s, z, M);
   }, Q.useCallback = function(s, z) {
-    return k.H.useCallback(s, z);
+    return $.H.useCallback(s, z);
   }, Q.useContext = function(s) {
-    return k.H.useContext(s);
+    return $.H.useContext(s);
   }, Q.useDebugValue = function() {
   }, Q.useDeferredValue = function(s, z) {
-    return k.H.useDeferredValue(s, z);
+    return $.H.useDeferredValue(s, z);
   }, Q.useEffect = function(s, z) {
-    return k.H.useEffect(s, z);
+    return $.H.useEffect(s, z);
   }, Q.useEffectEvent = function(s) {
-    return k.H.useEffectEvent(s);
+    return $.H.useEffectEvent(s);
   }, Q.useId = function() {
-    return k.H.useId();
+    return $.H.useId();
   }, Q.useImperativeHandle = function(s, z, M) {
-    return k.H.useImperativeHandle(s, z, M);
+    return $.H.useImperativeHandle(s, z, M);
   }, Q.useInsertionEffect = function(s, z) {
-    return k.H.useInsertionEffect(s, z);
+    return $.H.useInsertionEffect(s, z);
   }, Q.useLayoutEffect = function(s, z) {
-    return k.H.useLayoutEffect(s, z);
+    return $.H.useLayoutEffect(s, z);
   }, Q.useMemo = function(s, z) {
-    return k.H.useMemo(s, z);
+    return $.H.useMemo(s, z);
   }, Q.useOptimistic = function(s, z) {
-    return k.H.useOptimistic(s, z);
+    return $.H.useOptimistic(s, z);
   }, Q.useReducer = function(s, z, M) {
-    return k.H.useReducer(s, z, M);
+    return $.H.useReducer(s, z, M);
   }, Q.useRef = function(s) {
-    return k.H.useRef(s);
+    return $.H.useRef(s);
   }, Q.useState = function(s) {
-    return k.H.useState(s);
+    return $.H.useState(s);
   }, Q.useSyncExternalStore = function(s, z, M) {
-    return k.H.useSyncExternalStore(
+    return $.H.useSyncExternalStore(
       s,
       z,
       M
     );
   }, Q.useTransition = function() {
-    return k.H.useTransition();
+    return $.H.useTransition();
   }, Q.version = "19.2.0", Q;
 }
 var T1;
@@ -686,11 +686,11 @@ function mm() {
     },
     p: 0,
     findDOMNode: null
-  }, $ = Symbol.for("react.portal");
+  }, k = Symbol.for("react.portal");
   function el(D, A, w) {
     var j = 3 < arguments.length && arguments[3] !== void 0 ? arguments[3] : null;
     return {
-      $$typeof: $,
+      $$typeof: k,
       key: j == null ? null : "" + j,
       children: D,
       containerInfo: A,
@@ -824,7 +824,7 @@ function ym() {
     }
     return "Minified React error #" + l + "; visit " + t + " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
   }
-  function $(l) {
+  function k(l) {
     return !(!l || l.nodeType !== 1 && l.nodeType !== 9 && l.nodeType !== 11);
   }
   function el(l) {
@@ -923,7 +923,7 @@ function ym() {
     }
     return null;
   }
-  var j = Object.assign, il = Symbol.for("react.element"), q = Symbol.for("react.transitional.element"), U = Symbol.for("react.portal"), V = Symbol.for("react.fragment"), ol = Symbol.for("react.strict_mode"), sl = Symbol.for("react.profiler"), xl = Symbol.for("react.consumer"), X = Symbol.for("react.context"), Ul = Symbol.for("react.forward_ref"), El = Symbol.for("react.suspense"), _l = Symbol.for("react.suspense_list"), k = Symbol.for("react.memo"), Ml = Symbol.for("react.lazy"), Fl = Symbol.for("react.activity"), Ut = Symbol.for("react.memo_cache_sentinel"), nt = Symbol.iterator;
+  var j = Object.assign, il = Symbol.for("react.element"), q = Symbol.for("react.transitional.element"), U = Symbol.for("react.portal"), V = Symbol.for("react.fragment"), ol = Symbol.for("react.strict_mode"), sl = Symbol.for("react.profiler"), xl = Symbol.for("react.consumer"), X = Symbol.for("react.context"), Ul = Symbol.for("react.forward_ref"), El = Symbol.for("react.suspense"), _l = Symbol.for("react.suspense_list"), $ = Symbol.for("react.memo"), Ml = Symbol.for("react.lazy"), Fl = Symbol.for("react.activity"), Ut = Symbol.for("react.memo_cache_sentinel"), nt = Symbol.iterator;
   function Y(l) {
     return l === null || typeof l != "object" ? null : (l = nt && l[nt] || l["@@iterator"], typeof l == "function" ? l : null);
   }
@@ -958,7 +958,7 @@ function ym() {
         case Ul:
           var t = l.render;
           return l = l.displayName, l || (l = t.displayName || t.name || "", l = l !== "" ? "ForwardRef(" + l + ")" : "ForwardRef"), l;
-        case k:
+        case $:
           return t = l.displayName || null, t !== null ? t : Jl(l.type) || "Memo";
         case Ml:
           t = l._payload, l = l._init;
@@ -985,7 +985,7 @@ function ym() {
     pl++, ml[pl] = l.current, l.current = t;
   }
   var N = s(null), K = s(null), F = s(null), fl = s(null);
-  function $l(l, t) {
+  function kl(l, t) {
     switch (M(F, t), M(K, l), M(N, null), t.nodeType) {
       case 9:
       case 11:
@@ -1285,7 +1285,7 @@ Error generating stack: ` + e.message + `
     var l = Mu;
     return Mu <<= 1, (Mu & 62914560) === 0 && (Mu = 4194304), l;
   }
-  function $n(l) {
+  function kn(l) {
     for (var t = [], a = 0; 31 > a; a++) t.push(l);
     return t;
   }
@@ -1323,9 +1323,9 @@ Error generating stack: ` + e.message + `
   }
   function xf(l, t) {
     var a = t & -t;
-    return a = (a & 42) !== 0 ? 1 : kn(a), (a & (l.suspendedLanes | t)) !== 0 ? 0 : a;
+    return a = (a & 42) !== 0 ? 1 : $n(a), (a & (l.suspendedLanes | t)) !== 0 ? 0 : a;
   }
-  function kn(l) {
+  function $n(l) {
     switch (l) {
       case 2:
         l = 1;
@@ -1379,9 +1379,9 @@ Error generating stack: ` + e.message + `
       _.p = a;
     }
   }
-  var la = Math.random().toString(36).slice(2), Ql = "__reactFiber$" + la, Il = "__reactProps$" + la, wa = "__reactContainer$" + la, In = "__reactEvents$" + la, $1 = "__reactListeners$" + la, k1 = "__reactHandles$" + la, Of = "__reactResources$" + la, Ne = "__reactMarker$" + la;
+  var la = Math.random().toString(36).slice(2), Ql = "__reactFiber$" + la, Il = "__reactProps$" + la, wa = "__reactContainer$" + la, In = "__reactEvents$" + la, k1 = "__reactListeners$" + la, $1 = "__reactHandles$" + la, Of = "__reactResources$" + la, Ne = "__reactMarker$" + la;
   function Pn(l) {
-    delete l[Ql], delete l[Il], delete l[In], delete l[$1], delete l[k1];
+    delete l[Ql], delete l[Il], delete l[In], delete l[k1], delete l[$1];
   }
   function Va(l) {
     var t = l[Ql];
@@ -1389,9 +1389,9 @@ Error generating stack: ` + e.message + `
     for (var a = l.parentNode; a; ) {
       if (t = a[wa] || a[Ql]) {
         if (a = t.alternate, t.child !== null || a !== null && a.child !== null)
-          for (l = ks(l); l !== null; ) {
+          for (l = $s(l); l !== null; ) {
             if (a = l[Ql]) return a;
-            l = ks(l);
+            l = $s(l);
           }
         return t;
       }
@@ -1579,7 +1579,7 @@ Error generating stack: ` + e.message + `
   function ai(l, t, a) {
     t === "number" && Cu(l.ownerDocument) === l || l.defaultValue === "" + a || (l.defaultValue = "" + a);
   }
-  function $a(l, t, a, e) {
+  function ka(l, t, a, e) {
     if (l = l.options, t) {
       t = {};
       for (var u = 0; u < a.length; u++)
@@ -1618,7 +1618,7 @@ Error generating stack: ` + e.message + `
     }
     a = gt(t), l.defaultValue = a, e = l.textContent, e === a && e !== "" && e !== null && (l.value = e), li(l);
   }
-  function ka(l, t) {
+  function $a(l, t) {
     if (t) {
       var a = l.firstChild;
       if (a && a === l.lastChild && a.nodeType === 3) {
@@ -1801,7 +1801,7 @@ Error generating stack: ` + e.message + `
           qf(l, a.value, a.defaultValue);
           break l;
         case "select":
-          t = a.value, t != null && $a(l, !!a.multiple, t, !1);
+          t = a.value, t != null && ka(l, !!a.multiple, t, !1);
       }
     }
   }
@@ -2067,8 +2067,8 @@ Error generating stack: ` + e.message + `
     oldState: 0
   }), Md = Pl(_d), Od = [9, 13, 27, 32], mi = Yt && "CompositionEvent" in window, Be = null;
   Yt && "documentMode" in document && (Be = document.documentMode);
-  var Dd = Yt && "TextEvent" in window && !Be, Jf = Yt && (!mi || Be && 8 < Be && 11 >= Be), Wf = " ", $f = !1;
-  function kf(l, t) {
+  var Dd = Yt && "TextEvent" in window && !Be, Jf = Yt && (!mi || Be && 8 < Be && 11 >= Be), Wf = " ", kf = !1;
+  function $f(l, t) {
     switch (l) {
       case "keyup":
         return Od.indexOf(t.keyCode) !== -1;
@@ -2091,16 +2091,16 @@ Error generating stack: ` + e.message + `
       case "compositionend":
         return Ff(t);
       case "keypress":
-        return t.which !== 32 ? null : ($f = !0, Wf);
+        return t.which !== 32 ? null : (kf = !0, Wf);
       case "textInput":
-        return l = t.data, l === Wf && $f ? null : l;
+        return l = t.data, l === Wf && kf ? null : l;
       default:
         return null;
     }
   }
   function Cd(l, t) {
     if (Pa)
-      return l === "compositionend" || !mi && kf(l, t) ? (l = Qf(), Hu = fi = ta = null, Pa = !1, l) : null;
+      return l === "compositionend" || !mi && $f(l, t) ? (l = Qf(), Hu = fi = ta = null, Pa = !1, l) : null;
     switch (l) {
       case "paste":
         return null;
@@ -2427,7 +2427,7 @@ Error generating stack: ` + e.message + `
               case Ul:
                 i = 11;
                 break l;
-              case k:
+              case $:
                 i = 14;
                 break l;
               case Ml:
@@ -2587,10 +2587,10 @@ Error generating stack: ` + e.message + `
     var t = l.tag, a;
     if ((a = t !== 3 && t !== 27) && ((a = t === 5) && (a = l.type, a = !(a !== "form" && a !== "button") || Kc(l.type, l.memoizedProps)), a = !a), a && zl && ua(l), To(l), t === 13) {
       if (l = l.memoizedState, l = l !== null ? l.dehydrated : null, !l) throw Error(r(317));
-      zl = $s(l);
+      zl = ks(l);
     } else if (t === 31) {
       if (l = l.memoizedState, l = l !== null ? l.dehydrated : null, !l) throw Error(r(317));
-      zl = $s(l);
+      zl = ks(l);
     } else
       t === 27 ? (t = zl, pa(l.type) ? (l = Fc, Fc = null, zl = l) : zl = t) : zl = Ll ? xt(l.stateNode.nextSibling) : null;
     return !0;
@@ -2808,7 +2808,7 @@ Error generating stack: ` + e.message + `
     var l = ji();
     return l === null ? null : { parent: Rl._currentValue, pool: l };
   }
-  var se = Error(r(460)), qi = Error(r(474)), Wu = Error(r(542)), $u = { then: function() {
+  var se = Error(r(460)), qi = Error(r(474)), Wu = Error(r(542)), ku = { then: function() {
   } };
   function Do(l) {
     return l = l.status, l === "fulfilled" || l === "rejected";
@@ -2867,7 +2867,7 @@ Error generating stack: ` + e.message + `
       throw Error(r(483));
   }
   var de = null, Je = 0;
-  function ku(l) {
+  function $u(l) {
     var t = Je;
     return Je += 1, de === null && (de = []), Uo(de, l, t);
   }
@@ -2975,7 +2975,7 @@ Error generating stack: ` + e.message + `
             null
           ), o.return = d, o;
         if (typeof o.then == "function")
-          return E(d, ku(o), m);
+          return E(d, $u(o), m);
         if (o.$$typeof === X)
           return E(
             d,
@@ -3005,7 +3005,7 @@ Error generating stack: ` + e.message + `
           return y(
             d,
             o,
-            ku(m),
+            $u(m),
             S
           );
         if (m.$$typeof === X)
@@ -3048,7 +3048,7 @@ Error generating stack: ` + e.message + `
             d,
             o,
             m,
-            ku(S),
+            $u(S),
             B
           );
         if (S.$$typeof === X)
@@ -3224,7 +3224,7 @@ Error generating stack: ` + e.message + `
           return vl(
             d,
             o,
-            ku(m),
+            $u(m),
             S
           );
         if (m.$$typeof === X)
@@ -3287,7 +3287,7 @@ Error generating stack: ` + e.message + `
     }
     return Xu(l, e, t, a), Qu(l);
   }
-  function $e(l, t, a) {
+  function ke(l, t, a) {
     if (t = t.updateQueue, t !== null && (t = t.shared, (a & 4194048) !== 0)) {
       var e = t.lanes;
       e &= l.pendingLanes, a |= e, t.lanes = a, Tf(l, a);
@@ -3322,7 +3322,7 @@ Error generating stack: ` + e.message + `
     l = a.lastBaseUpdate, l === null ? a.firstBaseUpdate = t : l.next = t, a.lastBaseUpdate = t;
   }
   var Zi = !1;
-  function ke() {
+  function $e() {
     if (Zi) {
       var l = oe;
       if (l !== null) throw l;
@@ -3406,13 +3406,13 @@ Error generating stack: ` + e.message + `
   }
   var re = s(null), Iu = s(0);
   function Yo(l, t) {
-    l = kt, M(Iu, l), M(re, t), kt = l | t.baseLanes;
+    l = $t, M(Iu, l), M(re, t), $t = l | t.baseLanes;
   }
   function Xi() {
-    M(Iu, kt), M(re, re.current);
+    M(Iu, $t), M(re, re.current);
   }
   function Qi() {
-    kt = Iu.current, z(re), z(Iu);
+    $t = Iu.current, z(re), z(Iu);
   }
   var dt = s(null), Tt = null;
   function oa(l) {
@@ -3436,7 +3436,7 @@ Error generating stack: ` + e.message + `
     for (var t = l; t !== null; ) {
       if (t.tag === 13) {
         var a = t.memoizedState;
-        if (a !== null && (a = a.dehydrated, a === null || $c(a) || kc(a)))
+        if (a !== null && (a = a.dehydrated, a === null || kc(a) || $c(a)))
           return t;
       } else if (t.tag === 19 && (t.memoizedProps.revealOrder === "forwards" || t.memoizedProps.revealOrder === "backwards" || t.memoizedProps.revealOrder === "unstable_legacy-backwards" || t.memoizedProps.revealOrder === "together")) {
         if ((t.flags & 128) !== 0) return t;
@@ -3453,7 +3453,7 @@ Error generating stack: ` + e.message + `
     }
     return null;
   }
-  var Qt = 0, J = null, hl = null, jl = null, ln = !1, me = !1, Za = !1, tn = 0, Ie = 0, he = null, $d = 0;
+  var Qt = 0, J = null, hl = null, jl = null, ln = !1, me = !1, Za = !1, tn = 0, Ie = 0, he = null, kd = 0;
   function Ol() {
     throw Error(r(321));
   }
@@ -3490,7 +3490,7 @@ Error generating stack: ` + e.message + `
     } while (me);
     return n;
   }
-  function kd() {
+  function $d() {
     var l = b.H, t = l.useState()[0];
     return t = typeof t.then == "function" ? Pe(t) : t, l = l.useState()[0], (hl !== null ? hl.memoizedState : null) !== l && (J.flags |= 1024), t;
   }
@@ -3511,7 +3511,7 @@ Error generating stack: ` + e.message + `
     }
     Qt = 0, jl = hl = J = null, me = !1, Ie = tn = 0, he = null;
   }
-  function kl() {
+  function $l() {
     var l = {
       memoizedState: null,
       baseState: null,
@@ -3556,7 +3556,7 @@ Error generating stack: ` + e.message + `
     }
     throw Error(r(438, String(l)));
   }
-  function $i(l) {
+  function ki(l) {
     var t = null, a = J.updateQueue;
     if (a !== null && (t = a.memoCache), t == null) {
       var e = J.alternate;
@@ -3577,9 +3577,9 @@ Error generating stack: ` + e.message + `
   }
   function un(l) {
     var t = Hl();
-    return ki(t, hl, l);
+    return $i(t, hl, l);
   }
-  function ki(l, t, a) {
+  function $i(l, t, a) {
     var e = l.queue;
     if (e === null) throw Error(r(311));
     e.lastRenderedReducer = a;
@@ -3711,7 +3711,7 @@ Error generating stack: ` + e.message + `
     t !== null && ut(t, l, 2);
   }
   function Ii(l) {
-    var t = kl();
+    var t = $l();
     if (typeof l == "function") {
       var a = l;
       if (l = a(), Za) {
@@ -3732,7 +3732,7 @@ Error generating stack: ` + e.message + `
     }, t;
   }
   function Jo(l, t, a, e) {
-    return l.baseState = a, ki(
+    return l.baseState = a, $i(
       l,
       hl,
       typeof e == "function" ? e : Lt
@@ -3764,7 +3764,7 @@ Error generating stack: ` + e.message + `
       b.T = i;
       try {
         var c = a(u, e), f = b.S;
-        f !== null && f(i, c), $o(l, t, c);
+        f !== null && f(i, c), ko(l, t, c);
       } catch (h) {
         Pi(l, t, h);
       } finally {
@@ -3772,22 +3772,22 @@ Error generating stack: ` + e.message + `
       }
     } else
       try {
-        n = a(u, e), $o(l, t, n);
+        n = a(u, e), ko(l, t, n);
       } catch (h) {
         Pi(l, t, h);
       }
   }
-  function $o(l, t, a) {
+  function ko(l, t, a) {
     a !== null && typeof a == "object" && typeof a.then == "function" ? a.then(
       function(e) {
-        ko(l, t, e);
+        $o(l, t, e);
       },
       function(e) {
         return Pi(l, t, e);
       }
-    ) : ko(l, t, a);
+    ) : $o(l, t, a);
   }
-  function ko(l, t, a) {
+  function $o(l, t, a) {
     t.status = "fulfilled", t.value = a, Fo(t), l.state = a, t = l.pending, t !== null && (a = t.next, a === t ? l.pending = null : (a = a.next, t.next = a, Wo(l, a)));
   }
   function Pi(l, t, a) {
@@ -3844,7 +3844,7 @@ Error generating stack: ` + e.message + `
         e && (t = a[0]);
       }
     }
-    return a = kl(), a.memoizedState = a.baseState = t, e = {
+    return a = $l(), a.memoizedState = a.baseState = t, e = {
       pending: null,
       lanes: 0,
       dispatch: null,
@@ -3859,7 +3859,7 @@ Error generating stack: ` + e.message + `
       J,
       !1,
       e.queue
-    ), e = kl(), u = {
+    ), e = $l(), u = {
       state: t,
       dispatch: null,
       action: l,
@@ -3877,7 +3877,7 @@ Error generating stack: ` + e.message + `
     return t0(t, hl, l);
   }
   function t0(l, t, a) {
-    if (t = ki(
+    if (t = $i(
       l,
       t,
       Io
@@ -3915,7 +3915,7 @@ Error generating stack: ` + e.message + `
     return Hl().memoizedState;
   }
   function nn(l, t, a, e) {
-    var u = kl();
+    var u = $l();
     J.flags |= l, u.memoizedState = ye(
       1 | t,
       { destroy: void 0 },
@@ -4118,7 +4118,7 @@ Error generating stack: ` + e.message + `
           var a = yt();
           l = ca(a);
           var e = fa(t, l, a);
-          e !== null && (ut(e, t, a), $e(e, t, a)), t = { cache: Hi() }, l.payload = t;
+          e !== null && (ut(e, t, a), ke(e, t, a)), t = { cache: Hi() }, l.payload = t;
           return;
       }
       t = t.return;
@@ -4230,7 +4230,7 @@ Error generating stack: ` + e.message + `
     readContext: wl,
     use: en,
     useCallback: function(l, t) {
-      return kl().memoizedState = [
+      return $l().memoizedState = [
         l,
         t === void 0 ? null : t
       ], l;
@@ -4252,7 +4252,7 @@ Error generating stack: ` + e.message + `
       nn(4, 2, l, t);
     },
     useMemo: function(l, t) {
-      var a = kl();
+      var a = $l();
       t = t === void 0 ? null : t;
       var e = l();
       if (Za) {
@@ -4266,7 +4266,7 @@ Error generating stack: ` + e.message + `
       return a.memoizedState = [e, t], e;
     },
     useReducer: function(l, t, a) {
-      var e = kl();
+      var e = $l();
       if (a !== void 0) {
         var u = a(t);
         if (Za) {
@@ -4291,7 +4291,7 @@ Error generating stack: ` + e.message + `
       ), [e.memoizedState, l];
     },
     useRef: function(l) {
-      var t = kl();
+      var t = $l();
       return l = { current: l }, t.memoizedState = l;
     },
     useState: function(l) {
@@ -4301,7 +4301,7 @@ Error generating stack: ` + e.message + `
     },
     useDebugValue: tc,
     useDeferredValue: function(l, t) {
-      var a = kl();
+      var a = $l();
       return ac(a, l, t);
     },
     useTransition: function() {
@@ -4312,10 +4312,10 @@ Error generating stack: ` + e.message + `
         l.queue,
         !0,
         !1
-      ), kl().memoizedState = l, [!1, l];
+      ), $l().memoizedState = l, [!1, l];
     },
     useSyncExternalStore: function(l, t, a) {
-      var e = J, u = kl();
+      var e = J, u = $l();
       if (al) {
         if (a === void 0)
           throw Error(r(407));
@@ -4343,19 +4343,19 @@ Error generating stack: ` + e.message + `
       ), a;
     },
     useId: function() {
-      var l = kl(), t = bl.identifierPrefix;
+      var l = $l(), t = bl.identifierPrefix;
       if (al) {
         var a = Nt, e = Ct;
         a = (e & ~(1 << 32 - ft(e) - 1)).toString(32) + a, t = "_" + t + "R_" + a, a = tn++, 0 < a && (t += "H" + a.toString(32)), t += "_";
       } else
-        a = $d++, t = "_" + t + "r_" + a.toString(32) + "_";
+        a = kd++, t = "_" + t + "r_" + a.toString(32) + "_";
       return l.memoizedState = t;
     },
     useHostTransitionStatus: uc,
     useFormState: Po,
     useActionState: Po,
     useOptimistic: function(l) {
-      var t = kl();
+      var t = $l();
       t.memoizedState = t.baseState = l;
       var a = {
         pending: null,
@@ -4371,15 +4371,15 @@ Error generating stack: ` + e.message + `
         a
       ), a.dispatch = t, [l, t];
     },
-    useMemoCache: $i,
+    useMemoCache: ki,
     useCacheRefresh: function() {
-      return kl().memoizedState = tr.bind(
+      return $l().memoizedState = tr.bind(
         null,
         J
       );
     },
     useEffectEvent: function(l) {
-      var t = kl(), a = { impl: l };
+      var t = $l(), a = { impl: l };
       return t.memoizedState = a, function() {
         if ((cl & 2) !== 0)
           throw Error(r(440));
@@ -4427,7 +4427,7 @@ Error generating stack: ` + e.message + `
       var a = Hl();
       return Jo(a, hl, l, t);
     },
-    useMemoCache: $i,
+    useMemoCache: ki,
     useCacheRefresh: g0
   };
   ic.useEffectEvent = n0;
@@ -4472,7 +4472,7 @@ Error generating stack: ` + e.message + `
       var a = Hl();
       return hl !== null ? Jo(a, hl, l, t) : (a.baseState = l, [l, a.queue.dispatch]);
     },
-    useMemoCache: $i,
+    useMemoCache: ki,
     useCacheRefresh: g0
   };
   z0.useEffectEvent = n0;
@@ -4483,17 +4483,17 @@ Error generating stack: ` + e.message + `
     enqueueSetState: function(l, t, a) {
       l = l._reactInternals;
       var e = yt(), u = ca(e);
-      u.payload = t, a != null && (u.callback = a), t = fa(l, u, e), t !== null && (ut(t, l, e), $e(t, l, e));
+      u.payload = t, a != null && (u.callback = a), t = fa(l, u, e), t !== null && (ut(t, l, e), ke(t, l, e));
     },
     enqueueReplaceState: function(l, t, a) {
       l = l._reactInternals;
       var e = yt(), u = ca(e);
-      u.tag = 1, u.payload = t, a != null && (u.callback = a), t = fa(l, u, e), t !== null && (ut(t, l, e), $e(t, l, e));
+      u.tag = 1, u.payload = t, a != null && (u.callback = a), t = fa(l, u, e), t !== null && (ut(t, l, e), ke(t, l, e));
     },
     enqueueForceUpdate: function(l, t) {
       l = l._reactInternals;
       var a = yt(), e = ca(a);
-      e.tag = 2, t != null && (e.callback = t), t = fa(l, e, a), t !== null && (ut(t, l, a), $e(t, l, a));
+      e.tag = 2, t != null && (e.callback = t), t = fa(l, e, a), t !== null && (ut(t, l, a), ke(t, l, a));
     }
   };
   function A0(l, t, a, e, u, n, i) {
@@ -4586,9 +4586,9 @@ Error generating stack: ` + e.message + `
         switch (a.tag) {
           case 31:
           case 13:
-            return Tt === null ? En() : a.alternate === null && Dl === 0 && (Dl = 3), a.flags &= -257, a.flags |= 65536, a.lanes = u, e === $u ? a.flags |= 16384 : (t = a.updateQueue, t === null ? a.updateQueue = /* @__PURE__ */ new Set([e]) : t.add(e), Rc(l, e, u)), !1;
+            return Tt === null ? En() : a.alternate === null && Dl === 0 && (Dl = 3), a.flags &= -257, a.flags |= 65536, a.lanes = u, e === ku ? a.flags |= 16384 : (t = a.updateQueue, t === null ? a.updateQueue = /* @__PURE__ */ new Set([e]) : t.add(e), Rc(l, e, u)), !1;
           case 22:
-            return a.flags |= 65536, e === $u ? a.flags |= 16384 : (t = a.updateQueue, t === null ? (t = {
+            return a.flags |= 65536, e === ku ? a.flags |= 16384 : (t = a.updateQueue, t === null ? (t = {
               transitions: null,
               markerInstances: null,
               retryQueue: /* @__PURE__ */ new Set([e])
@@ -4844,7 +4844,7 @@ Error generating stack: ` + e.message + `
         a,
         i,
         e
-      ), n.state = t.memoizedState), typeof a.getDerivedStateFromProps == "function" || typeof n.getSnapshotBeforeUpdate == "function" || typeof n.UNSAFE_componentWillMount != "function" && typeof n.componentWillMount != "function" || (i = n.state, typeof n.componentWillMount == "function" && n.componentWillMount(), typeof n.UNSAFE_componentWillMount == "function" && n.UNSAFE_componentWillMount(), i !== n.state && fc.enqueueReplaceState(n, n.state, null), Fe(t, e, n, u), ke(), n.state = t.memoizedState), typeof n.componentDidMount == "function" && (t.flags |= 4194308), e = !0;
+      ), n.state = t.memoizedState), typeof a.getDerivedStateFromProps == "function" || typeof n.getSnapshotBeforeUpdate == "function" || typeof n.UNSAFE_componentWillMount != "function" && typeof n.componentWillMount != "function" || (i = n.state, typeof n.componentWillMount == "function" && n.componentWillMount(), typeof n.UNSAFE_componentWillMount == "function" && n.UNSAFE_componentWillMount(), i !== n.state && fc.enqueueReplaceState(n, n.state, null), Fe(t, e, n, u), $e(), n.state = t.memoizedState), typeof n.componentDidMount == "function" && (t.flags |= 4194308), e = !0;
     } else if (l === null) {
       n = t.stateNode;
       var c = t.memoizedProps, f = Xa(a, c);
@@ -4859,7 +4859,7 @@ Error generating stack: ` + e.message + `
         i
       ), ia = !1;
       var y = t.memoizedState;
-      n.state = y, Fe(t, e, n, u), ke(), h = t.memoizedState, c || y !== h || ia ? (typeof E == "function" && (cc(
+      n.state = y, Fe(t, e, n, u), $e(), h = t.memoizedState, c || y !== h || ia ? (typeof E == "function" && (cc(
         t,
         a,
         E,
@@ -4879,7 +4879,7 @@ Error generating stack: ` + e.message + `
         n,
         e,
         f
-      ), ia = !1, y = t.memoizedState, n.state = y, Fe(t, e, n, u), ke();
+      ), ia = !1, y = t.memoizedState, n.state = y, Fe(t, e, n, u), $e();
       var v = t.memoizedState;
       i !== E || y !== v || ia || l !== null && l.dependencies !== null && Vu(l.dependencies) ? (typeof c == "function" && (cc(
         t,
@@ -4944,7 +4944,7 @@ Error generating stack: ` + e.message + `
           retryLane: 536870912,
           hydrationErrors: null
         }, a = bo(l), a.return = t, t.child = a, Ll = t, zl = null)) : l = null, l === null) throw ua(t);
-        return kc(l) ? t.lanes = 32 : t.lanes = 536870912, null;
+        return $c(l) ? t.lanes = 32 : t.lanes = 536870912, null;
       }
       var c = e.children;
       return e = e.fallback, u ? (sa(), u = t.mode, c = rn(
@@ -4986,7 +4986,7 @@ Error generating stack: ` + e.message + `
           i,
           a
         ), t.memoizedState = rc, t = au(null, e));
-      else if (oa(t), kc(c)) {
+      else if (oa(t), $c(c)) {
         if (i = c.nextSibling && c.nextSibling.dataset, i) var h = i.dgst;
         i = h, e = Error(r(419)), e.stack = "", e.digest = i, we({ value: e, source: null, stack: null }), t = vc(
           l,
@@ -4996,13 +4996,13 @@ Error generating stack: ` + e.message + `
       } else if (ql || ce(l, t, a, !1), i = (a & l.childLanes) !== 0, ql || i) {
         if (i = bl, i !== null && (e = xf(i, a), e !== 0 && e !== f.retryLane))
           throw f.retryLane = e, Ca(l, e), ut(i, l, e), sc;
-        $c(c) || En(), t = vc(
+        kc(c) || En(), t = vc(
           l,
           t,
           a
         );
       } else
-        $c(c) ? (t.flags |= 192, t.child = l.child, t = null) : (l = f.treeContext, zl = xt(
+        kc(c) ? (t.flags |= 192, t.child = l.child, t = null) : (l = f.treeContext, zl = xt(
           c.nextSibling
         ), Ll = t, al = !0, ea = null, At = !1, l !== null && zo(t, l), t = yc(
           t,
@@ -5159,14 +5159,14 @@ Error generating stack: ` + e.message + `
   function nr(l, t, a) {
     switch (t.tag) {
       case 3:
-        $l(t, t.stateNode.containerInfo), na(t, Rl, l.memoizedState.cache), Ha();
+        kl(t, t.stateNode.containerInfo), na(t, Rl, l.memoizedState.cache), Ha();
         break;
       case 27:
       case 5:
         Oe(t);
         break;
       case 4:
-        $l(t, t.stateNode.containerInfo);
+        kl(t, t.stateNode.containerInfo);
         break;
       case 10:
         na(
@@ -5264,7 +5264,7 @@ Error generating stack: ` + e.message + `
                   a
                 );
                 break l;
-              } else if (u === k) {
+              } else if (u === $) {
                 t.tag = 14, t = N0(
                   null,
                   t,
@@ -5300,7 +5300,7 @@ Error generating stack: ` + e.message + `
         );
       case 3:
         l: {
-          if ($l(
+          if (kl(
             t,
             t.stateNode.containerInfo
           ), l === null) throw Error(r(387));
@@ -5313,7 +5313,7 @@ Error generating stack: ` + e.message + `
             [Rl],
             a,
             !0
-          ), ke(), e = i.element, n.isDehydrated)
+          ), $e(), e = i.element, n.isDehydrated)
             if (n = {
               element: e,
               isDehydrated: !1,
@@ -5401,7 +5401,7 @@ Error generating stack: ` + e.message + `
         ), e !== null ? (t.stateNode = e, Ll = t, zl = xt(e.firstChild), At = !1, u = !0) : u = !1), u || ua(t)), Oe(t), u = t.type, n = t.pendingProps, i = l !== null ? l.memoizedProps : null, e = n.children, Kc(u, n) ? e = null : i !== null && Kc(u, i) && (t.flags |= 32), t.memoizedState !== null && (u = Vi(
           l,
           t,
-          kd,
+          $d,
           null,
           null,
           a
@@ -5415,7 +5415,7 @@ Error generating stack: ` + e.message + `
       case 13:
         return Z0(l, t, a);
       case 4:
-        return $l(
+        return kl(
           t,
           t.stateNode.containerInfo
         ), e = t.pendingProps, l === null ? t.child = Ga(
@@ -5485,7 +5485,7 @@ Error generating stack: ` + e.message + `
           t.pendingProps
         );
       case 24:
-        return ja(t), e = wl(Rl), l === null ? (u = ji(), u === null && (u = bl, n = Hi(), u.pooledCache = n, n.refCount++, n !== null && (u.pooledCacheLanes |= a), u = n), t.memoizedState = { parent: e, cache: u }, Yi(t), na(t, Rl, u)) : ((l.lanes & a) !== 0 && (Bi(l, t), Fe(t, null, null, a), ke()), u = l.memoizedState, n = t.memoizedState, u.parent !== e ? (u = { parent: e, cache: e }, t.memoizedState = u, t.lanes === 0 && (t.memoizedState = t.updateQueue.baseState = u), na(t, Rl, e)) : (e = n.cache, na(t, Rl, e), e !== u.cache && Ni(
+        return ja(t), e = wl(Rl), l === null ? (u = ji(), u === null && (u = bl, n = Hi(), u.pooledCache = n, n.refCount++, n !== null && (u.pooledCacheLanes |= a), u = n), t.memoizedState = { parent: e, cache: u }, Yi(t), na(t, Rl, u)) : ((l.lanes & a) !== 0 && (Bi(l, t), Fe(t, null, null, a), $e()), u = l.memoizedState, n = t.memoizedState, u.parent !== e ? (u = { parent: e, cache: e }, t.memoizedState = u, t.lanes === 0 && (t.memoizedState = t.updateQueue.baseState = u), na(t, Rl, e)) : (e = n.cache, na(t, Rl, e), e !== u.cache && Ni(
           t,
           [Rl],
           a,
@@ -5510,7 +5510,7 @@ Error generating stack: ` + e.message + `
         if (l.stateNode.complete) l.flags |= 8192;
         else if (vs()) l.flags |= 8192;
         else
-          throw Ba = $u, qi;
+          throw Ba = ku, qi;
     } else l.flags &= -16777217;
   }
   function w0(l, t) {
@@ -5519,7 +5519,7 @@ Error generating stack: ` + e.message + `
     else if (l.flags |= 16777216, !n1(t))
       if (vs()) l.flags |= 8192;
       else
-        throw Ba = $u, qi;
+        throw Ba = ku, qi;
   }
   function mn(l, t) {
     t !== null && (l.flags |= 4), l.flags & 16384 && (t = l.tag !== 22 ? zf() : 536870912, l.lanes |= t, be |= t);
@@ -6003,13 +6003,13 @@ Error generating stack: ` + e.message + `
       rl(l, l.return, u);
     }
   }
-  function $0(l) {
+  function k0(l) {
     return l.tag === 5 || l.tag === 3 || l.tag === 26 || l.tag === 27 && pa(l.type) || l.tag === 4;
   }
   function Ec(l) {
     l: for (; ; ) {
       for (; l.sibling === null; ) {
-        if (l.return === null || $0(l.return)) return null;
+        if (l.return === null || k0(l.return)) return null;
         l = l.return;
       }
       for (l.sibling.return = l.return, l = l.sibling; l.tag !== 5 && l.tag !== 6 && l.tag !== 18; ) {
@@ -6035,7 +6035,7 @@ Error generating stack: ` + e.message + `
       for (hn(l, t, a), l = l.sibling; l !== null; )
         hn(l, t, a), l = l.sibling;
   }
-  function k0(l) {
+  function $0(l) {
     var t = l.stateNode, a = l.memoizedProps;
     try {
       for (var e = l.type, u = t.attributes; u.length; )
@@ -6208,7 +6208,7 @@ Error generating stack: ` + e.message + `
         }
         break;
       case 27:
-        t === null && e & 4 && k0(a);
+        t === null && e & 4 && $0(a);
       case 26:
       case 5:
         Wt(l, a), t === null && e & 4 && W0(a), e & 512 && nu(a, a.return);
@@ -6229,7 +6229,7 @@ Error generating stack: ` + e.message + `
         if (e = a.memoizedState !== null || Kt, !e) {
           t = t !== null && t.memoizedState !== null || Yl, u = Kt;
           var n = Yl;
-          Kt = e, (Yl = t) && !n ? $t(
+          Kt = e, (Yl = t) && !n ? kt(
             l,
             a,
             (a.subtreeFlags & 8772) !== 0
@@ -6533,7 +6533,7 @@ Error generating stack: ` + e.message + `
         if (tt(t, l), at(l), e & 512 && (Yl || a === null || Ht(a, a.return)), l.flags & 32) {
           u = l.stateNode;
           try {
-            ka(u, "");
+            $a(u, "");
           } catch (C) {
             rl(l, l.return, C);
           }
@@ -6647,7 +6647,7 @@ Error generating stack: ` + e.message + `
     if (t & 2) {
       try {
         for (var a, e = l.return; e !== null; ) {
-          if ($0(e)) {
+          if (k0(e)) {
             a = e;
             break;
           }
@@ -6661,7 +6661,7 @@ Error generating stack: ` + e.message + `
             break;
           case 5:
             var i = a.stateNode;
-            a.flags & 32 && (ka(i, ""), a.flags &= -33);
+            a.flags & 32 && ($a(i, ""), a.flags &= -33);
             var c = Ec(l);
             hn(l, c, i);
             break;
@@ -6733,21 +6733,21 @@ Error generating stack: ` + e.message + `
       l = l.sibling;
     }
   }
-  function $t(l, t, a) {
+  function kt(l, t, a) {
     for (a = a && (t.subtreeFlags & 8772) !== 0, t = t.child; t !== null; ) {
       var e = t.alternate, u = l, n = t, i = n.flags;
       switch (n.tag) {
         case 0:
         case 11:
         case 15:
-          $t(
+          kt(
             u,
             n,
             a
           ), uu(4, n);
           break;
         case 1:
-          if ($t(
+          if (kt(
             u,
             n,
             a
@@ -6771,38 +6771,38 @@ Error generating stack: ` + e.message + `
           a && i & 64 && K0(n), nu(n, n.return);
           break;
         case 27:
-          k0(n);
+          $0(n);
         case 26:
         case 5:
-          $t(
+          kt(
             u,
             n,
             a
           ), a && e === null && i & 4 && W0(n), nu(n, n.return);
           break;
         case 12:
-          $t(
+          kt(
             u,
             n,
             a
           );
           break;
         case 31:
-          $t(
+          kt(
             u,
             n,
             a
           ), a && i & 4 && ts(u, n);
           break;
         case 13:
-          $t(
+          kt(
             u,
             n,
             a
           ), a && i & 4 && as(u, n);
           break;
         case 22:
-          n.memoizedState === null && $t(
+          n.memoizedState === null && kt(
             u,
             n,
             a
@@ -6811,7 +6811,7 @@ Error generating stack: ` + e.message + `
         case 30:
           break;
         default:
-          $t(
+          kt(
             u,
             n,
             a
@@ -7044,7 +7044,7 @@ Error generating stack: ` + e.message + `
           l,
           t,
           a
-        ), l.flags & cu && l.memoizedState !== null && $r(
+        ), l.flags & cu && l.memoizedState !== null && kr(
           a,
           Ot,
           l.memoizedState,
@@ -7206,7 +7206,7 @@ Error generating stack: ` + e.message + `
     cacheSignal: function() {
       return wl(Rl).controller.signal;
     }
-  }, dr = typeof WeakMap == "function" ? WeakMap : Map, cl = 0, bl = null, I = null, ll = 0, dl = 0, mt = null, ra = !1, pe = !1, _c = !1, kt = 0, Dl = 0, ma = 0, La = 0, Mc = 0, ht = 0, be = 0, ou = null, et = null, Oc = !1, gn = 0, ss = 0, pn = 1 / 0, bn = null, ha = null, Bl = 0, ya = null, Se = null, Ft = 0, Dc = 0, Uc = null, ds = null, su = 0, Cc = null;
+  }, dr = typeof WeakMap == "function" ? WeakMap : Map, cl = 0, bl = null, I = null, ll = 0, dl = 0, mt = null, ra = !1, pe = !1, _c = !1, $t = 0, Dl = 0, ma = 0, La = 0, Mc = 0, ht = 0, be = 0, ou = null, et = null, Oc = !1, gn = 0, ss = 0, pn = 1 / 0, bn = null, ha = null, Bl = 0, ya = null, Se = null, Ft = 0, Dc = 0, Uc = null, ds = null, su = 0, Cc = null;
   function yt() {
     return (cl & 2) !== 0 && ll !== 0 ? ll & -ll : b.T !== null ? Yc() : _f();
   }
@@ -7369,7 +7369,7 @@ Error generating stack: ` + e.message + `
         E
       );
       var C = (n & 62914560) === n ? gn - it() : (n & 4194048) === n ? ss - it() : 0;
-      if (C = kr(
+      if (C = $r(
         E,
         C
       ), C !== null) {
@@ -7464,7 +7464,7 @@ Error generating stack: ` + e.message + `
         var u = 31 - ft(e), n = 1 << u;
         t |= l[u], e &= ~n;
       }
-    return kt = t, Zu(), a;
+    return $t = t, Zu(), a;
   }
   function ys(l, t) {
     J = null, b.H = tu, t === se || t === Wu ? (t = Co(), dl = 3) : t === qi ? (t = Co(), dl = 4) : dl = t === sc ? 8 : t !== null && typeof t == "object" && typeof t.then == "function" ? 6 : 1, mt = t, I === null && (Dl = 1, on(
@@ -7612,7 +7612,7 @@ Error generating stack: ` + e.message + `
       bs(I);
   }
   function bs(l) {
-    var t = L0(l.alternate, l, kt);
+    var t = L0(l.alternate, l, $t);
     l.memoizedProps = l.pendingProps, t === null ? zn(l) : I = t;
   }
   function Ss(l) {
@@ -7642,7 +7642,7 @@ Error generating stack: ` + e.message + `
       case 5:
         Wi(t);
       default:
-        V0(a, t), t = I = po(t, kt), t = L0(a, t, kt);
+        V0(a, t), t = I = po(t, $t), t = L0(a, t, $t);
     }
     l.memoizedProps = l.pendingProps, t === null ? zn(l) : I = t;
   }
@@ -7687,7 +7687,7 @@ Error generating stack: ` + e.message + `
       var a = ir(
         t.alternate,
         t,
-        kt
+        $t
       );
       if (a !== null) {
         I = a;
@@ -8488,7 +8488,7 @@ Error generating stack: ` + e.message + `
             tl = void 0;
           }
         else
-          Pa ? kf(l, a) && (tl = "onCompositionEnd") : l === "keydown" && a.keyCode === 229 && (tl = "onCompositionStart");
+          Pa ? $f(l, a) && (tl = "onCompositionEnd") : l === "keydown" && a.keyCode === 229 && (tl = "onCompositionStart");
         tl && (Jf && a.locale !== "ko" && (Pa || tl !== "onCompositionStart" ? tl === "onCompositionEnd" && Pa && (W = Qf()) : (ta = p, fi = "value" in ta ? ta.value : ta.textContent, Pa = !0)), H = Mn(h, tl), 0 < H.length && (tl = new Vf(
           tl,
           l,
@@ -8564,7 +8564,7 @@ Error generating stack: ` + e.message + `
   function yl(l, t, a, e, u, n) {
     switch (a) {
       case "children":
-        typeof e == "string" ? t === "body" || t === "textarea" && e === "" || ka(l, e) : (typeof e == "number" || typeof e == "bigint") && t !== "body" && ka(l, "" + e);
+        typeof e == "string" ? t === "body" || t === "textarea" && e === "" || $a(l, e) : (typeof e == "number" || typeof e == "bigint") && t !== "body" && $a(l, "" + e);
         break;
       case "className":
         Uu(l, "class", e);
@@ -8831,7 +8831,7 @@ Error generating stack: ` + e.message + `
         }
         break;
       case "children":
-        typeof e == "string" ? ka(l, e) : (typeof e == "number" || typeof e == "bigint") && ka(l, "" + e);
+        typeof e == "string" ? $a(l, e) : (typeof e == "number" || typeof e == "bigint") && $a(l, "" + e);
         break;
       case "onScroll":
         e != null && P("scroll", l);
@@ -8957,7 +8957,7 @@ Error generating stack: ` + e.message + `
               default:
                 yl(l, t, u, c, a, null);
             }
-        t = n, a = i, l.multiple = !!e, t != null ? $a(l, !!e, t, !1) : a != null && $a(l, !!e, a, !0);
+        t = n, a = i, l.multiple = !!e, t != null ? ka(l, !!e, t, !1) : a != null && ka(l, !!e, a, !0);
         return;
       case "textarea":
         P("invalid", l), n = u = e = null;
@@ -9168,7 +9168,7 @@ Error generating stack: ` + e.message + `
                   f
                 );
             }
-        t = c, a = i, e = v, y != null ? $a(l, !!a, y, !1) : !!e != !!a && (t != null ? $a(l, !!a, t, !0) : $a(l, !!a, a ? [] : "", !1));
+        t = c, a = i, e = v, y != null ? ka(l, !!a, y, !1) : !!e != !!a && (t != null ? ka(l, !!a, t, !0) : ka(l, !!a, a ? [] : "", !1));
         return;
       case "textarea":
         v = y = null;
@@ -9484,10 +9484,10 @@ Error generating stack: ` + e.message + `
       if ((l.nodeType !== 1 || l.nodeName !== "INPUT" || l.type !== "hidden") && !t || (l = xt(l.nextSibling), l === null)) return null;
     return l;
   }
-  function $c(l) {
+  function kc(l) {
     return l.data === "$?" || l.data === "$~";
   }
-  function kc(l) {
+  function $c(l) {
     return l.data === "$!" || l.data === "$?" && l.ownerDocument.readyState !== "loading";
   }
   function Yr(l, t) {
@@ -9515,7 +9515,7 @@ Error generating stack: ` + e.message + `
     return l;
   }
   var Fc = null;
-  function $s(l) {
+  function ks(l) {
     l = l.nextSibling;
     for (var t = 0; l; ) {
       if (l.nodeType === 8) {
@@ -9531,7 +9531,7 @@ Error generating stack: ` + e.message + `
     }
     return null;
   }
-  function ks(l) {
+  function $s(l) {
     l = l.previousSibling;
     for (var t = 0; l; ) {
       if (l.nodeType === 8) {
@@ -9922,7 +9922,7 @@ Error generating stack: ` + e.message + `
   function n1(l) {
     return !(l.type === "stylesheet" && (l.state.loading & 3) === 0);
   }
-  function $r(l, t, a, e) {
+  function kr(l, t, a, e) {
     if (a.type === "stylesheet" && (typeof e.media != "string" || matchMedia(e.media).matches !== !1) && (a.state.loading & 4) === 0) {
       if (a.instance === null) {
         var u = xe(e.href), n = t.querySelector(
@@ -9942,7 +9942,7 @@ Error generating stack: ` + e.message + `
     }
   }
   var lf = 0;
-  function kr(l, t) {
+  function $r(l, t) {
     return l.stylesheets && l.count === 0 && Rn(l, l.stylesheets), 0 < l.count || 0 < l.imgCount ? function(a) {
       var e = setTimeout(function() {
         if (l.stylesheets && Rn(l, l.stylesheets), l.unsuspend) {
@@ -10004,7 +10004,7 @@ Error generating stack: ` + e.message + `
     _threadCount: 0
   };
   function Ir(l, t, a, e, u, n, i, c, f) {
-    this.tag = 1, this.containerInfo = l, this.pingCache = this.current = this.pendingChildren = null, this.timeoutHandle = -1, this.callbackNode = this.next = this.pendingContext = this.context = this.cancelPendingCommit = null, this.callbackPriority = 0, this.expirationTimes = $n(-1), this.entangledLanes = this.shellSuspendCounter = this.errorRecoveryDisabledLanes = this.expiredLanes = this.warmLanes = this.pingedLanes = this.suspendedLanes = this.pendingLanes = 0, this.entanglements = $n(0), this.hiddenUpdates = $n(null), this.identifierPrefix = e, this.onUncaughtError = u, this.onCaughtError = n, this.onRecoverableError = i, this.pooledCache = null, this.pooledCacheLanes = 0, this.formState = f, this.incompleteTransitions = /* @__PURE__ */ new Map();
+    this.tag = 1, this.containerInfo = l, this.pingCache = this.current = this.pendingChildren = null, this.timeoutHandle = -1, this.callbackNode = this.next = this.pendingContext = this.context = this.cancelPendingCommit = null, this.callbackPriority = 0, this.expirationTimes = kn(-1), this.entangledLanes = this.shellSuspendCounter = this.errorRecoveryDisabledLanes = this.expiredLanes = this.warmLanes = this.pingedLanes = this.suspendedLanes = this.pendingLanes = 0, this.entanglements = kn(0), this.hiddenUpdates = kn(null), this.identifierPrefix = e, this.onUncaughtError = u, this.onCaughtError = n, this.onRecoverableError = i, this.pooledCache = null, this.pooledCacheLanes = 0, this.formState = f, this.incompleteTransitions = /* @__PURE__ */ new Map();
   }
   function i1(l, t, a, e, u, n, i, c, f, h, p, E) {
     return l = new Ir(
@@ -10027,7 +10027,7 @@ Error generating stack: ` + e.message + `
     return l ? (l = ee, l) : ee;
   }
   function f1(l, t, a, e, u, n) {
-    u = c1(u), e.context === null ? e.context = u : e.pendingContext = u, e = ca(t), e.payload = { element: a }, n = n === void 0 ? null : n, n !== null && (e.callback = n), a = fa(l, e, t), a !== null && (ut(a, l, t), $e(a, l, t));
+    u = c1(u), e.context === null ? e.context = u : e.pendingContext = u, e = ca(t), e.payload = { element: a }, n = n === void 0 ? null : n, n !== null && (e.callback = n), a = fa(l, e, t), a !== null && (ut(a, l, t), ke(a, l, t));
   }
   function o1(l, t) {
     if (l = l.memoizedState, l !== null && l.dehydrated !== null) {
@@ -10047,7 +10047,7 @@ Error generating stack: ` + e.message + `
   function d1(l) {
     if (l.tag === 13 || l.tag === 31) {
       var t = yt();
-      t = kn(t);
+      t = $n(t);
       var a = Ca(l, t);
       a !== null && ut(a, l, t), tf(l, t);
     }
@@ -10548,7 +10548,7 @@ Error generating stack: ` + e.message + `
       }
   }
   return zu.createRoot = function(l, t) {
-    if (!$(l)) throw Error(r(299));
+    if (!k(l)) throw Error(r(299));
     var a = !1, e = "", u = x0, n = _0, i = M0;
     return t != null && (t.unstable_strictMode === !0 && (a = !0), t.identifierPrefix !== void 0 && (e = t.identifierPrefix), t.onUncaughtError !== void 0 && (u = t.onUncaughtError), t.onCaughtError !== void 0 && (n = t.onCaughtError), t.onRecoverableError !== void 0 && (i = t.onRecoverableError)), t = i1(
       l,
@@ -10565,7 +10565,7 @@ Error generating stack: ` + e.message + `
       g1
     ), l[wa] = t.current, Xc(l), new cf(t);
   }, zu.hydrateRoot = function(l, t, a) {
-    if (!$(l)) throw Error(r(299));
+    if (!k(l)) throw Error(r(299));
     var e = !1, u = "", n = x0, i = _0, c = M0, f = null;
     return a != null && (a.unstable_strictMode === !0 && (e = !0), a.identifierPrefix !== void 0 && (u = a.identifierPrefix), a.onUncaughtError !== void 0 && (n = a.onUncaughtError), a.onCaughtError !== void 0 && (i = a.onCaughtError), a.onRecoverableError !== void 0 && (c = a.onRecoverableError), a.formState !== void 0 && (f = a.formState)), t = i1(
       l,
@@ -10580,7 +10580,7 @@ Error generating stack: ` + e.message + `
       i,
       c,
       g1
-    ), t.context = c1(null), a = t.current, e = yt(), e = kn(e), u = ca(e), u.callback = null, fa(a, u, e), a = e, t.current.lanes = a, Ce(t, a), Rt(t), l[wa] = t.current, Xc(l), new Zn(t);
+    ), t.context = c1(null), a = t.current, e = yt(), e = $n(e), u = ca(e), u.callback = null, fa(a, u, e), a = e, t.current.lanes = a, Ce(t, a), Rt(t), l[wa] = t.current, Xc(l), new Zn(t);
   }, zu.version = "19.2.0", zu;
 }
 var O1;
@@ -10622,14 +10622,14 @@ const N1 = {
 }, zm = (g) => g.trim().split(/\s+/).slice(0, 2).map((O) => O.charAt(0).toUpperCase()).join("") || "FV", H1 = (g) => {
   const O = yf(g), T = vt(O.type);
   if (T !== "text" && T !== "cheer") return null;
-  const r = vt(O.id), $ = vt(O.display_name) || "Fan", el = vt(O.body), L = T === "cheer" ? `Cheered ${pm[el] ?? "👏"}` : el;
+  const r = vt(O.id), k = vt(O.display_name) || "Fan", el = vt(O.body), L = T === "cheer" ? `Cheered ${pm[el] ?? "👏"}` : el;
   return !r || !L ? null : {
     id: r,
-    author: $,
-    initials: zm($),
+    author: k,
+    initials: zm(k),
     role: Sm(O.role),
     body: L,
-    avatarTone: Em($),
+    avatarTone: Em(k),
     reactions: [],
     moderated: vt(O.moderation_status) !== "visible",
     own: O.is_own === !0
@@ -10654,8 +10654,8 @@ class Tm extends Error {
 }
 function xm(g) {
   var il;
-  const O = g.fetch ?? globalThis.fetch.bind(globalThis), T = ((il = g.displayName) == null ? void 0 : il.trim().replace(/\s+/g, " ").slice(0, 24)) || "Fan", r = /* @__PURE__ */ new Map(), $ = /* @__PURE__ */ new Map(), el = (q) => {
-    for (const U of $.get(q.shareId) ?? [])
+  const O = g.fetch ?? globalThis.fetch.bind(globalThis), T = ((il = g.displayName) == null ? void 0 : il.trim().replace(/\s+/g, " ").slice(0, 24)) || "Fan", r = /* @__PURE__ */ new Map(), k = /* @__PURE__ */ new Map(), el = (q) => {
+    for (const U of k.get(q.shareId) ?? [])
       U(hf(q));
   }, L = async () => {
     const q = await g.client.auth.getSession();
@@ -10732,8 +10732,8 @@ function xm(g) {
       return hf(V);
     },
     subscribe(q, U, V) {
-      const ol = $.get(q) ?? /* @__PURE__ */ new Set();
-      ol.add(U), $.set(q, ol);
+      const ol = k.get(q) ?? /* @__PURE__ */ new Set();
+      ol.add(U), k.set(q, ol);
       let sl = !0, xl = null;
       return w(q).then(async (X) => {
         if (!sl || (U(hf(X)), X.channel)) return;
@@ -10751,7 +10751,7 @@ function xm(g) {
         X.channel = El, xl = El;
         const _l = () => {
           sl && j(X).catch(V);
-        }, k = () => {
+        }, $ = () => {
           const Ml = El.presenceState();
           X.participantCount = Math.max(
             1,
@@ -10761,7 +10761,7 @@ function xm(g) {
             )
           ), el(X);
         };
-        El.on("broadcast", { event: "message.created" }, _l).on("broadcast", { event: "message.updated" }, _l).on("broadcast", { event: "room.updated" }, _l).on("presence", { event: "sync" }, k).subscribe((Ml) => {
+        El.on("broadcast", { event: "message.created" }, _l).on("broadcast", { event: "message.updated" }, _l).on("broadcast", { event: "room.updated" }, _l).on("presence", { event: "sync" }, $).subscribe((Ml) => {
           if (sl) {
             if (Ml === "SUBSCRIBED") {
               X.connection = "connected", X.participantCount = Math.max(
@@ -10778,7 +10778,7 @@ function xm(g) {
       }).catch((X) => {
         sl && V(X);
       }), () => {
-        sl = !1, ol.delete(U), ol.size === 0 && $.delete(q), xl && (g.client.removeChannel(xl), w(q).then((X) => {
+        sl = !1, ol.delete(U), ol.size === 0 && k.delete(q), xl && (g.client.removeChannel(xl), w(q).then((X) => {
           X.channel === xl && (X.channel = null);
         }));
       };
@@ -10891,7 +10891,7 @@ function Mm() {
     async sendMessage(O, T) {
       const r = T.trim().replace(/\s+/g, " ").slice(0, 240);
       if (!r) throw new Error("Message is empty.");
-      const $ = {
+      const k = {
         id: `fixture-${g.length + 1}`,
         author: "You",
         initials: "Y",
@@ -10901,7 +10901,7 @@ function Mm() {
         reactions: [],
         own: !0
       };
-      return g.push($), $;
+      return g.push(k), k;
     }
   };
 }
@@ -10946,7 +10946,7 @@ const Um = x.createContext({
     const {
       alt: T,
       color: r,
-      size: $,
+      size: k,
       weight: el,
       mirrored: L,
       children: Sl,
@@ -10964,8 +10964,8 @@ const Um = x.createContext({
       {
         ref: O,
         xmlns: "http://www.w3.org/2000/svg",
-        width: $ ?? j,
-        height: $ ?? j,
+        width: k ?? j,
+        height: k ?? j,
         fill: r ?? w,
         viewBox: "0 0 256 256",
         transform: L || q ? "scale(-1, 1)" : void 0,
@@ -11089,10 +11089,10 @@ function Ym({
   hideWhenUnavailable: O = !1,
   matchComplete: T,
   shareId: r,
-  startOpen: $ = !0,
+  startOpen: k = !0,
   teamName: el
 }) {
-  const [L, Sl] = x.useState($), [D, A] = x.useState(C1), [w, j] = x.useState(""), [il, q] = x.useState(""), [U, V] = x.useState(!1), [ol, sl] = x.useState(!1), xl = x.useRef(null), X = x.useRef(null), Ul = x.useRef(null);
+  const [L, Sl] = x.useState(k), [D, A] = x.useState(C1), [w, j] = x.useState(""), [il, q] = x.useState(""), [U, V] = x.useState(!1), [ol, sl] = x.useState(!1), xl = x.useRef(null), X = x.useRef(null), Ul = x.useRef(null);
   x.useEffect(() => {
     const Y = new AbortController();
     let gl = () => {
@@ -11136,7 +11136,7 @@ function Ym({
     const Jl = gl[0], Xl = gl[gl.length - 1];
     Y.shiftKey && document.activeElement === Jl ? (Y.preventDefault(), Xl.focus()) : !Y.shiftKey && document.activeElement === Xl && (Y.preventDefault(), Jl.focus());
   }
-  function k(Y) {
+  function $(Y) {
     Ul.current = Y.clientY, Y.currentTarget.setPointerCapture(Y.pointerId);
   }
   function Ml(Y) {
@@ -11220,7 +11220,7 @@ function Ym({
             {
               "aria-label": "Drag down to close Cheering Section",
               className: "community-handle",
-              onPointerDown: k,
+              onPointerDown: $,
               onPointerUp: Ml,
               role: "button",
               tabIndex: -1
@@ -11358,7 +11358,7 @@ function Bm({ message: g }) {
     ] })
   ] });
 }
-const Gm = ':root{color:#111827;background:#050a13;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;font-synthesis:none;text-rendering:optimizeLegibility;--fanview-navy-950: #111827;--fanview-pink-500: #f22b78;--fanview-pink-700: #ce155f;--fanview-paper: #fffdfb;--fanview-blush: #fff2f7;--fanview-muted: #697386;--fanview-live-red: #e53935;--fanview-live-green: #39d98a;--fanview-line: rgba(15, 23, 42, .1)}*{box-sizing:border-box}html,body,#root{width:100%;min-width:320px;min-height:100%;margin:0}body{min-height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible,[role=button]:focus-visible{outline:3px solid rgba(242,43,120,.35);outline-offset:2px}.fanview-app,.match-stage{position:relative;width:100vw;height:100dvh;min-height:460px;overflow:hidden;background:#050a13}.match-stage__media{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center}.match-stage__shade{position:absolute;top:0;right:0;bottom:0;left:0;background:#02060c2e;pointer-events:none}.match-stage__empty{position:absolute;top:0;right:0;bottom:0;left:0;display:grid;place-items:center;background:#0d131d}.court-outline{position:relative;width:min(760px,82vw);aspect-ratio:2.25 / 1;border:2px solid rgba(255,255,255,.12);transform:perspective(480px) rotateX(58deg)}.court-outline__net{position:absolute;top:50%;right:-4%;left:-4%;border-top:2px solid rgba(255,255,255,.18)}.live-pill,.viewer-pill{position:absolute;z-index:3;top:max(28px,env(safe-area-inset-top));display:inline-flex;min-height:38px;align-items:center;justify-content:center;border-radius:8px;color:#fff;box-shadow:0 8px 22px #00000040;font-size:15px;font-weight:900}.live-pill{left:max(28px,env(safe-area-inset-left));gap:8px;padding:0 14px;background:var(--fanview-live-red)}.live-pill__dot{width:9px;height:9px;border-radius:999px;background:#fff}.viewer-pill{right:max(28px,env(safe-area-inset-right));gap:8px;min-width:74px;border:1px solid rgba(255,255,255,.55);padding:0 12px;background:#03080fb8;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}.fanview-app[data-community-enabled=true] .viewer-pill{right:418px}.score-bug{position:absolute;z-index:3;bottom:36px;left:28px;width:min(276px,calc(100vw - 470px));min-width:246px;overflow:hidden;border-radius:12px;padding:13px;color:#fff;background:#071222f5;box-shadow:0 16px 38px #00000059}.score-bug__set{height:26px;padding-left:2px;font-size:12px;font-weight:900;letter-spacing:.09em}.score-bug__row{display:grid;min-height:47px;grid-template-columns:0 minmax(0,1fr) 52px;margin-top:7px;overflow:hidden;border-radius:4px}.score-bug__color{width:0}.score-bug__team{overflow:hidden;display:flex;align-items:center;padding:0 12px;font-size:18px;font-weight:900;letter-spacing:-.015em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.score-bug__score{display:grid;place-items:center;border:1px solid rgba(255,255,255,.28);border-left:0;background:#101b2b;font-size:23px;font-weight:900}.match-status{position:absolute;z-index:4;top:78px;left:50%;border-radius:999px;padding:8px 12px;color:#fff;background:#111827e6;font-size:12px;font-weight:750;transform:translate(-50%)}.community-scrim{position:fixed;top:0;right:0;bottom:0;left:0;z-index:8;display:none;border:0;background:transparent}.community-panel{position:fixed;z-index:10;top:14px;right:14px;bottom:14px;display:grid;width:min(390px,calc(100vw - 28px));grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden;border:1px solid rgba(255,255,255,.8);border-radius:26px;color:var(--fanview-navy-950);background:var(--fanview-paper);box-shadow:0 28px 70px #00000047;transform:translate(calc(100% + 32px));transition:transform .18s ease}.community-panel[data-open=true]{transform:translate(0)}.community-scrim[hidden],.community-panel[hidden]{display:none!important}.community-panel:focus{outline:none}.community-handle{display:none}.community-header{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) 42px;align-items:center;gap:12px;padding:26px 22px 12px}.community-header__copy{min-width:0}.community-eyebrow{margin-bottom:6px;color:var(--fanview-pink-500);font-size:11px;font-weight:900;letter-spacing:.04em}.community-header h1{overflow:hidden;margin:0;font-size:clamp(20px,1.65vw,23px);font-weight:900;letter-spacing:-.035em;line-height:1.12;text-overflow:ellipsis;white-space:nowrap}.community-header p{display:flex;align-items:center;gap:8px;margin:7px 0 0;color:var(--fanview-muted);font-size:13px;font-weight:650}.presence-dot{width:9px;height:9px;border-radius:999px;background:#42a767}.icon-button{display:grid;width:42px;height:42px;place-items:center;border:1px solid var(--fanview-line);border-radius:999px;color:var(--fanview-navy-950);background:#fff;cursor:pointer}.safety-notice{display:flex;min-height:39px;align-items:center;gap:9px;margin:0 20px;border:1px solid rgba(242,43,120,.18);border-radius:7px;padding:8px 10px;color:#3f3542;background:var(--fanview-blush);font-size:10px;font-weight:650;line-height:1.25}.safety-notice svg{flex:0 0 auto;color:var(--fanview-pink-500)}.community-feed{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:19px 20px 16px;scrollbar-width:thin}.community-feed h2{margin:0 0 19px;color:#7b7e89;font-size:11px;font-weight:750;letter-spacing:.055em}.community-message{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;margin-bottom:16px}.community-avatar{display:grid;width:42px;height:42px;place-items:center;border-radius:999px;color:#292543;font-size:15px;font-weight:650}.community-avatar[data-tone=lavender]{background:#eee8ff}.community-avatar[data-tone=blue]{background:#dfebff}.community-avatar[data-tone=green]{background:#dff3e5}.community-avatar[data-tone=gold]{background:#ffe6a1}.community-message__content{min-width:0}.community-message__header{display:flex;min-width:0;align-items:center;gap:7px;min-height:22px}.community-message__header strong{overflow:hidden;font-size:14px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}.community-message__header span{flex:0 0 auto;border-radius:999px;padding:3px 7px;color:#644cdb;background:#efebff;font-size:10px;font-weight:650}.community-message__header span[data-role=Coach]{color:#2765cf;background:#e3edff}.community-message__header span[data-role=Teammate]{color:#af6d00;background:#fff0c8}.community-message p{margin:2px 0 0;color:#242834;font-size:14px;font-weight:600;line-height:1.36;overflow-wrap:anywhere}.community-message[data-own=true] p{border-radius:12px;padding:8px 10px;color:#fff;background:var(--fanview-navy-950)}.reaction-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.reaction-row button{display:inline-flex;min-width:45px;min-height:27px;align-items:center;justify-content:center;gap:5px;border:1px solid var(--fanview-line);border-radius:999px;padding:3px 8px;color:#5f6370;background:#fff;font-size:11px;cursor:pointer}.community-composer{display:grid;gap:10px;border-top:1px solid var(--fanview-line);padding:12px 16px max(13px,env(safe-area-inset-bottom));background:#fffdfbfa}.quick-cheers{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}.quick-cheers button{display:grid;min-width:44px;height:44px;place-items:center;border:1px solid var(--fanview-line);border-radius:999px;background:#fff;font-size:20px;cursor:pointer}.quick-cheers button:hover:not(:disabled){border-color:#f22b7861;background:#fff7fa}.composer-row{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:10px}.composer-row input{min-width:0;height:46px;border:1px solid rgba(15,23,42,.14);border-radius:999px;padding:0 17px;color:var(--fanview-navy-950);background:#fff;font-size:13px;font-weight:600}.composer-row input::placeholder{color:#9da2ae}.send-button{display:grid;width:46px;height:46px;place-items:center;border:0;border-radius:999px;color:#fff;background:var(--fanview-pink-500);cursor:pointer}.send-button:disabled,.quick-cheers button:disabled{cursor:not-allowed;opacity:.48}.composer-meta{display:flex;min-height:10px;justify-content:flex-end;color:#8f95a2;font-size:10px;font-weight:600}.message-skeletons{display:grid;gap:14px}.message-skeletons span{display:block;width:100%;height:48px;border-radius:12px;background:#f0f1f4}.community-inline-status,.community-failure-copy{display:grid;gap:6px;border:1px solid var(--fanview-line);border-radius:13px;padding:14px;color:var(--fanview-muted);background:#f8f8f9;font-size:12px;line-height:1.4}.community-inline-status strong,.community-failure-copy strong{color:var(--fanview-navy-950);font-size:14px}.community-panel--failed{place-items:center;padding:24px;transform:none}.community-launcher{position:fixed;z-index:12;right:max(20px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));display:inline-flex;min-height:50px;align-items:center;gap:9px;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:0 16px;color:#fff;background:var(--fanview-pink-500);box-shadow:0 14px 34px #1118274d;font-size:13px;font-weight:850;cursor:pointer}.community-launcher span{display:grid;min-width:22px;height:22px;place-items:center;border-radius:999px;padding:0 5px;background:#11182738;font-size:10px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}@media(max-width:720px){.fanview-app,.match-stage{min-height:560px}.match-stage__media{height:42dvh;min-height:240px;object-position:51% center}.match-stage__shade{bottom:auto;height:42dvh;min-height:240px}.live-pill,.viewer-pill{top:max(13px,env(safe-area-inset-top));min-height:29px;border-radius:6px;font-size:11px}.live-pill{left:max(13px,env(safe-area-inset-left));gap:6px;padding:0 10px}.live-pill__dot{width:7px;height:7px}.viewer-pill,.fanview-app[data-community-enabled=true] .viewer-pill{right:max(13px,env(safe-area-inset-right));gap:6px;min-width:58px;padding:0 8px}.viewer-pill svg{width:15px;height:15px}.score-bug{display:none}.community-scrim{display:block;opacity:0;pointer-events:none;background:#02070e6b;transition:opacity .18s ease}.community-scrim[data-open=true]{opacity:1;pointer-events:auto}.community-panel,.community-panel--failed{top:auto;right:0;bottom:0;left:0;width:100%;height:min(72dvh,680px);border-right:0;border-bottom:0;border-left:0;border-radius:24px 24px 0 0;transform:translateY(calc(100% + 24px))}.community-panel[data-open=true],.community-panel--failed{transform:translateY(0)}.community-handle{position:absolute;z-index:2;top:7px;left:50%;display:block;width:72px;height:18px;cursor:grab;transform:translate(-50%);touch-action:none}.community-handle:after{position:absolute;top:0;left:16px;width:40px;height:4px;border-radius:999px;background:#1118272e;content:""}.community-header{gap:7px;padding:26px 14px 10px}.community-header h1{font-size:18px}.safety-notice{margin:0 15px}.community-feed{padding:16px 16px 10px}.community-message{grid-template-columns:34px minmax(0,1fr);gap:10px;margin-bottom:14px}.community-avatar{width:34px;height:34px;font-size:12px}.community-message__header strong{font-size:12px}.community-message p{font-size:12px;line-height:1.32}.reaction-row{gap:6px;margin-top:6px}.reaction-row button{min-width:40px;min-height:24px;font-size:10px}.community-composer{gap:9px;padding:10px 13px max(10px,env(safe-area-inset-bottom))}.quick-cheers{gap:7px}.quick-cheers button{min-width:44px;height:44px;font-size:18px}.composer-row{grid-template-columns:minmax(0,1fr) 44px;gap:8px}.composer-row input,.send-button{height:44px}.send-button{width:44px}}@media(max-width:380px){.quick-cheers button{min-width:40px;width:40px;height:40px}.quick-cheers{grid-template-columns:repeat(6,40px);justify-content:space-between}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important}}@media(forced-colors:active){.live-pill,.viewer-pill,.community-panel,.community-launcher,.send-button{border:1px solid CanvasText}}', Zm = `
+const Gm = ':root{color:#111827;background:#050a13;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;font-synthesis:none;text-rendering:optimizeLegibility;--fanview-navy-950: #111827;--fanview-pink-500: #f22b78;--fanview-pink-700: #ce155f;--fanview-paper: #fffdfb;--fanview-blush: #fff2f7;--fanview-muted: #697386;--fanview-live-red: #e53935;--fanview-live-green: #39d98a;--fanview-line: rgba(15, 23, 42, .1)}*{box-sizing:border-box}html,body,#root{width:100%;min-width:320px;min-height:100%;margin:0}body{min-height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible,[role=button]:focus-visible{outline:3px solid rgba(242,43,120,.35);outline-offset:2px}.fanview-app,.match-stage{position:relative;width:100vw;height:100dvh;min-height:460px;overflow:hidden;background:#050a13}.match-stage__media{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center}.match-stage__shade{position:absolute;top:0;right:0;bottom:0;left:0;background:#02060c2e;pointer-events:none}.match-stage__empty{position:absolute;top:0;right:0;bottom:0;left:0;display:grid;place-items:center;background:#0d131d}.court-outline{position:relative;width:min(760px,82vw);aspect-ratio:2.25 / 1;border:2px solid rgba(255,255,255,.12);transform:perspective(480px) rotateX(58deg)}.court-outline__net{position:absolute;top:50%;right:-4%;left:-4%;border-top:2px solid rgba(255,255,255,.18)}.live-pill,.viewer-pill{position:absolute;z-index:3;top:max(28px,env(safe-area-inset-top));display:inline-flex;min-height:38px;align-items:center;justify-content:center;border-radius:8px;color:#fff;box-shadow:0 8px 22px #00000040;font-size:15px;font-weight:900}.live-pill{left:max(28px,env(safe-area-inset-left));gap:8px;padding:0 14px;background:var(--fanview-live-red)}.live-pill__dot{width:9px;height:9px;border-radius:999px;background:#fff}.viewer-pill{right:max(28px,env(safe-area-inset-right));gap:8px;min-width:74px;border:1px solid rgba(255,255,255,.55);padding:0 12px;background:#03080fb8;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}.fanview-app[data-community-enabled=true] .viewer-pill{right:418px}.score-bug{position:absolute;z-index:3;bottom:36px;left:28px;width:min(276px,calc(100vw - 470px));min-width:246px;overflow:hidden;border-radius:12px;padding:13px;color:#fff;background:#071222f5;box-shadow:0 16px 38px #00000059}.score-bug__set{height:26px;padding-left:2px;font-size:12px;font-weight:900;letter-spacing:.09em}.score-bug__row{display:grid;min-height:47px;grid-template-columns:0 minmax(0,1fr) 52px;margin-top:7px;overflow:hidden;border-radius:4px}.score-bug__color{width:0}.score-bug__team{overflow:hidden;display:flex;align-items:center;padding:0 12px;font-size:18px;font-weight:900;letter-spacing:-.015em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.score-bug__score{display:grid;place-items:center;border:1px solid rgba(255,255,255,.28);border-left:0;background:#101b2b;font-size:23px;font-weight:900}.match-status{position:absolute;z-index:4;top:78px;left:50%;border-radius:999px;padding:8px 12px;color:#fff;background:#111827e6;font-size:12px;font-weight:750;transform:translate(-50%)}.community-scrim{position:fixed;top:0;right:0;bottom:0;left:0;z-index:8;display:none;border:0;background:transparent}.community-panel{position:fixed;z-index:10;top:14px;right:14px;bottom:14px;display:grid;width:min(390px,calc(100vw - 28px));grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden;border:1px solid rgba(255,255,255,.8);border-radius:26px;color:var(--fanview-navy-950);background:var(--fanview-paper);box-shadow:0 28px 70px #00000047;transform:translate(calc(100% + 32px));transition:transform .18s ease}.community-panel[data-open=true]{transform:translate(0)}.community-scrim[hidden],.community-panel[hidden]{display:none!important}.community-panel:focus{outline:none}.community-handle{display:none}.community-header{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) 42px;align-items:center;gap:12px;padding:26px 22px 12px}.community-header__copy{min-width:0}.community-eyebrow{margin-bottom:6px;color:var(--fanview-pink-500);font-size:11px;font-weight:900;letter-spacing:.04em}.community-header h1{display:-webkit-box;overflow:hidden;margin:0;font-size:clamp(20px,1.65vw,23px);font-weight:900;letter-spacing:-.035em;line-height:1.12;white-space:normal;-webkit-box-orient:vertical;-webkit-line-clamp:2}.community-header p{display:flex;align-items:center;gap:8px;margin:7px 0 0;color:var(--fanview-muted);font-size:13px;font-weight:650}.presence-dot{width:9px;height:9px;border-radius:999px;background:#42a767}.icon-button{display:grid;width:42px;height:42px;place-items:center;border:1px solid var(--fanview-line);border-radius:999px;color:var(--fanview-navy-950);background:#fff;cursor:pointer}.safety-notice{display:flex;min-height:39px;align-items:center;gap:9px;margin:0 20px;border:1px solid rgba(242,43,120,.18);border-radius:7px;padding:8px 10px;color:#3f3542;background:var(--fanview-blush);font-size:10px;font-weight:650;line-height:1.25}.safety-notice svg{flex:0 0 auto;color:var(--fanview-pink-500)}.community-feed{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:19px 20px 16px;scrollbar-width:thin}.community-feed h2{margin:0 0 19px;color:#7b7e89;font-size:11px;font-weight:750;letter-spacing:.055em}.community-message{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;margin-bottom:16px}.community-avatar{display:grid;width:42px;height:42px;place-items:center;border-radius:999px;color:#292543;font-size:15px;font-weight:650}.community-avatar[data-tone=lavender]{background:#eee8ff}.community-avatar[data-tone=blue]{background:#dfebff}.community-avatar[data-tone=green]{background:#dff3e5}.community-avatar[data-tone=gold]{background:#ffe6a1}.community-message__content{min-width:0}.community-message__header{display:flex;min-width:0;align-items:center;gap:7px;min-height:22px}.community-message__header strong{overflow:hidden;font-size:14px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}.community-message__header span{flex:0 0 auto;border-radius:999px;padding:3px 7px;color:#644cdb;background:#efebff;font-size:10px;font-weight:650}.community-message__header span[data-role=Coach]{color:#2765cf;background:#e3edff}.community-message__header span[data-role=Teammate]{color:#af6d00;background:#fff0c8}.community-message p{margin:2px 0 0;color:#242834;font-size:14px;font-weight:600;line-height:1.36;overflow-wrap:anywhere}.community-message[data-own=true] p{border-radius:12px;padding:8px 10px;color:#fff;background:var(--fanview-navy-950)}.reaction-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.reaction-row button{display:inline-flex;min-width:45px;min-height:27px;align-items:center;justify-content:center;gap:5px;border:1px solid var(--fanview-line);border-radius:999px;padding:3px 8px;color:#5f6370;background:#fff;font-size:11px;cursor:pointer}.community-composer{display:grid;gap:10px;border-top:1px solid var(--fanview-line);padding:12px 16px max(13px,env(safe-area-inset-bottom));background:#fffdfbfa}.quick-cheers{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}.quick-cheers button{display:grid;min-width:44px;height:44px;place-items:center;border:1px solid var(--fanview-line);border-radius:999px;background:#fff;font-size:20px;cursor:pointer}.quick-cheers button:hover:not(:disabled){border-color:#f22b7861;background:#fff7fa}.composer-row{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:10px}.composer-row input{min-width:0;height:46px;border:1px solid rgba(15,23,42,.14);border-radius:999px;padding:0 17px;color:var(--fanview-navy-950);background:#fff;font-size:13px;font-weight:600}.composer-row input::placeholder{color:#9da2ae}.send-button{display:grid;width:46px;height:46px;place-items:center;border:0;border-radius:999px;color:#fff;background:var(--fanview-pink-500);cursor:pointer}.send-button:disabled,.quick-cheers button:disabled{cursor:not-allowed;opacity:.48}.composer-meta{display:flex;min-height:10px;justify-content:flex-end;color:#8f95a2;font-size:10px;font-weight:600}.message-skeletons{display:grid;gap:14px}.message-skeletons span{display:block;width:100%;height:48px;border-radius:12px;background:#f0f1f4}.community-inline-status,.community-failure-copy{display:grid;gap:6px;border:1px solid var(--fanview-line);border-radius:13px;padding:14px;color:var(--fanview-muted);background:#f8f8f9;font-size:12px;line-height:1.4}.community-inline-status strong,.community-failure-copy strong{color:var(--fanview-navy-950);font-size:14px}.community-panel--failed{place-items:center;padding:24px;transform:none}.community-launcher{position:fixed;z-index:12;right:max(20px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));display:inline-flex;min-height:50px;align-items:center;gap:9px;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:0 16px;color:#fff;background:var(--fanview-pink-500);box-shadow:0 14px 34px #1118274d;font-size:13px;font-weight:850;cursor:pointer}.community-launcher span{display:grid;min-width:22px;height:22px;place-items:center;border-radius:999px;padding:0 5px;background:#11182738;font-size:10px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}@media(max-width:720px){.fanview-app,.match-stage{min-height:560px}.match-stage__media{height:42dvh;min-height:240px;object-position:51% center}.match-stage__shade{bottom:auto;height:42dvh;min-height:240px}.live-pill,.viewer-pill{top:max(13px,env(safe-area-inset-top));min-height:29px;border-radius:6px;font-size:11px}.live-pill{left:max(13px,env(safe-area-inset-left));gap:6px;padding:0 10px}.live-pill__dot{width:7px;height:7px}.viewer-pill,.fanview-app[data-community-enabled=true] .viewer-pill{right:max(13px,env(safe-area-inset-right));gap:6px;min-width:58px;padding:0 8px}.viewer-pill svg{width:15px;height:15px}.score-bug{display:none}.community-scrim{display:block;opacity:0;pointer-events:none;background:#02070e6b;transition:opacity .18s ease}.community-scrim[data-open=true]{opacity:1;pointer-events:auto}.community-panel,.community-panel--failed{top:auto;right:0;bottom:0;left:0;width:100%;height:min(72dvh,680px);border-right:0;border-bottom:0;border-left:0;border-radius:24px 24px 0 0;transform:translateY(calc(100% + 24px))}.community-panel[data-open=true],.community-panel--failed{transform:translateY(0)}.community-handle{position:absolute;z-index:2;top:7px;left:50%;display:block;width:72px;height:18px;cursor:grab;transform:translate(-50%);touch-action:none}.community-handle:after{position:absolute;top:0;left:16px;width:40px;height:4px;border-radius:999px;background:#1118272e;content:""}.community-header{gap:7px;padding:26px 14px 10px}.community-header h1{font-size:18px}.safety-notice{margin:0 15px}.community-feed{padding:16px 16px 10px}.community-message{grid-template-columns:34px minmax(0,1fr);gap:10px;margin-bottom:14px}.community-avatar{width:34px;height:34px;font-size:12px}.community-message__header strong{font-size:12px}.community-message p{font-size:12px;line-height:1.32}.reaction-row{gap:6px;margin-top:6px}.reaction-row button{min-width:40px;min-height:24px;font-size:10px}.community-composer{gap:9px;padding:10px 13px max(10px,env(safe-area-inset-bottom))}.quick-cheers{gap:7px}.quick-cheers button{min-width:44px;height:44px;font-size:18px}.composer-row{grid-template-columns:minmax(0,1fr) 44px;gap:8px}.composer-row input,.send-button{height:44px}.send-button{width:44px}}@media(max-width:380px){.quick-cheers button{min-width:40px;width:40px;height:40px}.quick-cheers{grid-template-columns:repeat(6,40px);justify-content:space-between}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important}}@media(forced-colors:active){.live-pill,.viewer-pill,.community-panel,.community-launcher,.send-button{border:1px solid CanvasText}}', Zm = `
   :host {
     --fanview-navy-950: #111827;
     --fanview-pink-500: #f22b78;
