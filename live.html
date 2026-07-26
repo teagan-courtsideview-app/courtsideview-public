@@ -1697,7 +1697,7 @@
                 clearHighlightStorageBtn.classList.remove('is-hidden');
                 setStatus([{ text: 'Download highlights you want to keep, or remove the oldest local copy below.', strong: true }], 'STORAGE FULL', { persistent: true });
               } else if (update.kind === 'failed') {
-                setStatus([{ text: update.message }], 'HIGHLIGHT', { duration: 2800 });
+                console.warn('[CourtsideView] optional highlight replay unavailable', update.message);
               }
             },
           });
@@ -1708,13 +1708,6 @@
           highlightRuntime = runtime;
         } catch (error) {
           console.warn('[CourtsideView] highlight replay unavailable', error);
-          if (sequence === highlightStartSequence) {
-            setStatus(
-              [{ text: 'Broadcast is ready. This browser cannot save instant highlights.' }],
-              'LIVE VIDEO',
-              { duration: 3200 },
-            );
-          }
         }
       }
       async function stopHighlightReplay() {
