@@ -39,7 +39,7 @@
   transform: rotate(180deg);
 }
 
-.live-media.is-web-fullscreen {
+.match-stage.is-web-fullscreen {
   position: fixed;
   z-index: 1000;
   inset: 0;
@@ -48,8 +48,22 @@
 }
 
 .live-media[data-fullscreen-mode="document"] .media-control,
-.live-media[data-fullscreen-mode="video"] .media-control {
+.live-media[data-fullscreen-mode="presentation"] .media-control {
   opacity: 0;
+  pointer-events: none;
+}
+
+.live-media__presentation-canvas {
+  display: none;
+}
+
+.live-media__presentation-video {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0.001;
   pointer-events: none;
 }
 

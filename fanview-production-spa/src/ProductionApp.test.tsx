@@ -97,16 +97,29 @@ describe("Production FanView lifecycle", () => {
     expect(source).toContain('document.addEventListener("visibilitychange"');
   });
 
-  it("uses native Safari video fullscreen before the browser-safe fallback", () => {
+  it("keeps live scores and corrected orientation in fullscreen", () => {
     const source = fs.readFileSync(
       path.resolve(__dirname, "LiveMedia.tsx"),
       "utf8",
     );
-    expect(source).toContain("video.webkitEnterFullscreen()");
-    expect(source).toContain("video.webkitExitFullscreen()");
-    expect(source.indexOf("video.webkitEnterFullscreen()")).toBeLessThan(
-      source.indexOf('element.classList.add("is-web-fullscreen")'),
+    expect(source).toContain('closest<HTMLElement>(".match-stage")');
+    expect(source).toContain("drawPresentationFrame");
+    expect(source).toContain("matchRef.current");
+    expect(source).toContain("stream.video.webkitEnterFullscreen()");
+    expect(source).toContain('stage.classList.add("is-web-fullscreen")');
+  });
+
+  it("composites rotated video before entering picture-in-picture", () => {
+    const source = fs.readFileSync(
+      path.resolve(__dirname, "LiveMedia.tsx"),
+      "utf8",
     );
+    expect(source).toContain("canvas.captureStream(30)");
+    expect(source).toContain("sourceStream?.getAudioTracks()");
+    expect(source).toContain("stream.addTrack(track.clone())");
+    expect(source).toContain("rotationRef.current");
+    expect(source).toContain("rotation");
+    expect(source).toContain("? startPresentation()?.video");
   });
 
   it("does not hide the Cheering Section after a startup error", () => {

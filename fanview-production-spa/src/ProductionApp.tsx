@@ -151,8 +151,10 @@ export function ProductionApp({
         {hasVideo ? (
           <LiveMedia
             liveWorkerUrl={liveWorkerUrl}
+            match={snapshot.match}
             media={snapshot.media}
             shareId={shareId}
+            viewerCount={snapshot.viewerCount}
           />
         ) : (
           <div className="match-stage__empty" aria-hidden="true">

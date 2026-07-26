@@ -5,6 +5,9 @@ describe("production FanView routing", () => {
   it("preserves the share ID on the canary and final routes", () => {
     expect(productionShareId("/v/match-123")).toBe("match-123");
     expect(productionShareId("/fanview-next/v/match%20123")).toBe("match 123");
+    expect(productionShareId("/assets/fanview-production/v/match-123")).toBe(
+      "match-123",
+    );
   });
 
   it("fails closed for missing and malformed routes", () => {

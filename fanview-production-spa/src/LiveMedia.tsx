@@ -5,12 +5,18 @@ import {
   SpeakerHigh,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FanViewMedia } from "../../fanview-spa/src/adapters/contracts";
+import type {
+  FanViewMatch,
+  FanViewMedia,
+} from "../../fanview-spa/src/adapters/contracts";
+import { scoreBugTextColor } from "../../fanview-spa/src/components/ScoreBug";
 
 interface Props {
   liveWorkerUrl: string;
+  match: FanViewMatch;
   media: FanViewMedia;
   shareId: string;
+  viewerCount: number;
 }
 
 const VIDEO_STALL_CHECK_MS = 2_000;
@@ -29,6 +35,11 @@ type SafariVideoElement = HTMLVideoElement & {
   webkitSupportsPresentationMode?: (
     mode: "inline" | "fullscreen" | "picture-in-picture",
   ) => boolean;
+};
+
+type PresentationStream = {
+  cleanup: () => void;
+  video: SafariVideoElement;
 };
 
 const viewerId = (): string => {
@@ -89,27 +100,15 @@ function useViewerPresence(
   }, [enabled, liveWorkerUrl, shareId]);
 }
 
-async function enterFullscreen(
+async function enterStageFullscreen(
   element: HTMLElement,
-  video: SafariVideoElement,
-): Promise<"document" | "video" | "css"> {
+): Promise<"document" | null> {
   if (element.requestFullscreen) {
     try {
       await element.requestFullscreen();
       return "document";
     } catch {
-      // Mobile Safari can expose this API while rejecting non-video elements.
-    }
-  }
-  if (
-    video.webkitEnterFullscreen &&
-    video.webkitSupportsFullscreen !== false
-  ) {
-    try {
-      video.webkitEnterFullscreen();
-      return "video";
-    } catch {
-      // Continue to the older prefixed element API.
+      // iPhone browsers can expose this API while rejecting non-video elements.
     }
   }
   const request = (
@@ -120,12 +119,10 @@ async function enterFullscreen(
       request.call(element);
       return "document";
     } catch {
-      // Fall through to the CSS fullscreen mode.
+      // The presentation-video or CSS fallback handles this browser.
     }
   }
-  element.classList.add("is-web-fullscreen");
-  document.body.classList.add("fanview-fullscreen");
-  return "css";
+  return null;
 }
 
 const supportsPictureInPicture = (video: SafariVideoElement): boolean =>
@@ -164,22 +161,259 @@ async function togglePictureInPicture(
   return false;
 }
 
+const roundedRect = (
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) => {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + safeRadius, y);
+  context.arcTo(x + width, y, x + width, y + height, safeRadius);
+  context.arcTo(
+    x + width,
+    y + height,
+    x,
+    y + height,
+    safeRadius,
+  );
+  context.arcTo(x, y + height, x, y, safeRadius);
+  context.arcTo(x, y, x + width, y, safeRadius);
+  context.closePath();
+};
+
+const fitCanvasText = (
+  context: CanvasRenderingContext2D,
+  value: string,
+  maxWidth: number,
+): string => {
+  if (context.measureText(value).width <= maxWidth) return value;
+  let fitted = value;
+  while (
+    fitted.length > 1 &&
+    context.measureText(`${fitted}…`).width > maxWidth
+  ) {
+    fitted = fitted.slice(0, -1);
+  }
+  return `${fitted}…`;
+};
+
+const drawPresentationFrame = (
+  canvas: HTMLCanvasElement,
+  source: HTMLVideoElement,
+  rotation: FanViewMedia["rotation"],
+  match: FanViewMatch,
+  viewerCount: number,
+) => {
+  const context = canvas.getContext("2d", { alpha: false });
+  if (!context || source.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+    return;
+  }
+  const width = canvas.width;
+  const height = canvas.height;
+  const rawWidth = source.videoWidth || 1280;
+  const rawHeight = source.videoHeight || 720;
+  const quarterTurn = rotation === -90 || rotation === 90;
+  const visibleWidth = quarterTurn ? rawHeight : rawWidth;
+  const visibleHeight = quarterTurn ? rawWidth : rawHeight;
+  const scale = Math.max(width / visibleWidth, height / visibleHeight);
+
+  context.save();
+  context.fillStyle = "#000000";
+  context.fillRect(0, 0, width, height);
+  context.translate(width / 2, height / 2);
+  context.rotate(((rotation ?? 0) * Math.PI) / 180);
+  context.drawImage(
+    source,
+    (-rawWidth * scale) / 2,
+    (-rawHeight * scale) / 2,
+    rawWidth * scale,
+    rawHeight * scale,
+  );
+  context.restore();
+
+  const portrait = height > width;
+  const uiScale = Math.max(
+    0.82,
+    Math.min(1.08, Math.min(width, height) / 720),
+  );
+  const edge = Math.max(14, Math.round(18 * uiScale));
+  const pillHeight = Math.round(36 * uiScale);
+
+  context.save();
+  context.textBaseline = "middle";
+  context.font = `900 ${Math.round(14 * uiScale)}px system-ui, sans-serif`;
+  roundedRect(context, edge, edge, 72 * uiScale, pillHeight, 8 * uiScale);
+  context.fillStyle = "#e53935";
+  context.fill();
+  context.fillStyle = "#ffffff";
+  context.beginPath();
+  context.arc(
+    edge + 14 * uiScale,
+    edge + pillHeight / 2,
+    4 * uiScale,
+    0,
+    Math.PI * 2,
+  );
+  context.fill();
+  context.fillText("LIVE", edge + 25 * uiScale, edge + pillHeight / 2);
+
+  const viewerWidth = 62 * uiScale;
+  roundedRect(
+    context,
+    width - edge - viewerWidth,
+    edge,
+    viewerWidth,
+    pillHeight,
+    8 * uiScale,
+  );
+  context.fillStyle = "rgba(3, 8, 15, 0.78)";
+  context.fill();
+  context.strokeStyle = "rgba(255, 255, 255, 0.65)";
+  context.lineWidth = Math.max(1, uiScale);
+  context.stroke();
+  context.fillStyle = "#ffffff";
+  context.textAlign = "center";
+  context.fillText(
+    `◉ ${Math.max(0, viewerCount)}`,
+    width - edge - viewerWidth / 2,
+    edge + pillHeight / 2,
+  );
+
+  const cardWidth = Math.min(
+    width - edge * 2,
+    (portrait ? 228 : 284) * uiScale,
+  );
+  const cardPadding = 7 * uiScale;
+  const headerHeight = 20 * uiScale;
+  const rowHeight = (portrait ? 33 : 39) * uiScale;
+  const rowGap = 4 * uiScale;
+  const cardHeight =
+    cardPadding * 2 + headerHeight + rowHeight * 2 + rowGap * 2;
+  const cardX = edge;
+  const cardY = height - edge - cardHeight;
+  roundedRect(
+    context,
+    cardX,
+    cardY,
+    cardWidth,
+    cardHeight,
+    10 * uiScale,
+  );
+  context.fillStyle = "rgba(7, 18, 34, 0.96)";
+  context.fill();
+
+  context.textAlign = "left";
+  context.fillStyle = "#ffffff";
+  context.font = `900 ${Math.round(10 * uiScale)}px system-ui, sans-serif`;
+  context.fillText(
+    `SET ${match.setNumber}`,
+    cardX + cardPadding,
+    cardY + cardPadding + headerHeight / 2,
+  );
+  context.textAlign = "right";
+  context.fillText(
+    `BEST OF ${match.totalSets}`,
+    cardX + cardWidth - cardPadding,
+    cardY + cardPadding + headerHeight / 2,
+  );
+
+  const teams = [
+    { ...match.home, setsWon: match.homeSetsWon },
+    { ...match.away, setsWon: match.awaySetsWon },
+  ];
+  teams.forEach((team, index) => {
+    const rowY =
+      cardY +
+      cardPadding +
+      headerHeight +
+      rowGap +
+      index * (rowHeight + rowGap);
+    const scoreWidth = 42 * uiScale;
+    const setsWidth = 38 * uiScale;
+    const teamWidth =
+      cardWidth - cardPadding * 2 - scoreWidth - setsWidth;
+    const teamColor = /^#[\da-f]{3,6}$/i.test(team.color)
+      ? team.color
+      : "#1556c0";
+
+    context.fillStyle = teamColor;
+    context.fillRect(cardX + cardPadding, rowY, teamWidth, rowHeight);
+    context.fillStyle = scoreBugTextColor(teamColor);
+    context.textAlign = "left";
+    context.font = `900 ${Math.round(12 * uiScale)}px system-ui, sans-serif`;
+    const teamName = fitCanvasText(
+      context,
+      team.name.toUpperCase(),
+      teamWidth - 16 * uiScale,
+    );
+    context.fillText(
+      teamName,
+      cardX + cardPadding + 8 * uiScale,
+      rowY + rowHeight / 2,
+    );
+
+    const setsX = cardX + cardPadding + teamWidth;
+    context.fillStyle = "#162338";
+    context.fillRect(setsX, rowY, setsWidth, rowHeight);
+    context.textAlign = "center";
+    context.fillStyle = "#ffffff";
+    context.font = `800 ${Math.round(6 * uiScale)}px system-ui, sans-serif`;
+    context.fillText(
+      "SETS",
+      setsX + setsWidth / 2,
+      rowY + rowHeight * 0.29,
+    );
+    context.font = `900 ${Math.round(14 * uiScale)}px system-ui, sans-serif`;
+    context.fillText(
+      String(team.setsWon),
+      setsX + setsWidth / 2,
+      rowY + rowHeight * 0.67,
+    );
+
+    const scoreX = setsX + setsWidth;
+    context.fillStyle = "#101b2b";
+    context.fillRect(scoreX, rowY, scoreWidth, rowHeight);
+    context.font = `900 ${Math.round(19 * uiScale)}px system-ui, sans-serif`;
+    context.fillText(
+      String(team.score),
+      scoreX + scoreWidth / 2,
+      rowY + rowHeight / 2,
+    );
+  });
+  context.restore();
+};
+
 function CloudflareVideo({
   liveWorkerUrl,
+  match,
   rotation,
   shareId,
+  viewerCount,
 }: Omit<Props, "media"> & { rotation?: FanViewMedia["rotation"] }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const presentationCanvasRef = useRef<HTMLCanvasElement>(null);
+  const presentationVideoRef = useRef<HTMLVideoElement>(null);
+  const presentationCleanupRef = useRef<(() => void) | null>(null);
+  const matchRef = useRef(match);
+  const rotationRef = useRef(rotation);
+  const viewerCountRef = useRef(viewerCount);
   const [muted, setMuted] = useState(true);
   const [status, setStatus] = useState("Waiting for broadcaster");
   const [fullscreenMode, setFullscreenMode] = useState<
-    "none" | "document" | "video" | "css"
+    "none" | "document" | "presentation" | "css"
   >("none");
   const [pictureInPictureAvailable, setPictureInPictureAvailable] =
     useState(false);
   const [floating, setFloating] = useState(false);
   const fullscreen = fullscreenMode !== "none";
+  matchRef.current = match;
+  rotationRef.current = rotation;
+  viewerCountRef.current = viewerCount;
 
   useViewerPresence(true, liveWorkerUrl, shareId);
 
@@ -308,8 +542,110 @@ function CloudflareVideo({
     };
   }, [resumeVideo]);
 
+  const stopPresentation = useCallback(() => {
+    presentationCleanupRef.current?.();
+    presentationCleanupRef.current = null;
+  }, []);
+
+  const startPresentation = useCallback((): PresentationStream | null => {
+    const source = videoRef.current;
+    const canvas = presentationCanvasRef.current;
+    const presentation =
+      presentationVideoRef.current as SafariVideoElement | null;
+    const stage = frameRef.current?.closest<HTMLElement>(".match-stage");
+    if (!source || !canvas || !presentation || !stage) return null;
+    if (typeof canvas.captureStream !== "function") return null;
+
+    stopPresentation();
+    const bounds = stage.getBoundingClientRect();
+    const stageWidth = Math.max(1, bounds.width || window.innerWidth);
+    const stageHeight = Math.max(1, bounds.height || window.innerHeight);
+    if (stageWidth >= stageHeight) {
+      canvas.width = 1280;
+      canvas.height = Math.max(
+        360,
+        Math.round((1280 * stageHeight) / stageWidth),
+      );
+    } else {
+      canvas.height = 1280;
+      canvas.width = Math.max(
+        360,
+        Math.round((1280 * stageWidth) / stageHeight),
+      );
+    }
+
+    let active = true;
+    let frameRequest: number | null = null;
+    let lastDrawAt = 0;
+    const frameSource = source as HTMLVideoElement & {
+      cancelVideoFrameCallback?: (request: number) => void;
+      requestVideoFrameCallback?: (
+        callback: (now: DOMHighResTimeStamp) => void,
+      ) => number;
+    };
+    const draw = () => {
+      if (!active) return;
+      drawPresentationFrame(
+        canvas,
+        source,
+        rotationRef.current,
+        matchRef.current,
+        viewerCountRef.current,
+      );
+      lastDrawAt = performance.now();
+    };
+    const drawNextVideoFrame = () => {
+      if (!active || !frameSource.requestVideoFrameCallback) return;
+      frameRequest = frameSource.requestVideoFrameCallback(() => {
+        draw();
+        drawNextVideoFrame();
+      });
+    };
+    draw();
+    drawNextVideoFrame();
+    const safetyDraw = window.setInterval(() => {
+      if (performance.now() - lastDrawAt >= 220) draw();
+    }, 250);
+    const stream = canvas.captureStream(30);
+    const sourceStream =
+      source.srcObject instanceof MediaStream ? source.srcObject : null;
+    sourceStream?.getAudioTracks().forEach((track) => {
+      stream.addTrack(track.clone());
+    });
+    const sourceWasMuted = source.muted;
+    presentation.srcObject = stream;
+    presentation.muted = stream.getAudioTracks().length === 0;
+    presentation.volume = 1;
+    source.muted = true;
+    void presentation.play().catch(() => undefined);
+
+    const cleanup = () => {
+      if (!active) return;
+      active = false;
+      window.clearInterval(safetyDraw);
+      if (
+        frameRequest !== null &&
+        frameSource.cancelVideoFrameCallback
+      ) {
+        frameSource.cancelVideoFrameCallback(frameRequest);
+      }
+      stream.getTracks().forEach((track) => track.stop());
+      source.muted = sourceWasMuted;
+      setMuted(sourceWasMuted);
+      if (presentation.srcObject === stream) {
+        presentation.pause();
+        presentation.srcObject = null;
+      }
+    };
+    presentationCleanupRef.current = cleanup;
+    return { cleanup, video: presentation };
+  }, [stopPresentation]);
+
   useEffect(() => {
     const video = videoRef.current as SafariVideoElement | null;
+    const presentation =
+      presentationVideoRef.current as SafariVideoElement | null;
+    const stage = frameRef.current?.closest<HTMLElement>(".match-stage");
     const changed = () => {
       const active =
         document.fullscreenElement ||
@@ -320,29 +656,46 @@ function CloudflareVideo({
         ).webkitFullscreenElement;
       if (
         !active &&
-        !video?.webkitDisplayingFullscreen &&
-        !frameRef.current?.classList.contains("is-web-fullscreen")
+        !presentation?.webkitDisplayingFullscreen &&
+        !stage?.classList.contains("is-web-fullscreen")
       ) {
         setFullscreenMode("none");
       }
     };
-    const beganVideoFullscreen = () => setFullscreenMode("video");
+    const beganVideoFullscreen = () => setFullscreenMode("presentation");
     const endedVideoFullscreen = () => {
       setFullscreenMode("none");
+      stopPresentation();
       void resumeVideo();
     };
     const enteredPictureInPicture = () => setFloating(true);
-    const leftPictureInPicture = () => setFloating(false);
+    const leftPictureInPicture = () => {
+      setFloating(false);
+      stopPresentation();
+      void resumeVideo();
+    };
     const presentationModeChanged = () =>
-      setFloating(video?.webkitPresentationMode === "picture-in-picture");
+      setFloating(
+        video?.webkitPresentationMode === "picture-in-picture" ||
+          presentation?.webkitPresentationMode === "picture-in-picture",
+      );
     const updatePictureInPictureAvailability = () =>
       setPictureInPictureAvailable(
-        Boolean(video && supportsPictureInPicture(video)),
+        Boolean(
+          video &&
+            (rotation
+              ? typeof presentationCanvasRef.current?.captureStream ===
+                  "function" &&
+                Boolean(
+                  presentation && supportsPictureInPicture(presentation),
+                )
+              : supportsPictureInPicture(video)),
+        ),
       );
     const escape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (frameRef.current?.classList.contains("is-web-fullscreen")) {
-        frameRef.current.classList.remove("is-web-fullscreen");
+      if (stage?.classList.contains("is-web-fullscreen")) {
+        stage.classList.remove("is-web-fullscreen");
         document.body.classList.remove("fanview-fullscreen");
         setFullscreenMode("none");
       }
@@ -351,11 +704,29 @@ function CloudflareVideo({
     document.addEventListener("webkitfullscreenchange", changed);
     document.addEventListener("keydown", escape);
     video?.addEventListener("loadedmetadata", updatePictureInPictureAvailability);
-    video?.addEventListener("webkitbeginfullscreen", beganVideoFullscreen);
-    video?.addEventListener("webkitendfullscreen", endedVideoFullscreen);
+    presentation?.addEventListener(
+      "webkitbeginfullscreen",
+      beganVideoFullscreen,
+    );
+    presentation?.addEventListener(
+      "webkitendfullscreen",
+      endedVideoFullscreen,
+    );
     video?.addEventListener("enterpictureinpicture", enteredPictureInPicture);
     video?.addEventListener("leavepictureinpicture", leftPictureInPicture);
     video?.addEventListener(
+      "webkitpresentationmodechanged",
+      presentationModeChanged,
+    );
+    presentation?.addEventListener(
+      "enterpictureinpicture",
+      enteredPictureInPicture,
+    );
+    presentation?.addEventListener(
+      "leavepictureinpicture",
+      leftPictureInPicture,
+    );
+    presentation?.addEventListener(
       "webkitpresentationmodechanged",
       presentationModeChanged,
     );
@@ -368,8 +739,14 @@ function CloudflareVideo({
         "loadedmetadata",
         updatePictureInPictureAvailability,
       );
-      video?.removeEventListener("webkitbeginfullscreen", beganVideoFullscreen);
-      video?.removeEventListener("webkitendfullscreen", endedVideoFullscreen);
+      presentation?.removeEventListener(
+        "webkitbeginfullscreen",
+        beganVideoFullscreen,
+      );
+      presentation?.removeEventListener(
+        "webkitendfullscreen",
+        endedVideoFullscreen,
+      );
       video?.removeEventListener(
         "enterpictureinpicture",
         enteredPictureInPicture,
@@ -382,10 +759,23 @@ function CloudflareVideo({
         "webkitpresentationmodechanged",
         presentationModeChanged,
       );
-      frameRef.current?.classList.remove("is-web-fullscreen");
+      presentation?.removeEventListener(
+        "enterpictureinpicture",
+        enteredPictureInPicture,
+      );
+      presentation?.removeEventListener(
+        "leavepictureinpicture",
+        leftPictureInPicture,
+      );
+      presentation?.removeEventListener(
+        "webkitpresentationmodechanged",
+        presentationModeChanged,
+      );
+      stage?.classList.remove("is-web-fullscreen");
       document.body.classList.remove("fanview-fullscreen");
+      stopPresentation();
     };
-  }, [resumeVideo]);
+  }, [resumeVideo, stopPresentation]);
 
   const unmute = async () => {
     if (!videoRef.current) return;
@@ -401,17 +791,19 @@ function CloudflareVideo({
 
   const toggleFullscreen = async () => {
     const frame = frameRef.current;
-    const video = videoRef.current as SafariVideoElement | null;
-    if (!frame || !video) return;
+    const stage = frame?.closest<HTMLElement>(".match-stage");
+    const presentation =
+      presentationVideoRef.current as SafariVideoElement | null;
+    if (!frame || !stage || !presentation) return;
     if (fullscreen) {
-      if (frame.classList.contains("is-web-fullscreen")) {
-        frame.classList.remove("is-web-fullscreen");
+      if (stage.classList.contains("is-web-fullscreen")) {
+        stage.classList.remove("is-web-fullscreen");
         document.body.classList.remove("fanview-fullscreen");
       } else if (
-        video.webkitDisplayingFullscreen &&
-        video.webkitExitFullscreen
+        presentation.webkitDisplayingFullscreen &&
+        presentation.webkitExitFullscreen
       ) {
-        video.webkitExitFullscreen();
+        presentation.webkitExitFullscreen();
       } else if (document.fullscreenElement && document.exitFullscreen) {
         await document.exitFullscreen().catch(() => undefined);
       } else {
@@ -421,19 +813,63 @@ function CloudflareVideo({
         webkitExit?.call(document);
       }
       setFullscreenMode("none");
+      stopPresentation();
       void resumeVideo();
       return;
     }
-    setFullscreenMode(await enterFullscreen(frame, video));
+    const stageMode = await enterStageFullscreen(stage);
+    if (stageMode) {
+      setFullscreenMode(stageMode);
+      return;
+    }
+    const stream = startPresentation();
+    if (
+      stream &&
+      stream.video.webkitEnterFullscreen &&
+      stream.video.webkitSupportsFullscreen !== false
+    ) {
+      try {
+        stream.video.webkitEnterFullscreen();
+        setFullscreenMode("presentation");
+        return;
+      } catch {
+        stream.cleanup();
+      }
+    }
+    stage.classList.add("is-web-fullscreen");
+    document.body.classList.add("fanview-fullscreen");
+    setFullscreenMode("css");
   };
 
   const toggleFloatingVideo = async () => {
-    const video = videoRef.current as SafariVideoElement | null;
-    if (!video) return;
+    const source = videoRef.current as SafariVideoElement | null;
+    if (!source) return;
     try {
-      setFloating(await togglePictureInPicture(video));
+      if (floating) {
+        const active =
+          document.pictureInPictureElement === presentationVideoRef.current ||
+          (
+            presentationVideoRef.current as SafariVideoElement | null
+          )?.webkitPresentationMode === "picture-in-picture";
+        const target = active
+          ? (presentationVideoRef.current as SafariVideoElement)
+          : source;
+        setFloating(await togglePictureInPicture(target));
+        stopPresentation();
+        return;
+      }
+      const target = rotation ? startPresentation()?.video : source;
+      if (!target) return;
+      if (target === source && source.srcObject instanceof MediaStream) {
+        source.muted = source.srcObject.getAudioTracks().length === 0;
+        source.volume = 1;
+        setMuted(source.muted);
+        void source.play().catch(() => undefined);
+      }
+      setFloating(await togglePictureInPicture(target));
     } catch {
       setFloating(false);
+      stopPresentation();
     }
   };
 
@@ -450,6 +886,18 @@ function CloudflareVideo({
         muted={muted}
         playsInline
         ref={videoRef}
+      />
+      <canvas
+        aria-hidden="true"
+        className="live-media__presentation-canvas"
+        ref={presentationCanvasRef}
+      />
+      <video
+        aria-hidden="true"
+        className="live-media__presentation-video"
+        muted
+        playsInline
+        ref={presentationVideoRef}
       />
       {status ? <div className="live-media__status">{status}</div> : null}
       {muted ? (
@@ -489,14 +937,22 @@ function CloudflareVideo({
   );
 }
 
-export function LiveMedia({ liveWorkerUrl, media, shareId }: Props) {
+export function LiveMedia({
+  liveWorkerUrl,
+  match,
+  media,
+  shareId,
+  viewerCount,
+}: Props) {
   const id = useMemo(() => youtubeId(media.url), [media.url]);
   if (media.kind === "cloudflare-realtime") {
     return (
       <CloudflareVideo
         liveWorkerUrl={liveWorkerUrl}
+        match={match}
         rotation={media.rotation}
         shareId={shareId}
+        viewerCount={viewerCount}
       />
     );
   }
