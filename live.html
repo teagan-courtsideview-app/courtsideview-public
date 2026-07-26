@@ -546,6 +546,19 @@
       }
       const initialRecordEnabled = getInitialRecordEnabled();
       const broadcastToken = getBroadcastToken();
+      window.addEventListener('hashchange', () => {
+        const fragment = window.location.hash.startsWith('#')
+          ? window.location.hash.slice(1)
+          : '';
+        const fragmentParams = new URLSearchParams(fragment);
+        const nextToken = (fragmentParams.get('b') || fragmentParams.get('bt') || '').trim();
+        if (nextToken) {
+          // Mobile browsers may reuse an existing Broadcast tab when the app
+          // opens a replacement camera pass. Reload so the new fragment is
+          // validated instead of leaving the revoked pass in memory.
+          window.location.reload();
+        }
+      });
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
           autoRefreshToken: false,
