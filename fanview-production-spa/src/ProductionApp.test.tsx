@@ -59,6 +59,20 @@ describe("Production FanView lifecycle", () => {
     expect(scoreBugTextColor("#111827")).toBe("#FFFFFF");
   });
 
+  it("keeps the live set tally and match format visible in the score bug", () => {
+    const source = fs.readFileSync(
+      path.resolve(
+        __dirname,
+        "../../fanview-spa/src/components/ScoreBug.tsx",
+      ),
+      "utf8",
+    );
+    expect(source).toContain("match.homeSetsWon");
+    expect(source).toContain("match.awaySetsWon");
+    expect(source).toContain("BEST OF {match.totalSets}");
+    expect(source).toContain("sets won");
+  });
+
   it("does not place a dark shade over live video", () => {
     const source = fs.readFileSync(
       path.resolve(__dirname, "ProductionApp.tsx"),
@@ -76,6 +90,23 @@ describe("Production FanView lifecycle", () => {
     );
     expect(source).toContain("playsInline");
     expect(source).not.toContain("disablePictureInPicture");
+    expect(source).toContain("requestPictureInPicture");
+    expect(source).toContain("webkitSetPresentationMode");
+    expect(source).toContain('aria-label={floating ? "Return floating video" : "Float live video"}');
+    expect(source).toContain('window.addEventListener("pageshow"');
+    expect(source).toContain('document.addEventListener("visibilitychange"');
+  });
+
+  it("uses native Safari video fullscreen before the browser-safe fallback", () => {
+    const source = fs.readFileSync(
+      path.resolve(__dirname, "LiveMedia.tsx"),
+      "utf8",
+    );
+    expect(source).toContain("video.webkitEnterFullscreen()");
+    expect(source).toContain("video.webkitExitFullscreen()");
+    expect(source.indexOf("video.webkitEnterFullscreen()")).toBeLessThan(
+      source.indexOf('element.classList.add("is-web-fullscreen")'),
+    );
   });
 
   it("does not hide the Cheering Section after a startup error", () => {

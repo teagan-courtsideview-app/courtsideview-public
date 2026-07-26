@@ -151,8 +151,8 @@ input:focus-visible,
   z-index: 3;
   bottom: 36px;
   left: 28px;
-  width: min(276px, calc(100vw - 470px));
-  min-width: 246px;
+  width: min(316px, calc(100vw - 470px));
+  min-width: 286px;
   overflow: hidden;
   border-radius: 12px;
   padding: 13px;
@@ -162,7 +162,10 @@ input:focus-visible,
 }
 
 .score-bug__set {
+  display: flex;
   height: 26px;
+  align-items: center;
+  justify-content: space-between;
   padding-left: 2px;
   font-size: 12px;
   font-weight: 900;
@@ -172,7 +175,7 @@ input:focus-visible,
 .score-bug__row {
   display: grid;
   min-height: 47px;
-  grid-template-columns: 0 minmax(0, 1fr) 52px;
+  grid-template-columns: 0 minmax(0, 1fr) 46px 52px;
   margin-top: 7px;
   overflow: hidden;
   border-radius: 4px;
@@ -193,6 +196,29 @@ input:focus-visible,
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.score-bug__sets {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 0;
+  color: #fff;
+  background: #162338;
+  line-height: 1;
+}
+
+.score-bug__sets small {
+  align-self: end;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+}
+
+.score-bug__sets strong {
+  align-self: start;
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .score-bug__score {

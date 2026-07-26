@@ -1,5 +1,10 @@
-import { ArrowsIn, ArrowsOut, SpeakerHigh } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowsIn,
+  ArrowsOut,
+  PictureInPicture,
+  SpeakerHigh,
+} from "@phosphor-icons/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FanViewMedia } from "../../fanview-spa/src/adapters/contracts";
 
 interface Props {
@@ -11,6 +16,20 @@ interface Props {
 const VIDEO_STALL_CHECK_MS = 2_000;
 const VIDEO_STALL_RECONNECT_MS = 6_000;
 const VIDEO_RECONNECT_DELAY_MS = 1_500;
+
+type SafariVideoElement = HTMLVideoElement & {
+  webkitDisplayingFullscreen?: boolean;
+  webkitEnterFullscreen?: () => void;
+  webkitExitFullscreen?: () => void;
+  webkitPresentationMode?: "inline" | "fullscreen" | "picture-in-picture";
+  webkitSetPresentationMode?: (
+    mode: "inline" | "fullscreen" | "picture-in-picture",
+  ) => void;
+  webkitSupportsFullscreen?: boolean;
+  webkitSupportsPresentationMode?: (
+    mode: "inline" | "fullscreen" | "picture-in-picture",
+  ) => boolean;
+};
 
 const viewerId = (): string => {
   const key = "courtsideview_fanview_viewer_id";
@@ -70,24 +89,78 @@ function useViewerPresence(
   }, [enabled, liveWorkerUrl, shareId]);
 }
 
-async function enterFullscreen(element: HTMLElement): Promise<boolean> {
-  try {
-    if (element.requestFullscreen) {
+async function enterFullscreen(
+  element: HTMLElement,
+  video: SafariVideoElement,
+): Promise<"document" | "video" | "css"> {
+  if (element.requestFullscreen) {
+    try {
       await element.requestFullscreen();
-      return true;
+      return "document";
+    } catch {
+      // Mobile Safari can expose this API while rejecting non-video elements.
     }
-    const request = (
-      element as HTMLElement & { webkitRequestFullscreen?: () => void }
-    ).webkitRequestFullscreen;
-    if (request) {
+  }
+  if (
+    video.webkitEnterFullscreen &&
+    video.webkitSupportsFullscreen !== false
+  ) {
+    try {
+      video.webkitEnterFullscreen();
+      return "video";
+    } catch {
+      // Continue to the older prefixed element API.
+    }
+  }
+  const request = (
+    element as HTMLElement & { webkitRequestFullscreen?: () => void }
+  ).webkitRequestFullscreen;
+  if (request) {
+    try {
       request.call(element);
-      return true;
+      return "document";
+    } catch {
+      // Fall through to the CSS fullscreen mode.
     }
-  } catch {
-    // Fall through to the CSS fullscreen mode.
   }
   element.classList.add("is-web-fullscreen");
   document.body.classList.add("fanview-fullscreen");
+  return "css";
+}
+
+const supportsPictureInPicture = (video: SafariVideoElement): boolean =>
+  Boolean(
+    (document.pictureInPictureEnabled &&
+      typeof video.requestPictureInPicture === "function") ||
+      (video.webkitSupportsPresentationMode?.("picture-in-picture") &&
+        video.webkitSetPresentationMode),
+  );
+
+async function togglePictureInPicture(
+  video: SafariVideoElement,
+): Promise<boolean> {
+  if (document.pictureInPictureElement === video) {
+    await document.exitPictureInPicture();
+    return false;
+  }
+  if (video.webkitPresentationMode === "picture-in-picture") {
+    video.webkitSetPresentationMode?.("inline");
+    return false;
+  }
+  if (
+    document.pictureInPictureEnabled &&
+    typeof video.requestPictureInPicture === "function"
+  ) {
+    await video.requestPictureInPicture();
+    return true;
+  }
+  if (
+    video.webkitSupportsPresentationMode?.("picture-in-picture") &&
+    video.webkitSetPresentationMode
+  ) {
+    video.webkitSetPresentationMode("picture-in-picture");
+    return true;
+  }
   return false;
 }
 
@@ -100,9 +173,27 @@ function CloudflareVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [status, setStatus] = useState("Waiting for broadcaster");
-  const [fullscreen, setFullscreen] = useState(false);
+  const [fullscreenMode, setFullscreenMode] = useState<
+    "none" | "document" | "video" | "css"
+  >("none");
+  const [pictureInPictureAvailable, setPictureInPictureAvailable] =
+    useState(false);
+  const [floating, setFloating] = useState(false);
+  const fullscreen = fullscreenMode !== "none";
 
   useViewerPresence(true, liveWorkerUrl, shareId);
+
+  const resumeVideo = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video || !video.srcObject) return;
+    try {
+      await video.play();
+    } catch {
+      video.muted = true;
+      setMuted(true);
+      await video.play().catch(() => undefined);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -141,6 +232,7 @@ function CloudflareVideo({
         stream.addTrack(track);
         setStatus("");
         lastProgressAt = Date.now();
+        void resumeVideo();
         track.addEventListener("ended", reconnect, { once: true });
       });
       candidate.addEventListener("connectionstatechange", () => {
@@ -174,6 +266,7 @@ function CloudflareVideo({
         });
         if (!negotiated.ok) throw new Error("viewer negotiation failed");
         setStatus("Live now");
+        void resumeVideo();
         watchdog = window.setInterval(() => {
           const video = videoRef.current;
           if (!active || !video || peer !== candidate) return;
@@ -200,9 +293,23 @@ function CloudflareVideo({
       peer?.close();
       if (videoRef.current) videoRef.current.srcObject = null;
     };
-  }, [liveWorkerUrl, shareId]);
+  }, [liveWorkerUrl, resumeVideo, shareId]);
 
   useEffect(() => {
+    const resumeWhenVisible = () => {
+      if (document.visibilityState === "hidden") return;
+      void resumeVideo();
+    };
+    window.addEventListener("pageshow", resumeWhenVisible);
+    document.addEventListener("visibilitychange", resumeWhenVisible);
+    return () => {
+      window.removeEventListener("pageshow", resumeWhenVisible);
+      document.removeEventListener("visibilitychange", resumeWhenVisible);
+    };
+  }, [resumeVideo]);
+
+  useEffect(() => {
+    const video = videoRef.current as SafariVideoElement | null;
     const changed = () => {
       const active =
         document.fullscreenElement ||
@@ -211,29 +318,74 @@ function CloudflareVideo({
             webkitFullscreenElement?: Element | null;
           }
         ).webkitFullscreenElement;
-      if (!active && !frameRef.current?.classList.contains("is-web-fullscreen")) {
-        setFullscreen(false);
+      if (
+        !active &&
+        !video?.webkitDisplayingFullscreen &&
+        !frameRef.current?.classList.contains("is-web-fullscreen")
+      ) {
+        setFullscreenMode("none");
       }
     };
+    const beganVideoFullscreen = () => setFullscreenMode("video");
+    const endedVideoFullscreen = () => {
+      setFullscreenMode("none");
+      void resumeVideo();
+    };
+    const enteredPictureInPicture = () => setFloating(true);
+    const leftPictureInPicture = () => setFloating(false);
+    const presentationModeChanged = () =>
+      setFloating(video?.webkitPresentationMode === "picture-in-picture");
+    const updatePictureInPictureAvailability = () =>
+      setPictureInPictureAvailable(
+        Boolean(video && supportsPictureInPicture(video)),
+      );
     const escape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       if (frameRef.current?.classList.contains("is-web-fullscreen")) {
         frameRef.current.classList.remove("is-web-fullscreen");
         document.body.classList.remove("fanview-fullscreen");
-        setFullscreen(false);
+        setFullscreenMode("none");
       }
     };
     document.addEventListener("fullscreenchange", changed);
     document.addEventListener("webkitfullscreenchange", changed);
     document.addEventListener("keydown", escape);
+    video?.addEventListener("loadedmetadata", updatePictureInPictureAvailability);
+    video?.addEventListener("webkitbeginfullscreen", beganVideoFullscreen);
+    video?.addEventListener("webkitendfullscreen", endedVideoFullscreen);
+    video?.addEventListener("enterpictureinpicture", enteredPictureInPicture);
+    video?.addEventListener("leavepictureinpicture", leftPictureInPicture);
+    video?.addEventListener(
+      "webkitpresentationmodechanged",
+      presentationModeChanged,
+    );
+    updatePictureInPictureAvailability();
     return () => {
       document.removeEventListener("fullscreenchange", changed);
       document.removeEventListener("webkitfullscreenchange", changed);
       document.removeEventListener("keydown", escape);
+      video?.removeEventListener(
+        "loadedmetadata",
+        updatePictureInPictureAvailability,
+      );
+      video?.removeEventListener("webkitbeginfullscreen", beganVideoFullscreen);
+      video?.removeEventListener("webkitendfullscreen", endedVideoFullscreen);
+      video?.removeEventListener(
+        "enterpictureinpicture",
+        enteredPictureInPicture,
+      );
+      video?.removeEventListener(
+        "leavepictureinpicture",
+        leftPictureInPicture,
+      );
+      video?.removeEventListener(
+        "webkitpresentationmodechanged",
+        presentationModeChanged,
+      );
       frameRef.current?.classList.remove("is-web-fullscreen");
       document.body.classList.remove("fanview-fullscreen");
     };
-  }, []);
+  }, [resumeVideo]);
 
   const unmute = async () => {
     if (!videoRef.current) return;
@@ -249,11 +401,17 @@ function CloudflareVideo({
 
   const toggleFullscreen = async () => {
     const frame = frameRef.current;
-    if (!frame) return;
+    const video = videoRef.current as SafariVideoElement | null;
+    if (!frame || !video) return;
     if (fullscreen) {
       if (frame.classList.contains("is-web-fullscreen")) {
         frame.classList.remove("is-web-fullscreen");
         document.body.classList.remove("fanview-fullscreen");
+      } else if (
+        video.webkitDisplayingFullscreen &&
+        video.webkitExitFullscreen
+      ) {
+        video.webkitExitFullscreen();
       } else if (document.fullscreenElement && document.exitFullscreen) {
         await document.exitFullscreen().catch(() => undefined);
       } else {
@@ -262,15 +420,29 @@ function CloudflareVideo({
         ).webkitExitFullscreen;
         webkitExit?.call(document);
       }
-      setFullscreen(false);
+      setFullscreenMode("none");
+      void resumeVideo();
       return;
     }
-    await enterFullscreen(frame);
-    setFullscreen(true);
+    setFullscreenMode(await enterFullscreen(frame, video));
+  };
+
+  const toggleFloatingVideo = async () => {
+    const video = videoRef.current as SafariVideoElement | null;
+    if (!video) return;
+    try {
+      setFloating(await togglePictureInPicture(video));
+    } catch {
+      setFloating(false);
+    }
   };
 
   return (
-    <div className="live-media" ref={frameRef}>
+    <div
+      className="live-media"
+      data-fullscreen-mode={fullscreenMode}
+      ref={frameRef}
+    >
       <video
         autoPlay
         className="live-media__video"
@@ -288,7 +460,17 @@ function CloudflareVideo({
           type="button"
         >
           <SpeakerHigh aria-hidden="true" size={18} weight="bold" />
-          Sound
+          <span className="media-control__sound-label">Sound</span>
+        </button>
+      ) : null}
+      {pictureInPictureAvailable ? (
+        <button
+          aria-label={floating ? "Return floating video" : "Float live video"}
+          className="media-control media-control--pip"
+          onClick={() => void toggleFloatingVideo()}
+          type="button"
+        >
+          <PictureInPicture aria-hidden="true" size={18} weight="bold" />
         </button>
       ) : null}
       <button

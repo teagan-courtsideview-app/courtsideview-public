@@ -27,10 +27,17 @@ export const scoreBugTextColor = (background: string): "#FFFFFF" | "#101827" => 
 };
 
 export function ScoreBug({ match }: { match: FanViewMatch }) {
+  const teams = [
+    { ...match.home, setsWon: match.homeSetsWon },
+    { ...match.away, setsWon: match.awaySetsWon },
+  ];
   return (
     <section className="score-bug" aria-label="Live match score">
-      <div className="score-bug__set">SET {match.setNumber}</div>
-      {[match.home, match.away].map((team) => (
+      <div className="score-bug__set">
+        <span>SET {match.setNumber}</span>
+        <span>BEST OF {match.totalSets}</span>
+      </div>
+      {teams.map((team) => (
         <div className="score-bug__row" key={team.name}>
           <span
             aria-hidden="true"
@@ -45,6 +52,13 @@ export function ScoreBug({ match }: { match: FanViewMatch }) {
             }}
           >
             {team.name}
+          </span>
+          <span
+            aria-label={`${team.setsWon} sets won`}
+            className="score-bug__sets"
+          >
+            <small>SETS</small>
+            <strong>{team.setsWon}</strong>
           </span>
           <strong className="score-bug__score">{team.score}</strong>
         </div>
