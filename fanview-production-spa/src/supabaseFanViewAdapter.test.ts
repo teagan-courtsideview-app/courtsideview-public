@@ -77,6 +77,24 @@ describe("FanView production row normalization", () => {
     expect(snapshot.viewerCount).toBe(24);
   });
 
+  it("carries an explicit live-camera rotation recovery into the viewer", () => {
+    const snapshot = fanViewSnapshotFromRow(
+      row({
+        state: {
+          currentSet: 1,
+          homeScore: 13,
+          awayScore: 12,
+          videoType: "fanview-live-landscape-left",
+        },
+      }),
+      { isLive: true },
+    );
+    expect(snapshot.media).toMatchObject({
+      kind: "cloudflare-realtime",
+      rotation: -90,
+    });
+  });
+
   it("uses immutable ended_at for the exact 15-minute deadline", () => {
     const snapshot = fanViewSnapshotFromRow(
       row({

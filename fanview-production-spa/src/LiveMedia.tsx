@@ -93,8 +93,9 @@ async function enterFullscreen(element: HTMLElement): Promise<boolean> {
 
 function CloudflareVideo({
   liveWorkerUrl,
+  rotation,
   shareId,
-}: Omit<Props, "media">) {
+}: Omit<Props, "media"> & { rotation?: FanViewMedia["rotation"] }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
@@ -273,6 +274,7 @@ function CloudflareVideo({
       <video
         autoPlay
         className="live-media__video"
+        data-rotation={rotation}
         disablePictureInPicture
         muted={muted}
         playsInline
@@ -309,7 +311,13 @@ function CloudflareVideo({
 export function LiveMedia({ liveWorkerUrl, media, shareId }: Props) {
   const id = useMemo(() => youtubeId(media.url), [media.url]);
   if (media.kind === "cloudflare-realtime") {
-    return <CloudflareVideo liveWorkerUrl={liveWorkerUrl} shareId={shareId} />;
+    return (
+      <CloudflareVideo
+        liveWorkerUrl={liveWorkerUrl}
+        rotation={media.rotation}
+        shareId={shareId}
+      />
+    );
   }
   if (media.kind === "youtube" && id) {
     return (

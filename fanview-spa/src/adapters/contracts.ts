@@ -33,6 +33,7 @@ export interface FanViewMedia {
   posterUrl?: string;
   streamId?: string;
   url?: string;
+  rotation?: -90 | 90 | 180;
   alt: string;
 }
 

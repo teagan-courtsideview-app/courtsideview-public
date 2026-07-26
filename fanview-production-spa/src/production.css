@@ -18,6 +18,27 @@
   object-fit: cover;
 }
 
+.live-media__video[data-rotation="-90"],
+.live-media__video[data-rotation="90"] {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: 100dvh;
+  height: 100dvw;
+}
+
+.live-media__video[data-rotation="-90"] {
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.live-media__video[data-rotation="90"] {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.live-media__video[data-rotation="180"] {
+  transform: rotate(180deg);
+}
+
 .live-media.is-web-fullscreen {
   position: fixed;
   z-index: 1000;

@@ -161,7 +161,7 @@ export function ProductionApp({
             </div>
           </div>
         )}
-        <div className="match-stage__shade" aria-hidden="true" />
+        {!hasVideo ? <div className="match-stage__shade" aria-hidden="true" /> : null}
         <div className="live-pill" aria-label={snapshot.match.isLive ? "Live" : "Final"}>
           <span className="live-pill__dot" aria-hidden="true" />
           {snapshot.match.isLive ? "LIVE" : "FINAL"}

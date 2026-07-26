@@ -115,6 +115,15 @@ const mediaFromRow = (
   row: PublicFanViewMatchRow,
   status: LiveStatus | null,
 ): FanViewMedia => {
+  const videoType = stringValue(asRecord(row.state).videoType).toLowerCase();
+  const rotation: FanViewMedia["rotation"] =
+    videoType === "fanview-live-landscape-left"
+      ? -90
+      : videoType === "fanview-live-landscape-right"
+        ? 90
+        : videoType === "fanview-live-portrait-down"
+          ? 180
+          : undefined;
   if (
     (row.video_type === "cloudflare_realtime" &&
       row.video_url &&
@@ -124,6 +133,7 @@ const mediaFromRow = (
     return {
       kind: "cloudflare-realtime",
       streamId: row.share_id,
+      rotation,
       alt: "Live volleyball broadcast.",
     };
   }

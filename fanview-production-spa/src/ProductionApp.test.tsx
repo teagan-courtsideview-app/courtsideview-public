@@ -8,6 +8,7 @@ import type {
   FanViewSnapshot,
 } from "../../fanview-spa/src/adapters/contracts";
 import { FanViewUnavailableError } from "../../fanview-spa/src/adapters/contracts";
+import { scoreBugTextColor } from "../../fanview-spa/src/components/ScoreBug";
 import { ProductionApp } from "./ProductionApp";
 
 const snapshot = (updatedAt: string, homeScore: number): FanViewSnapshot => ({
@@ -52,6 +53,22 @@ const renderApp = (adapter: FanViewAdapter) =>
   );
 
 describe("Production FanView lifecycle", () => {
+  it("uses readable scoreboard text for white and bright team colors", () => {
+    expect(scoreBugTextColor("#FFFFFF")).toBe("#101827");
+    expect(scoreBugTextColor("#10B981")).toBe("#101827");
+    expect(scoreBugTextColor("#111827")).toBe("#FFFFFF");
+  });
+
+  it("does not place a dark shade over live video", () => {
+    const source = fs.readFileSync(
+      path.resolve(__dirname, "ProductionApp.tsx"),
+      "utf8",
+    );
+    expect(source).toContain(
+      "!hasVideo ? <div className=\"match-stage__shade\"",
+    );
+  });
+
   it("does not hide the Cheering Section after a startup error", () => {
     const source = fs.readFileSync(
       path.resolve(
