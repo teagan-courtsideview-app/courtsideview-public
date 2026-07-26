@@ -235,6 +235,7 @@ export function createSupabaseFanViewAdapter({
   statusIntervalMs = 30_000,
 }: AdapterOptions): FanViewAdapter {
   const rows = new Map<string, PublicFanViewMatchRow>();
+  const statuses = new Map<string, LiveStatus>();
 
   const bestEffortAnonymousSession = async () => {
     try {
@@ -268,6 +269,10 @@ export function createSupabaseFanViewAdapter({
       );
     }
     const row = result.data as PublicFanViewMatchRow;
+    const current = rows.get(shareId);
+    const currentRevision = Date.parse(current?.updated_at || "") || 0;
+    const nextRevision = Date.parse(row.updated_at || "") || 0;
+    if (current && nextRevision < currentRevision) return current;
     rows.set(shareId, row);
     return row;
   };
@@ -278,7 +283,10 @@ export function createSupabaseFanViewAdapter({
         `${liveWorkerUrl}/status/${encodeURIComponent(shareId)}`,
         { cache: "no-store" },
       );
-      return response.ok ? ((await response.json()) as LiveStatus) : null;
+      if (!response.ok) return null;
+      const status = (await response.json()) as LiveStatus;
+      statuses.set(shareId, status);
+      return status;
     } catch {
       return null;
     }
@@ -287,7 +295,13 @@ export function createSupabaseFanViewAdapter({
   const makeSnapshot = async (
     shareId: string,
     row: PublicFanViewMatchRow,
-  ) => fanViewSnapshotFromRow(row, await fetchStatus(shareId));
+  ) => {
+    const freshStatus = await fetchStatus(shareId);
+    return fanViewSnapshotFromRow(
+      row,
+      freshStatus ?? statuses.get(shareId) ?? null,
+    );
+  };
 
   return {
     async loadSnapshot(shareId, signal) {
@@ -350,7 +364,10 @@ export function createSupabaseFanViewAdapter({
             const current = rows.get(shareId);
             if (current) {
               onSnapshot({
-                ...fanViewSnapshotFromRow(current),
+                ...fanViewSnapshotFromRow(
+                  current,
+                  statuses.get(shareId) ?? null,
+                ),
                 connection: "reconnecting",
               });
             }

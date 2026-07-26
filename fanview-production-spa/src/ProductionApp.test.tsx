@@ -59,6 +59,18 @@ describe("Production FanView lifecycle", () => {
     expect(await screen.findByText("FanView unavailable")).toBeVisible();
   });
 
+  it("offers the classic viewer for a temporary initial failure", async () => {
+    renderApp({
+      async loadSnapshot() {
+        throw new Error("network unavailable");
+      },
+    });
+    expect(await screen.findByText("FanView is reconnecting")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Use classic FanView" }),
+    ).toHaveAttribute("href", "/fanview/legacy/match-123");
+  });
+
   it("does not let a slow initial request overwrite newer Realtime state", async () => {
     let resolveInitial!: (value: FanViewSnapshot) => void;
     const initial = new Promise<FanViewSnapshot>((resolve) => {

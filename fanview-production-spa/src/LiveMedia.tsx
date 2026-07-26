@@ -1,4 +1,4 @@
-import { ArrowsOut, SpeakerHigh } from "@phosphor-icons/react";
+import { ArrowsIn, ArrowsOut, SpeakerHigh } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FanViewMedia } from "../../fanview-spa/src/adapters/contracts";
 
@@ -66,24 +66,25 @@ function useViewerPresence(
   }, [enabled, liveWorkerUrl, shareId]);
 }
 
-async function enterFullscreen(element: HTMLElement) {
+async function enterFullscreen(element: HTMLElement): Promise<boolean> {
   try {
     if (element.requestFullscreen) {
       await element.requestFullscreen();
-      return;
+      return true;
     }
     const request = (
       element as HTMLElement & { webkitRequestFullscreen?: () => void }
     ).webkitRequestFullscreen;
     if (request) {
       request.call(element);
-      return;
+      return true;
     }
   } catch {
     // Fall through to the CSS fullscreen mode.
   }
   element.classList.add("is-web-fullscreen");
   document.body.classList.add("fanview-fullscreen");
+  return false;
 }
 
 function CloudflareVideo({
@@ -94,6 +95,7 @@ function CloudflareVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [status, setStatus] = useState("Waiting for broadcaster");
+  const [fullscreen, setFullscreen] = useState(false);
 
   useViewerPresence(true, liveWorkerUrl, shareId);
 
@@ -170,6 +172,39 @@ function CloudflareVideo({
     };
   }, [liveWorkerUrl, shareId]);
 
+  useEffect(() => {
+    const changed = () => {
+      const active =
+        document.fullscreenElement ||
+        (
+          document as Document & {
+            webkitFullscreenElement?: Element | null;
+          }
+        ).webkitFullscreenElement;
+      if (!active && !frameRef.current?.classList.contains("is-web-fullscreen")) {
+        setFullscreen(false);
+      }
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (frameRef.current?.classList.contains("is-web-fullscreen")) {
+        frameRef.current.classList.remove("is-web-fullscreen");
+        document.body.classList.remove("fanview-fullscreen");
+        setFullscreen(false);
+      }
+    };
+    document.addEventListener("fullscreenchange", changed);
+    document.addEventListener("webkitfullscreenchange", changed);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("fullscreenchange", changed);
+      document.removeEventListener("webkitfullscreenchange", changed);
+      document.removeEventListener("keydown", escape);
+      frameRef.current?.classList.remove("is-web-fullscreen");
+      document.body.classList.remove("fanview-fullscreen");
+    };
+  }, []);
+
   const unmute = async () => {
     if (!videoRef.current) return;
     videoRef.current.muted = false;
@@ -180,6 +215,28 @@ function CloudflareVideo({
     } catch {
       setMuted(true);
     }
+  };
+
+  const toggleFullscreen = async () => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    if (fullscreen) {
+      if (frame.classList.contains("is-web-fullscreen")) {
+        frame.classList.remove("is-web-fullscreen");
+        document.body.classList.remove("fanview-fullscreen");
+      } else if (document.fullscreenElement && document.exitFullscreen) {
+        await document.exitFullscreen().catch(() => undefined);
+      } else {
+        const webkitExit = (
+          document as Document & { webkitExitFullscreen?: () => void }
+        ).webkitExitFullscreen;
+        webkitExit?.call(document);
+      }
+      setFullscreen(false);
+      return;
+    }
+    await enterFullscreen(frame);
+    setFullscreen(true);
   };
 
   return (
@@ -205,12 +262,16 @@ function CloudflareVideo({
         </button>
       ) : null}
       <button
-        aria-label="Enter full screen"
+        aria-label={fullscreen ? "Exit full screen" : "Enter full screen"}
         className="media-control media-control--fullscreen"
-        onClick={() => frameRef.current && void enterFullscreen(frameRef.current)}
+        onClick={() => void toggleFullscreen()}
         type="button"
       >
-        <ArrowsOut aria-hidden="true" size={19} weight="bold" />
+        {fullscreen ? (
+          <ArrowsIn aria-hidden="true" size={19} weight="bold" />
+        ) : (
+          <ArrowsOut aria-hidden="true" size={19} weight="bold" />
+        )}
       </button>
     </div>
   );

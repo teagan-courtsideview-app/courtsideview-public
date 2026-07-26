@@ -20,7 +20,7 @@ interface Props {
   shareId: string | null;
 }
 
-type ScreenState = "loading" | "ready" | "unavailable" | "expired";
+type ScreenState = "loading" | "ready" | "unavailable" | "error" | "expired";
 
 const revision = (snapshot: FanViewSnapshot): number =>
   Date.parse(snapshot.match.updatedAt) || 0;
@@ -64,6 +64,8 @@ export function ProductionApp({
       if (abortController.signal.aborted) return;
       if (error instanceof FanViewUnavailableError && !hasReadySnapshot.current) {
         setScreen("unavailable");
+      } else if (!hasReadySnapshot.current) {
+        setScreen("error");
       }
     };
 
@@ -110,6 +112,18 @@ export function ProductionApp({
         <div className="fanview-state-card">
           <strong>This FanView has ended</strong>
           <span>FanView links close 15 minutes after the match ends.</span>
+        </div>
+      </main>
+    );
+  }
+
+  if (screen === "error") {
+    return (
+      <main className="fanview-state-page">
+        <div className="fanview-state-card">
+          <strong>FanView is reconnecting</strong>
+          <span>Live updates should return automatically.</span>
+          <a href={legacyFanViewUrl(shareId)}>Use classic FanView</a>
         </div>
       </main>
     );
