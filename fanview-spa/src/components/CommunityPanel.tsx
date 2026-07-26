@@ -26,7 +26,6 @@ const EMPTY_ROOM: CommunityRoomSnapshot = {
 
 interface Props {
   adapter: CommunityAdapter;
-  hideWhenUnavailable?: boolean;
   matchComplete: boolean;
   shareId: string;
   startOpen?: boolean;
@@ -35,7 +34,6 @@ interface Props {
 
 export function CommunityPanel({
   adapter,
-  hideWhenUnavailable = false,
   matchComplete,
   shareId,
   startOpen = true,
@@ -177,8 +175,6 @@ export function CommunityPanel({
 
   const readOnly =
     failed || matchComplete || !room.canWriteText || room.connection === "closed";
-
-  if (failed && hideWhenUnavailable) return null;
 
   return (
     <>

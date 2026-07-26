@@ -95,7 +95,6 @@ export class FanViewCommunityWidgetElement extends HTMLElement {
       <CommunityErrorBoundary>
         <CommunityPanel
           adapter={adapter}
-          hideWhenUnavailable={!config.demo}
           matchComplete={Boolean(config.matchComplete)}
           shareId={config.shareId}
           startOpen={config.startOpen ?? true}

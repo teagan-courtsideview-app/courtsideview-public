@@ -188,7 +188,6 @@ export function ProductionApp({
         <CommunityErrorBoundary>
           <CommunityPanel
             adapter={communityAdapter}
-            hideWhenUnavailable
             matchComplete={snapshot.match.isComplete}
             shareId={shareId}
             startOpen

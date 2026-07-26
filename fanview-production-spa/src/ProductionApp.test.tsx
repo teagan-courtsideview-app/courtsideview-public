@@ -1,5 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import type {
   CommunityAdapter,
   FanViewAdapter,
@@ -50,6 +52,18 @@ const renderApp = (adapter: FanViewAdapter) =>
   );
 
 describe("Production FanView lifecycle", () => {
+  it("does not hide the Cheering Section after a startup error", () => {
+    const source = fs.readFileSync(
+      path.resolve(
+        __dirname,
+        "../../fanview-spa/src/components/CommunityPanel.tsx",
+      ),
+      "utf8",
+    );
+    expect(source).not.toContain("if (failed && hideWhenUnavailable) return null");
+    expect(source).toContain("Cheering is temporarily unavailable.");
+  });
+
   it("fails closed for a missing public match", async () => {
     renderApp({
       async loadSnapshot() {
