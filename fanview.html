@@ -851,7 +851,9 @@
         $('fanViewCommunity')?.setMatchComplete?.(row?.is_complete === true);
       }
       function getShareId() {
-        const m = window.location.pathname.match(/^\/v\/([^/?#]+)/);
+        const m = window.location.pathname.match(
+          /^\/(?:v|fanview\/legacy)\/([^/?#]+)/
+        );
         return m ? decodeURIComponent(m[1]) : null;
       }
       const $ = (id) => document.getElementById(id);

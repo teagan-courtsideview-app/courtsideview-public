@@ -13,22 +13,45 @@ export interface TeamScore {
 
 export interface FanViewMatch {
   setNumber: number;
+  setTarget: number;
+  totalSets: number;
+  homeSetsWon: number;
+  awaySetsWon: number;
   isComplete: boolean;
   isLive: boolean;
+  updatedAt: string;
+  teamHub?: {
+    name: string;
+    slug: string;
+  };
   home: TeamScore;
   away: TeamScore;
 }
 
 export interface FanViewMedia {
-  kind: "fixture-poster" | "none";
+  kind: "fixture-poster" | "cloudflare-realtime" | "youtube" | "none";
   posterUrl?: string;
+  streamId?: string;
+  url?: string;
   alt: string;
 }
 
+export interface FanViewActivity {
+  id: string;
+  message: string;
+  team: "home" | "away" | "neutral";
+  timestamp?: string;
+}
+
 export interface FanViewSnapshot {
+  shareId: string;
   match: FanViewMatch;
   media: FanViewMedia;
   viewerCount: number;
+  activity: FanViewActivity[];
+  latestAction?: string;
+  connection: ConnectionState;
+  expiresAt?: string;
 }
 
 export interface FanViewAdapter {
@@ -38,6 +61,13 @@ export interface FanViewAdapter {
     onSnapshot: (snapshot: FanViewSnapshot) => void,
     onError: (error: unknown) => void,
   ): () => void;
+}
+
+export class FanViewUnavailableError extends Error {
+  constructor(message = "This match is not available.") {
+    super(message);
+    this.name = "FanViewUnavailableError";
+  }
 }
 
 export type CommunityRole = "Family" | "Coach" | "Teammate" | "Fan";

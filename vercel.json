@@ -6,6 +6,8 @@
     { "source": "/scout/(.*)", "destination": "/scout.html" },
     { "source": "/live", "destination": "/live.html" },
     { "source": "/live/(.*)", "destination": "/live.html" },
+    { "source": "/fanview-next/v/(.*)", "destination": "/fanview-react.html" },
+    { "source": "/fanview/legacy/(.*)", "destination": "/fanview.html" },
     { "source": "/v/(.*)", "destination": "/fanview.html" },
     { "source": "/p/(.*)", "destination": "/player.html" },
     { "source": "/t/(.*)", "destination": "/team.html" },

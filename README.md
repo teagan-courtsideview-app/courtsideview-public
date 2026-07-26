@@ -34,6 +34,8 @@ press-release-courtsideview-volleyball-app-launch.html  Press release served at 
 download.html   Smart app download page (served at /download)
 privacy.html    Privacy policy (served at /privacy)
 support.html    Support page (served at /support)
+fanview-react.html  Staged production React/TypeScript FanView canary shell
+fanview-production-spa/  Production Supabase/Cloudflare integration package
 geo-guides.css  Shared styles for volleyball guide pages
 scripts/build-geo-guides.mjs  Source-backed generator for the volleyball guide cluster
 vercel.json     Clean URLs, security headers, and clean-route rewrites/redirects
