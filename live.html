@@ -78,7 +78,8 @@
         border: 1px solid rgba(255,255,255,0.45); border-radius: 999px; padding: 0 10px;
         color: #0b1017; background: rgba(255,255,255,0.92); box-shadow: 0 10px 24px rgba(0,0,0,0.18);
         font-size: 10px; font-weight: 900; text-transform: uppercase; pointer-events: auto; }
-      .camera-chat-chip[data-open="true"] { color: #fff; background: var(--pink); border-color: var(--pink); }
+      .camera-chat-chip[data-open="true"],
+      .camera-chat-chip[data-unread="true"] { color: #fff; background: var(--pink); border-color: var(--pink); }
       .viewer-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px;
         min-height: 26px; min-width: 82px; padding: 0 9px; border-radius: 999px; background: rgba(255,255,255,0.92);
         border: 1px solid rgba(255,255,255,0.45); color: #0b1017; font-size: 11px;
@@ -658,6 +659,8 @@
       let controlsHideTimer = null;
       let highlightRuntime = null;
       let broadcasterCommunityMountPromise = null;
+      const broadcasterChatMessageIds = new Set();
+      const broadcasterChatReadMessageIds = new Set();
       let highlightStartSequence = 0;
       let lastHighlightUrl = '';
       let lastHighlightStorageKey = '';
@@ -825,6 +828,40 @@
         })();
         return broadcasterCommunityMountPromise;
       }
+      function markBroadcasterChatRead() {
+        broadcasterChatMessageIds.forEach((id) => {
+          broadcasterChatReadMessageIds.add(id);
+        });
+        chatBtn.dataset.unread = 'false';
+        chatBtn.setAttribute(
+          'aria-label',
+          chatBtn.dataset.open === 'true' ? 'Hide Fan chat' : 'Show Fan chat',
+        );
+      }
+      function syncBroadcasterChatMessages(messageIds) {
+        broadcasterChatMessageIds.clear();
+        messageIds
+          .filter((id) => typeof id === 'string' && id)
+          .forEach((id) => broadcasterChatMessageIds.add(id));
+        if (chatBtn.dataset.open === 'true') {
+          markBroadcasterChatRead();
+          return;
+        }
+        const unread = [...broadcasterChatMessageIds].some(
+          (id) => !broadcasterChatReadMessageIds.has(id),
+        );
+        chatBtn.dataset.unread = unread ? 'true' : 'false';
+        chatBtn.setAttribute(
+          'aria-label',
+          unread ? 'Show Fan chat, new messages' : 'Show Fan chat',
+        );
+      }
+      function resetBroadcasterChatReadState() {
+        broadcasterChatMessageIds.clear();
+        broadcasterChatReadMessageIds.clear();
+        chatBtn.dataset.unread = 'false';
+        chatBtn.setAttribute('aria-label', 'Show Fan chat');
+      }
       function showControl(element, visible) {
         element.classList.toggle('is-hidden', !visible);
       }
@@ -908,6 +945,7 @@
         if (!isLive) {
           broadcasterCommunity?.closeCommunity?.();
           chatBtn.dataset.open = 'false';
+          resetBroadcasterChatReadState();
           chatBtn.setAttribute('aria-expanded', 'false');
           chatBtn.textContent = 'Chat';
         }
@@ -1900,8 +1938,15 @@
       broadcasterCommunity?.addEventListener('community-open-change', (event) => {
         const open = event.detail?.open === true;
         chatBtn.dataset.open = open ? 'true' : 'false';
+        if (open) markBroadcasterChatRead();
         chatBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
         chatBtn.textContent = open ? 'Hide chat' : 'Chat';
+      });
+      broadcasterCommunity?.addEventListener('community-message-change', (event) => {
+        const messageIds = Array.isArray(event.detail?.messageIds)
+          ? event.detail.messageIds
+          : [];
+        syncBroadcasterChatMessages(messageIds);
       });
       stopBtn.addEventListener('click', () => {
         openEndConfirm();

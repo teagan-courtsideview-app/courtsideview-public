@@ -15,6 +15,7 @@ const EMPTY_ROOM: CommunityRoomSnapshot = {
 
 interface Props {
   adapter: CommunityAdapter;
+  onMessageIdsChange: (messageIds: string[]) => void;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   shareId: string;
@@ -23,6 +24,7 @@ interface Props {
 
 export function BroadcasterCommunityPanel({
   adapter,
+  onMessageIdsChange,
   onOpenChange,
   open,
   shareId,
@@ -61,6 +63,10 @@ export function BroadcasterCommunityPanel({
       unsubscribe();
     };
   }, [adapter, shareId]);
+
+  useEffect(() => {
+    onMessageIdsChange(room.messages.map((message) => message.id));
+  }, [onMessageIdsChange, room.messages]);
 
   useEffect(() => {
     if (!open) return;

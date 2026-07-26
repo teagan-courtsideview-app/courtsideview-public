@@ -48,6 +48,13 @@ export class FanViewCommunityWidgetElement extends HTMLElement {
   private config: FanViewCommunityWidgetConfig | null = null;
   private root: Root | null = null;
   private readonly mountPoint: HTMLDivElement;
+  private readonly reportBroadcasterMessageIds = (messageIds: string[]) => {
+    this.dispatchEvent(
+      new CustomEvent("community-message-change", {
+        detail: { messageIds },
+      }),
+    );
+  };
 
   constructor() {
     super();
@@ -125,6 +132,7 @@ export class FanViewCommunityWidgetElement extends HTMLElement {
         <CommunityErrorBoundary>
           <BroadcasterCommunityPanel
             adapter={adapter}
+            onMessageIdsChange={this.reportBroadcasterMessageIds}
             onOpenChange={(open) => this.setCommunityOpen(open)}
             open={config.open ?? false}
             shareId={config.shareId}

@@ -35,6 +35,7 @@ describe("Broadcaster Community panel", () => {
     render(
       <BroadcasterCommunityPanel
         adapter={adapter()}
+        onMessageIdsChange={() => {}}
         onOpenChange={() => {}}
         open
         shareId="test-share"
@@ -57,6 +58,7 @@ describe("Broadcaster Community panel", () => {
     render(
       <BroadcasterCommunityPanel
         adapter={adapter()}
+        onMessageIdsChange={() => {}}
         onOpenChange={onOpenChange}
         open
         shareId="test-share"
@@ -66,5 +68,22 @@ describe("Broadcaster Community panel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Hide Fan chat" }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("reports loaded message ids for broadcaster unread state", async () => {
+    const onMessageIdsChange = vi.fn();
+    render(
+      <BroadcasterCommunityPanel
+        adapter={adapter()}
+        onMessageIdsChange={onMessageIdsChange}
+        onOpenChange={() => {}}
+        open={false}
+        shareId="test-share"
+        teamName="14s Blue"
+      />,
+    );
+
+    await screen.findByText("Great job!");
+    expect(onMessageIdsChange).toHaveBeenCalledWith(["message-1"]);
   });
 });
