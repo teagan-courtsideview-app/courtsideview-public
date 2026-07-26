@@ -5,6 +5,7 @@ import type {
 } from "./adapters/contracts";
 import { fixtureCommunityAdapter } from "./adapters/fixtureCommunityAdapter";
 import { CommunityErrorBoundary } from "./components/CommunityErrorBoundary";
+import { BroadcasterCommunityPanel } from "./components/BroadcasterCommunityPanel";
 import { CommunityPanel } from "./components/CommunityPanel";
 import styles from "./styles.css?inline";
 
@@ -15,9 +16,11 @@ export interface FanViewCommunityWidgetConfig {
   displayName?: string;
   gatewayUrl?: string;
   matchComplete?: boolean;
+  open?: boolean;
   publishableKey?: string;
   shareId: string;
   startOpen?: boolean;
+  surface?: "viewer" | "broadcaster";
   teamName: string;
 }
 
@@ -41,6 +44,7 @@ const HOST_STYLES = `
 `;
 
 export class FanViewCommunityWidgetElement extends HTMLElement {
+  private adapter: CommunityAdapter | null = null;
   private config: FanViewCommunityWidgetConfig | null = null;
   private root: Root | null = null;
   private readonly mountPoint: HTMLDivElement;
@@ -74,11 +78,35 @@ export class FanViewCommunityWidgetElement extends HTMLElement {
     this.renderWidget();
   }
 
+  openCommunity(): void {
+    this.setCommunityOpen(true);
+  }
+
+  closeCommunity(): void {
+    this.setCommunityOpen(false);
+  }
+
+  toggleCommunity(): void {
+    this.setCommunityOpen(!(this.config?.open ?? false));
+  }
+
+  private setCommunityOpen(open: boolean): void {
+    if (!this.config || this.config.open === open) return;
+    this.config = { ...this.config, open };
+    this.renderWidget();
+    this.dispatchEvent(
+      new CustomEvent("community-open-change", {
+        detail: { open },
+      }),
+    );
+  }
+
   private renderWidget(): void {
     if (!this.isConnected || !this.config) return;
     const config = this.config;
     const adapter =
       config.adapter ??
+      this.adapter ??
       (config.demo
         ? fixtureCommunityAdapter
         : config.client && config.gatewayUrl && config.publishableKey
@@ -90,7 +118,22 @@ export class FanViewCommunityWidgetElement extends HTMLElement {
             })
           : null);
     if (!adapter) return;
+    if (!config.adapter) this.adapter = adapter;
     this.root ??= createRoot(this.mountPoint);
+    if (config.surface === "broadcaster") {
+      this.root.render(
+        <CommunityErrorBoundary>
+          <BroadcasterCommunityPanel
+            adapter={adapter}
+            onOpenChange={(open) => this.setCommunityOpen(open)}
+            open={config.open ?? false}
+            shareId={config.shareId}
+            teamName={config.teamName}
+          />
+        </CommunityErrorBoundary>,
+      );
+      return;
+    }
     this.root.render(
       <CommunityErrorBoundary>
         <CommunityPanel

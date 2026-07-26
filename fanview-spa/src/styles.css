@@ -251,6 +251,12 @@ input:focus-visible,
   transform: translateX(0);
 }
 
+.community-panel--broadcaster {
+  top: 52px;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: auto;
+}
+
 .community-scrim[hidden],
 .community-panel[hidden] {
   display: none !important;
@@ -721,6 +727,10 @@ input:focus-visible,
   .community-panel[data-open="true"],
   .community-panel--failed {
     transform: translateY(0);
+  }
+
+  .community-panel--broadcaster {
+    height: min(58dvh, 520px);
   }
 
   .community-handle {

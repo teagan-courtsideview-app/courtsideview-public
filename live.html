@@ -74,6 +74,11 @@
       .camera-brand-chip::before { content: ""; width: 5px; height: 5px; border-radius: 999px;
         background: var(--pink); box-shadow: 0 0 0 2px rgba(255,79,147,0.16); flex: 0 0 auto; }
       .camera-state-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-left: auto; }
+      .camera-chat-chip { display: inline-flex; min-height: 26px; align-items: center; justify-content: center;
+        border: 1px solid rgba(255,255,255,0.45); border-radius: 999px; padding: 0 10px;
+        color: #0b1017; background: rgba(255,255,255,0.92); box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+        font-size: 10px; font-weight: 900; text-transform: uppercase; pointer-events: auto; }
+      .camera-chat-chip[data-open="true"] { color: #fff; background: var(--pink); border-color: var(--pink); }
       .viewer-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px;
         min-height: 26px; min-width: 82px; padding: 0 9px; border-radius: 999px; background: rgba(255,255,255,0.92);
         border: 1px solid rgba(255,255,255,0.45); color: #0b1017; font-size: 11px;
@@ -426,6 +431,7 @@
             <div class="top-overlay" aria-live="polite">
               <span class="camera-brand-chip">CourtsideView</span>
               <span class="camera-state-row">
+                <button id="chatBtn" class="camera-chat-chip is-hidden" type="button" aria-expanded="false">Chat</button>
                 <span class="viewer-chip">
                   <span class="viewer-dot"></span>
                   <span id="viewerCountTop" class="viewer-count"><strong>0</strong> watching</span>
@@ -475,6 +481,7 @@
         </section>
       </div>
     </main>
+    <fanview-community-widget id="broadcasterCommunity" hidden></fanview-community-widget>
     <div id="joinToast" class="join-toast" role="status" aria-live="polite">A fan joined FanView</div>
     <div id="savePrompt" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savePromptTitle" aria-hidden="true">
       <div class="save-sheet">
@@ -566,9 +573,17 @@
           persistSession: false,
         },
       });
+      const communitySupabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: {
+          autoRefreshToken: true,
+          detectSessionInUrl: false,
+          persistSession: false,
+        },
+      });
       const preview = document.getElementById('preview');
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
+      const chatBtn = document.getElementById('chatBtn');
       const scoreBtn = document.getElementById('scoreBtn');
       const clearHighlightStorageBtn = document.getElementById('clearHighlightStorageBtn');
       const shareBtn = document.getElementById('shareBtn');
@@ -603,6 +618,7 @@
       const endConfirm = document.getElementById('endConfirm');
       const cancelEndBtn = document.getElementById('cancelEndBtn');
       const confirmEndBtn = document.getElementById('confirmEndBtn');
+      const broadcasterCommunity = document.getElementById('broadcasterCommunity');
       const controlsEl = document.querySelector('.controls');
       const viewerRow = document.querySelector('.viewer-row');
       const CONTROL_HIDE_MS = 4500;
@@ -641,6 +657,7 @@
       let lastRecordingUrl = '';
       let controlsHideTimer = null;
       let highlightRuntime = null;
+      let broadcasterCommunityMountPromise = null;
       let highlightStartSequence = 0;
       let lastHighlightUrl = '';
       let lastHighlightStorageKey = '';
@@ -779,6 +796,35 @@
         document.body.classList.toggle('is-ready', state === 'camera-ready');
         document.body.classList.toggle('is-live', state === 'live');
       }
+      async function mountBroadcasterCommunity() {
+        if (!streamId || !broadcasterCommunity) return false;
+        if (broadcasterCommunityMountPromise) return broadcasterCommunityMountPromise;
+        broadcasterCommunityMountPromise = (async () => {
+          try {
+            await import('/assets/fanview-community/fanview-community-react-v1.js');
+            broadcasterCommunity.hidden = false;
+            broadcasterCommunity.configure({
+              client: communitySupabase,
+              displayName: 'Broadcaster',
+              gatewayUrl: `${SUPABASE_URL}/functions/v1/fanview-community`,
+              matchComplete: false,
+              open: false,
+              publishableKey: SUPABASE_KEY,
+              shareId: streamId,
+              surface: 'broadcaster',
+              teamName: 'FanView',
+            });
+            return true;
+          } catch (error) {
+            console.warn('[CourtsideView] broadcaster chat unavailable', error);
+            broadcasterCommunity.hidden = true;
+            showControl(chatBtn, false);
+            broadcasterCommunityMountPromise = null;
+            return false;
+          }
+        })();
+        return broadcasterCommunityMountPromise;
+      }
       function showControl(element, visible) {
         element.classList.toggle('is-hidden', !visible);
       }
@@ -831,6 +877,7 @@
         showControl(recordPanel, canShowRecordChoice);
         const canReturnToScore = Boolean(streamId);
         showControl(viewerRow, isLive);
+        showControl(chatBtn, isLive);
         showControl(scoreBtn, canReturnToScore);
         showControl(minimizeBtn, isLive && canUsePictureInPicture());
         showControl(stopBtn, isLive);
@@ -841,6 +888,7 @@
         scoreBtn.disabled = !canReturnToScore;
         minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
+        chatBtn.disabled = !isLive;
         shareBtn.disabled = false;
         recordToggle.disabled = isLive || !recorderSupported;
         if (broadcastBlocked) {
@@ -856,6 +904,13 @@
         shareBtn.textContent = isLive ? 'Share' : 'Share Fan Link';
         minimizeBtn.textContent = isLive ? 'Float' : 'Float Broadcast';
         stopBtn.textContent = 'End';
+        if (isLive) void mountBroadcasterCommunity();
+        if (!isLive) {
+          broadcasterCommunity?.closeCommunity?.();
+          chatBtn.dataset.open = 'false';
+          chatBtn.setAttribute('aria-expanded', 'false');
+          chatBtn.textContent = 'Chat';
+        }
         broadcastStateChip.textContent = isLive ? 'LIVE' : isCameraReady ? 'READY' : statePill.textContent;
         setHandoffPanel('', '', false);
         syncLiveControlVisibility(isLive);
@@ -1837,6 +1892,16 @@
           broadcastBtn.disabled = false;
           setStatus([{ text: String(error instanceof Error ? error.message : error) }], 'ERROR');
         }
+      });
+      chatBtn.addEventListener('click', async () => {
+        if (!(await mountBroadcasterCommunity())) return;
+        broadcasterCommunity?.toggleCommunity?.();
+      });
+      broadcasterCommunity?.addEventListener('community-open-change', (event) => {
+        const open = event.detail?.open === true;
+        chatBtn.dataset.open = open ? 'true' : 'false';
+        chatBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        chatBtn.textContent = open ? 'Hide chat' : 'Chat';
       });
       stopBtn.addEventListener('click', () => {
         openEndConfirm();
