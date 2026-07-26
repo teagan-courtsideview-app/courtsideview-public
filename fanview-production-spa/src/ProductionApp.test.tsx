@@ -97,6 +97,39 @@ describe("Production FanView lifecycle", () => {
     expect(source).toContain('document.addEventListener("visibilitychange"');
   });
 
+  it("uses an upright custom play control instead of the rotated native overlay", () => {
+    const source = fs.readFileSync(
+      path.resolve(__dirname, "LiveMedia.tsx"),
+      "utf8",
+    );
+    const css = fs.readFileSync(
+      path.resolve(__dirname, "production.css"),
+      "utf8",
+    );
+    expect(source).toContain('aria-label="Play live video"');
+    expect(source).toContain("controls={false}");
+    expect(source).toContain("playbackPaused && !status");
+    expect(css).toContain(
+      ".live-media__video::-webkit-media-controls-start-playback-button",
+    );
+    expect(css).toContain(".live-media__play svg");
+  });
+
+  it("keeps the mobile scoreboard and cheer launcher on one bottom baseline", () => {
+    const css = fs.readFileSync(
+      path.resolve(__dirname, "production.css"),
+      "utf8",
+    );
+    expect(css).toContain("--fanview-mobile-bottom-inset");
+    expect(css).toContain("--fanview-mobile-cheer-width");
+    expect(css).toMatch(
+      /\.score-bug\s*\{[\s\S]*?bottom: var\(--fanview-mobile-bottom-inset\)/,
+    );
+    expect(css).toMatch(
+      /\.community-launcher\s*\{[\s\S]*?bottom: var\(--fanview-mobile-bottom-inset\)/,
+    );
+  });
+
   it("keeps live scores and corrected orientation in fullscreen", () => {
     const source = fs.readFileSync(
       path.resolve(__dirname, "LiveMedia.tsx"),

@@ -18,6 +18,19 @@
   object-fit: cover;
 }
 
+.live-media__video {
+  pointer-events: none;
+}
+
+.live-media__video::-webkit-media-controls {
+  display: none !important;
+}
+
+.live-media__video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
 .live-media__video[data-rotation="-90"],
 .live-media__video[data-rotation="90"] {
   inset: auto;
@@ -79,6 +92,29 @@
   font-size: 13px;
   font-weight: 800;
   transform: translate(-50%, -50%);
+}
+
+.live-media__play {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  color: #fff;
+  background: rgba(5, 10, 19, 0.76);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(8px);
+}
+
+.live-media__play svg {
+  transform: translateX(1px);
 }
 
 .media-control {
@@ -156,6 +192,14 @@
 }
 
 @media (max-width: 720px) {
+  .fanview-app {
+    --fanview-mobile-bottom-inset: max(
+      12px,
+      env(safe-area-inset-bottom)
+    );
+    --fanview-mobile-cheer-width: clamp(134px, 42vw, 160px);
+  }
+
   .match-status--action {
     display: none;
   }
@@ -163,12 +207,16 @@
   .score-bug {
     display: block;
     top: auto;
-    bottom: max(72px, calc(env(safe-area-inset-bottom) + 72px));
+    right: calc(
+      var(--fanview-mobile-cheer-width) + 16px +
+        env(safe-area-inset-right)
+    );
+    bottom: var(--fanview-mobile-bottom-inset);
     left: max(10px, env(safe-area-inset-left));
-    width: min(228px, calc(100vw - 20px));
+    width: auto;
     min-width: 0;
     border-radius: 9px;
-    padding: 7px;
+    padding: 6px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34);
   }
 
@@ -179,17 +227,17 @@
 
   .score-bug__row {
     min-height: 29px;
-    grid-template-columns: 0 minmax(0, 1fr) 34px 36px;
+    grid-template-columns: 0 minmax(0, 1fr) 30px 33px;
     margin-top: 3px;
   }
 
   .score-bug__team {
-    padding: 0 8px;
-    font-size: 11px;
+    padding: 0 7px;
+    font-size: 10px;
   }
 
   .score-bug__score {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .score-bug__sets small {
@@ -240,11 +288,29 @@
 
   .community-launcher {
     right: max(10px, env(safe-area-inset-right));
-    bottom: max(12px, env(safe-area-inset-bottom));
+    bottom: var(--fanview-mobile-bottom-inset);
+    width: var(--fanview-mobile-cheer-width);
     min-height: 44px;
-    gap: 7px;
-    padding: 0 13px;
-    font-size: 12px;
+    min-width: 0;
+    justify-content: center;
+    gap: 5px;
+    overflow: hidden;
+    padding: 0 8px;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+
+  .community-launcher svg {
+    flex: 0 0 auto;
+    width: 17px;
+    height: 17px;
+  }
+
+  .community-launcher span {
+    flex: 0 0 auto;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
   }
 
   .fanview-app[data-community-enabled="true"] .media-control--fullscreen,
@@ -328,6 +394,7 @@
 
   .score-bug {
     top: auto;
+    right: auto;
     bottom: max(10px, env(safe-area-inset-bottom));
     left: max(10px, env(safe-area-inset-left));
     width: 228px;
@@ -359,6 +426,7 @@
   .community-launcher {
     right: max(10px, env(safe-area-inset-right));
     bottom: max(10px, env(safe-area-inset-bottom));
+    width: auto;
     min-height: 42px;
     padding: 0 12px;
     font-size: 12px;

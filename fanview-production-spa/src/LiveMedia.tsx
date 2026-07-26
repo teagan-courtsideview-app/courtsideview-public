@@ -2,6 +2,7 @@ import {
   ArrowsIn,
   ArrowsOut,
   PictureInPicture,
+  Play,
   SpeakerHigh,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -403,6 +404,7 @@ function CloudflareVideo({
   const rotationRef = useRef(rotation);
   const viewerCountRef = useRef(viewerCount);
   const [muted, setMuted] = useState(true);
+  const [playbackPaused, setPlaybackPaused] = useState(true);
   const [status, setStatus] = useState("Waiting for broadcaster");
   const [fullscreenMode, setFullscreenMode] = useState<
     "none" | "document" | "presentation" | "css"
@@ -422,10 +424,16 @@ function CloudflareVideo({
     if (!video || !video.srcObject) return;
     try {
       await video.play();
+      setPlaybackPaused(false);
     } catch {
       video.muted = true;
       setMuted(true);
-      await video.play().catch(() => undefined);
+      try {
+        await video.play();
+        setPlaybackPaused(false);
+      } catch {
+        setPlaybackPaused(true);
+      }
     }
   }, []);
 
@@ -882,8 +890,11 @@ function CloudflareVideo({
       <video
         autoPlay
         className="live-media__video"
+        controls={false}
         data-rotation={rotation}
         muted={muted}
+        onPause={() => setPlaybackPaused(true)}
+        onPlaying={() => setPlaybackPaused(false)}
         playsInline
         ref={videoRef}
       />
@@ -899,6 +910,16 @@ function CloudflareVideo({
         playsInline
         ref={presentationVideoRef}
       />
+      {playbackPaused && !status ? (
+        <button
+          aria-label="Play live video"
+          className="live-media__play"
+          onClick={() => void resumeVideo()}
+          type="button"
+        >
+          <Play aria-hidden="true" size={25} weight="fill" />
+        </button>
+      ) : null}
       {status ? <div className="live-media__status">{status}</div> : null}
       {muted ? (
         <button
