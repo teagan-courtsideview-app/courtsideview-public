@@ -78,4 +78,39 @@ describe("FanView production row normalization", () => {
     );
     expect(snapshot.expiresAt).toBe("2026-07-25T20:15:00.000Z");
   });
+
+  it("does not replace the final-set score with a higher earlier-set score", () => {
+    const snapshot = fanViewSnapshotFromRow(
+      row({
+        is_complete: true,
+        state: {
+          currentSet: 2,
+          homeScore: 1,
+          awayScore: 0,
+          homeSetsWon: 2,
+          awaySetsWon: 0,
+          feed: [
+            {
+              id: "set-two-score",
+              type: "SCORE",
+              setNumber: 2,
+              myTeamScore: 1,
+              opponentScore: 0,
+            },
+            {
+              id: "set-one-score",
+              type: "SCORE",
+              setNumber: 1,
+              myTeamScore: 25,
+              opponentScore: 21,
+            },
+          ],
+        },
+      }),
+    );
+
+    expect(snapshot.match.setNumber).toBe(2);
+    expect(snapshot.match.home.score).toBe(1);
+    expect(snapshot.match.away.score).toBe(0);
+  });
 });

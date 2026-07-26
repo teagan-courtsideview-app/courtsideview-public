@@ -8,6 +8,10 @@ interface Props {
   shareId: string;
 }
 
+const VIDEO_STALL_CHECK_MS = 2_000;
+const VIDEO_STALL_RECONNECT_MS = 6_000;
+const VIDEO_RECONNECT_DELAY_MS = 1_500;
+
 const viewerId = (): string => {
   const key = "courtsideview_fanview_viewer_id";
   try {
@@ -103,34 +107,46 @@ function CloudflareVideo({
     let active = true;
     let peer: RTCPeerConnection | null = null;
     let retry: number | undefined;
+    let watchdog: number | undefined;
 
     const connect = async () => {
       if (!active || !videoRef.current) return;
+      window.clearTimeout(retry);
+      window.clearInterval(watchdog);
       peer?.close();
-      peer = new RTCPeerConnection({
+      const candidate = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.cloudflare.com:3478" }],
         bundlePolicy: "max-bundle",
       });
+      peer = candidate;
       const stream = new MediaStream();
       videoRef.current.srcObject = stream;
       setStatus("Waiting for broadcaster");
+      let lastCurrentTime = videoRef.current.currentTime;
+      let lastProgressAt = Date.now();
 
       const reconnect = () => {
-        if (!active) return;
+        if (!active || peer !== candidate) return;
+        window.clearInterval(watchdog);
+        candidate.close();
         setStatus("Reconnecting video");
         window.clearTimeout(retry);
-        retry = window.setTimeout(() => void connect(), 5_000);
+        retry = window.setTimeout(
+          () => void connect(),
+          VIDEO_RECONNECT_DELAY_MS,
+        );
       };
-      peer.addEventListener("track", ({ track }) => {
+      candidate.addEventListener("track", ({ track }) => {
         stream.addTrack(track);
         setStatus("");
+        lastProgressAt = Date.now();
         track.addEventListener("ended", reconnect, { once: true });
       });
-      peer.addEventListener("connectionstatechange", () => {
-        if (peer?.connectionState === "connected") setStatus("");
+      candidate.addEventListener("connectionstatechange", () => {
+        if (candidate.connectionState === "connected") setStatus("");
         if (
-          peer?.connectionState === "failed" ||
-          peer?.connectionState === "disconnected"
+          candidate.connectionState === "failed" ||
+          candidate.connectionState === "disconnected"
         ) {
           reconnect();
         }
@@ -144,12 +160,12 @@ function CloudflareVideo({
         if (!response.ok) throw new Error("viewer unavailable");
         const location = response.headers.get("location");
         if (!location) throw new Error("viewer session unavailable");
-        await peer.setRemoteDescription({
+        await candidate.setRemoteDescription({
           type: "offer",
           sdp: await response.text(),
         });
-        const answer = await peer.createAnswer();
-        await peer.setLocalDescription(answer);
+        const answer = await candidate.createAnswer();
+        await candidate.setLocalDescription(answer);
         const negotiated = await fetch(`${liveWorkerUrl}${location}`, {
           method: "PATCH",
           headers: { "content-type": "application/sdp" },
@@ -157,8 +173,20 @@ function CloudflareVideo({
         });
         if (!negotiated.ok) throw new Error("viewer negotiation failed");
         setStatus("Live now");
+        watchdog = window.setInterval(() => {
+          const video = videoRef.current;
+          if (!active || !video || peer !== candidate) return;
+          if (video.currentTime > lastCurrentTime + 0.05) {
+            lastCurrentTime = video.currentTime;
+            lastProgressAt = Date.now();
+            return;
+          }
+          if (Date.now() - lastProgressAt >= VIDEO_STALL_RECONNECT_MS) {
+            reconnect();
+          }
+        }, VIDEO_STALL_CHECK_MS);
       } catch {
-        peer.close();
+        candidate.close();
         reconnect();
       }
     };
@@ -167,6 +195,7 @@ function CloudflareVideo({
     return () => {
       active = false;
       window.clearTimeout(retry);
+      window.clearInterval(watchdog);
       peer?.close();
       if (videoRef.current) videoRef.current.srcObject = null;
     };

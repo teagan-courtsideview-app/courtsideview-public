@@ -63,10 +63,13 @@ const defaultSetTarget = (format: string | null, setNumber: number): number =>
 const scoreFromState = (state: JsonRecord) => {
   const home = numberValue(state.homeScore, numberValue(state.myTeamScore));
   const away = numberValue(state.awayScore, numberValue(state.opponentScore));
+  const currentSet = numberValue(state.currentSet, 1);
   const feed = Array.isArray(state.feed) ? state.feed : [];
   for (const candidate of feed) {
     const item = asRecord(candidate);
     if (item.type !== "SCORE") continue;
+    const feedSet = numberValue(item.setNumber, currentSet);
+    if (feedSet !== currentSet) continue;
     const feedHome = numberValue(item.myTeamScore, Number.NaN);
     const feedAway = numberValue(item.opponentScore, Number.NaN);
     if (

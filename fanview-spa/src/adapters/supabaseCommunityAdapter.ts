@@ -96,6 +96,10 @@ const CHEER_KEYS: Record<CheerEmoji, string> = {
   "💪": "strong",
 };
 
+const CHEER_EMOJIS = Object.fromEntries(
+  Object.entries(CHEER_KEYS).map(([emoji, key]) => [key, emoji]),
+) as Record<string, CheerEmoji>;
+
 const AVATAR_TONES = ["lavender", "blue", "green", "gold"] as const;
 
 const asRecord = (value: unknown): JsonRecord =>
@@ -138,10 +142,15 @@ const initialsFor = (value: string): string =>
 
 const messageFromGateway = (value: unknown): CommunityMessage | null => {
   const row = asRecord(value);
-  if (asString(row.type) !== "text") return null;
+  const type = asString(row.type);
+  if (type !== "text" && type !== "cheer") return null;
   const id = asString(row.id);
   const author = asString(row.display_name) || "Fan";
-  const body = asString(row.body);
+  const rawBody = asString(row.body);
+  const body =
+    type === "cheer"
+      ? `Cheered ${CHEER_EMOJIS[rawBody] ?? "👏"}`
+      : rawBody;
   if (!id || !body) return null;
   return {
     id,
@@ -168,10 +177,12 @@ const snapshotFromContext = (
 ): CommunityRoomSnapshot => ({
   connection: context.connection,
   participantCount: context.participantCount,
-  // The first production rollout is deliberately curated-cheers only.
-  // Verified free text remains unavailable until its separate admission and
-  // moderation UI is explicitly released.
-  canWriteText: false,
+  // Public FanView rooms use the lightweight cheers mode for both curated
+  // reactions and short friendly messages. Verified text remains reserved for
+  // future private team/coach communities with a separate admission flow.
+  canWriteText:
+    context.status === "open" &&
+    (context.mode === "cheers" || context.mode === "verified_text"),
   messages: context.messages,
 });
 

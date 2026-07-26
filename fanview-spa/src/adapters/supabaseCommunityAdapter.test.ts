@@ -38,7 +38,7 @@ class TestChannel {
 }
 
 describe("Supabase Community adapter", () => {
-  it("joins, subscribes before history hydration, and sends canonical cheers", async () => {
+  it("joins, subscribes before history hydration, and sends cheers and friendly text", async () => {
     const operations: Array<{
       operation: string;
       input: Record<string, unknown>;
@@ -128,7 +128,7 @@ describe("Supabase Community adapter", () => {
       new AbortController().signal,
     );
     expect(initial.connection).toBe("connecting");
-    expect(initial.canWriteText).toBe(false);
+    expect(initial.canWriteText).toBe(true);
     expect(client.auth.signInAnonymously).not.toHaveBeenCalled();
 
     const snapshots: CommunityRoomSnapshot[] = [];
@@ -149,8 +149,14 @@ describe("Supabase Community adapter", () => {
     expect(snapshots.at(-1)).toMatchObject({
       connection: "connected",
       participantCount: 1,
-      canWriteText: false,
-      messages: [],
+      canWriteText: true,
+      messages: [
+        {
+          id: "33333333-3333-4333-8333-333333333333",
+          author: "Fan",
+          body: "Cheered 👏",
+        },
+      ],
     });
 
     await adapter.sendCheer("share-123", "🙌");
@@ -166,6 +172,21 @@ describe("Supabase Community adapter", () => {
     expect(sent?.idempotencyKey).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
+
+    const message = await adapter.sendMessage("share-123", "Great job!");
+    expect(message).toMatchObject({
+      author: "Fan",
+      body: "Great job!",
+      own: true,
+    });
+    expect(operations.at(-1)).toMatchObject({
+      operation: "send_message",
+      input: {
+        roomId: "22222222-2222-4222-8222-222222222222",
+        messageType: "text",
+        body: "Great job!",
+      },
+    });
 
     unsubscribe?.();
     expect(client.removeChannel).toHaveBeenCalledWith(channel);
