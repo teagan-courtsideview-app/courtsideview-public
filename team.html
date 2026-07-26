@@ -717,10 +717,18 @@
           const links = liveMatches.flatMap((match) => fanviewLinks(match));
           const firstLink = links[0];
           const score = scoreFromState(firstLink);
+          const liveHomeName = displayMatchTeamName(
+            firstLink?.homeName || live.fanview_home_name,
+            state.team.name,
+          );
+          const liveAwayName = displayMatchTeamName(
+            firstLink?.awayName || live.fanview_away_name,
+            live.opponent || 'Opponent',
+          );
           $('hero').style.setProperty('--accent', 'var(--pink)');
           $('heroPill').className = 'pill live';
           $('heroPill').textContent = 'LIVE NOW';
-          $('heroTitle').textContent = `${displayTeamName(state.team.name)} vs ${live.opponent || 'Opponent'}`;
+          $('heroTitle').textContent = `${liveHomeName} vs ${liveAwayName}`;
           $('heroCopy').textContent = links.length > 1
             ? 'Multiple scorers are live. Pick the FanView angle you want to follow.'
             : `Set ${score.set}. Open FanView for the live scoreboard and activity.`;
@@ -773,9 +781,15 @@
       function renderMatch(match, type) {
         const links = fanviewLinks(match);
         const isLive = links.length > 0;
+        const liveAwayName = isLive
+          ? displayMatchTeamName(
+              links[0]?.awayName || match.fanview_away_name,
+              match.opponent || 'Opponent',
+            )
+          : '';
         const title = type === 'result'
           ? `${resultText(match)} vs ${escapeHtml(match.opponent || 'Opponent')}`
-          : `vs ${escapeHtml(match.opponent || 'Opponent')}`;
+          : `vs ${escapeHtml(liveAwayName || match.opponent || 'Opponent')}`;
         const detail = type === 'result'
           ? (setScoreText(match) ? `Set scores: ${escapeHtml(setScoreText(match))}` : fmtDate(match.starts_at))
           : `${fmtDate(match.starts_at)}${match.location ? ` · ${escapeHtml(match.location)}` : ''}`;
