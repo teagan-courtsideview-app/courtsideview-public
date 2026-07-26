@@ -286,14 +286,16 @@ input:focus-visible,
 }
 
 .community-header h1 {
+  display: -webkit-box;
   overflow: hidden;
   margin: 0;
   font-size: clamp(20px, 1.65vw, 23px);
   font-weight: 900;
   letter-spacing: -0.035em;
   line-height: 1.12;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .community-header p {
