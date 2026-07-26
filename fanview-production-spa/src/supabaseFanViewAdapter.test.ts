@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { describe, expect, it, vi } from "vitest";
 import {
+  createSupabaseFanViewAdapter,
+  FANVIEW_SCORE_FALLBACK_POLL_MS,
+  FANVIEW_STATUS_TIMEOUT_MS,
   fanViewSnapshotFromRow,
   type PublicFanViewMatchRow,
 } from "./supabaseFanViewAdapter";
@@ -42,6 +46,11 @@ const row = (overrides: Partial<PublicFanViewMatchRow> = {}) => ({
 });
 
 describe("FanView production row normalization", () => {
+  it("keeps the durable score fallback inside a live-match window", () => {
+    expect(FANVIEW_SCORE_FALLBACK_POLL_MS).toBe(5_000);
+    expect(FANVIEW_STATUS_TIMEOUT_MS).toBe(2_500);
+  });
+
   it("reconciles a newer feed score and keeps Team Hub identity", () => {
     const snapshot = fanViewSnapshotFromRow(row());
     expect(snapshot.match.home.score).toBe(18);
@@ -112,5 +121,103 @@ describe("FanView production row normalization", () => {
     expect(snapshot.match.setNumber).toBe(2);
     expect(snapshot.match.home.score).toBe(1);
     expect(snapshot.match.away.score).toBe(0);
+  });
+
+  it("delivers a realtime score immediately without waiting on video status", async () => {
+    const handlers = new Map<
+      string,
+      (message: { payload: Record<string, unknown> }) => void
+    >();
+    const channel = {
+      on: vi.fn(
+        (
+          _type: string,
+          filter: { event: string },
+          handler: (message: { payload: Record<string, unknown> }) => void,
+        ) => {
+          handlers.set(filter.event, handler);
+          return channel;
+        },
+      ),
+      subscribe: vi.fn((callback: (status: string) => void) => {
+        callback("SUBSCRIBED");
+        return channel;
+      }),
+    } as unknown as RealtimeChannel;
+    const client = {
+      auth: {
+        getSession: vi.fn(async () => ({
+          data: { session: { access_token: "test" } },
+          error: null,
+        })),
+        signInAnonymously: vi.fn(),
+      },
+      rpc: vi.fn(() => ({
+        maybeSingle: vi.fn(async () => ({ data: row(), error: null })),
+      })),
+      channel: vi.fn(() => channel),
+      removeChannel: vi.fn(),
+    } as unknown as SupabaseClient;
+    const fetchStatus = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ isLive: true, viewerCount: 3 }),
+    })) as unknown as typeof globalThis.fetch;
+    const adapter = createSupabaseFanViewAdapter({
+      client,
+      fetch: fetchStatus,
+      liveWorkerUrl: "https://live.example.test",
+    });
+
+    await adapter.loadSnapshot("match-123", new AbortController().signal);
+    const snapshots: number[] = [];
+    const stop = adapter.subscribe!(
+      "match-123",
+      (snapshot) => snapshots.push(snapshot.match.home.score),
+      () => undefined,
+    );
+
+    handlers.get("score")?.({
+      payload: {
+        homeScore: 19,
+        awayScore: 16,
+        currentSet: 2,
+      },
+    });
+
+    expect(snapshots.at(-1)).toBe(19);
+    expect(fetchStatus).toHaveBeenCalledTimes(1);
+    stop();
+  });
+
+  it("loads the scoreboard when the optional video status request stalls", async () => {
+    const client = {
+      auth: {
+        getSession: vi.fn(async () => ({
+          data: { session: { access_token: "test" } },
+          error: null,
+        })),
+        signInAnonymously: vi.fn(),
+      },
+      rpc: vi.fn(() => ({
+        maybeSingle: vi.fn(async () => ({ data: row(), error: null })),
+      })),
+    } as unknown as SupabaseClient;
+    const stalledFetch = vi.fn(
+      () => new Promise<Response>(() => undefined),
+    ) as unknown as typeof globalThis.fetch;
+    const adapter = createSupabaseFanViewAdapter({
+      client,
+      fetch: stalledFetch,
+      liveWorkerUrl: "https://live.example.test",
+      statusTimeoutMs: 5,
+    });
+
+    const snapshot = await adapter.loadSnapshot(
+      "match-123",
+      new AbortController().signal,
+    );
+
+    expect(snapshot.match.home.score).toBe(18);
+    expect(snapshot.media.kind).toBe("none");
   });
 });

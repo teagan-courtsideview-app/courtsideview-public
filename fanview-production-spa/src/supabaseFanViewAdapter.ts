@@ -40,10 +40,13 @@ interface AdapterOptions {
   liveWorkerUrl: string;
   pollIntervalMs?: number;
   statusIntervalMs?: number;
+  statusTimeoutMs?: number;
 }
 
 const PLACEHOLDER_VIDEO_URL = "cloudflare://fanview-live";
 const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
+export const FANVIEW_SCORE_FALLBACK_POLL_MS = 5_000;
+export const FANVIEW_STATUS_TIMEOUT_MS = 2_500;
 
 const asRecord = (value: unknown): JsonRecord =>
   value !== null && typeof value === "object" && !Array.isArray(value)
@@ -226,7 +229,10 @@ function patchRow(
       complete && !current.is_complete
         ? new Date().toISOString()
         : current.ended_at,
-    updated_at: new Date().toISOString(),
+    // Keep the last server revision. A browser clock can be ahead of the
+    // database clock; stamping a local time here can otherwise cause
+    // fetchRow() to reject newer durable score rows as "older" forever.
+    updated_at: current.updated_at,
   };
 }
 
@@ -234,8 +240,9 @@ export function createSupabaseFanViewAdapter({
   client,
   fetch: fetchImpl = globalThis.fetch,
   liveWorkerUrl,
-  pollIntervalMs = 120_000,
+  pollIntervalMs = FANVIEW_SCORE_FALLBACK_POLL_MS,
   statusIntervalMs = 30_000,
+  statusTimeoutMs = FANVIEW_STATUS_TIMEOUT_MS,
 }: AdapterOptions): FanViewAdapter {
   const rows = new Map<string, PublicFanViewMatchRow>();
   const statuses = new Map<string, LiveStatus>();
@@ -281,17 +288,30 @@ export function createSupabaseFanViewAdapter({
   };
 
   const fetchStatus = async (shareId: string): Promise<LiveStatus | null> => {
+    const controller = new AbortController();
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
-      const response = await fetchImpl(
+      const request = fetchImpl(
         `${liveWorkerUrl}/status/${encodeURIComponent(shareId)}`,
-        { cache: "no-store" },
+        { cache: "no-store", signal: controller.signal },
       );
+      const response = await Promise.race([
+        request,
+        new Promise<never>((_, reject) => {
+          timeout = setTimeout(() => {
+            controller.abort();
+            reject(new DOMException("Timed out", "TimeoutError"));
+          }, statusTimeoutMs);
+        }),
+      ]);
       if (!response.ok) return null;
       const status = (await response.json()) as LiveStatus;
       statuses.set(shareId, status);
       return status;
     } catch {
       return null;
+    } finally {
+      if (timeout !== undefined) clearTimeout(timeout);
     }
   };
 
@@ -315,28 +335,28 @@ export function createSupabaseFanViewAdapter({
       let channel: RealtimeChannel | null = null;
       let pollTimer: number | undefined;
       let statusTimer: number | undefined;
-      let newestTimestamp = 0;
 
-      const deliver = async (row = rows.get(shareId)) => {
+      const deliver = (row = rows.get(shareId)) => {
         if (!active || !row) return;
-        const revision = Date.parse(row.updated_at || "") || Date.now();
-        try {
-          const next = await makeSnapshot(shareId, row);
-          if (active && revision >= newestTimestamp) {
-            newestTimestamp = revision;
-            onSnapshot(next);
-          }
-        } catch (error) {
-          if (active) onError(error);
-        }
+        onSnapshot(
+          fanViewSnapshotFromRow(row, statuses.get(shareId) ?? null),
+        );
       };
       const refresh = async () => {
         if (!active || document.hidden) return;
         try {
-          await deliver(await fetchRow(shareId));
+          deliver(await fetchRow(shareId));
         } catch (error) {
           if (active) onError(error);
         }
+      };
+      const refreshStatus = async () => {
+        if (!active || document.hidden) return;
+        const status = await fetchStatus(shareId);
+        if (active && status) deliver();
+      };
+      const refreshWhenVisible = () => {
+        if (!document.hidden) void refresh();
       };
 
       channel = client
@@ -346,19 +366,19 @@ export function createSupabaseFanViewAdapter({
           if (!current) return void refresh();
           const next = patchRow(current, payload, "score");
           rows.set(shareId, next);
-          void deliver(next);
+          deliver(next);
         })
         .on("broadcast", { event: "state" }, ({ payload }) => {
           const current = rows.get(shareId);
           if (!current) return void refresh();
           const next = patchRow(current, payload, "state");
           rows.set(shareId, next);
-          void deliver(next);
+          deliver(next);
         })
         .subscribe((status) => {
           if (!active) return;
           if (status === "SUBSCRIBED") {
-            void deliver();
+            deliver();
           } else if (
             status === "CHANNEL_ERROR" ||
             status === "TIMED_OUT" ||
@@ -378,11 +398,18 @@ export function createSupabaseFanViewAdapter({
         });
 
       pollTimer = window.setInterval(() => void refresh(), pollIntervalMs);
-      statusTimer = window.setInterval(() => void deliver(), statusIntervalMs);
+      statusTimer = window.setInterval(
+        () => void refreshStatus(),
+        statusIntervalMs,
+      );
+      document.addEventListener("visibilitychange", refreshWhenVisible);
+      window.addEventListener("online", refreshWhenVisible);
       return () => {
         active = false;
         if (pollTimer !== undefined) window.clearInterval(pollTimer);
         if (statusTimer !== undefined) window.clearInterval(statusTimer);
+        document.removeEventListener("visibilitychange", refreshWhenVisible);
+        window.removeEventListener("online", refreshWhenVisible);
         if (channel) void client.removeChannel(channel);
       };
     },
