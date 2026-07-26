@@ -69,6 +69,15 @@ describe("Production FanView lifecycle", () => {
     );
   });
 
+  it("allows the live video to continue in browser picture-in-picture", () => {
+    const source = fs.readFileSync(
+      path.resolve(__dirname, "LiveMedia.tsx"),
+      "utf8",
+    );
+    expect(source).toContain("playsInline");
+    expect(source).not.toContain("disablePictureInPicture");
+  });
+
   it("does not hide the Cheering Section after a startup error", () => {
     const source = fs.readFileSync(
       path.resolve(

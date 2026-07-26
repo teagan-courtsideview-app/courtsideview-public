@@ -275,7 +275,6 @@ function CloudflareVideo({
         autoPlay
         className="live-media__video"
         data-rotation={rotation}
-        disablePictureInPicture
         muted={muted}
         playsInline
         ref={videoRef}
