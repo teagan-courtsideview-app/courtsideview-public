@@ -538,12 +538,6 @@
       const RECORDING_WARNING_BYTES = 4 * 1024 * 1024 * 1024;
       const FINAL_RALLY_HIGHLIGHT_GRACE_MS = 60 * 1000;
       const streamId = getStreamId();
-      if (streamId) {
-        void flushFanViewHighlightReceiptOutbox({
-          workerUrl: LIVE_WORKER_URL,
-          streamId,
-        }).catch(() => {});
-      }
       const initialRecordEnabled = getInitialRecordEnabled();
       const broadcastToken = getBroadcastToken();
       window.addEventListener('hashchange', () => {
@@ -1880,8 +1874,14 @@
         hintEl.textContent = 'Broadcast live. Return to score to keep scoring.';
         setControlState('live');
         void requestScreenWakeLock();
-        if (!reconnecting) void startHighlightReplay(media);
-        if (!reconnecting) startLocalRecording();
+        if (!reconnecting && recordEnabled) {
+          void flushFanViewHighlightReceiptOutbox({
+            workerUrl: LIVE_WORKER_URL,
+            streamId,
+          }).catch(() => {});
+          void startHighlightReplay(media);
+          startLocalRecording();
+        }
         statePill.textContent = 'LIVE';
         statusEl.classList.remove('on');
       }

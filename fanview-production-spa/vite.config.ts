@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   base: "/assets/fanview-production/",
   resolve: {
-    dedupe: ["react", "react-dom"],
+    dedupe: ["@phosphor-icons/react", "react", "react-dom"],
   },
   build: {
     emptyOutDir: true,

@@ -293,6 +293,181 @@
   backdrop-filter: blur(8px);
 }
 
+.fanview-app[data-scoreboard-size="small"] .score-bug {
+  width: min(340px, calc(100vw - 470px));
+  min-width: 300px;
+}
+
+.fanview-app[data-scoreboard-size="small"] .score-bug__row {
+  height: 66px;
+}
+
+.fanview-app[data-scoreboard-size="small"] .score-bug__team-mark {
+  width: 38px;
+  height: 38px;
+  flex-basis: 38px;
+  font-size: 12px;
+}
+
+.fanview-app[data-scoreboard-size="small"] .score-bug__team-copy > strong {
+  font-size: 12px;
+}
+
+.fanview-app[data-scoreboard-size="small"] .score-bug__cell-score {
+  font-size: 20px;
+}
+
+.fanview-app[data-scoreboard-size="standard"] .score-bug {
+  width: min(460px, calc(100vw - 470px));
+}
+
+.fanview-app[data-scoreboard-size="large"] .score-bug {
+  width: min(580px, calc(100vw - 470px));
+}
+
+.fanview-app[data-scoreboard-size="large"] .score-bug__row {
+  height: 94px;
+}
+
+.fanview-app[data-scoreboard-size="large"] .score-bug__team-mark {
+  width: 54px;
+  height: 54px;
+  flex-basis: 54px;
+  font-size: 16px;
+}
+
+.fanview-app[data-scoreboard-size="large"] .score-bug__team-copy > strong {
+  font-size: 17px;
+}
+
+.fanview-app[data-scoreboard-size="large"] .score-bug__cell-score {
+  font-size: 30px;
+}
+
+.fanview-app[data-scoreboard-position="top-left"] .score-bug {
+  top: max(88px, calc(env(safe-area-inset-top) + 64px));
+  right: auto;
+  bottom: auto;
+  left: max(28px, env(safe-area-inset-left));
+  transform: none;
+}
+
+.fanview-app[data-scoreboard-position="top-right"] .score-bug {
+  top: max(88px, calc(env(safe-area-inset-top) + 64px));
+  right: max(28px, env(safe-area-inset-right));
+  bottom: auto;
+  left: auto;
+  transform: none;
+}
+
+.fanview-app[data-scoreboard-position="bottom-left"] .score-bug {
+  top: auto;
+  right: auto;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  left: max(28px, env(safe-area-inset-left));
+  transform: none;
+}
+
+.fanview-app[data-scoreboard-position="bottom-right"] .score-bug {
+  top: auto;
+  right: max(28px, env(safe-area-inset-right));
+  bottom: max(84px, calc(env(safe-area-inset-bottom) + 64px));
+  left: auto;
+  transform: none;
+}
+
+.fanview-app[data-scoreboard-position="bottom-center"] .score-bug {
+  top: auto;
+  right: auto;
+  bottom: max(84px, calc(env(safe-area-inset-bottom) + 64px));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scoreboard-display-trigger {
+  display: inline-flex;
+  min-width: 48px;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #fff;
+  background: rgba(3, 8, 15, 0.74);
+  font-weight: 850;
+  backdrop-filter: blur(8px);
+}
+
+.scoreboard-display-trigger--standalone {
+  position: absolute;
+  z-index: 5;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+}
+
+.scoreboard-display-menu {
+  position: absolute;
+  z-index: 9;
+  top: max(80px, calc(env(safe-area-inset-top) + 56px));
+  right: max(28px, env(safe-area-inset-right));
+  display: grid;
+  width: min(290px, calc(100vw - 32px));
+  gap: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 16px;
+  padding: 14px;
+  color: #fff;
+  background: rgba(3, 10, 20, 0.96);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(14px);
+}
+
+.scoreboard-display-menu > strong {
+  font-size: 15px;
+}
+
+.scoreboard-display-menu__label {
+  color: #bdc7d4;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.scoreboard-display-menu__options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.scoreboard-display-menu__positions {
+  grid-template-columns: 1fr 1fr;
+}
+
+.scoreboard-display-menu button {
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  padding: 0 8px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.scoreboard-display-menu button[aria-pressed="true"] {
+  border-color: #ff3f75;
+  background: rgba(255, 63, 117, 0.18);
+  box-shadow: inset 0 0 0 1px #ff3f75;
+}
+
+.scoreboard-display-menu__reset {
+  width: 100%;
+}
+
 @media (max-width: 720px) {
   .fanview-app {
     --fanview-mobile-bottom-inset: max(
@@ -312,44 +487,192 @@
     right: max(10px, env(safe-area-inset-right));
     bottom: calc(var(--fanview-mobile-bottom-inset) + 58px);
     left: max(10px, env(safe-area-inset-left));
-    width: auto;
+    width: min(370px, calc(100vw - 20px));
     min-width: 0;
-    border-radius: 9px;
+    border-radius: 12px;
     padding: 6px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34);
   }
 
-  .score-bug__set {
-    height: 15px;
-    font-size: 8px;
+  .fanview-app[data-scoreboard-size="small"] .score-bug {
+    width: min(300px, calc(100vw - 20px));
+    min-width: 0;
   }
 
-  .score-bug__row {
-    min-height: 29px;
-    grid-template-columns: 0 minmax(0, 1fr) 30px 33px;
-    margin-top: 3px;
+  .fanview-app[data-scoreboard-size="standard"] .score-bug {
+    width: min(370px, calc(100vw - 20px));
+    min-width: 0;
   }
 
-  .score-bug__team {
-    padding: 0 7px;
+  .fanview-app[data-scoreboard-size="large"] .score-bug {
+    width: calc(100vw - 20px);
+    min-width: 0;
+  }
+
+  .fanview-app[data-scoreboard-position="top-left"] .score-bug {
+    top: max(104px, calc(env(safe-area-inset-top) + 80px));
+    right: auto;
+    bottom: auto;
+    left: max(10px, env(safe-area-inset-left));
+    transform: none;
+  }
+
+  .fanview-app[data-scoreboard-position="top-right"] .score-bug {
+    top: max(104px, calc(env(safe-area-inset-top) + 80px));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: auto;
+    left: auto;
+    transform: none;
+  }
+
+  .fanview-app[data-scoreboard-position="bottom-left"] .score-bug {
+    top: auto;
+    right: auto;
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 58px);
+    left: max(10px, env(safe-area-inset-left));
+    transform: none;
+  }
+
+  .fanview-app[data-scoreboard-position="bottom-right"] .score-bug {
+    top: auto;
+    right: max(10px, env(safe-area-inset-right));
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 58px);
+    left: auto;
+    transform: none;
+  }
+
+  .fanview-app[data-scoreboard-position="bottom-center"] .score-bug {
+    top: auto;
+    right: auto;
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 58px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .score-bug__timeout {
+    min-height: 44px;
+    margin-bottom: 6px;
+    padding: 0 9px;
     font-size: 10px;
   }
 
-  .score-bug__score {
-    font-size: 15px;
+  .score-bug__header {
+    min-height: 34px;
   }
 
-  .score-bug__sets small {
-    font-size: 5px;
+  .score-bug__format,
+  .score-bug__set-heading {
+    padding: 0 5px;
+    font-size: 8px;
   }
 
-  .score-bug__sets strong {
-    font-size: 13px;
+  .score-bug__format {
+    padding-left: 9px;
+  }
+
+  .score-bug__set-heading {
+    display: grid;
+    place-items: center;
+    gap: 0;
+  }
+
+  .score-bug__set-heading small {
+    gap: 3px;
+    font-size: 6px;
+  }
+
+  .score-bug__set-heading small i {
+    width: 5px;
+    height: 5px;
+  }
+
+  .score-bug__row,
+  .fanview-app[data-scoreboard-size="standard"] .score-bug__row {
+    height: 64px;
+  }
+
+  .fanview-app[data-scoreboard-size="small"] .score-bug__row {
+    height: 54px;
+  }
+
+  .fanview-app[data-scoreboard-size="large"] .score-bug__row {
+    height: 74px;
+  }
+
+  .score-bug__team {
+    gap: 7px;
+    padding: 7px 9px;
+  }
+
+  .score-bug__team-mark,
+  .fanview-app[data-scoreboard-size="standard"] .score-bug__team-mark {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 8px;
+    font-size: 10px;
+  }
+
+  .fanview-app[data-scoreboard-size="small"] .score-bug__team-mark {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    font-size: 8px;
+  }
+
+  .fanview-app[data-scoreboard-size="large"] .score-bug__team-mark {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    font-size: 11px;
+  }
+
+  .score-bug__team-copy > strong,
+  .fanview-app[data-scoreboard-size="standard"] .score-bug__team-copy > strong {
+    font-size: 10px;
+  }
+
+  .fanview-app[data-scoreboard-size="small"] .score-bug__team-copy > strong {
+    font-size: 9px;
+  }
+
+  .fanview-app[data-scoreboard-size="large"] .score-bug__team-copy > strong {
+    font-size: 11px;
+  }
+
+  .score-bug__team-copy > small {
+    font-size: 7px;
+  }
+
+  .score-bug__team-copy > small b {
+    font-size: 9px;
+  }
+
+  .score-bug__cell-score,
+  .fanview-app[data-scoreboard-size="standard"] .score-bug__cell-score {
+    font-size: 19px;
+  }
+
+  .fanview-app[data-scoreboard-size="small"] .score-bug__cell-score {
+    font-size: 16px;
+  }
+
+  .fanview-app[data-scoreboard-size="large"] .score-bug__cell-score {
+    font-size: 22px;
+  }
+
+  .score-bug__winner-badge {
+    top: 4px;
+    right: 4px;
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    font-size: 8px;
   }
 
   .media-controls {
     right: calc(
-      var(--fanview-mobile-cheer-width) + 16px +
+      var(--fanview-mobile-cheer-width) + 10px +
         env(safe-area-inset-right)
     );
     bottom: var(--fanview-mobile-bottom-inset);
@@ -357,7 +680,7 @@
     max-width: none;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    gap: 6px;
+    gap: 4px;
   }
 
   .media-control {
@@ -417,8 +740,20 @@
     font-size: 11px;
   }
 
-  .score-bug__history {
-    margin-top: 6px;
+  .scoreboard-display-trigger--standalone {
+    right: auto;
+    bottom: var(--fanview-mobile-bottom-inset);
+    left: max(10px, env(safe-area-inset-left));
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .scoreboard-display-menu {
+    top: max(62px, calc(env(safe-area-inset-top) + 46px));
+    right: max(10px, env(safe-area-inset-right));
+    width: min(284px, calc(100vw - 20px));
   }
 
   .fanview-state-page {
@@ -436,8 +771,18 @@
 }
 
 @media (max-width: 380px) {
+  .score-bug__team-copy > strong {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 340px) {
+  .score-bug__team-mark {
+    display: none;
+  }
+
   .score-bug__team {
-    font-size: 9px;
+    padding: 5px 7px;
   }
 }
 
@@ -455,10 +800,61 @@
     width: auto;
   }
 
-  .score-bug {
-    right: max(8px, env(safe-area-inset-right));
+  .scoreboard-display-trigger--standalone {
+    right: auto;
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 52px);
+    left: max(8px, env(safe-area-inset-left));
+  }
+
+  .fanview-app[data-scoreboard-size] .score-bug {
+    right: auto;
+    width: calc(100vw - 16px);
+    min-width: 0;
     bottom: calc(var(--fanview-mobile-bottom-inset) + 104px);
     left: max(8px, env(safe-area-inset-left));
+    transform: none;
+  }
+
+  .fanview-app[data-scoreboard-position="top-left"] .score-bug,
+  .fanview-app[data-scoreboard-position="top-right"] .score-bug {
+    top: max(104px, calc(env(safe-area-inset-top) + 80px));
+    right: auto;
+    bottom: auto;
+    left: max(8px, env(safe-area-inset-left));
+  }
+
+  .score-bug__team-mark {
+    display: none;
+  }
+
+  .score-bug__team {
+    padding: 5px 6px;
+  }
+
+  .score-bug__team-copy > strong {
+    font-size: 8px;
+  }
+
+  .score-bug__team-copy > small {
+    font-size: 6px;
+  }
+
+  .score-bug__cell-score {
+    font-size: 15px;
+  }
+
+  .score-bug__winner-badge {
+    top: 3px;
+    right: 3px;
+    width: 13px;
+    height: 13px;
+    font-size: 7px;
+  }
+
+  .scoreboard-display-menu {
+    right: max(8px, env(safe-area-inset-right));
+    width: calc(100vw - 16px);
+    padding: 10px;
   }
 
   .fanview-state-actions {
@@ -495,6 +891,7 @@
     right: calc(144px + env(safe-area-inset-right));
     bottom: max(10px, env(safe-area-inset-bottom));
     left: max(250px, calc(env(safe-area-inset-left) + 250px));
+    gap: 5px;
   }
 
   .media-control {
@@ -507,35 +904,114 @@
     display: none;
   }
 
-  .score-bug {
+  .fanview-app[data-scoreboard-size="small"] .score-bug {
+    width: 260px;
+    min-width: 0;
+  }
+
+  .fanview-app[data-scoreboard-size="standard"] .score-bug {
+    width: 330px;
+    min-width: 0;
+  }
+
+  .fanview-app[data-scoreboard-size="large"] .score-bug {
+    width: min(430px, calc(100vw - 20px));
+    min-width: 0;
+  }
+
+  .fanview-app[data-scoreboard-position="top-left"] .score-bug {
+    top: max(62px, calc(env(safe-area-inset-top) + 48px));
+    right: auto;
+    bottom: auto;
+    left: max(10px, env(safe-area-inset-left));
+    transform: none;
+  }
+
+  .fanview-app[data-scoreboard-position="top-right"] .score-bug {
+    top: max(62px, calc(env(safe-area-inset-top) + 48px));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: auto;
+    left: auto;
+    transform: none;
+  }
+
+  .fanview-app[data-scoreboard-position="bottom-left"] .score-bug {
     top: auto;
     right: auto;
     bottom: calc(max(10px, env(safe-area-inset-bottom)) + 54px);
     left: max(10px, env(safe-area-inset-left));
-    width: 228px;
-    min-width: 0;
-    border-radius: 9px;
-    padding: 7px;
+    transform: none;
   }
 
-  .score-bug__set {
-    height: 15px;
-    font-size: 8px;
+  .fanview-app[data-scoreboard-position="bottom-right"] .score-bug {
+    top: auto;
+    right: max(10px, env(safe-area-inset-right));
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 54px);
+    left: auto;
+    transform: none;
   }
 
-  .score-bug__row {
-    min-height: 29px;
-    grid-template-columns: 0 minmax(0, 1fr) 34px 36px;
-    margin-top: 3px;
+  .fanview-app[data-scoreboard-position="bottom-center"] .score-bug {
+    top: auto;
+    right: auto;
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 54px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .score-bug__header {
+    min-height: 30px;
+  }
+
+  .score-bug__row,
+  .fanview-app[data-scoreboard-size="standard"] .score-bug__row {
+    height: 52px;
+  }
+
+  .fanview-app[data-scoreboard-size="small"] .score-bug__row {
+    height: 46px;
+  }
+
+  .fanview-app[data-scoreboard-size="large"] .score-bug__row {
+    height: 58px;
+  }
+
+  .score-bug__timeout {
+    min-height: 40px;
+    font-size: 9px;
   }
 
   .score-bug__team {
-    padding: 0 8px;
-    font-size: 11px;
+    gap: 6px;
+    padding: 5px 7px;
   }
 
-  .score-bug__score {
-    font-size: 16px;
+  .score-bug__team-mark {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .score-bug__team-copy > strong {
+    font-size: 9px;
+  }
+
+  .score-bug__cell-score {
+    font-size: 17px;
+  }
+
+  .scoreboard-display-trigger--standalone {
+    right: auto;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .scoreboard-display-menu {
+    top: max(58px, calc(env(safe-area-inset-top) + 44px));
+    width: min(278px, calc(100vw - 20px));
+    gap: 6px;
+    padding: 10px;
   }
 
   .community-launcher {

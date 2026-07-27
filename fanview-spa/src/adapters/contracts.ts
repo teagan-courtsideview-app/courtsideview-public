@@ -24,6 +24,7 @@ export interface FanViewMatch {
   homeSetsWon: number;
   awaySetsWon: number;
   completedSets?: CompletedSetScore[];
+  timeoutTeamName?: string;
   isComplete: boolean;
   isLive: boolean;
   updatedAt: string;

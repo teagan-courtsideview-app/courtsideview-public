@@ -64,6 +64,58 @@ describe("FanView production row normalization", () => {
     expect(snapshot.activity[0]?.message).toBe("14s Blue scores");
   });
 
+  it("keeps only completed sets and never duplicates the active set", () => {
+    const snapshot = fanViewSnapshotFromRow(
+      row({
+        state: {
+          currentSet: 3,
+          homeScore: 12,
+          awayScore: 9,
+          sets: [
+            { us: 25, them: 21 },
+            { us: 21, them: 25 },
+            { us: 12, them: 9 },
+          ],
+        },
+      }),
+    );
+    expect(snapshot.match.completedSets).toEqual([
+      { setNumber: 1, homeScore: 25, awayScore: 21 },
+      { setNumber: 2, homeScore: 21, awayScore: 25 },
+    ]);
+  });
+
+  it("exposes a persistent viewer timeout until authoritative activity resumes", () => {
+    const timeout = fanViewSnapshotFromRow(
+      row({
+        state: {
+          currentSet: 2,
+          homeScore: 17,
+          awayScore: 16,
+          currentActivity: {
+            type: "TIMEOUT",
+            team: "opponent",
+            message: "Metro Red timeout in progress",
+          },
+        },
+      }),
+    );
+    expect(timeout.match.timeoutTeamName).toBe("Metro Red");
+
+    const resumed = fanViewSnapshotFromRow(
+      row({
+        state: {
+          currentSet: 2,
+          homeScore: 18,
+          awayScore: 16,
+          currentActivity: null,
+          latestFeed: { text: "14s Blue scores" },
+        },
+      }),
+    );
+    expect(resumed.match.timeoutTeamName).toBeUndefined();
+  });
+
   it("discovers a Cloudflare broadcast from Worker status", () => {
     const snapshot = fanViewSnapshotFromRow(row(), {
       isLive: true,

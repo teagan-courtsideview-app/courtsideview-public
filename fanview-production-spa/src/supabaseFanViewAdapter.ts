@@ -114,6 +114,8 @@ const activityFromState = (state: JsonRecord): FanViewActivity[] => {
 
 const completedSetsFromState = (
   state: JsonRecord,
+  currentSet: number,
+  isComplete: boolean,
 ): CompletedSetScore[] => {
   const candidates = Array.isArray(state.completedSets)
     ? state.completedSets
@@ -140,7 +142,34 @@ const completedSetsFromState = (
         awayScore,
       };
     })
-    .filter((set): set is CompletedSetScore => set !== null);
+    .filter((set): set is CompletedSetScore => set !== null)
+    .filter((set) => isComplete || set.setNumber < currentSet)
+    .sort((left, right) => left.setNumber - right.setNumber);
+};
+
+const timeoutTeamNameFromState = (
+  state: JsonRecord,
+  row: PublicFanViewMatchRow,
+): string | undefined => {
+  const currentActivity = asRecord(state.currentActivity);
+  const latestFeed = asRecord(state.latestFeed);
+  const currentType = stringValue(currentActivity.type).toUpperCase();
+  const latestText = stringValue(latestFeed.text);
+  const currentMessage = stringValue(currentActivity.message);
+  const timeoutText = currentMessage || latestText;
+  const isTimeout =
+    currentType === "TIMEOUT" ||
+    /\btimeout(?:\s+called\s+by|\s+in\s+progress)?\b/i.test(timeoutText);
+  if (!isTimeout) return undefined;
+
+  const team = stringValue(currentActivity.team);
+  if (team === "myTeam") return stringValue(row.home_name) || undefined;
+  if (team === "opponent") return stringValue(row.away_name) || undefined;
+
+  const calledBy = timeoutText.match(/timeout called by\s+([^·:]+?)(?:\s*·|$)/i)?.[1];
+  if (calledBy?.trim()) return calledBy.trim();
+  const inProgress = timeoutText.match(/^(.+?)\s+timeout in progress\b/i)?.[1];
+  return inProgress?.trim() || undefined;
 };
 
 const mediaFromRow = (
@@ -213,7 +242,8 @@ export function fanViewSnapshotFromRow(
         state.awaySetsWon,
         numberValue(state.opponentSetsWon),
       ),
-      completedSets: completedSetsFromState(state),
+      completedSets: completedSetsFromState(state, setNumber, row.is_complete),
+      timeoutTeamName: timeoutTeamNameFromState(state, row),
       isComplete: row.is_complete,
       isLive: !row.is_complete,
       updatedAt,

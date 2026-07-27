@@ -3,6 +3,7 @@ import {
   ArrowsOut,
   PictureInPicture,
   Play,
+  SlidersHorizontal,
   SpeakerHigh,
   SpeakerSlash,
 } from "@phosphor-icons/react";
@@ -14,9 +15,11 @@ import type {
 import { scoreBugTextColor } from "../../fanview-spa/src/components/ScoreBug";
 
 interface Props {
+  displayMenuOpen: boolean;
   liveWorkerUrl: string;
   match: FanViewMatch;
   media: FanViewMedia;
+  onDisplayToggle: () => void;
   shareId: string;
   viewerCount: number;
 }
@@ -390,8 +393,10 @@ const drawPresentationFrame = (
 };
 
 function CloudflareVideo({
+  displayMenuOpen,
   liveWorkerUrl,
   match,
+  onDisplayToggle,
   rotation,
   shareId,
   viewerCount,
@@ -975,6 +980,17 @@ function CloudflareVideo({
           </span>
         </button>
         <button
+          aria-expanded={displayMenuOpen}
+          aria-label="Scoreboard display"
+          className="media-control media-control--display"
+          data-scoreboard-display-trigger
+          onClick={onDisplayToggle}
+          type="button"
+        >
+          <SlidersHorizontal aria-hidden="true" size={19} weight="bold" />
+          <span className="media-control__label">Display</span>
+        </button>
+        <button
           aria-label={fullscreen ? "Exit full screen" : "Enter full screen"}
           aria-pressed={fullscreen}
           className="media-control media-control--fullscreen"
@@ -996,9 +1012,11 @@ function CloudflareVideo({
 }
 
 export function LiveMedia({
+  displayMenuOpen,
   liveWorkerUrl,
   match,
   media,
+  onDisplayToggle,
   shareId,
   viewerCount,
 }: Props) {
@@ -1006,8 +1024,10 @@ export function LiveMedia({
   if (media.kind === "cloudflare-realtime") {
     return (
       <CloudflareVideo
+        displayMenuOpen={displayMenuOpen}
         liveWorkerUrl={liveWorkerUrl}
         match={match}
+        onDisplayToggle={onDisplayToggle}
         rotation={media.rotation}
         shareId={shareId}
         viewerCount={viewerCount}

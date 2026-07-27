@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
@@ -73,6 +73,98 @@ describe("Production FanView lifecycle", () => {
     expect(source).toContain("match.awaySetsWon");
     expect(source).toContain("BEST OF {match.totalSets}");
     expect(source).toContain("sets won");
+  });
+
+  it("keeps Display closed until requested and persists approved scoreboard choices", async () => {
+    window.localStorage.clear();
+    renderApp({
+      async loadSnapshot() {
+        return snapshot("2026-07-25T20:01:00.000Z", 18);
+      },
+    });
+    await screen.findByText("18");
+    expect(
+      screen.queryByRole("dialog", { name: "Scoreboard display" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Scoreboard display" }),
+    );
+    expect(
+      screen.getByRole("dialog", { name: "Scoreboard display" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Small" }));
+    fireEvent.click(screen.getByRole("button", { name: "Top right" }));
+
+    expect(screen.getByTestId("fanview-production-app")).toHaveAttribute(
+      "data-scoreboard-size",
+      "small",
+    );
+    expect(screen.getByTestId("fanview-production-app")).toHaveAttribute(
+      "data-scoreboard-position",
+      "top-right",
+    );
+    expect(
+      window.localStorage.getItem("courtsideview_fanview_scoreboard_size"),
+    ).toBe("small");
+    expect(
+      window.localStorage.getItem("courtsideview_fanview_scoreboard_position"),
+    ).toBe("top-right");
+  });
+
+  it("uses one aligned ledger without duplicating the live set", async () => {
+    const live = snapshot("2026-07-25T20:01:00.000Z", 12);
+    live.match.setNumber = 3;
+    live.match.totalSets = 5;
+    live.match.homeSetsWon = 1;
+    live.match.awaySetsWon = 1;
+    live.match.completedSets = [
+      { setNumber: 1, homeScore: 25, awayScore: 21 },
+      { setNumber: 2, homeScore: 21, awayScore: 25 },
+      { setNumber: 3, homeScore: 12, awayScore: 16 },
+    ];
+    renderApp({
+      async loadSnapshot() {
+        return live;
+      },
+    });
+    await screen.findByText("BEST OF 5");
+    expect(screen.getAllByText("S3")).toHaveLength(1);
+    expect(
+      screen.getByLabelText("14s Blue won set 1"),
+    ).toHaveTextContent("W");
+    expect(
+      screen.getByLabelText("Metro Red won set 2"),
+    ).toHaveTextContent("W");
+    expect(screen.queryByText("WIN")).not.toBeInTheDocument();
+  });
+
+  it("does not duplicate timeout activity outside the persistent timeout banner", async () => {
+    const timedOut = snapshot("2026-07-25T20:01:00.000Z", 12);
+    timedOut.match.timeoutTeamName = "14s Blue";
+    timedOut.latestAction = "Timeout called by 14s Blue";
+    renderApp({
+      async loadSnapshot() {
+        return timedOut;
+      },
+    });
+    expect(await screen.findByText("TIMEOUT — 14s Blue")).toBeVisible();
+    expect(
+      screen.queryByText("Timeout called by 14s Blue"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders the linked Team Hub action in the active viewer route", async () => {
+    const linked = snapshot("2026-07-25T20:01:00.000Z", 18);
+    linked.match.teamHub = { name: "14s Blue", slug: "14s-blue" };
+    renderApp({
+      async loadSnapshot() {
+        return linked;
+      },
+    });
+    expect(
+      await screen.findByRole("link", { name: "Back to 14s Blue Team Hub" }),
+    ).toHaveAttribute("href", "/t/14s-blue");
   });
 
   it("does not place a dark shade over live video", () => {

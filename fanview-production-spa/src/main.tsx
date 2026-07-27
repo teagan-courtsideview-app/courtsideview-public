@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { createFixtureCommunityAdapter } from "../../fanview-spa/src/adapters/fixtureCommunityAdapter";
+import type { FanViewSnapshot } from "../../fanview-spa/src/adapters/contracts";
 import { createSupabaseCommunityAdapter } from "../../fanview-spa/src/adapters/supabaseCommunityAdapter";
 import "../../fanview-spa/src/styles.css";
 import {
@@ -23,10 +24,50 @@ const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 });
 const liveWorkerUrl = configuredLiveWorkerUrl();
 const mode = communityMode();
-const fanViewAdapter = createSupabaseFanViewAdapter({
-  client,
-  liveWorkerUrl,
-});
+const visualQaMode =
+  import.meta.env.DEV &&
+  new URLSearchParams(window.location.search).get("fixture") === "qa";
+const visualQaFanViewAdapter = {
+  async loadSnapshot(_shareId: string, signal: AbortSignal) {
+    if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+    const snapshot: FanViewSnapshot = {
+      shareId: "fanview-spa-fixture",
+      viewerCount: 1200,
+      latestAction: "Timeout called by QA Canaries",
+      match: {
+        setNumber: 3,
+        setTarget: 25,
+        totalSets: 5,
+        homeSetsWon: 1,
+        awaySetsWon: 1,
+        completedSets: [
+          { setNumber: 1, homeScore: 25, awayScore: 21 },
+          { setNumber: 2, homeScore: 21, awayScore: 25 },
+        ],
+        timeoutTeamName: "QA Canaries",
+        isComplete: false,
+        isLive: true,
+        updatedAt: new Date(0).toISOString(),
+        teamHub: { name: "QA Canaries", slug: "qa-canaries" },
+        home: { name: "QA Canaries", score: 12, color: "#F6A700" },
+        away: { name: "Regression Checks", score: 9, color: "#FF496C" },
+      },
+      media: {
+        kind: "none",
+        alt: "No live video is currently available.",
+      },
+      activity: [],
+      connection: "connected",
+    };
+    return snapshot;
+  },
+};
+const fanViewAdapter = visualQaMode
+  ? visualQaFanViewAdapter
+  : createSupabaseFanViewAdapter({
+      client,
+      liveWorkerUrl,
+    });
 const communityAdapter =
   mode === "preview"
     ? createFixtureCommunityAdapter()
@@ -43,7 +84,11 @@ createRoot(root).render(
       communityEnabled={mode !== "off"}
       fanViewAdapter={fanViewAdapter}
       liveWorkerUrl={liveWorkerUrl}
-      shareId={productionShareId(window.location.pathname)}
+      shareId={
+        visualQaMode
+          ? "fanview-spa-fixture"
+          : productionShareId(window.location.pathname)
+      }
     />
   </React.StrictMode>,
 );
