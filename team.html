@@ -10,7 +10,7 @@
         color-scheme: light;
         --ink: #111827;
         --muted: #6b7280;
-        --dim: #7b8394;
+        --dim: #596273;
         --line: #e6e8ee;
         --paper: #f7f8fb;
         --panel: #ffffff;
@@ -38,7 +38,7 @@
       main {
         width: min(1120px, calc(100% - 28px));
         margin: 0 auto;
-        padding: 26px 0 46px;
+        padding: 20px 0 46px;
       }
       .topbar {
         display: flex;
@@ -62,12 +62,13 @@
         margin: 0;
         max-width: 760px;
         font-family: var(--font-display);
-        font-size: clamp(42px, 8vw, 84px);
-        line-height: .9;
+        font-size: clamp(36px, 5vw, 58px);
+        line-height: .98;
         letter-spacing: 0;
         text-transform: none;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        overflow-wrap: normal;
+        word-break: normal;
+        text-wrap: balance;
       }
       .meta {
         margin: 12px 0 0;
@@ -93,10 +94,27 @@
         box-shadow: 0 10px 24px rgba(17, 24, 39, 0.14);
         text-transform: uppercase;
       }
+      .topbar-actions {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 10px;
+      }
+      .top-action {
+        min-height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0 15px;
+        color: var(--ink);
+        background: #fff;
+        font-size: 13px;
+        font-weight: 900;
+        box-shadow: 0 8px 20px rgba(17, 24, 39, .08);
+      }
       .hero, section {
         background: var(--panel);
         border: 1px solid var(--line);
-        border-radius: 8px;
+        border-radius: 20px;
         box-shadow: var(--shadow);
       }
       .hero {
@@ -106,7 +124,7 @@
         grid-template-columns: 1fr auto;
         gap: 18px;
         align-items: center;
-        border-left: 8px solid var(--accent, var(--green));
+        border-left: 6px solid var(--accent, var(--green));
       }
       .hero > div,
       .layout > *,
@@ -131,8 +149,8 @@
       .hero-title {
         margin: 12px 0 0;
         font-family: var(--font-display);
-        font-size: clamp(30px, 6vw, 58px);
-        line-height: .96;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1;
         font-weight: 950;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -222,6 +240,39 @@
         display: grid;
         grid-template-columns: 1.45fr .85fr;
         gap: 16px;
+      }
+      .team-tabs {
+        position: sticky;
+        z-index: 20;
+        top: 0;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        margin: 0 0 16px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 6px;
+        background: rgba(247, 248, 251, .94);
+        box-shadow: 0 10px 28px rgba(17, 24, 39, .08);
+        backdrop-filter: blur(14px);
+        scrollbar-width: none;
+      }
+      .team-tabs a {
+        display: inline-flex;
+        min-width: max-content;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        padding: 0 16px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+      .team-tabs a:first-child {
+        color: #fff;
+        background: var(--green);
       }
       section {
         padding: 18px;
@@ -373,11 +424,11 @@
       @media (max-width: 760px) {
         main { width: min(calc(100% - 28px), 560px); padding-top: 22px; }
         .topbar { align-items: flex-start; }
-        h1 { font-size: clamp(34px, 10vw, 48px); line-height: .96; }
-        .meta { font-size: 15px; }
+        h1 { font-size: clamp(30px, 8vw, 40px); line-height: 1; }
+        .meta { font-size: 14px; }
         .mark { width: 58px; height: 58px; font-size: 18px; }
         .hero { grid-template-columns: 1fr; padding: 18px; }
-        .hero-title { font-size: clamp(30px, 9vw, 42px); }
+        .hero-title { font-size: clamp(27px, 7vw, 36px); }
         .hero .button { width: 100%; }
         .live-feed-card { grid-template-columns: 1fr; }
         .live-feed-cta { justify-self: start; }
@@ -392,6 +443,7 @@
         .mark { width: 52px; height: 52px; font-size: 16px; }
         section { padding: 16px; }
         .hero { padding: 16px; }
+        .team-tabs a { padding: 0 13px; }
       }
     </style>
   </head>
@@ -403,8 +455,18 @@
           <h1 id="teamName">Loading team</h1>
           <p class="meta" id="teamMeta"></p>
         </header>
-        <div class="mark" id="teamMark">CV</div>
+        <div class="topbar-actions">
+          <button class="top-action" id="shareTeam" type="button">Share</button>
+          <div class="mark" id="teamMark">CV</div>
+        </div>
       </div>
+
+      <nav class="team-tabs" aria-label="Team Hub sections">
+        <a href="#hero">Home</a>
+        <a href="#scheduleSection">Schedule</a>
+        <a href="#resultsSection">Results</a>
+        <a href="#rosterSection">Roster</a>
+      </nav>
 
       <section class="hero" id="hero">
         <div>
@@ -418,14 +480,14 @@
 
       <div class="layout">
         <div>
-          <section id="schedule">
+          <section id="scheduleSection">
             <div class="section-head">
               <h2>Schedule</h2>
               <span class="section-note" id="scheduleCount"></span>
             </div>
-            <div id="schedule"></div>
+            <div id="scheduleList"></div>
           </section>
-          <section>
+          <section id="resultsSection">
             <div class="section-head">
               <h2>Results</h2>
               <span class="section-note" id="resultCount"></span>
@@ -465,7 +527,7 @@
             </form>
             <p class="note" id="followNote">Bookmark this Team Hub. We will email when the team goes live, and this page will show every active FanView feed.</p>
           </section>
-          <section>
+          <section id="rosterSection">
             <div class="section-head">
               <h2>Roster</h2>
               <span class="section-note" id="rosterCount"></span>
@@ -491,7 +553,7 @@
       const filenameWords = /\b(roster|team roster|players|player list|lineup|excel|csv|pdf)\b/gi;
       const separatorWords = /[_-]+/g;
       const fileExtension = /\.[a-z0-9]{2,8}$/i;
-      const acronymWords = new Set(['oc', 'og', 'usa', 'usav', 'vbc', 'aa', 'aaa']);
+      const acronymWords = new Set(['oc', 'og', 'qa', 'usa', 'usav', 'vbc', 'aa', 'aaa']);
 
       function escapeHtml(value) {
         return String(value ?? '')
@@ -740,7 +802,7 @@
               <span class="score-chip">Sets ${score.homeSets}-${score.awaySets}</span>
             `;
           $('heroAction').textContent = links.length > 1 ? 'Watch Latest' : 'Watch FanView';
-          $('heroAction').href = firstLink ? `/v/${encodeURIComponent(firstLink.shareId)}` : '#schedule';
+          $('heroAction').href = firstLink ? `/v/${encodeURIComponent(firstLink.shareId)}` : '#scheduleSection';
           return;
         }
 
@@ -834,7 +896,8 @@
         document.documentElement.style.setProperty('--accent', color);
         document.documentElement.style.setProperty('--accent-soft', `${color}1f`);
         $('teamName').textContent = publicName;
-        $('teamMeta').textContent = `${seasonText(team)} · courtsideviewapp.com/t/${team.slug}`;
+        const rosterSize = Array.isArray(team.roster) ? team.roster.length : 0;
+        $('teamMeta').textContent = `${seasonText(team)}${rosterSize ? ` · ${rosterSize} players` : ''}`;
         $('teamMark').textContent = displayTeamMark(team, publicName);
         $('teamMark').style.background = color;
         $('openInApp').href = `courtsideview://team/${encodeURIComponent(team.slug)}`;
@@ -846,7 +909,7 @@
         const pastScheduled = state.matches.filter((match) => isPastScheduledMatch(match, now));
         $('scheduleCount').textContent = schedule.length ? `${schedule.length} posted` : '';
         $('resultCount').textContent = results.length ? `${results.length} final` : '';
-        $('schedule').innerHTML = schedule.length
+        $('scheduleList').innerHTML = schedule.length
           ? schedule.map((match) => renderMatch(match, 'schedule')).join('')
           : '<p class="empty">No matches posted yet. This page will update when the team adds one.</p>';
         $('results').innerHTML = results.length
@@ -915,6 +978,32 @@
         }
         note.textContent = 'You are following this team. We will email when this Team Hub goes live.';
         $('email').value = '';
+      });
+
+      $('shareTeam').addEventListener('click', async () => {
+        const publicName = displayTeamName(state.team?.name);
+        const share = {
+          title: `${publicName} Team Hub`,
+          text: `Follow ${publicName} on CourtsideView.`,
+          url: window.location.href,
+        };
+        if (navigator.share) {
+          try {
+            await navigator.share(share);
+            return;
+          } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') return;
+          }
+        }
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          $('shareTeam').textContent = 'Link copied';
+          setTimeout(() => {
+            $('shareTeam').textContent = 'Share';
+          }, 2200);
+        } catch {
+          window.prompt('Copy this Team Hub link:', window.location.href);
+        }
       });
 
       (async function init() {

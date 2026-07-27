@@ -148,7 +148,7 @@ export class FanViewCommunityWidgetElement extends HTMLElement {
           adapter={adapter}
           matchComplete={Boolean(config.matchComplete)}
           shareId={config.shareId}
-          startOpen={config.startOpen ?? true}
+          startOpen={config.startOpen ?? false}
           teamName={config.teamName}
         />
       </CommunityErrorBoundary>,

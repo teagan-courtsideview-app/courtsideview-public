@@ -9,6 +9,7 @@ export const fixtureSnapshot: FanViewSnapshot = {
     totalSets: 3,
     homeSetsWon: 1,
     awaySetsWon: 0,
+    completedSets: [{ setNumber: 1, homeScore: 25, awayScore: 21 }],
     isComplete: false,
     isLive: true,
     updatedAt: new Date(0).toISOString(),

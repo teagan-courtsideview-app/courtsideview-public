@@ -60,12 +60,6 @@
   height: 100dvh;
 }
 
-.live-media[data-fullscreen-mode="document"] .media-control,
-.live-media[data-fullscreen-mode="presentation"] .media-control {
-  opacity: 0;
-  pointer-events: none;
-}
-
 .live-media__presentation-canvas {
   display: none;
 }
@@ -117,13 +111,24 @@
   transform: translateX(1px);
 }
 
-.media-control {
+.media-controls {
   position: absolute;
   z-index: 5;
-  top: max(76px, calc(env(safe-area-inset-top) + 54px));
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  display: flex;
+  max-width: calc(100% - 48px);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.media-control {
   display: inline-flex;
-  min-height: 42px;
+  min-width: 48px;
+  min-height: 48px;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 999px;
@@ -134,30 +139,9 @@
   backdrop-filter: blur(8px);
 }
 
-.media-control--sound {
-  left: max(28px, env(safe-area-inset-left));
-}
-
-.media-control--fullscreen {
-  right: max(28px, env(safe-area-inset-right));
-  width: 42px;
-  justify-content: center;
-  padding: 0;
-}
-
-.media-control--pip {
-  right: max(80px, calc(env(safe-area-inset-right) + 80px));
-  width: 42px;
-  justify-content: center;
-  padding: 0;
-}
-
-.fanview-app[data-community-enabled="true"] .media-control--fullscreen {
-  right: 418px;
-}
-
-.fanview-app[data-community-enabled="true"] .media-control--pip {
-  right: 470px;
+.media-control:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
 }
 
 .match-status--action {
@@ -176,19 +160,137 @@
   background: #050a13;
 }
 
-.fanview-state-card {
-  display: grid;
-  max-width: 440px;
-  gap: 8px;
+.fanview-state-camera {
+  position: relative;
+  width: min(760px, 100%);
+  min-height: min(680px, calc(100dvh - 48px));
+  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
-  padding: 24px;
-  text-align: center;
-  background: rgba(17, 24, 39, 0.94);
+  border-radius: 28px;
+  background: #07101b;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
+}
+
+.fanview-state-camera__court {
+  position: absolute;
+  inset: 0 0 238px;
+  background:
+    linear-gradient(rgba(5, 10, 19, 0.3), rgba(5, 10, 19, 0.66)),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 15%,
+      rgba(255, 255, 255, 0.035) 15% 15.4%
+    ),
+    #111b27;
+}
+
+.fanview-state-camera__court::before,
+.fanview-state-camera__court::after,
+.fanview-state-camera__court span {
+  position: absolute;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  content: "";
+}
+
+.fanview-state-camera__court::before {
+  inset: 20% 12% 13%;
+}
+
+.fanview-state-camera__court::after {
+  top: 52%;
+  right: 8%;
+  left: 8%;
+  border-width: 2px 0 0;
+}
+
+.fanview-state-camera__court span {
+  top: 20%;
+  bottom: 13%;
+  left: 50%;
+  border-width: 0 0 0 2px;
+}
+
+.fanview-state-card {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  left: 18px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  padding: 20px;
+  text-align: left;
+  background: rgba(8, 13, 21, 0.94);
+  backdrop-filter: blur(18px);
 }
 
 .fanview-state-card strong {
-  font-size: 22px;
+  font-size: clamp(22px, 4vw, 30px);
+}
+
+.fanview-state-card > span {
+  color: #c3cad4;
+  line-height: 1.45;
+}
+
+.fanview-state-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.fanview-state-action {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0 13px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  text-align: center;
+  text-decoration: none;
+}
+
+.fanview-state-action--primary {
+  border-color: #f22b78;
+  background: #f22b78;
+}
+
+.fanview-state-action--support {
+  grid-column: 1 / -1;
+}
+
+.fanview-state-action:disabled {
+  opacity: 0.5;
+}
+
+.team-hub-back {
+  position: absolute;
+  z-index: 5;
+  top: max(82px, calc(env(safe-area-inset-top) + 58px));
+  left: max(28px, env(safe-area-inset-left));
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: 999px;
+  padding: 0 13px;
+  color: #fff;
+  background: rgba(3, 8, 15, 0.74);
+  font-size: 13px;
+  font-weight: 850;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
 }
 
 @media (max-width: 720px) {
@@ -207,11 +309,8 @@
   .score-bug {
     display: block;
     top: auto;
-    right: calc(
-      var(--fanview-mobile-cheer-width) + 16px +
-        env(safe-area-inset-right)
-    );
-    bottom: var(--fanview-mobile-bottom-inset);
+    right: max(10px, env(safe-area-inset-right));
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 58px);
     left: max(10px, env(safe-area-inset-left));
     width: auto;
     min-width: 0;
@@ -248,42 +347,36 @@
     font-size: 13px;
   }
 
+  .media-controls {
+    right: calc(
+      var(--fanview-mobile-cheer-width) + 16px +
+        env(safe-area-inset-right)
+    );
+    bottom: var(--fanview-mobile-bottom-inset);
+    left: max(10px, env(safe-area-inset-left));
+    max-width: none;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
   .media-control {
-    top: max(13px, env(safe-area-inset-top));
-    min-height: 40px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 10px;
     font-size: 12px;
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
   }
 
-  .media-control--sound {
-    left: max(92px, calc(env(safe-area-inset-left) + 92px));
-    width: 40px;
-    justify-content: center;
-    gap: 0;
-    overflow: hidden;
-    padding: 0;
-  }
-
-  .media-control__sound-label {
+  .media-control__label {
     display: none;
   }
 
-  .media-control--sound svg {
+  .media-control svg {
     flex: 0 0 auto;
     width: 16px;
     height: 16px;
     color: #fff;
-  }
-
-  .media-control--pip,
-  .fanview-app[data-community-enabled="true"] .media-control--pip {
-    right: max(126px, calc(env(safe-area-inset-right) + 126px));
-    width: 40px;
-  }
-
-  .media-control--fullscreen {
-    right: max(79px, calc(env(safe-area-inset-right) + 79px));
-    width: 40px;
   }
 
   .community-launcher {
@@ -313,24 +406,67 @@
     padding: 0 4px;
   }
 
-  .fanview-app[data-community-enabled="true"] .media-control--fullscreen,
-  .fanview-app[data-community-enabled="true"] .viewer-pill {
-    right: max(79px, calc(env(safe-area-inset-right) + 79px));
-  }
-
   .fanview-app[data-community-enabled="true"] .viewer-pill {
     right: max(13px, env(safe-area-inset-right));
+  }
+
+  .team-hub-back {
+    top: max(52px, calc(env(safe-area-inset-top) + 40px));
+    left: max(10px, env(safe-area-inset-left));
+    padding: 0 11px;
+    font-size: 11px;
+  }
+
+  .score-bug__history {
+    margin-top: 6px;
+  }
+
+  .fanview-state-page {
+    padding: 12px;
+  }
+
+  .fanview-state-camera {
+    min-height: calc(100dvh - 24px);
+    border-radius: 22px;
+  }
+
+  .fanview-state-actions {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 380px) {
-  .media-control--sound {
-    width: 38px;
+  .score-bug__team {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 300px) {
+  .media-controls {
+    right: max(8px, env(safe-area-inset-right));
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 52px);
+    left: max(8px, env(safe-area-inset-left));
   }
 
-  .media-control--sound svg {
-    flex: 0 0 auto;
-    color: #fff;
+  .community-launcher {
+    right: max(8px, env(safe-area-inset-right));
+    bottom: var(--fanview-mobile-bottom-inset);
+    left: max(8px, env(safe-area-inset-left));
+    width: auto;
+  }
+
+  .score-bug {
+    right: max(8px, env(safe-area-inset-right));
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 104px);
+    left: max(8px, env(safe-area-inset-left));
+  }
+
+  .fanview-state-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .fanview-state-action--support {
+    grid-column: auto;
   }
 }
 
@@ -355,47 +491,26 @@
     right: max(10px, env(safe-area-inset-right));
   }
 
+  .media-controls {
+    right: calc(144px + env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: max(250px, calc(env(safe-area-inset-left) + 250px));
+  }
+
   .media-control {
-    top: max(9px, env(safe-area-inset-top));
-    min-height: 38px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 10px;
   }
 
-  .media-control--sound {
-    left: max(98px, calc(env(safe-area-inset-left) + 98px));
-    width: 38px;
-    justify-content: center;
-    gap: 0;
-    overflow: hidden;
-    padding: 0;
-  }
-
-  .media-control--sound svg {
-    flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
-    color: #fff;
-  }
-
-  .media-control__sound-label {
+  .media-control__label {
     display: none;
-  }
-
-  .media-control--pip,
-  .fanview-app[data-community-enabled="true"] .media-control--pip {
-    right: max(144px, calc(env(safe-area-inset-right) + 144px));
-    width: 38px;
-  }
-
-  .media-control--fullscreen,
-  .fanview-app[data-community-enabled="true"] .media-control--fullscreen {
-    right: max(92px, calc(env(safe-area-inset-right) + 92px));
-    width: 38px;
   }
 
   .score-bug {
     top: auto;
     right: auto;
-    bottom: max(10px, env(safe-area-inset-bottom));
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 54px);
     left: max(10px, env(safe-area-inset-left));
     width: 228px;
     min-width: 0;
@@ -427,8 +542,13 @@
     right: max(10px, env(safe-area-inset-right));
     bottom: max(10px, env(safe-area-inset-bottom));
     width: auto;
-    min-height: 42px;
+    min-height: 44px;
     padding: 0 12px;
     font-size: 12px;
+  }
+
+  .team-hub-back {
+    top: max(56px, calc(env(safe-area-inset-top) + 44px));
+    left: max(10px, env(safe-area-inset-left));
   }
 }

@@ -4,6 +4,7 @@ import {
   PictureInPicture,
   Play,
   SpeakerHigh,
+  SpeakerSlash,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -400,6 +401,9 @@ function CloudflareVideo({
   const presentationCanvasRef = useRef<HTMLCanvasElement>(null);
   const presentationVideoRef = useRef<HTMLVideoElement>(null);
   const presentationCleanupRef = useRef<(() => void) | null>(null);
+  const fullscreenModeRef = useRef<
+    "none" | "document" | "presentation" | "css"
+  >("none");
   const matchRef = useRef(match);
   const rotationRef = useRef(rotation);
   const viewerCountRef = useRef(viewerCount);
@@ -413,6 +417,7 @@ function CloudflareVideo({
     useState(false);
   const [floating, setFloating] = useState(false);
   const fullscreen = fullscreenMode !== "none";
+  fullscreenModeRef.current = fullscreenMode;
   matchRef.current = match;
   rotationRef.current = rotation;
   viewerCountRef.current = viewerCount;
@@ -785,14 +790,25 @@ function CloudflareVideo({
     };
   }, [resumeVideo, stopPresentation]);
 
-  const unmute = async () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = false;
-    videoRef.current.volume = 1;
+  const toggleMute = async () => {
+    const video = videoRef.current;
+    const presentation =
+      presentationVideoRef.current as SafariVideoElement | null;
+    if (!video) return;
+    const nextMuted = !muted;
+    video.muted = nextMuted;
+    video.volume = 1;
+    if (presentation?.srcObject) {
+      presentation.muted = nextMuted;
+      presentation.volume = 1;
+    }
+    setMuted(nextMuted);
+    if (nextMuted) return;
     try {
-      await videoRef.current.play();
+      await video.play();
       setMuted(false);
     } catch {
+      video.muted = true;
       setMuted(true);
     }
   };
@@ -838,7 +854,17 @@ function CloudflareVideo({
     ) {
       try {
         stream.video.webkitEnterFullscreen();
-        setFullscreenMode("presentation");
+        window.setTimeout(() => {
+          if (stream.video.webkitDisplayingFullscreen) {
+            setFullscreenMode("presentation");
+            return;
+          }
+          if (fullscreenModeRef.current !== "none") return;
+          stream.cleanup();
+          stage.classList.add("is-web-fullscreen");
+          document.body.classList.add("fanview-fullscreen");
+          setFullscreenMode("css");
+        }, 300);
         return;
       } catch {
         stream.cleanup();
@@ -921,39 +947,50 @@ function CloudflareVideo({
         </button>
       ) : null}
       {status ? <div className="live-media__status">{status}</div> : null}
-      {muted ? (
+      <div className="media-controls" aria-label="Video controls">
         <button
-          aria-label="Turn on live audio"
+          aria-label={muted ? "Turn on live audio" : "Mute live audio"}
+          aria-pressed={!muted}
           className="media-control media-control--sound"
-          onClick={() => void unmute()}
+          onClick={() => void toggleMute()}
           type="button"
         >
-          <SpeakerHigh aria-hidden="true" size={18} weight="bold" />
-          <span className="media-control__sound-label">Sound</span>
+          {muted ? (
+            <SpeakerSlash aria-hidden="true" size={18} weight="bold" />
+          ) : (
+            <SpeakerHigh aria-hidden="true" size={18} weight="bold" />
+          )}
+          <span className="media-control__label">{muted ? "Muted" : "Sound on"}</span>
         </button>
-      ) : null}
-      {pictureInPictureAvailable ? (
         <button
           aria-label={floating ? "Return floating video" : "Float live video"}
           className="media-control media-control--pip"
+          disabled={!pictureInPictureAvailable}
           onClick={() => void toggleFloatingVideo()}
           type="button"
         >
           <PictureInPicture aria-hidden="true" size={18} weight="bold" />
+          <span className="media-control__label">
+            {floating ? "Return" : "Float"}
+          </span>
         </button>
-      ) : null}
-      <button
-        aria-label={fullscreen ? "Exit full screen" : "Enter full screen"}
-        className="media-control media-control--fullscreen"
-        onClick={() => void toggleFullscreen()}
-        type="button"
-      >
-        {fullscreen ? (
-          <ArrowsIn aria-hidden="true" size={19} weight="bold" />
-        ) : (
-          <ArrowsOut aria-hidden="true" size={19} weight="bold" />
-        )}
-      </button>
+        <button
+          aria-label={fullscreen ? "Exit full screen" : "Enter full screen"}
+          aria-pressed={fullscreen}
+          className="media-control media-control--fullscreen"
+          onClick={() => void toggleFullscreen()}
+          type="button"
+        >
+          {fullscreen ? (
+            <ArrowsIn aria-hidden="true" size={19} weight="bold" />
+          ) : (
+            <ArrowsOut aria-hidden="true" size={19} weight="bold" />
+          )}
+          <span className="media-control__label">
+            {fullscreen ? "Exit" : "Full screen"}
+          </span>
+        </button>
+      </div>
     </div>
   );
 }

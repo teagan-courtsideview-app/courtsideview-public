@@ -23,7 +23,7 @@
         --panel: #171e27;
         --ink: #f8fafc;
         --muted: #aab3c0;
-        --dim: #707b89;
+        --dim: #768290;
         --green: #20A66B;
         --green-rgb: 32,166,107;
         --pink: #ff4f93;
@@ -74,12 +74,6 @@
       .camera-brand-chip::before { content: ""; width: 5px; height: 5px; border-radius: 999px;
         background: var(--pink); box-shadow: 0 0 0 2px rgba(255,79,147,0.16); flex: 0 0 auto; }
       .camera-state-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-left: auto; }
-      .camera-chat-chip { display: inline-flex; min-height: 26px; align-items: center; justify-content: center;
-        border: 1px solid rgba(255,255,255,0.45); border-radius: 999px; padding: 0 10px;
-        color: #0b1017; background: rgba(255,255,255,0.92); box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-        font-size: 10px; font-weight: 900; text-transform: uppercase; pointer-events: auto; }
-      .camera-chat-chip[data-open="true"],
-      .camera-chat-chip[data-unread="true"] { color: #fff; background: var(--pink); border-color: var(--pink); }
       .viewer-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px;
         min-height: 26px; min-width: 82px; padding: 0 9px; border-radius: 999px; background: rgba(255,255,255,0.92);
         border: 1px solid rgba(255,255,255,0.45); color: #0b1017; font-size: 11px;
@@ -115,6 +109,7 @@
         text-decoration: underline; text-underline-offset: 3px; font-size: 13px;
         font-weight: 800; padding: 6px 8px; cursor: pointer; }
       button:disabled { opacity: 0.5; cursor: default; }
+      [hidden] { display: none !important; }
       .is-hidden { display: none !important; }
       .hint { color: var(--dim); font-size: 12px; line-height: 1.4; margin: 14px 4px 0; text-align: center; }
       .record-panel { display: flex; align-items: center; gap: 10px; margin-top: 10px;
@@ -216,7 +211,7 @@
       body.camera-mode video { object-fit: cover; }
       body.camera-mode .top-overlay { position: fixed; top: max(8px, env(safe-area-inset-top));
         left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
-        z-index: 8; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        z-index: 8; display: flex; justify-content: flex-end; align-items: center; gap: 12px;
         pointer-events: none; }
       body.camera-mode .handoff-panel { position: fixed; z-index: 10;
         left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
@@ -239,8 +234,8 @@
         border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(18px);
         box-shadow: 0 20px 62px rgba(0,0,0,0.38);
         transition: opacity 190ms ease, transform 210ms ease; }
-      body.camera-mode .record-panel { grid-column: 1 / -1; min-height: 54px; margin: 0;
-        padding: 10px 12px; background: rgba(255,255,255,0.08);
+      body.camera-mode .record-panel { grid-column: 1 / -1; min-height: 48px; margin: 0;
+        padding: 8px 10px; background: rgba(255,255,255,0.055);
         border-color: rgba(255,255,255,0.14); box-shadow: none; }
       body.camera-mode .record-copy span { font-size: 11px; line-height: 1.25; }
       body.camera-mode .record-copy small { font-size: 10px; line-height: 1.25; }
@@ -257,17 +252,22 @@
       body.camera-mode.is-ready .controls { gap: 7px; padding: 8px; }
       body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; min-height: 44px; }
       body.camera-mode.is-ready #scoreBtn,
-      body.camera-mode.is-ready #shareBtn { grid-column: 1 / -1; min-height: 40px; }
-      body.camera-mode.is-live .controls { display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 18px; }
-      body.camera-mode.is-live #scoreBtn { flex: 1 1 auto; min-width: 0; min-height: 34px; font-size: 12px; padding: 8px 10px; }
+      body.camera-mode.is-ready #shareBtn { min-height: 44px; }
+      body.camera-mode.is-live .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: center; gap: 6px; padding: 6px; border-radius: 18px; max-width: 560px; }
+      body.camera-mode.is-live #scoreBtn,
       body.camera-mode.is-live #shareBtn,
-      body.camera-mode.is-live #minimizeBtn { flex: 0 0 58px; min-height: 34px; padding: 8px 8px; font-size: 11px; min-width: 0; }
-      body.camera-mode.is-live #stopBtn { min-height: 34px; margin-top: 0; color: #fff;
-        flex: 0 0 52px; background: rgba(239,68,68,0.92); border: 1px solid rgba(255,255,255,0.18); padding: 8px 8px; font-size: 11px; }
+      body.camera-mode.is-live #minimizeBtn,
+      body.camera-mode.is-live #chatBtn,
+      body.camera-mode.is-live #audioBtn,
+      body.camera-mode.is-live #stopBtn {
+        min-width: 0; min-height: 44px; margin-top: 0; padding: 8px 7px; font-size: 11px;
+      }
+      body.camera-mode.is-live #stopBtn { color: #fff;
+        background: rgba(239,68,68,0.92); border: 1px solid rgba(255,255,255,0.18); }
       body.camera-mode.is-live .primary::after,
       body.camera-mode.is-live .fanview-primary::after { content: ""; }
-      body.camera-mode.is-live.controls-hidden .controls { opacity: 0; pointer-events: none;
-        transform: translateY(calc(100% + 24px)); }
+      body.camera-mode.is-live.controls-hidden .controls { opacity: 1; pointer-events: auto; transform: none; }
       body.camera-mode .preview-link { grid-column: 1 / -1; color: var(--muted); text-decoration: underline;
         text-underline-offset: 3px; border: 0; border-radius: 999px; background: transparent;
         padding: 6px 8px; font-size: 13px; display: flex; align-items: center; justify-content: center; }
@@ -304,7 +304,7 @@
           left: calc((100% - var(--controls-width)) / 2); right: auto;
           transform: none; bottom: max(12px, env(safe-area-inset-bottom));
         }
-        body.camera-mode.is-live.controls-hidden .controls { transform: translateY(calc(100% + 24px)); }
+        body.camera-mode.is-live.controls-hidden .controls { transform: none; }
         body.camera-mode .handoff-panel { width: min(540px, calc(100% - 48px)); max-width: none; left: 50%; right: auto;
           transform: translateX(-50%); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 214px); }
       }
@@ -347,18 +347,17 @@
         body:not(.camera-mode) .viewer-row {
           margin-top: 8px;
         }
-        body.camera-mode.is-ready .record-panel,
         body.camera-mode.is-live .record-panel { display: none; }
         body.camera-mode.is-live .handoff-panel { display: none; }
         body.camera-mode.is-ready .controls {
-          --controls-width: min(560px, calc(100% - 32px));
+          --controls-width: min(680px, calc(100% - 32px));
           width: var(--controls-width);
           max-width: none;
           left: calc((100% - var(--controls-width)) / 2);
           right: auto;
           bottom: max(10px, env(safe-area-inset-bottom));
           transform: none;
-          grid-template-columns: minmax(220px, 1.2fr) minmax(180px, 0.9fr);
+          grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 7px;
           padding: 7px;
           border-radius: 20px;
@@ -366,44 +365,37 @@
         body.camera-mode.is-ready #broadcastBtn,
         body.camera-mode.is-ready #scoreBtn {
           grid-column: auto;
-          min-height: 38px;
+          min-height: 44px;
           font-size: 13px;
           padding: 9px 12px;
         }
-        body.camera-mode.is-ready #shareBtn,
-        body.camera-mode.is-ready #previewBtn {
-          display: none !important;
-        }
         body.camera-mode.is-live .controls {
-          --controls-width: min(460px, calc(100% - 32px));
+          --controls-width: min(720px, calc(100% - 32px));
           width: var(--controls-width);
           max-width: none;
           left: calc((100% - var(--controls-width)) / 2);
           right: auto;
           bottom: max(10px, env(safe-area-inset-bottom));
           transform: none;
-          display: flex;
+          display: grid;
+          grid-template-columns: repeat(6, minmax(0, 1fr));
           align-items: center;
           gap: 6px;
           padding: 5px;
           border-radius: 16px;
         }
         body.camera-mode.is-live #scoreBtn,
-        body.camera-mode.is-live #stopBtn { margin-top: 0; }
-        body.camera-mode.is-live #scoreBtn,
-        body.camera-mode.is-live #stopBtn,
-        body.camera-mode.is-live #minimizeBtn {
-          min-height: 32px;
+        body.camera-mode.is-live #shareBtn,
+        body.camera-mode.is-live #minimizeBtn,
+        body.camera-mode.is-live #chatBtn,
+        body.camera-mode.is-live #audioBtn,
+        body.camera-mode.is-live #stopBtn {
+          min-height: 44px;
           font-size: 11px;
           padding: 7px 8px;
         }
-        body.camera-mode.is-live #scoreBtn { flex: 1 1 auto; min-width: 0; font-size: 12px; }
-        body.camera-mode.is-live #shareBtn,
-        body.camera-mode.is-live #minimizeBtn { flex: 0 0 58px; }
-        body.camera-mode.is-live #stopBtn { flex: 0 0 52px; }
         body.camera-mode.is-live #stopBtn { color: #fff; background: rgba(239,68,68,0.92); border-color: rgba(255,255,255,0.18); }
-        body.camera-mode.is-live #minimizeBtn { min-width: 0; }
-        body.camera-mode.is-live.controls-hidden .controls { transform: translateY(calc(100% + 24px)); }
+        body.camera-mode.is-live.controls-hidden .controls { transform: none; }
       }
     </style>
   </head>
@@ -430,14 +422,12 @@
               <div class="camera-placeholder-copy">Start Camera when you are ready to frame the court.</div>
             </div>
             <div class="top-overlay" aria-live="polite">
-              <span class="camera-brand-chip">CourtsideView</span>
+              <span id="broadcastStateChip" hidden>READY</span>
               <span class="camera-state-row">
-                <button id="chatBtn" class="camera-chat-chip is-hidden" type="button" aria-expanded="false">Chat</button>
                 <span class="viewer-chip">
                   <span class="viewer-dot"></span>
                   <span id="viewerCountTop" class="viewer-count"><strong>0</strong> watching</span>
                 </span>
-                <span id="broadcastStateChip" class="state-chip">READY</span>
               </span>
             </div>
             <div id="status" class="status"><strong>Broadcast off.</strong> Tap Start Camera when ready.</div>
@@ -451,17 +441,6 @@
             <div id="handoffCopy" class="handoff-copy">Return to score to keep scoring.</div>
           </div>
           <div class="controls">
-            <div id="recordPanel" class="record-panel">
-              <label class="record-toggle" aria-label="Save a copy on this device">
-                <input id="recordToggle" type="checkbox" checked />
-                <span class="record-switch" aria-hidden="true"></span>
-              </label>
-              <div class="record-copy">
-                <strong>Save a Copy on This Device</strong>
-                <span>Keep this on to save the Broadcast after it ends.</span>
-                <small id="recordEstimate">After you end the Broadcast, tap Save Video. Highlight requests may also keep local clips on this device.</small>
-              </div>
-            </div>
             <div id="downloadPanel" class="download-panel is-hidden">
               <div>
                 <strong>Video ready to save</strong>
@@ -475,8 +454,21 @@
             <button id="clearHighlightStorageBtn" class="secondary is-hidden" type="button">Saved highlights</button>
             <button id="shareBtn" class="fanview-primary">Share Fan Link</button>
             <button id="minimizeBtn" class="secondary is-hidden" disabled>Float Broadcast</button>
+            <button id="chatBtn" class="secondary is-hidden" type="button" aria-expanded="false">Chat</button>
+            <button id="audioBtn" class="secondary is-hidden" type="button">Muted</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End</button>
             <button id="previewBtn" class="preview-link">View Fan Page</button>
+            <div id="recordPanel" class="record-panel">
+              <label class="record-toggle" aria-label="Save a copy on this device">
+                <input id="recordToggle" type="checkbox" />
+                <span class="record-switch" aria-hidden="true"></span>
+              </label>
+              <div class="record-copy">
+                <strong>Recording optional</strong>
+                <span>Off unless you deliberately turn it on.</span>
+                <small id="recordEstimate">After you end the Broadcast, tap Save Video. Highlight requests may also keep local clips on this device.</small>
+              </div>
+            </div>
           </div>
           <p class="hint">Fans can follow scores even before video starts.</p>
         </section>
@@ -484,7 +476,7 @@
     </main>
     <fanview-community-widget id="broadcasterCommunity" hidden></fanview-community-widget>
     <div id="joinToast" class="join-toast" role="status" aria-live="polite">A fan joined FanView</div>
-    <div id="savePrompt" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savePromptTitle" aria-hidden="true">
+    <div id="savePrompt" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savePromptTitle" aria-hidden="true" hidden inert>
       <div class="save-sheet">
         <h2 id="savePromptTitle">Save your video?</h2>
         <p>Your Broadcast copy is ready. Save it now before leaving this screen.</p>
@@ -495,7 +487,7 @@
         </div>
       </div>
     </div>
-    <div id="savedHighlights" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savedHighlightsTitle" aria-hidden="true">
+    <div id="savedHighlights" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savedHighlightsTitle" aria-hidden="true" hidden inert>
       <div class="save-sheet">
         <h2 id="savedHighlightsTitle">Saved Highlights</h2>
         <p>Download a play to Photos or Files, or remove a local copy when you no longer need it.</p>
@@ -505,7 +497,7 @@
         </div>
       </div>
     </div>
-    <div id="endConfirm" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="endConfirmTitle" aria-hidden="true">
+    <div id="endConfirm" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="endConfirmTitle" aria-hidden="true" hidden inert>
       <div class="confirm-sheet">
         <h2 id="endConfirmTitle">End Broadcast?</h2>
         <p>Fans will still see the score, but this Broadcast will stop.</p>
@@ -589,6 +581,7 @@
       const clearHighlightStorageBtn = document.getElementById('clearHighlightStorageBtn');
       const shareBtn = document.getElementById('shareBtn');
       const minimizeBtn = document.getElementById('minimizeBtn');
+      const audioBtn = document.getElementById('audioBtn');
       const stopBtn = document.getElementById('stopBtn');
       const previewBtn = document.getElementById('previewBtn');
       const recordPanel = document.getElementById('recordPanel');
@@ -622,7 +615,6 @@
       const broadcasterCommunity = document.getElementById('broadcasterCommunity');
       const controlsEl = document.querySelector('.controls');
       const viewerRow = document.querySelector('.viewer-row');
-      const CONTROL_HIDE_MS = 4500;
       let media = null;
       let pc = null;
       let live = false;
@@ -664,6 +656,9 @@
       let highlightStartSequence = 0;
       let lastHighlightUrl = '';
       let lastHighlightStorageKey = '';
+      let endConfirmReturnFocus = null;
+      let savePromptReturnFocus = null;
+      let savedHighlightsReturnFocus = null;
       const recorderSupported = typeof MediaRecorder !== 'undefined';
 
       function syncVisibleViewport() {
@@ -717,8 +712,7 @@
       function getInitialRecordEnabled() {
         const params = new URLSearchParams(window.location.search);
         const value = (params.get('save') || params.get('record') || '').trim().toLowerCase();
-        if (value === '0' || value === 'false' || value === 'off') return false;
-        return true;
+        return value === '1' || value === 'true' || value === 'on';
       }
       function broadcastTokenHeaders(extra = {}) {
         if (!broadcastToken) return extra;
@@ -791,7 +785,11 @@
         }
       }
       function setUiMode(state) {
-        const cameraMode = state === 'camera-ready' || state === 'live';
+        const cameraMode =
+          state === 'setup' ||
+          state === 'offline' ||
+          state === 'camera-ready' ||
+          state === 'live';
         document.body.classList.toggle('camera-mode', cameraMode);
         document.body.classList.toggle('has-camera', Boolean(media));
         document.body.classList.toggle('is-setup', state === 'setup');
@@ -871,15 +869,9 @@
           controlsHideTimer = null;
         }
       }
-      function showLiveControls(duration = CONTROL_HIDE_MS) {
+      function showLiveControls() {
         document.body.classList.remove('controls-hidden');
         clearControlsHideTimer();
-        if (!live) return;
-        controlsHideTimer = setTimeout(() => {
-          if (live && !endConfirm.classList.contains('on')) {
-            document.body.classList.add('controls-hidden');
-          }
-        }, duration);
       }
       function syncLiveControlVisibility(isLive) {
         if (!isLive) {
@@ -916,7 +908,8 @@
         showControl(viewerRow, isLive);
         showControl(chatBtn, isLive);
         showControl(scoreBtn, canReturnToScore);
-        showControl(minimizeBtn, isLive && canUsePictureInPicture());
+        showControl(minimizeBtn, isLive);
+        showControl(audioBtn, isLive);
         showControl(stopBtn, isLive);
         showControl(previewBtn, !isLive);
         showControl(shareBtn, true);
@@ -926,6 +919,7 @@
         minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
         chatBtn.disabled = !isLive;
+        audioBtn.disabled = !isLive || !media;
         shareBtn.disabled = false;
         recordToggle.disabled = isLive || !recorderSupported;
         if (broadcastBlocked) {
@@ -940,6 +934,7 @@
         scoreBtn.textContent = 'Return to score';
         shareBtn.textContent = isLive ? 'Share' : 'Share Fan Link';
         minimizeBtn.textContent = isLive ? 'Float' : 'Float Broadcast';
+        audioBtn.textContent = audioEnabled ? 'Mute' : 'Unmute';
         stopBtn.textContent = 'End';
         if (isLive) void mountBroadcasterCommunity();
         if (!isLive) {
@@ -1050,7 +1045,10 @@
         }, 2600);
       }
       function openEndConfirm() {
-        showLiveControls(12000);
+        showLiveControls();
+        endConfirmReturnFocus = document.activeElement;
+        endConfirm.hidden = false;
+        endConfirm.inert = false;
         endConfirm.classList.add('on');
         endConfirm.setAttribute('aria-hidden', 'false');
         cancelEndBtn.focus();
@@ -1058,6 +1056,10 @@
       function closeEndConfirm() {
         endConfirm.classList.remove('on');
         endConfirm.setAttribute('aria-hidden', 'true');
+        endConfirm.inert = true;
+        endConfirm.hidden = true;
+        if (endConfirmReturnFocus instanceof HTMLElement) endConfirmReturnFocus.focus();
+        endConfirmReturnFocus = null;
       }
       function openSavePrompt({ url, filename, size, storageKey = '' }) {
         if (!savePrompt || !savePromptLink || !url) return;
@@ -1067,18 +1069,30 @@
         if (savePromptMeta) {
           savePromptMeta.textContent = `${formatBytes(size)} ready to save on this phone.`;
         }
+        savePromptReturnFocus = document.activeElement;
+        savePrompt.hidden = false;
+        savePrompt.inert = false;
         savePrompt.classList.add('on');
         savePrompt.setAttribute('aria-hidden', 'false');
+        savePromptLink.focus();
         void refreshSavedHighlightsButton();
       }
       function closeSavePrompt() {
         if (!savePrompt) return;
         savePrompt.classList.remove('on');
         savePrompt.setAttribute('aria-hidden', 'true');
+        savePrompt.inert = true;
+        savePrompt.hidden = true;
+        if (savePromptReturnFocus instanceof HTMLElement) savePromptReturnFocus.focus();
+        savePromptReturnFocus = null;
       }
       function closeSavedHighlights() {
         savedHighlights.classList.remove('on');
         savedHighlights.setAttribute('aria-hidden', 'true');
+        savedHighlights.inert = true;
+        savedHighlights.hidden = true;
+        if (savedHighlightsReturnFocus instanceof HTMLElement) savedHighlightsReturnFocus.focus();
+        savedHighlightsReturnFocus = null;
       }
       async function refreshSavedHighlightsButton() {
         const clips = await listFanViewSavedHighlights().catch(() => []);
@@ -1157,6 +1171,9 @@
       }
       async function openSavedHighlights() {
         await renderSavedHighlights();
+        savedHighlightsReturnFocus = document.activeElement;
+        savedHighlights.hidden = false;
+        savedHighlights.inert = false;
         savedHighlights.classList.add('on');
         savedHighlights.setAttribute('aria-hidden', 'false');
         savedHighlightsClose.focus();
@@ -1768,7 +1785,6 @@
         setPageCopy('Ready To Broadcast', 'Check the court view, then start Broadcast.');
         hintEl.textContent = 'Check the court view, then start Broadcast.';
         setControlState('camera-ready');
-        void startHighlightReplay(media);
         if (audioEnabled) {
           setStatusHtml('<strong>Ready to Broadcast.</strong>', 'READY');
         } else {
@@ -1864,6 +1880,7 @@
         hintEl.textContent = 'Broadcast live. Return to score to keep scoring.';
         setControlState('live');
         void requestScreenWakeLock();
+        if (!reconnecting) void startHighlightReplay(media);
         if (!reconnecting) startLocalRecording();
         statePill.textContent = 'LIVE';
         statusEl.classList.remove('on');
@@ -1998,6 +2015,18 @@
       });
       minimizeBtn.addEventListener('click', () => {
         void enterPictureInPicture();
+      });
+      audioBtn.addEventListener('click', () => {
+        if (!media) return;
+        audioEnabled = !audioEnabled;
+        media.getAudioTracks().forEach((track) => {
+          track.enabled = audioEnabled;
+        });
+        audioBtn.textContent = audioEnabled ? 'Mute' : 'Unmute';
+        audioBtn.setAttribute(
+          'aria-label',
+          audioEnabled ? 'Mute Broadcast audio' : 'Unmute Broadcast audio',
+        );
       });
       recordToggle.addEventListener('change', () => {
         recordEnabled = recordToggle.checked;

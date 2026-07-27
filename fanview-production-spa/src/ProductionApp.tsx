@@ -1,4 +1,11 @@
-import { Eye } from "@phosphor-icons/react";
+import {
+  ArrowClockwise,
+  ArrowLeft,
+  EnvelopeSimple,
+  Eye,
+  House,
+  UsersThree,
+} from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import type {
   CommunityAdapter,
@@ -9,7 +16,6 @@ import { FanViewUnavailableError } from "../../fanview-spa/src/adapters/contract
 import { CommunityErrorBoundary } from "../../fanview-spa/src/components/CommunityErrorBoundary";
 import { CommunityPanel } from "../../fanview-spa/src/components/CommunityPanel";
 import { ScoreBug } from "../../fanview-spa/src/components/ScoreBug";
-import { legacyFanViewUrl } from "./routing";
 import { LiveMedia } from "./LiveMedia";
 
 interface Props {
@@ -24,6 +30,61 @@ type ScreenState = "loading" | "ready" | "unavailable" | "error" | "expired";
 
 const revision = (snapshot: FanViewSnapshot): number =>
   Date.parse(snapshot.match.updatedAt) || 0;
+
+function RecoveryPage({
+  copy,
+  shareId,
+  teamHub,
+  title,
+}: {
+  copy: string;
+  shareId: string | null;
+  teamHub?: FanViewSnapshot["match"]["teamHub"];
+  title: string;
+}) {
+  return (
+    <main className="fanview-state-page">
+      <section className="fanview-state-camera" aria-label={title}>
+        <div className="fanview-state-camera__court" aria-hidden="true">
+          <span />
+        </div>
+        <div className="fanview-state-card">
+          <strong>{title}</strong>
+          <span>{copy}</span>
+          <div className="fanview-state-actions">
+            <a className="fanview-state-action fanview-state-action--primary" href="/">
+              <House aria-hidden="true" size={20} weight="bold" />
+              Return Home
+            </a>
+            <a
+              className="fanview-state-action"
+              href={teamHub ? `/t/${encodeURIComponent(teamHub.slug)}` : "/"}
+            >
+              <UsersThree aria-hidden="true" size={20} weight="bold" />
+              Open Team Hub
+            </a>
+            <button
+              className="fanview-state-action"
+              disabled={!shareId}
+              onClick={() => window.location.reload()}
+              type="button"
+            >
+              <ArrowClockwise aria-hidden="true" size={20} weight="bold" />
+              Try again
+            </button>
+            <a
+              className="fanview-state-action fanview-state-action--support"
+              href="mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20Support"
+            >
+              <EnvelopeSimple aria-hidden="true" size={20} weight="bold" />
+              Email support
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
 
 export function ProductionApp({
   communityAdapter,
@@ -97,35 +158,32 @@ export function ProductionApp({
 
   if (!shareId || screen === "unavailable") {
     return (
-      <main className="fanview-state-page">
-        <div className="fanview-state-card">
-          <strong>FanView unavailable</strong>
-          <span>This link is invalid, expired, or no longer published.</span>
-        </div>
-      </main>
+      <RecoveryPage
+        copy="This link is invalid, expired, or no longer published."
+        shareId={shareId}
+        title="FanView unavailable"
+      />
     );
   }
 
   if (screen === "expired") {
     return (
-      <main className="fanview-state-page">
-        <div className="fanview-state-card">
-          <strong>This FanView has ended</strong>
-          <span>FanView links close 15 minutes after the match ends.</span>
-        </div>
-      </main>
+      <RecoveryPage
+        copy="FanView links close 15 minutes after the match ends."
+        shareId={shareId}
+        teamHub={snapshot?.match.teamHub}
+        title="This FanView has ended"
+      />
     );
   }
 
   if (screen === "error") {
     return (
-      <main className="fanview-state-page">
-        <div className="fanview-state-card">
-          <strong>FanView is reconnecting</strong>
-          <span>Live updates should return automatically.</span>
-          <a href={legacyFanViewUrl(shareId)}>Use classic FanView</a>
-        </div>
-      </main>
+      <RecoveryPage
+        copy="Live updates should return automatically. You can also try again now."
+        shareId={shareId}
+        title="FanView is reconnecting"
+      />
     );
   }
 
@@ -173,6 +231,16 @@ export function ProductionApp({
           <span>{snapshot.viewerCount}</span>
         </div>
         <ScoreBug match={snapshot.match} />
+        {snapshot.match.teamHub ? (
+          <a
+            aria-label={`Back to ${snapshot.match.teamHub.name} Team Hub`}
+            className="team-hub-back"
+            href={`/t/${encodeURIComponent(snapshot.match.teamHub.slug)}`}
+          >
+            <ArrowLeft aria-hidden="true" size={18} weight="bold" />
+            <span>Team Hub</span>
+          </a>
+        ) : null}
 
         {snapshot.connection === "reconnecting" ? (
           <div className="match-status" role="status">
@@ -192,7 +260,7 @@ export function ProductionApp({
             adapter={communityAdapter}
             matchComplete={snapshot.match.isComplete}
             shareId={shareId}
-            startOpen
+            startOpen={false}
             teamName={snapshot.match.home.name}
           />
         </CommunityErrorBoundary>

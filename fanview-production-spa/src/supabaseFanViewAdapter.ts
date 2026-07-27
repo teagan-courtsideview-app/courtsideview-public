@@ -1,6 +1,7 @@
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import {
   FanViewUnavailableError,
+  type CompletedSetScore,
   type FanViewActivity,
   type FanViewAdapter,
   type FanViewMedia,
@@ -111,6 +112,37 @@ const activityFromState = (state: JsonRecord): FanViewActivity[] => {
     .slice(0, 40);
 };
 
+const completedSetsFromState = (
+  state: JsonRecord,
+): CompletedSetScore[] => {
+  const candidates = Array.isArray(state.completedSets)
+    ? state.completedSets
+    : Array.isArray(state.sets)
+      ? state.sets
+      : [];
+  return candidates
+    .map((candidate, index) => {
+      const set = asRecord(candidate);
+      const homeScore = numberValue(
+        set.homeScore,
+        numberValue(set.myTeamScore, numberValue(set.us, Number.NaN)),
+      );
+      const awayScore = numberValue(
+        set.awayScore,
+        numberValue(set.opponentScore, numberValue(set.them, Number.NaN)),
+      );
+      if (!Number.isFinite(homeScore) || !Number.isFinite(awayScore)) {
+        return null;
+      }
+      return {
+        setNumber: numberValue(set.setNumber, index + 1),
+        homeScore,
+        awayScore,
+      };
+    })
+    .filter((set): set is CompletedSetScore => set !== null);
+};
+
 const mediaFromRow = (
   row: PublicFanViewMatchRow,
   status: LiveStatus | null,
@@ -181,6 +213,7 @@ export function fanViewSnapshotFromRow(
         state.awaySetsWon,
         numberValue(state.opponentSetsWon),
       ),
+      completedSets: completedSetsFromState(state),
       isComplete: row.is_complete,
       isLive: !row.is_complete,
       updatedAt,

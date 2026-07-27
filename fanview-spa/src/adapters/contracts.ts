@@ -11,12 +11,19 @@ export interface TeamScore {
   color: string;
 }
 
+export interface CompletedSetScore {
+  setNumber: number;
+  homeScore: number;
+  awayScore: number;
+}
+
 export interface FanViewMatch {
   setNumber: number;
   setTarget: number;
   totalSets: number;
   homeSetsWon: number;
   awaySetsWon: number;
+  completedSets?: CompletedSetScore[];
   isComplete: boolean;
   isLive: boolean;
   updatedAt: string;

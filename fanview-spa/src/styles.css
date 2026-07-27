@@ -11,7 +11,7 @@
   --fanview-pink-700: #ce155f;
   --fanview-paper: #fffdfb;
   --fanview-blush: #fff2f7;
-  --fanview-muted: #697386;
+  --fanview-muted: #596273;
   --fanview-live-red: #e53935;
   --fanview-live-green: #39d98a;
   --fanview-line: rgba(15, 23, 42, 0.1);
@@ -25,7 +25,6 @@ html,
 body,
 #root {
   width: 100%;
-  min-width: 320px;
   min-height: 100%;
   margin: 0;
 }
@@ -231,6 +230,60 @@ input:focus-visible,
   font-weight: 900;
 }
 
+.score-bug__history {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(66px, 1fr);
+  gap: 5px;
+  overflow-x: auto;
+  margin-top: 8px;
+  padding-bottom: 1px;
+  scrollbar-width: thin;
+}
+
+.score-bug__history-set {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr 1fr;
+  align-items: center;
+  gap: 3px;
+  min-height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 7px;
+  padding: 3px 5px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-bug__history-set > span {
+  text-align: center;
+}
+
+.score-bug__history-set .is-winner {
+  color: #45dfa0;
+  font-weight: 900;
+}
+
+.score-bug__history-set small {
+  font-size: 6px;
+  letter-spacing: 0.03em;
+}
+
+.score-bug__history-set.is-live {
+  border-color: rgba(242, 43, 120, 0.8);
+}
+
+.score-bug__history-set.is-live > small {
+  position: absolute;
+  top: -7px;
+  right: 4px;
+  border-radius: 999px;
+  padding: 2px 4px;
+  color: #fff;
+  background: var(--fanview-pink-500);
+}
+
 .match-status {
   position: absolute;
   z-index: 4;
@@ -390,7 +443,7 @@ input:focus-visible,
 
 .community-feed h2 {
   margin: 0 0 19px;
-  color: #7b7e89;
+  color: #626875;
   font-size: 11px;
   font-weight: 750;
   letter-spacing: 0.055em;
@@ -559,7 +612,7 @@ input:focus-visible,
 }
 
 .composer-row input::placeholder {
-  color: #9da2ae;
+  color: #596273;
 }
 
 .send-button {
@@ -584,7 +637,7 @@ input:focus-visible,
   display: flex;
   min-height: 10px;
   justify-content: flex-end;
-  color: #8f95a2;
+  color: #596273;
   font-size: 10px;
   font-weight: 600;
 }
@@ -671,7 +724,7 @@ input:focus-visible,
 @media (max-width: 720px) {
   .fanview-app,
   .match-stage {
-    min-height: 560px;
+    min-height: 0;
   }
 
   .match-stage__media {
@@ -864,14 +917,13 @@ input:focus-visible,
 
 @media (max-width: 380px) {
   .quick-cheers button {
-    min-width: 40px;
-    width: 40px;
-    height: 40px;
+    min-width: 44px;
+    width: auto;
+    height: 44px;
   }
 
   .quick-cheers {
-    grid-template-columns: repeat(6, 40px);
-    justify-content: space-between;
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
   }
 }
 

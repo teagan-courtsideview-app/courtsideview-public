@@ -36,7 +36,7 @@ export function CommunityPanel({
   adapter,
   matchComplete,
   shareId,
-  startOpen = true,
+  startOpen = false,
   teamName,
 }: Props) {
   const [open, setOpen] = useState(startOpen);
@@ -47,6 +47,7 @@ export function CommunityPanel({
   const [sending, setSending] = useState(false);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const hasOpenedRef = useRef(false);
   const sheetStartY = useRef<number | null>(null);
 
   useEffect(() => {
@@ -81,8 +82,9 @@ export function CommunityPanel({
 
   useEffect(() => {
     if (open) {
+      hasOpenedRef.current = true;
       panelRef.current?.focus({ preventScroll: true });
-    } else {
+    } else if (hasOpenedRef.current) {
       launcherRef.current?.focus({ preventScroll: true });
     }
   }, [open]);
@@ -181,13 +183,14 @@ export function CommunityPanel({
       {!open ? (
         <button
           aria-expanded="false"
+          aria-label={`Open chat, ${room.participantCount} in chat`}
           className="community-launcher"
           onClick={() => setOpen(true)}
           ref={launcherRef}
           type="button"
         >
           <Heart aria-hidden="true" size={20} weight="fill" />
-          Cheer together
+          Chat
           <span>{room.participantCount}</span>
         </button>
       ) : null}
@@ -234,7 +237,7 @@ export function CommunityPanel({
             </h1>
             <p>
               <span className="presence-dot" aria-hidden="true" />
-              {room.participantCount} cheering together
+              {room.participantCount} in chat
             </p>
           </div>
           <button
@@ -341,6 +344,14 @@ export function CommunityPanel({
 }
 
 function CommunityMessageRow({ message }: { message: CommunityMessage }) {
+  const anonymousFan =
+    message.role === "Fan" &&
+    /^(?:f|fan|fan viewer|anonymous|guest)$/i.test(message.author.trim());
+  const roleRepeatsAuthor =
+    anonymousFan ||
+    message.author.trim().toLowerCase() === message.role.toLowerCase();
+  const author = anonymousFan ? "Fan viewer" : message.author;
+  const initials = anonymousFan ? "FV" : message.initials;
   return (
     <article className="community-message" data-own={message.own ?? false}>
       <div
@@ -348,12 +359,14 @@ function CommunityMessageRow({ message }: { message: CommunityMessage }) {
         className="community-avatar"
         data-tone={message.avatarTone}
       >
-        {message.initials}
+        {initials}
       </div>
       <div className="community-message__content">
         <div className="community-message__header">
-          <strong>{message.author}</strong>
-          <span data-role={message.role}>{message.role}</span>
+          <strong>{author}</strong>
+          {!roleRepeatsAuthor ? (
+            <span data-role={message.role}>{message.role}</span>
+          ) : null}
         </div>
         <p>
           {message.moderated

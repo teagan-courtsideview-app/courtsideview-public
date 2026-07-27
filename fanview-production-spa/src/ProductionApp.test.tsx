@@ -1,5 +1,5 @@
-import { act, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import type {
@@ -10,6 +10,8 @@ import type {
 import { FanViewUnavailableError } from "../../fanview-spa/src/adapters/contracts";
 import { scoreBugTextColor } from "../../fanview-spa/src/components/ScoreBug";
 import { ProductionApp } from "./ProductionApp";
+
+afterEach(cleanup);
 
 const snapshot = (updatedAt: string, homeScore: number): FanViewSnapshot => ({
   shareId: "match-123",
@@ -176,16 +178,22 @@ describe("Production FanView lifecycle", () => {
     expect(await screen.findByText("FanView unavailable")).toBeVisible();
   });
 
-  it("offers the classic viewer for a temporary initial failure", async () => {
+  it("offers useful recovery actions for a temporary initial failure", async () => {
     renderApp({
       async loadSnapshot() {
         throw new Error("network unavailable");
       },
     });
     expect(await screen.findByText("FanView is reconnecting")).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: "Use classic FanView" }),
-    ).toHaveAttribute("href", "/fanview/legacy/match-123");
+    expect(screen.getByRole("button", { name: "Try again" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Return Home" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+    expect(screen.getByRole("link", { name: "Email support" })).toHaveAttribute(
+      "href",
+      "mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20Support",
+    );
   });
 
   it("does not let a slow initial request overwrite newer Realtime state", async () => {

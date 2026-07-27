@@ -63,6 +63,35 @@ export function ScoreBug({ match }: { match: FanViewMatch }) {
           <strong className="score-bug__score">{team.score}</strong>
         </div>
       ))}
+      {(match.completedSets?.length ?? 0) > 0 ? (
+        <div className="score-bug__history" aria-label="Completed set results">
+          {match.completedSets?.map((set) => {
+            const homeWon = set.homeScore > set.awayScore;
+            const awayWon = set.awayScore > set.homeScore;
+            return (
+              <div className="score-bug__history-set" key={set.setNumber}>
+                <strong>S{set.setNumber}</strong>
+                <span className={homeWon ? "is-winner" : undefined}>
+                  {set.homeScore}
+                  {homeWon ? <small> WIN</small> : null}
+                </span>
+                <span className={awayWon ? "is-winner" : undefined}>
+                  {set.awayScore}
+                  {awayWon ? <small> WIN</small> : null}
+                </span>
+              </div>
+            );
+          })}
+          {!match.isComplete ? (
+            <div className="score-bug__history-set is-live">
+              <strong>S{match.setNumber}</strong>
+              <span>{match.home.score}</span>
+              <span>{match.away.score}</span>
+              <small>LIVE</small>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }
