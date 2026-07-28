@@ -422,12 +422,16 @@ function CloudflareVideo({
     useState(false);
   const [floating, setFloating] = useState(false);
   const fullscreen = fullscreenMode !== "none";
+  const visualQa =
+    shareId === "fanview-spa-fixture" &&
+    (window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "localhost");
   fullscreenModeRef.current = fullscreenMode;
   matchRef.current = match;
   rotationRef.current = rotation;
   viewerCountRef.current = viewerCount;
 
-  useViewerPresence(true, liveWorkerUrl, shareId);
+  useViewerPresence(!visualQa, liveWorkerUrl, shareId);
 
   const resumeVideo = useCallback(async () => {
     const video = videoRef.current;
@@ -448,6 +452,12 @@ function CloudflareVideo({
   }, []);
 
   useEffect(() => {
+    if (visualQa) {
+      setStatus("");
+      setPlaybackPaused(false);
+      setPictureInPictureAvailable(true);
+      return;
+    }
     let active = true;
     let peer: RTCPeerConnection | null = null;
     let retry: number | undefined;
@@ -545,7 +555,7 @@ function CloudflareVideo({
       peer?.close();
       if (videoRef.current) videoRef.current.srcObject = null;
     };
-  }, [liveWorkerUrl, resumeVideo, shareId]);
+  }, [liveWorkerUrl, resumeVideo, shareId, visualQa]);
 
   useEffect(() => {
     const resumeWhenVisible = () => {

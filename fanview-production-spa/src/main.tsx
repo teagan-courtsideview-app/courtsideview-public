@@ -25,7 +25,9 @@ const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const liveWorkerUrl = configuredLiveWorkerUrl();
 const mode = communityMode();
 const visualQaMode =
-  import.meta.env.DEV &&
+  (import.meta.env.DEV ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "localhost") &&
   new URLSearchParams(window.location.search).get("fixture") === "qa";
 const visualQaFanViewAdapter = {
   async loadSnapshot(_shareId: string, signal: AbortSignal) {
@@ -53,8 +55,8 @@ const visualQaFanViewAdapter = {
         away: { name: "Regression Checks", score: 9, color: "#FF496C" },
       },
       media: {
-        kind: "none",
-        alt: "No live video is currently available.",
+        kind: "cloudflare-realtime",
+        alt: "Local FanView visual QA stream.",
       },
       activity: [],
       connection: "connected",
