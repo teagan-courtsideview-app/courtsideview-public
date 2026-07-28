@@ -9,7 +9,7 @@ import type {
 } from "../../fanview-spa/src/adapters/contracts";
 import { FanViewUnavailableError } from "../../fanview-spa/src/adapters/contracts";
 import { scoreBugTextColor } from "../../fanview-spa/src/components/ScoreBug";
-import { ProductionApp } from "./ProductionApp";
+import { formatViewerCount, ProductionApp } from "./ProductionApp";
 
 afterEach(cleanup);
 
@@ -162,9 +162,49 @@ describe("Production FanView lifecycle", () => {
         return linked;
       },
     });
-    expect(
-      await screen.findByRole("link", { name: "Back to 14s Blue Team Hub" }),
-    ).toHaveAttribute("href", "/t/14s-blue");
+    const teamHub = await screen.findByRole("link", {
+      name: "Back to 14s Blue Team Hub",
+    });
+    expect(teamHub).toHaveAttribute("href", "/t/14s-blue");
+    const header = teamHub.closest(".viewer-header");
+    expect(header).not.toBeNull();
+    expect(header).toContainElement(screen.getByLabelText("Live"));
+    expect(header).toContainElement(screen.getByLabelText("12 viewers"));
+  });
+
+  it("uses the approved compact viewer-count label without losing its accessible total", async () => {
+    const popular = snapshot("2026-07-25T20:01:00.000Z", 18);
+    popular.viewerCount = 1200;
+    renderApp({
+      async loadSnapshot() {
+        return popular;
+      },
+    });
+    expect(formatViewerCount(1200)).toBe("1.2K");
+    expect(await screen.findByText("1.2K")).toBeVisible();
+    expect(screen.getByLabelText("1,200 viewers")).toBeVisible();
+  });
+
+  it("keeps all four approved viewer-control labels visible at responsive sizes", () => {
+    const source = fs.readFileSync(
+      path.resolve(__dirname, "LiveMedia.tsx"),
+      "utf8",
+    );
+    const css = fs.readFileSync(
+      path.resolve(__dirname, "production.css"),
+      "utf8",
+    );
+    for (const label of ["Muted", "Float", "Full screen"]) {
+      expect(source).toContain(`"${label}"`);
+    }
+    expect(source).toContain(">Display</span>");
+    expect(css).toMatch(
+      /\.media-control__label\s*\{[\s\S]*?display:\s*block;/,
+    );
+    expect(css).not.toMatch(
+      /\.media-control__label\s*\{[^}]*display:\s*none;/,
+    );
+    expect(css).toContain("minmax(44px, 1.2fr)");
   });
 
   it("does not place a dark shade over live video", () => {

@@ -66,3 +66,37 @@ This rendered evidence proves layout, active-route source, responsive geometry,
 and control availability. Camera permission, real WebRTC media, iOS/Android
 orientation APIs, and native OTA uptake still require the exact physical
 devices; browser emulation cannot prove those APIs.
+
+## Viewer navigation-label follow-up — July 27, 2026
+
+The two Adam-supplied approved references and the exact rendered 390x844
+candidate were placed together in one comparison input and inspected:
+
+- approved-direction comparison SHA-256:
+  `47adf028109d3d716aa6057800f53021e4c6af22433d939281172639fd3ed566`;
+- iPhone 390x844 SHA-256:
+  `067d281a04a4335c842eb01cdcd0ca0299a092f7394fab9f5ee115767f7ed8e0`;
+- Android 360x800 SHA-256:
+  `3a57ff9c169c07e85cd712541f85538ec3ff10b3000976163e2d0f0520ca927a`;
+- 200%-reflow 206x457 SHA-256:
+  `5cbe146e5422f1d0923e3e08438fa8dfae95803038670ad04bbea390cf90115e`;
+- landscape 844x390 SHA-256:
+  `57689bd02e3b27f87c83c0c0c0399284d63ff314e11da4ea1366b02e96304619`;
+- private evidence directory:
+  `fanview-viewer-label-followup`.
+
+The approved header hierarchy is present verbatim: `Team Hub` is left aligned,
+while `LIVE` and `1.2K` are grouped on the right in the same row. The compact
+visible count retains an accessible `1,200 viewers` label.
+
+`Muted`, `Float`, `Display`, and `Full screen` remain visible and unclipped in
+portrait, landscape, and 200%-reflow. Geometry assertions confirmed:
+
+- every viewer-control target is at least `44x58`;
+- every label has `scrollWidth <= clientWidth`;
+- Team Hub, LIVE, and viewer-count targets are at least `44px` high;
+- `scrollWidth` equals the protected viewport width at 390, 360, 206, and 844;
+- the scoreboard has at least a 7px gap from the control dock;
+- the dock and Chat control stay fully inside the usable viewport.
+
+Final result: passed

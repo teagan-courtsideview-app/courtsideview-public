@@ -96,6 +96,12 @@ const initialScoreboardPosition = (): ScoreboardPosition => {
 const revision = (snapshot: FanViewSnapshot): number =>
   Date.parse(snapshot.match.updatedAt) || 0;
 
+export const formatViewerCount = (viewerCount: number): string =>
+  new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 1,
+    notation: "compact",
+  }).format(Math.max(0, viewerCount));
+
 function focusDisplayTrigger() {
   window
     .document
@@ -381,6 +387,7 @@ export function ProductionApp({
   const hasVideo =
     snapshot.media.kind === "cloudflare-realtime" ||
     snapshot.media.kind === "youtube";
+  const compactViewerCount = formatViewerCount(snapshot.viewerCount);
 
   return (
     <main
@@ -422,13 +429,40 @@ export function ProductionApp({
           </button>
         ) : null}
         {!hasVideo ? <div className="match-stage__shade" aria-hidden="true" /> : null}
-        <div className="live-pill" aria-label={snapshot.match.isLive ? "Live" : "Final"}>
-          <span className="live-pill__dot" aria-hidden="true" />
-          {snapshot.match.isLive ? "LIVE" : "FINAL"}
-        </div>
-        <div className="viewer-pill" aria-live="polite">
-          <Eye aria-hidden="true" size={19} weight="bold" />
-          <span>{snapshot.viewerCount}</span>
+        <div
+          className={`viewer-header${
+            snapshot.match.teamHub ? "" : " viewer-header--without-team-hub"
+          }`}
+        >
+          {snapshot.match.teamHub ? (
+            <a
+              aria-label={`Back to ${snapshot.match.teamHub.name} Team Hub`}
+              className="team-hub-back"
+              href={`/t/${encodeURIComponent(snapshot.match.teamHub.slug)}`}
+            >
+              <ArrowLeft aria-hidden="true" size={18} weight="bold" />
+              <span>Team Hub</span>
+            </a>
+          ) : null}
+          <div className="viewer-header__status">
+            <div
+              className="live-pill"
+              aria-label={snapshot.match.isLive ? "Live" : "Final"}
+            >
+              <span className="live-pill__dot" aria-hidden="true" />
+              {snapshot.match.isLive ? "LIVE" : "FINAL"}
+            </div>
+            <div
+              aria-label={`${snapshot.viewerCount.toLocaleString("en-US")} ${
+                snapshot.viewerCount === 1 ? "viewer" : "viewers"
+              }`}
+              aria-live="polite"
+              className="viewer-pill"
+            >
+              <Eye aria-hidden="true" size={19} weight="bold" />
+              <span>{compactViewerCount}</span>
+            </div>
+          </div>
         </div>
         <ScoreBug match={snapshot.match} />
         {displayMenuOpen ? (
@@ -444,17 +478,6 @@ export function ProductionApp({
             size={scoreboardSize}
           />
         ) : null}
-        {snapshot.match.teamHub ? (
-          <a
-            aria-label={`Back to ${snapshot.match.teamHub.name} Team Hub`}
-            className="team-hub-back"
-            href={`/t/${encodeURIComponent(snapshot.match.teamHub.slug)}`}
-          >
-            <ArrowLeft aria-hidden="true" size={18} weight="bold" />
-            <span>Team Hub</span>
-          </a>
-        ) : null}
-
         {snapshot.connection === "reconnecting" ? (
           <div className="match-status" role="status">
             Live updates are reconnecting.
