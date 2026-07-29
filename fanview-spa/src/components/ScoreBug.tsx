@@ -19,20 +19,37 @@ const relativeChannel = (value: number): number => {
     : ((normalized + 0.055) / 1.055) ** 2.4;
 };
 
-export const scoreBugTextColor = (
-  background: string,
-): "#FFFFFF" | "#101827" => {
-  const match = background.trim().match(/^#([\da-f]{3}|[\da-f]{6})$/i);
-  if (!match) return "#FFFFFF";
+const colorLuminance = (color: string): number | null => {
+  const match = color.trim().match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+  if (!match?.[1]) return null;
   const hex = match[1];
   const width = hex.length === 3 ? 1 : 2;
   const red = relativeChannel(channel(hex.slice(0, width)));
   const green = relativeChannel(channel(hex.slice(width, width * 2)));
   const blue = relativeChannel(channel(hex.slice(width * 2, width * 3)));
-  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+};
+
+export const scoreBugTextColor = (
+  background: string,
+): "#FFFFFF" | "#101827" => {
+  const luminance = colorLuminance(background);
+  if (luminance === null) return "#FFFFFF";
   const whiteContrast = 1.05 / (luminance + 0.05);
   const darkContrast = (luminance + 0.05) / 0.056;
   return darkContrast > whiteContrast ? "#101827" : "#FFFFFF";
+};
+
+export const scoreBugReadableTeamColor = (color: string): string => {
+  const foregroundLuminance = colorLuminance(color);
+  const backgroundLuminance = colorLuminance("#03080F");
+  if (foregroundLuminance === null || backgroundLuminance === null) {
+    return "#FFFFFF";
+  }
+  const ratio =
+    (Math.max(foregroundLuminance, backgroundLuminance) + 0.05) /
+    (Math.min(foregroundLuminance, backgroundLuminance) + 0.05);
+  return ratio >= 4.5 ? color : "#FFFFFF";
 };
 
 type LedgerTeam = TeamScore & {
@@ -241,9 +258,13 @@ function MinimalScore({ match }: { match: FanViewMatch }) {
   return (
     <div className="score-bug__minimal-card">
       <span>SET {match.setNumber}</span>
-      <strong style={{ color: match.home.color }}>{match.home.score}</strong>
+      <strong style={{ color: scoreBugReadableTeamColor(match.home.color) }}>
+        {match.home.score}
+      </strong>
       <i aria-hidden="true">–</i>
-      <strong style={{ color: match.away.color }}>{match.away.score}</strong>
+      <strong style={{ color: scoreBugReadableTeamColor(match.away.color) }}>
+        {match.away.score}
+      </strong>
     </div>
   );
 }
