@@ -12,6 +12,10 @@ import {
   SUPABASE_URL,
 } from "./config";
 import { ProductionApp } from "./ProductionApp";
+import type {
+  DisplayPreferenceAdapter,
+  ViewerDisplayPreference,
+} from "./ProductionApp";
 import { productionShareId } from "./routing";
 import { createSupabaseFanViewAdapter } from "./supabaseFanViewAdapter";
 import "./production.css";
@@ -79,11 +83,47 @@ const communityAdapter =
         publishableKey: SUPABASE_PUBLISHABLE_KEY,
       });
 
+const isViewerDisplayPreference = (
+  value: unknown,
+): value is ViewerDisplayPreference => {
+  if (value === null || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return (
+    ["full-score", "score-bar", "minimal"].includes(String(record.layout)) &&
+    ["small", "standard", "large"].includes(String(record.size)) &&
+    [
+      "top-left",
+      "top-right",
+      "bottom-left",
+      "bottom-right",
+      "bottom-center",
+    ].includes(String(record.position)) &&
+    typeof record.automatic === "boolean"
+  );
+};
+
+const displayPreferenceAdapter: DisplayPreferenceAdapter = {
+  async load() {
+    const { data } = await client.auth.getUser();
+    if (!data.user || data.user.is_anonymous) return null;
+    const preference = data.user.user_metadata.fanview_viewer_display_v1;
+    return isViewerDisplayPreference(preference) ? preference : null;
+  },
+  async save(preference) {
+    const { data } = await client.auth.getUser();
+    if (!data.user || data.user.is_anonymous) return;
+    await client.auth.updateUser({
+      data: { fanview_viewer_display_v1: preference },
+    });
+  },
+};
+
 createRoot(root).render(
   <React.StrictMode>
     <ProductionApp
       communityAdapter={communityAdapter}
       communityEnabled={mode !== "off"}
+      displayPreferenceAdapter={displayPreferenceAdapter}
       fanViewAdapter={fanViewAdapter}
       liveWorkerUrl={liveWorkerUrl}
       shareId={

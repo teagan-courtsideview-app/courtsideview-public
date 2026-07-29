@@ -12,7 +12,14 @@ import type {
   FanViewMatch,
   FanViewMedia,
 } from "../../fanview-spa/src/adapters/contracts";
-import { scoreBugTextColor } from "../../fanview-spa/src/components/ScoreBug";
+import {
+  scoreBugTextColor,
+  type ScoreboardLayout,
+} from "../../fanview-spa/src/components/ScoreBug";
+import type {
+  ScoreboardPosition,
+  ScoreboardSize,
+} from "./ProductionApp";
 
 interface Props {
   displayMenuOpen: boolean;
@@ -20,6 +27,9 @@ interface Props {
   match: FanViewMatch;
   media: FanViewMedia;
   onDisplayToggle: () => void;
+  scoreboardLayout: ScoreboardLayout;
+  scoreboardPosition: ScoreboardPosition;
+  scoreboardSize: ScoreboardSize;
   shareId: string;
   viewerCount: number;
 }
@@ -212,6 +222,9 @@ const drawPresentationFrame = (
   rotation: FanViewMedia["rotation"],
   match: FanViewMatch,
   viewerCount: number,
+  scoreboardLayout: ScoreboardLayout,
+  scoreboardPosition: ScoreboardPosition,
+  scoreboardSize: ScoreboardSize,
 ) => {
   const context = canvas.getContext("2d", { alpha: false });
   if (!context || source.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
@@ -288,107 +301,263 @@ const drawPresentationFrame = (
     edge + pillHeight / 2,
   );
 
+  const sizeScale =
+    scoreboardSize === "small" ? 0.82 : scoreboardSize === "large" ? 1.18 : 1;
+  const layoutWidth =
+    scoreboardLayout === "minimal"
+      ? 226
+      : scoreboardLayout === "score-bar"
+        ? portrait
+          ? 326
+          : 620
+        : portrait
+          ? 314
+          : 390;
+  const layoutHeight =
+    scoreboardLayout === "minimal"
+      ? 54
+      : scoreboardLayout === "score-bar"
+        ? match.timeoutTeamName !== undefined
+          ? 106
+          : 70
+        : match.timeoutTeamName !== undefined
+          ? 216
+          : 180;
   const cardWidth = Math.min(
     width - edge * 2,
-    (portrait ? 228 : 284) * uiScale,
+    layoutWidth * uiScale * sizeScale,
   );
-  const cardPadding = 7 * uiScale;
-  const headerHeight = 20 * uiScale;
-  const rowHeight = (portrait ? 33 : 39) * uiScale;
-  const rowGap = 4 * uiScale;
-  const cardHeight =
-    cardPadding * 2 + headerHeight + rowHeight * 2 + rowGap * 2;
-  const cardX = edge;
-  const cardY = height - edge - cardHeight;
+  const cardHeight = layoutHeight * uiScale * sizeScale;
+  const anchorX =
+    scoreboardPosition.endsWith("right")
+      ? width - edge - cardWidth
+      : scoreboardPosition === "bottom-center"
+        ? (width - cardWidth) / 2
+        : edge;
+  const anchorY = scoreboardPosition.startsWith("top")
+    ? edge + pillHeight + 16 * uiScale
+    : height - edge - cardHeight;
+  const cardX = anchorX;
+  const cardY = anchorY;
+  const cardPadding = 10 * uiScale * sizeScale;
+  const completedSets = [...(match.completedSets ?? [])]
+    .filter((set) => match.isComplete || set.setNumber < match.setNumber)
+    .sort((left, right) => left.setNumber - right.setNumber)
+    .slice(-3);
+
+  if (scoreboardLayout === "minimal") {
+    roundedRect(context, cardX, cardY, cardWidth, cardHeight, cardHeight / 2);
+    context.fillStyle = "rgba(3, 8, 15, 0.92)";
+    context.fill();
+    context.strokeStyle = "rgba(255, 255, 255, 0.34)";
+    context.lineWidth = Math.max(1, uiScale);
+    context.stroke();
+    const setWidth = cardWidth * 0.38;
+    roundedRect(
+      context,
+      cardX + 7 * uiScale,
+      cardY + 7 * uiScale,
+      setWidth,
+      cardHeight - 14 * uiScale,
+      (cardHeight - 14 * uiScale) / 2,
+    );
+    context.fillStyle = match.away.color || "#ff5f2d";
+    context.fill();
+    context.textAlign = "center";
+    context.fillStyle = scoreBugTextColor(match.away.color || "#ff5f2d");
+    context.font = `900 ${Math.round(14 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.fillText(
+      `SET ${match.setNumber}`,
+      cardX + 7 * uiScale + setWidth / 2,
+      cardY + cardHeight / 2,
+    );
+    context.fillStyle = match.home.color || "#20cdb4";
+    context.fillText(
+      String(match.home.score),
+      cardX + cardWidth * 0.59,
+      cardY + cardHeight / 2,
+    );
+    context.fillStyle = "#9aa3ae";
+    context.fillText("–", cardX + cardWidth * 0.72, cardY + cardHeight / 2);
+    context.fillStyle = match.away.color || "#ff5f2d";
+    context.fillText(
+      String(match.away.score),
+      cardX + cardWidth * 0.84,
+      cardY + cardHeight / 2,
+    );
+    context.restore();
+    return;
+  }
+
+  const timeoutHeight =
+    match.timeoutTeamName !== undefined ? 34 * uiScale * sizeScale : 0;
+  const panelY = cardY + timeoutHeight;
+  const panelHeight = cardHeight - timeoutHeight;
   roundedRect(
     context,
     cardX,
-    cardY,
+    panelY,
     cardWidth,
-    cardHeight,
+    panelHeight,
     10 * uiScale,
   );
-  context.fillStyle = "rgba(7, 18, 34, 0.96)";
+  context.fillStyle = "rgba(3, 8, 15, 0.94)";
   context.fill();
+  context.strokeStyle = "rgba(255, 255, 255, 0.36)";
+  context.lineWidth = Math.max(1, uiScale);
+  context.stroke();
 
-  context.textAlign = "left";
-  context.fillStyle = "#ffffff";
-  context.font = `900 ${Math.round(10 * uiScale)}px system-ui, sans-serif`;
-  context.fillText(
-    `SET ${match.setNumber}`,
-    cardX + cardPadding,
-    cardY + cardPadding + headerHeight / 2,
-  );
-  context.textAlign = "right";
-  context.fillText(
-    `BEST OF ${match.totalSets}`,
-    cardX + cardWidth - cardPadding,
-    cardY + cardPadding + headerHeight / 2,
-  );
-
-  const teams = [
-    { ...match.home, setsWon: match.homeSetsWon },
-    { ...match.away, setsWon: match.awaySetsWon },
-  ];
-  teams.forEach((team, index) => {
-    const rowY =
-      cardY +
-      cardPadding +
-      headerHeight +
-      rowGap +
-      index * (rowHeight + rowGap);
-    const scoreWidth = 42 * uiScale;
-    const setsWidth = 38 * uiScale;
-    const teamWidth =
-      cardWidth - cardPadding * 2 - scoreWidth - setsWidth;
-    const teamColor = /^#[\da-f]{3,6}$/i.test(team.color)
-      ? team.color
-      : "#1556c0";
-
-    context.fillStyle = teamColor;
-    context.fillRect(cardX + cardPadding, rowY, teamWidth, rowHeight);
-    context.fillStyle = scoreBugTextColor(teamColor);
-    context.textAlign = "left";
-    context.font = `900 ${Math.round(12 * uiScale)}px system-ui, sans-serif`;
-    const teamName = fitCanvasText(
-      context,
-      team.name.toUpperCase(),
-      teamWidth - 16 * uiScale,
+  context.textBaseline = "middle";
+  if (scoreboardLayout === "score-bar") {
+    const sideWidth = cardWidth * 0.39;
+    const centerWidth = cardWidth - sideWidth * 2;
+    const accentWidth = 7 * uiScale * sizeScale;
+    const drawBarTeam = (
+      x: number,
+      team: FanViewMatch["home"],
+      score: number,
+      reversed: boolean,
+    ) => {
+      context.fillStyle = team.color;
+      context.fillRect(
+        reversed ? x + sideWidth - accentWidth : x,
+        panelY + 10 * uiScale,
+        accentWidth,
+        panelHeight - 20 * uiScale,
+      );
+      context.fillStyle = "#ffffff";
+      context.font = `900 ${Math.round(15 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.textAlign = reversed ? "right" : "left";
+      context.fillText(
+        fitCanvasText(context, team.name.toUpperCase(), sideWidth * 0.58),
+        reversed ? x + sideWidth - 24 * uiScale : x + 22 * uiScale,
+        panelY + panelHeight / 2,
+      );
+      context.font = `900 ${Math.round(25 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.textAlign = reversed ? "left" : "right";
+      context.fillText(
+        String(score),
+        reversed ? x + 12 * uiScale : x + sideWidth - 12 * uiScale,
+        panelY + panelHeight / 2,
+      );
+    };
+    drawBarTeam(cardX, match.home, match.home.score, false);
+    drawBarTeam(
+      cardX + sideWidth + centerWidth,
+      match.away,
+      match.away.score,
+      true,
     );
-    context.fillText(
-      teamName,
-      cardX + cardPadding + 8 * uiScale,
-      rowY + rowHeight / 2,
-    );
-
-    const setsX = cardX + cardPadding + teamWidth;
-    context.fillStyle = "#162338";
-    context.fillRect(setsX, rowY, setsWidth, rowHeight);
+    context.strokeStyle = "rgba(255,255,255,0.22)";
+    context.beginPath();
+    context.moveTo(cardX + sideWidth, panelY);
+    context.lineTo(cardX + sideWidth, panelY + panelHeight);
+    context.moveTo(cardX + sideWidth + centerWidth, panelY);
+    context.lineTo(cardX + sideWidth + centerWidth, panelY + panelHeight);
+    context.stroke();
     context.textAlign = "center";
-    context.fillStyle = "#ffffff";
-    context.font = `800 ${Math.round(6 * uiScale)}px system-ui, sans-serif`;
+    context.fillStyle = "#d6dbe2";
+    context.font = `800 ${Math.round(11 * uiScale * sizeScale)}px system-ui, sans-serif`;
     context.fillText(
-      "SETS",
-      setsX + setsWidth / 2,
-      rowY + rowHeight * 0.29,
+      `SET ${match.setNumber}`,
+      cardX + sideWidth + centerWidth / 2,
+      panelY + panelHeight * 0.31,
     );
-    context.font = `900 ${Math.round(14 * uiScale)}px system-ui, sans-serif`;
+    context.font = `800 ${Math.round(9 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    const history = completedSets
+      .map((set) => `S${set.setNumber}  ${set.homeScore}–${set.awayScore}`)
+      .join("   ");
     context.fillText(
-      String(team.setsWon),
-      setsX + setsWidth / 2,
-      rowY + rowHeight * 0.67,
+      fitCanvasText(context, history, centerWidth - 10 * uiScale),
+      cardX + sideWidth + centerWidth / 2,
+      panelY + panelHeight * 0.69,
     );
+  } else {
+    const rowHeight = panelHeight * 0.31;
+    const teams = [
+      { ...match.home, setsWon: match.homeSetsWon },
+      { ...match.away, setsWon: match.awaySetsWon },
+    ];
+    teams.forEach((team, index) => {
+      const rowY = panelY + index * rowHeight;
+      context.fillStyle = team.color;
+      roundedRect(
+        context,
+        cardX + cardPadding,
+        rowY + rowHeight * 0.35,
+        6 * uiScale,
+        rowHeight * 0.48,
+        3 * uiScale,
+      );
+      context.fill();
+      context.textAlign = "left";
+      context.fillStyle = "#ffffff";
+      context.font = `900 ${Math.round(15 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.fillText(
+        fitCanvasText(context, team.name.toUpperCase(), cardWidth * 0.54),
+        cardX + cardPadding + 18 * uiScale,
+        rowY + rowHeight * 0.58,
+      );
+      context.textAlign = "right";
+      context.font = `900 ${Math.round(26 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.fillText(
+        String(team.score),
+        cardX + cardWidth - cardPadding,
+        rowY + rowHeight * 0.58,
+      );
+    });
+    const metaY = panelY + rowHeight * 2;
+    context.strokeStyle = "rgba(255,255,255,0.24)";
+    context.beginPath();
+    context.moveTo(cardX, metaY);
+    context.lineTo(cardX + cardWidth, metaY);
+    context.stroke();
+    context.fillStyle = "#c2c9d2";
+    context.font = `800 ${Math.round(10 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.textAlign = "left";
+    context.fillText(
+      `SET ${match.setNumber}`,
+      cardX + cardPadding,
+      metaY + panelHeight * 0.13,
+    );
+    context.textAlign = "right";
+    context.fillText(
+      `SETS ${match.homeSetsWon}–${match.awaySetsWon}`,
+      cardX + cardWidth - cardPadding,
+      metaY + panelHeight * 0.13,
+    );
+    context.textAlign = "center";
+    context.fillText(
+      completedSets
+        .map((set) => `S${set.setNumber}  ${set.homeScore}–${set.awayScore}`)
+        .join("     "),
+      cardX + cardWidth / 2,
+      panelY + panelHeight * 0.91,
+    );
+  }
 
-    const scoreX = setsX + setsWidth;
-    context.fillStyle = "#101b2b";
-    context.fillRect(scoreX, rowY, scoreWidth, rowHeight);
-    context.font = `900 ${Math.round(19 * uiScale)}px system-ui, sans-serif`;
-    context.fillText(
-      String(team.score),
-      scoreX + scoreWidth / 2,
-      rowY + rowHeight / 2,
+  if (match.timeoutTeamName !== undefined) {
+    roundedRect(
+      context,
+      cardX,
+      cardY,
+      cardWidth,
+      timeoutHeight - 6 * uiScale,
+      8 * uiScale,
     );
-  });
+    context.fillStyle = "rgba(55, 32, 4, 0.9)";
+    context.fill();
+    context.strokeStyle = "#ffb320";
+    context.stroke();
+    context.textAlign = "center";
+    context.fillStyle = "#ffb320";
+    context.font = `900 ${Math.round(11 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.fillText(
+      `TIMEOUT — ${match.timeoutTeamName || "MATCH PAUSED"}`,
+      cardX + cardWidth / 2,
+      cardY + (timeoutHeight - 6 * uiScale) / 2,
+    );
+  }
   context.restore();
 };
 
@@ -398,6 +567,9 @@ function CloudflareVideo({
   match,
   onDisplayToggle,
   rotation,
+  scoreboardLayout,
+  scoreboardPosition,
+  scoreboardSize,
   shareId,
   viewerCount,
 }: Omit<Props, "media"> & { rotation?: FanViewMedia["rotation"] }) {
@@ -412,6 +584,9 @@ function CloudflareVideo({
   const matchRef = useRef(match);
   const rotationRef = useRef(rotation);
   const viewerCountRef = useRef(viewerCount);
+  const scoreboardLayoutRef = useRef(scoreboardLayout);
+  const scoreboardPositionRef = useRef(scoreboardPosition);
+  const scoreboardSizeRef = useRef(scoreboardSize);
   const [muted, setMuted] = useState(true);
   const [playbackPaused, setPlaybackPaused] = useState(true);
   const [status, setStatus] = useState("Waiting for broadcaster");
@@ -430,6 +605,9 @@ function CloudflareVideo({
   matchRef.current = match;
   rotationRef.current = rotation;
   viewerCountRef.current = viewerCount;
+  scoreboardLayoutRef.current = scoreboardLayout;
+  scoreboardPositionRef.current = scoreboardPosition;
+  scoreboardSizeRef.current = scoreboardSize;
 
   useViewerPresence(!visualQa, liveWorkerUrl, shareId);
 
@@ -619,6 +797,9 @@ function CloudflareVideo({
         rotationRef.current,
         matchRef.current,
         viewerCountRef.current,
+        scoreboardLayoutRef.current,
+        scoreboardPositionRef.current,
+        scoreboardSizeRef.current,
       );
       lastDrawAt = performance.now();
     };
@@ -1027,6 +1208,9 @@ export function LiveMedia({
   match,
   media,
   onDisplayToggle,
+  scoreboardLayout,
+  scoreboardPosition,
+  scoreboardSize,
   shareId,
   viewerCount,
 }: Props) {
@@ -1039,6 +1223,9 @@ export function LiveMedia({
         match={match}
         onDisplayToggle={onDisplayToggle}
         rotation={media.rotation}
+        scoreboardLayout={scoreboardLayout}
+        scoreboardPosition={scoreboardPosition}
+        scoreboardSize={scoreboardSize}
         shareId={shareId}
         viewerCount={viewerCount}
       />

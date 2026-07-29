@@ -1,10 +1,11 @@
 import { Timer } from "@phosphor-icons/react";
-import type { CSSProperties } from "react";
 import type {
   CompletedSetScore,
   FanViewMatch,
   TeamScore,
 } from "../adapters/contracts";
+
+export type ScoreboardLayout = "full-score" | "score-bar" | "minimal";
 
 const channel = (value: string): number => {
   const normalized = value.length === 1 ? `${value}${value}` : value;
@@ -39,12 +40,10 @@ type LedgerTeam = TeamScore & {
   setsWon: number;
 };
 
-const initials = (name: string): string => {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "CV";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return `${words[0][0] ?? ""}${words.at(-1)?.[0] ?? ""}`.toUpperCase();
-};
+const completedSetsFor = (match: FanViewMatch): CompletedSetScore[] =>
+  [...(match.completedSets ?? [])]
+    .filter((set) => match.isComplete || set.setNumber < match.setNumber)
+    .sort((left, right) => left.setNumber - right.setNumber);
 
 const scoreForTeam = (
   set: CompletedSetScore,
@@ -59,127 +58,221 @@ const teamWonSet = (
     ? set.homeScore > set.awayScore
     : set.awayScore > set.homeScore;
 
-export function ScoreBug({ match }: { match: FanViewMatch }) {
+function TimeoutStatus({ match }: { match: FanViewMatch }) {
+  if (match.timeoutTeamName === undefined) return null;
+  return (
+    <div className="score-bug__timeout" role="status">
+      <Timer
+        aria-hidden="true"
+        className="score-bug__timeout-icon"
+        size={22}
+        weight="bold"
+      />
+      <strong>TIMEOUT — {match.timeoutTeamName || "MATCH PAUSED"}</strong>
+    </div>
+  );
+}
+
+function CompletedSetHistory({
+  completedSets,
+  homeName,
+  awayName,
+  mode,
+}: {
+  completedSets: CompletedSetScore[];
+  homeName: string;
+  awayName: string;
+  mode: "full" | "bar";
+}) {
+  if (completedSets.length === 0) return null;
+  return (
+    <div className={`score-bug__history score-bug__history--${mode}`}>
+      {completedSets.map((set) => {
+        const homeWon = set.homeScore > set.awayScore;
+        return (
+          <div className="score-bug__history-set" key={set.setNumber}>
+            <span className="score-bug__history-label">S{set.setNumber}</span>
+            <span
+              className={
+                homeWon
+                  ? "score-bug__history-score is-winner"
+                  : "score-bug__history-score"
+              }
+            >
+              {set.homeScore}
+              {homeWon ? (
+                <i
+                  aria-label={`${homeName} won set ${set.setNumber}`}
+                  className="score-bug__winner-badge"
+                >
+                  W
+                </i>
+              ) : null}
+            </span>
+            <span aria-hidden="true" className="score-bug__history-dash">
+              –
+            </span>
+            <span
+              className={
+                homeWon
+                  ? "score-bug__history-score"
+                  : "score-bug__history-score is-winner"
+              }
+            >
+              {set.awayScore}
+              {!homeWon ? (
+                <i
+                  aria-label={`${awayName} won set ${set.setNumber}`}
+                  className="score-bug__winner-badge"
+                >
+                  W
+                </i>
+              ) : null}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SetDots({
+  match,
+  side,
+}: {
+  match: FanViewMatch;
+  side: LedgerTeam["side"];
+}) {
+  const wins = side === "home" ? match.homeSetsWon : match.awaySetsWon;
+  const needed = Math.ceil(match.totalSets / 2);
+  return (
+    <span
+      aria-label={`${wins} of ${needed} sets won`}
+      className="score-bug__set-dots"
+    >
+      {Array.from({ length: needed }, (_, index) => (
+        <i
+          className={index < wins ? "is-won" : ""}
+          key={`${side}-set-${index + 1}`}
+        />
+      ))}
+    </span>
+  );
+}
+
+function FullScore({
+  completedSets,
+  match,
+  teams,
+}: {
+  completedSets: CompletedSetScore[];
+  match: FanViewMatch;
+  teams: LedgerTeam[];
+}) {
+  return (
+    <>
+      <div className="score-bug__full-card">
+        {teams.map((team) => (
+          <div className="score-bug__full-team" key={team.side}>
+            <i
+              aria-hidden="true"
+              className="score-bug__team-accent"
+              style={{ backgroundColor: team.color }}
+            />
+            <strong title={team.name}>{team.name}</strong>
+            <SetDots match={match} side={team.side} />
+            <b>{team.score}</b>
+          </div>
+        ))}
+        <div className="score-bug__full-meta">
+          <span>SET {match.setNumber}</span>
+          <span>
+            SETS {match.homeSetsWon}–{match.awaySetsWon}
+          </span>
+        </div>
+        <CompletedSetHistory
+          awayName={match.away.name}
+          completedSets={completedSets}
+          homeName={match.home.name}
+          mode="full"
+        />
+      </div>
+      <TimeoutStatus match={match} />
+    </>
+  );
+}
+
+function ScoreBar({
+  completedSets,
+  match,
+}: {
+  completedSets: CompletedSetScore[];
+  match: FanViewMatch;
+}) {
+  return (
+    <>
+      <TimeoutStatus match={match} />
+      <div className="score-bug__bar-card">
+        <div className="score-bug__bar-team score-bug__bar-team--home">
+          <i style={{ backgroundColor: match.home.color }} />
+          <span title={match.home.name}>{match.home.name}</span>
+          <strong>{match.home.score}</strong>
+        </div>
+        <div className="score-bug__bar-center">
+          <span>SET {match.setNumber}</span>
+          <CompletedSetHistory
+            awayName={match.away.name}
+            completedSets={completedSets}
+            homeName={match.home.name}
+            mode="bar"
+          />
+        </div>
+        <div className="score-bug__bar-team score-bug__bar-team--away">
+          <strong>{match.away.score}</strong>
+          <span title={match.away.name}>{match.away.name}</span>
+          <i style={{ backgroundColor: match.away.color }} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function MinimalScore({ match }: { match: FanViewMatch }) {
+  return (
+    <div className="score-bug__minimal-card">
+      <span>SET {match.setNumber}</span>
+      <strong style={{ color: match.home.color }}>{match.home.score}</strong>
+      <i aria-hidden="true">–</i>
+      <strong style={{ color: match.away.color }}>{match.away.score}</strong>
+    </div>
+  );
+}
+
+export function ScoreBug({
+  layout = "full-score",
+  match,
+}: {
+  layout?: ScoreboardLayout;
+  match: FanViewMatch;
+}) {
   const teams: LedgerTeam[] = [
     { ...match.home, setsWon: match.homeSetsWon, side: "home" },
     { ...match.away, setsWon: match.awaySetsWon, side: "away" },
   ];
-  const completedSets = [...(match.completedSets ?? [])]
-    .filter((set) => match.isComplete || set.setNumber < match.setNumber)
-    .sort((left, right) => left.setNumber - right.setNumber);
-  const visibleSets: Array<
-    | { kind: "complete"; set: CompletedSetScore }
-    | { kind: "live"; setNumber: number }
-  > = [
-    ...completedSets.map((set) => ({ kind: "complete" as const, set })),
-    ...(!match.isComplete
-      ? [{ kind: "live" as const, setNumber: match.setNumber }]
-      : []),
-  ];
-  const gridStyle = {
-    gridTemplateColumns: `minmax(0, 1.65fr) repeat(${Math.max(
-      visibleSets.length,
-      1,
-    )}, minmax(0, 0.56fr))`,
-  } satisfies CSSProperties;
+  const completedSets = completedSetsFor(match);
 
   return (
-    <section className="score-bug" aria-label="Live match score">
-      {match.timeoutTeamName !== undefined ? (
-        <div className="score-bug__timeout" role="status">
-          <Timer
-            aria-hidden="true"
-            className="score-bug__timeout-icon"
-            size={22}
-            weight="bold"
-          />
-          <strong>TIMEOUT — {match.timeoutTeamName || "MATCH PAUSED"}</strong>
-        </div>
-      ) : null}
-
-      <div className="score-bug__ledger">
-        <div className="score-bug__header" style={gridStyle}>
-          <div className="score-bug__format">BEST OF {match.totalSets}</div>
-          {visibleSets.map((entry) => {
-            const setNumber =
-              entry.kind === "complete" ? entry.set.setNumber : entry.setNumber;
-            return (
-              <div
-                className={
-                  entry.kind === "live"
-                    ? "score-bug__set-heading is-live"
-                    : "score-bug__set-heading"
-                }
-                key={`${entry.kind}-${setNumber}`}
-              >
-                <span>S{setNumber}</span>
-                {entry.kind === "live" ? (
-                  <small>
-                    <i aria-hidden="true" />
-                    LIVE
-                  </small>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-
-        {teams.map((team) => (
-          <div className="score-bug__row" key={team.side} style={gridStyle}>
-            <div className="score-bug__team">
-              <span
-                aria-hidden="true"
-                className="score-bug__team-mark"
-                style={{
-                  backgroundColor: team.color,
-                  color: scoreBugTextColor(team.color),
-                }}
-              >
-                {initials(team.name)}
-              </span>
-              <span className="score-bug__team-copy">
-                <strong title={team.name}>{team.name}</strong>
-                <small aria-label={`${team.setsWon} sets won`}>
-                  SETS <b>{team.setsWon}</b>
-                </small>
-              </span>
-            </div>
-            {visibleSets.map((entry) => {
-              const setNumber =
-                entry.kind === "complete" ? entry.set.setNumber : entry.setNumber;
-              const won =
-                entry.kind === "complete" &&
-                teamWonSet(entry.set, team.side);
-              const score =
-                entry.kind === "complete"
-                  ? scoreForTeam(entry.set, team.side)
-                  : team.score;
-              return (
-                <div
-                  className={[
-                    "score-bug__set-cell",
-                    won ? "is-winner" : "",
-                    entry.kind === "live" ? "is-live" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  key={`${team.side}-${setNumber}`}
-                >
-                  {won ? (
-                    <span
-                      aria-label={`${team.name} won set ${setNumber}`}
-                      className="score-bug__winner-badge"
-                    >
-                      W
-                    </span>
-                  ) : null}
-                  <strong className="score-bug__cell-score">{score}</strong>
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+    <section
+      className={`score-bug score-bug--${layout}`}
+      aria-label={`${match.home.name} ${match.home.score}, ${match.away.name} ${match.away.score}, set ${match.setNumber}`}
+    >
+      {layout === "minimal" ? (
+        <MinimalScore match={match} />
+      ) : layout === "score-bar" ? (
+        <ScoreBar completedSets={completedSets} match={match} />
+      ) : (
+        <FullScore completedSets={completedSets} match={match} teams={teams} />
+      )}
     </section>
   );
 }

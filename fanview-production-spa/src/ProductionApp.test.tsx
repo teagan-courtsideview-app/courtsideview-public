@@ -11,7 +11,11 @@ import { FanViewUnavailableError } from "../../fanview-spa/src/adapters/contract
 import { scoreBugTextColor } from "../../fanview-spa/src/components/ScoreBug";
 import { formatViewerCount, ProductionApp } from "./ProductionApp";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+  window.history.replaceState({}, "", "/");
+});
 
 const snapshot = (updatedAt: string, homeScore: number): FanViewSnapshot => ({
   shareId: "match-123",
@@ -61,7 +65,7 @@ describe("Production FanView lifecycle", () => {
     expect(scoreBugTextColor("#111827")).toBe("#FFFFFF");
   });
 
-  it("keeps the live set tally and match format visible in the score bug", () => {
+  it("keeps the live set tally and approved three-layout system in the score bug", () => {
     const source = fs.readFileSync(
       path.resolve(
         __dirname,
@@ -71,8 +75,10 @@ describe("Production FanView lifecycle", () => {
     );
     expect(source).toContain("match.homeSetsWon");
     expect(source).toContain("match.awaySetsWon");
-    expect(source).toContain("BEST OF {match.totalSets}");
-    expect(source).toContain("sets won");
+    expect(source).toContain('layout = "full-score"');
+    expect(source).toContain('layout === "score-bar"');
+    expect(source).toContain('layout === "minimal"');
+    expect(source).toContain("match.totalSets");
   });
 
   it("keeps Display closed until requested and persists approved scoreboard choices", async () => {
@@ -93,8 +99,11 @@ describe("Production FanView lifecycle", () => {
     expect(
       screen.getByRole("dialog", { name: "Scoreboard display" }),
     ).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Small" }));
+    fireEvent.click(screen.getByRole("button", { name: "SMALL" }));
     fireEvent.click(screen.getByRole("button", { name: "Top right" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Use minimal layout" }),
+    );
 
     expect(screen.getByTestId("fanview-production-app")).toHaveAttribute(
       "data-scoreboard-size",
@@ -104,15 +113,22 @@ describe("Production FanView lifecycle", () => {
       "data-scoreboard-position",
       "top-right",
     );
+    expect(screen.getByTestId("fanview-production-app")).toHaveAttribute(
+      "data-scoreboard-layout",
+      "minimal",
+    );
     expect(
       window.localStorage.getItem("courtsideview_fanview_scoreboard_size"),
     ).toBe("small");
     expect(
       window.localStorage.getItem("courtsideview_fanview_scoreboard_position"),
     ).toBe("top-right");
+    expect(
+      window.localStorage.getItem("courtsideview_fanview_scoreboard_layout"),
+    ).toBe("minimal");
   });
 
-  it("uses one aligned ledger without duplicating the live set", async () => {
+  it("uses one aligned score bar without duplicating the live set", async () => {
     const live = snapshot("2026-07-25T20:01:00.000Z", 12);
     live.match.setNumber = 3;
     live.match.totalSets = 5;
@@ -128,8 +144,8 @@ describe("Production FanView lifecycle", () => {
         return live;
       },
     });
-    await screen.findByText("BEST OF 5");
-    expect(screen.getAllByText("S3")).toHaveLength(1);
+    await screen.findByText("SET 3");
+    expect(screen.getAllByText("SET 3")).toHaveLength(1);
     expect(
       screen.getByLabelText("14s Blue won set 1"),
     ).toHaveTextContent("W");
@@ -183,6 +199,30 @@ describe("Production FanView lifecycle", () => {
     expect(formatViewerCount(1200)).toBe("1.2K");
     expect(await screen.findByText("1.2K")).toBeVisible();
     expect(screen.getByLabelText("1,200 viewers")).toBeVisible();
+  });
+
+  it("supports the approved scoreboard-only arena presentation", async () => {
+    window.history.replaceState({}, "", "/?presentation=arena");
+    const arena = snapshot("2026-07-25T20:01:00.000Z", 21);
+    arena.match.setNumber = 3;
+    arena.match.totalSets = 5;
+    arena.match.homeSetsWon = 1;
+    arena.match.awaySetsWon = 1;
+    arena.match.timeoutTeamName = "Metro Red";
+    arena.match.completedSets = [
+      { setNumber: 1, homeScore: 25, awayScore: 19 },
+      { setNumber: 2, homeScore: 22, awayScore: 25 },
+    ];
+    renderApp({
+      async loadSnapshot() {
+        return arena;
+      },
+    });
+    expect(
+      await screen.findByTestId("arena-scoreboard"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("LIVE · BEST OF 5 · SET 3")).toBeVisible();
+    expect(screen.getByText("TIMEOUT — Metro Red")).toBeVisible();
   });
 
   it("keeps all four approved viewer-control labels visible at responsive sizes", () => {
