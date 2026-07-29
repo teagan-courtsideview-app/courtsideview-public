@@ -2076,7 +2076,8 @@
 }
 
 .scoreboard-display-menu__switch[data-on="true"] {
-  background: #ef3d68;
+  border-color: #20a66b;
+  background: #20a66b;
 }
 
 .scoreboard-display-menu__switch[data-on="true"] span {
@@ -2089,6 +2090,15 @@
   color: #ff3f75;
   background: transparent;
   font-size: 13px;
+}
+
+.fanview-app button,
+.fanview-state-page button,
+.scoreboard-display-menu button {
+  font-family: var(--font-control);
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 720px) {

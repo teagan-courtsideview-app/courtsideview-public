@@ -19,7 +19,11 @@ describe("FanView SPA isolation", () => {
     );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(await screen.findByLabelText("Live match score")).toBeVisible();
+    expect(
+      await screen.findByRole("region", {
+        name: /14s Blue 18, Metro Red 16, set 2/i,
+      }),
+    ).toBeVisible();
   });
 
   it("keeps video and scoring available when community fails", async () => {
@@ -43,7 +47,10 @@ describe("FanView SPA isolation", () => {
       />,
     );
 
-    expect(await screen.findByLabelText("Live match score")).toBeVisible();
+    const score = await screen.findByRole("region", {
+      name: /14s Blue 18, Metro Red 16, set 2/i,
+    });
+    expect(score).toBeVisible();
     expect(screen.getByAltText(/live indoor volleyball rally/i)).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /open chat/i }));
     await waitFor(() => {
@@ -51,7 +58,6 @@ describe("FanView SPA isolation", () => {
         screen.getByText("Cheering is temporarily unavailable."),
       ).toBeVisible();
     });
-    const score = screen.getByRole("region", { name: "Live match score" });
     expect(within(score).getAllByText("18")[0]).toBeVisible();
     expect(within(score).getAllByText("16")[0]).toBeVisible();
   });

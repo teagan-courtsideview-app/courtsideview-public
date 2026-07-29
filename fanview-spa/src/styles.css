@@ -1,9 +1,16 @@
 :root {
   color: #111827;
   background: #050a13;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  --fanview-font-body: "Avenir Next", Inter, ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --fanview-font-control: "Avenir Next Condensed", "Arial Narrow",
+    "Roboto Condensed", var(--fanview-font-body);
+  --fanview-font-display: "Avenir Next Condensed", "Arial Narrow",
+    "Roboto Condensed", var(--fanview-font-body);
+  --font-sans: var(--fanview-font-body);
+  --font-control: var(--fanview-font-control);
+  --font-display: var(--fanview-font-display);
+  font-family: var(--fanview-font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --fanview-navy-950: #111827;
@@ -40,12 +47,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-button,
 input {
   font: inherit;
 }
 
 button {
+  font-family: var(--fanview-font-control);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   -webkit-tap-highlight-color: transparent;
 }
 
