@@ -118,10 +118,15 @@ function useViewerPresence(
 async function enterStageFullscreen(
   element: HTMLElement,
 ): Promise<"document" | null> {
+  const isConfirmed = () =>
+    document.fullscreenElement === element ||
+    (
+      document as Document & { webkitFullscreenElement?: Element | null }
+    ).webkitFullscreenElement === element;
   if (element.requestFullscreen) {
     try {
       await element.requestFullscreen();
-      return "document";
+      if (isConfirmed()) return "document";
     } catch {
       // iPhone browsers can expose this API while rejecting non-video elements.
     }
@@ -132,7 +137,8 @@ async function enterStageFullscreen(
   if (request) {
     try {
       request.call(element);
-      return "document";
+      await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+      if (isConfirmed()) return "document";
     } catch {
       // The presentation-video or CSS fallback handles this browser.
     }

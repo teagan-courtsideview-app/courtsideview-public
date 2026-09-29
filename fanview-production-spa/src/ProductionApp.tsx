@@ -737,6 +737,7 @@ export function ProductionApp({
     <main
       className="fanview-app"
       data-community-enabled={communityEnabled}
+      data-display-menu-open={displayMenuOpen}
       data-scoreboard-automatic={scoreboardAutomatic}
       data-scoreboard-layout={renderedScoreboardLayout}
       data-scoreboard-position={scoreboardPosition}
