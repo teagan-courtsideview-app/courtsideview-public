@@ -362,9 +362,22 @@ describe("Production FanView lifecycle", () => {
       "href",
       "/",
     );
+    expect(screen.queryByRole("link", { name: "Open Team Hub" })).toBeNull();
     expect(screen.getByRole("link", { name: "Email support" })).toHaveAttribute(
       "href",
       "mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20Support",
+    );
+  });
+
+  it("links an expired match to its known Team Hub", async () => {
+    const expired = snapshot(new Date().toISOString(), 18);
+    expired.expiresAt = new Date(Date.now() - 60_000).toISOString();
+    expired.match.teamHub = { name: "14s Blue", slug: "14s-blue" };
+    renderApp({ async loadSnapshot() { return expired; } });
+    expect(await screen.findByText("This FanView has ended")).toBeVisible();
+    expect(screen.getByRole("link", { name: "Open Team Hub" })).toHaveAttribute(
+      "href",
+      "/t/14s-blue",
     );
   });
 

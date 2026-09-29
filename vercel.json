@@ -26,7 +26,8 @@
     { "source": "/press-release-courtsideview-volleyball-app-launch", "destination": "/press-release-courtsideview-volleyball-app-launch.html" },
     { "source": "/download", "destination": "/download.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/support", "destination": "/support.html" }
+    { "source": "/support", "destination": "/support.html" },
+    { "source": "/delete-account", "destination": "/delete-account.html" }
   ],
   "headers": [
     {
@@ -69,6 +70,7 @@
   "redirects": [
     { "source": "/privacy.html", "destination": "/privacy", "permanent": true },
     { "source": "/support.html", "destination": "/support", "permanent": true },
+    { "source": "/delete-account.html", "destination": "/delete-account", "permanent": true },
     { "source": "/download.html", "destination": "/download", "permanent": true },
     { "source": "/courtsideview-app.html", "destination": "/courtsideview-app", "permanent": true },
     { "source": "/courtsideviewapp", "destination": "/courtsideview-app", "permanent": true },

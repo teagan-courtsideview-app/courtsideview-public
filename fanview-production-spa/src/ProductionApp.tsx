@@ -392,13 +392,15 @@ function RecoveryPage({
               <House aria-hidden="true" size={20} weight="bold" />
               Return Home
             </a>
-            <a
-              className="fanview-state-action"
-              href={teamHub ? `/t/${encodeURIComponent(teamHub.slug)}` : "/"}
-            >
-              <UsersThree aria-hidden="true" size={20} weight="bold" />
-              Open Team Hub
-            </a>
+            {teamHub?.slug ? (
+              <a
+                className="fanview-state-action"
+                href={`/t/${encodeURIComponent(teamHub.slug)}`}
+              >
+                <UsersThree aria-hidden="true" size={20} weight="bold" />
+                Open Team Hub
+              </a>
+            ) : null}
             <button
               className="fanview-state-action"
               disabled={!shareId}
