@@ -162,6 +162,7 @@
   opacity: 0.58;
 }
 
+/* Approved single-row header: Team Hub left, LIVE and viewer count right. */
 .viewer-header {
   position: absolute;
   z-index: 5;
@@ -318,8 +319,8 @@
 }
 
 .fanview-state-action--primary {
-  border-color: #f22b78;
-  background: #f22b78;
+  border-color: #c81e62;
+  background: #c81e62;
 }
 
 .fanview-state-action--support {
@@ -1412,27 +1413,6 @@
 }
 
 /* Approved FanView scoreboard preference system — July 29, 2026. */
-.viewer-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-}
-
-.viewer-header__status {
-  display: contents;
-}
-
-.viewer-header .team-hub-back {
-  justify-self: start;
-}
-
-.viewer-header .live-pill {
-  justify-self: center;
-}
-
-.viewer-header .viewer-pill {
-  justify-self: end;
-}
-
 .score-bug {
   width: auto;
   min-width: 0;
@@ -2106,10 +2086,6 @@
 }
 
 @media (max-width: 720px) {
-  .viewer-header {
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  }
-
   .score-bug__bar-card {
     min-height: 58px;
     grid-template-columns: minmax(0, 1fr) minmax(104px, 0.8fr) minmax(0, 1fr);
@@ -2309,5 +2285,35 @@
     grid-row: 1 / 3;
     border-top: 0;
     border-left: 1px solid rgba(255, 255, 255, 0.22);
+  }
+}
+
+/* Keep the complete scoreboard between the header and playback dock on a
+   compact landscape display, including while a timeout is active. */
+@media (orientation: landscape) and (max-height: 400px) {
+  .score-bug__full-team {
+    height: 36px;
+  }
+
+  .score-bug__full-team > b {
+    font-size: 24px;
+  }
+
+  .score-bug__full-meta {
+    min-height: 26px;
+    font-size: 10px;
+  }
+
+  .score-bug__history--full {
+    min-height: 32px;
+  }
+
+  .score-bug__history--full .score-bug__history-set {
+    font-size: 10px;
+  }
+
+  .score-bug--full-score .score-bug__timeout {
+    min-height: 30px;
+    margin-bottom: 6px;
   }
 }

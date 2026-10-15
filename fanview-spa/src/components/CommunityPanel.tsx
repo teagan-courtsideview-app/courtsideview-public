@@ -51,6 +51,7 @@ export function CommunityPanel({
   const sheetStartY = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!open) return;
     const abortController = new AbortController();
     let unsubscribe = () => {};
 
@@ -78,7 +79,7 @@ export function CommunityPanel({
       abortController.abort();
       unsubscribe();
     };
-  }, [adapter, shareId]);
+  }, [adapter, shareId, open]);
 
   useEffect(() => {
     if (open) {

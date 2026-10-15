@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import type {
   CommunityAdapter,
@@ -82,6 +82,55 @@ describe("FanView SPA isolation", () => {
         "Cheer kindly. No player criticism or personal information.",
       ),
     ).toBeVisible();
+  });
+
+  it("does not load or subscribe to Community until the viewer opens chat", async () => {
+    const stop = vi.fn();
+    const loadRoom = vi.fn(async (): Promise<CommunityRoomSnapshot> => ({
+      connection: "connected",
+      participantCount: 1,
+      canWriteText: false,
+      messages: [],
+    }));
+    const subscribe = vi.fn(() => stop);
+    const communityAdapter: CommunityAdapter = {
+      loadRoom,
+      subscribe,
+      async sendCheer() {},
+      async sendMessage() {
+        throw new Error("Not used");
+      },
+    };
+
+    render(
+      <App
+        communityAdapter={communityAdapter}
+        flags={{ communityEnabled: true }}
+        shareId="test-share"
+      />,
+    );
+
+    const launcher = await screen.findByRole("button", { name: /open chat/i });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(loadRoom).not.toHaveBeenCalled();
+    expect(subscribe).not.toHaveBeenCalled();
+
+    fireEvent.click(launcher);
+    await waitFor(() => {
+      expect(loadRoom).toHaveBeenCalledTimes(1);
+      expect(subscribe).toHaveBeenCalledTimes(1);
+    });
+    expect(loadRoom).toHaveBeenCalledWith("test-share", expect.any(AbortSignal));
+    expect(subscribe).toHaveBeenCalledWith(
+      "test-share",
+      expect.any(Function),
+      expect.any(Function),
+    );
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(stop).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /open chat/i })).toHaveFocus();
   });
 
   it("shows a loading state instead of claiming the room is empty", async () => {

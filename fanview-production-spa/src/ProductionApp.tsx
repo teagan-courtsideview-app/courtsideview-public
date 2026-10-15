@@ -548,6 +548,9 @@ export function ProductionApp({
         setScoreboardPosition(preference.position);
         setScoreboardAutomatic(preference.automatic);
       })
+      .catch(() => {
+        // Account sync may be unavailable; retain the working local display.
+      })
       .finally(() => {
         if (active) setAccountPreferenceHydrated(true);
       });
@@ -561,12 +564,16 @@ export function ProductionApp({
       return () => {};
     }
     const timer = window.setTimeout(() => {
-      void displayPreferenceAdapter.save({
-        automatic: scoreboardAutomatic,
-        layout: scoreboardLayout,
-        position: scoreboardPosition,
-        size: scoreboardSize,
-      });
+      void displayPreferenceAdapter
+        .save({
+          automatic: scoreboardAutomatic,
+          layout: scoreboardLayout,
+          position: scoreboardPosition,
+          size: scoreboardSize,
+        })
+        .catch(() => {
+          // The local preference remains usable when account sync is offline.
+        });
     }, 800);
     return () => window.clearTimeout(timer);
   }, [
@@ -643,14 +650,20 @@ export function ProductionApp({
       newestRevision.current = nextRevision;
       hasReadySnapshot.current = true;
       setSnapshot(next);
-      setScreen("ready");
+      setScreen(
+        next.expiresAt && Date.now() >= Date.parse(next.expiresAt)
+          ? "expired"
+          : "ready",
+      );
     };
     const handleError = (error: unknown) => {
       if (abortController.signal.aborted) return;
-      if (error instanceof FanViewUnavailableError && !hasReadySnapshot.current) {
+      if (error instanceof FanViewUnavailableError) {
         setScreen("unavailable");
       } else if (!hasReadySnapshot.current) {
         setScreen("error");
+      } else {
+        setSnapshot((current) => current && { ...current, connection: "reconnecting" });
       }
     };
 
@@ -670,14 +683,22 @@ export function ProductionApp({
 
   useEffect(() => {
     if (!snapshot?.expiresAt) return;
+    const expiresAt = Date.parse(snapshot.expiresAt);
+    if (!Number.isFinite(expiresAt)) return;
     const check = () => {
-      if (Date.now() >= Date.parse(snapshot.expiresAt ?? "")) {
+      if (Date.now() >= expiresAt) {
         setScreen("expired");
       }
     };
     check();
-    const timer = window.setInterval(check, 30_000);
-    return () => window.clearInterval(timer);
+    const timer = window.setTimeout(check, Math.max(0, expiresAt - Date.now()));
+    document.addEventListener("visibilitychange", check);
+    window.addEventListener("pageshow", check);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", check);
+      window.removeEventListener("pageshow", check);
+    };
   }, [snapshot?.expiresAt]);
 
   if (!shareId || screen === "unavailable") {
@@ -685,6 +706,7 @@ export function ProductionApp({
       <RecoveryPage
         copy="This link is invalid, expired, or no longer published."
         shareId={shareId}
+        teamHub={snapshot?.match.teamHub}
         title="FanView unavailable"
       />
     );

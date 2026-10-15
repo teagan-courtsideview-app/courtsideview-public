@@ -320,21 +320,10 @@ export function createSupabaseFanViewAdapter({
   const rows = new Map<string, PublicFanViewMatchRow>();
   const statuses = new Map<string, LiveStatus>();
 
-  const bestEffortAnonymousSession = async () => {
-    try {
-      const { data } = await client.auth.getSession();
-      if (!data.session) await client.auth.signInAnonymously();
-    } catch {
-      // The public match RPC remains usable when anonymous auth is unavailable.
-    }
-  };
-
   const fetchRow = async (
     shareId: string,
     signal?: AbortSignal,
   ): Promise<PublicFanViewMatchRow> => {
-    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
-    await bestEffortAnonymousSession();
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
 
     let result = await client

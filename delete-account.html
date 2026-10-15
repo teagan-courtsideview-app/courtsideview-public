@@ -12,7 +12,7 @@
     * { box-sizing: border-box; }
     body { margin: 0; background: #0a0e14; color: #f7faf8; }
     main { width: min(100% - 32px, 720px); margin: 0 auto; padding: 52px 0 90px; }
-    a { color: #6de2aa; }
+    a { color: #6de2aa; display: inline-flex; align-items: center; min-height: 44px; }
     a:focus-visible { outline: 3px solid #6de2aa; outline-offset: 4px; }
     .brand { font-weight: 800; font-size: 15px; letter-spacing: .03em; text-decoration: none; }
     h1 { font-family: "Avenir Next Condensed", "Arial Narrow", sans-serif; font-size: clamp(34px, 6vw, 50px); line-height: 1.08; margin: 42px 0 14px; }
@@ -34,19 +34,20 @@
     <h2>In the app</h2>
     <ol>
       <li>Open <strong>Settings → Account</strong>.</li>
-      <li>Choose <strong>Delete account</strong> and follow the confirmation steps.</li>
+      <li>Choose <strong>Delete account</strong> and follow the confirmation steps. If you are using a guest account, open <strong>Guest data</strong> and choose <strong>Delete guest data</strong>.</li>
     </ol>
 
     <div class="card">
       <h2>Without the app</h2>
       <p>Email us from the address on your CourtsideView account. Put <strong>Delete my CourtsideView account</strong> in the subject. If you used Apple Hide My Email or cannot access that address, tell us and we will explain how to verify ownership. Never send a password or sign-in code.</p>
       <a class="button" href="mailto:teagan@courtsideviewapp.com?subject=Delete%20my%20CourtsideView%20account">Request account deletion</a>
+      <p>If the button does not open your email app, send your request to <strong>teagan@courtsideviewapp.com</strong>.</p>
     </div>
 
     <h2>What the request covers</h2>
     <ul>
-      <li>The in-app flow removes your Supabase account, profile type, sign-in associations, and app records linked to that account. A support request can also identify other records for deletion.</li>
-      <li>Separate Highlight Studio uploads are not confirmed deleted by the in-app flow. Ask support to remove them and include the project ID if you have it. Shared FanView, Team Scout, or Team Hub records may also need their link or page ID to locate them.</li>
+      <li>The in-app flow removes your CourtsideView account, profile type, sign-in associations, and app records linked to that account. A support request can also identify other records for deletion.</li>
+      <li>The current public Highlight Studio keeps source video and rendered reels on your device; delete local copies there. If you used a separate private hosted-processing test, ask support to remove its project and include the project ID if you have it. Shared FanView, Team Scout, or Team Hub records may also need their link or page ID to locate them.</li>
       <li>Copies of videos you saved to your device's Photos library remain under your control and must be removed there. Deleting a CourtsideView account does not delete your Google or Apple account.</li>
     </ul>
     <p>We will confirm the request, tell you if any record must be retained for a stated reason, and provide the applicable retention period. For details, read our <a href="/privacy">Privacy Policy</a> or <a href="/support">contact support</a>.</p>
