@@ -1,0 +1,18 @@
+/* Approved product typography and Home materials, including recovery routes. */
+[data-cv-product="account"] { color-scheme: light dark; --account-bg:#f5f7fa; --account-text:#111827; --account-muted:#596273; --account-line:#dbe2e8; }
+[data-cv-product="account"] body { color:var(--account-text); background:var(--account-bg); font-family:var(--cv-font); }
+[data-cv-product="account"] main { background:var(--cv-card-face); border:1px solid var(--cv-card-line); border-radius:24px; padding:clamp(20px,5vw,44px); box-shadow:inset 0 1px 0 var(--cv-card-reflection),inset 0 -5px 0 var(--cv-card-rim),0 8px 24px var(--cv-card-shadow); }
+[data-cv-product="account"] h1 { font-family:var(--cv-font); font-weight:600; line-height:1.16; }
+[data-cv-product="account"] h2 { font-weight:600; }
+[data-cv-product="account"] p,[data-cv-product="account"] li { color:var(--account-muted); }
+[data-cv-product="account"] .brand { display:inline-flex; align-items:center; min-height:44px; color:var(--account-text); }
+[data-cv-product="account"] .brand img { width:64px; height:auto; display:block; }
+[data-cv-product="account"] .card { background:var(--cv-card-face); border-color:var(--cv-card-line); border-radius:20px; box-shadow:inset 0 1px 0 var(--cv-card-reflection),inset 0 -4px 0 var(--cv-card-rim),0 5px 12px var(--cv-card-shadow); }
+[data-cv-product="account"] .eyebrow,[data-cv-product="account"] .note { color:var(--account-muted); }
+[data-cv-product="account"] a:not(.cv-primary-action) { color:#087544; min-height:44px; }
+[data-cv-product="account"] footer { border-color:var(--account-line); }
+[data-cv-product="account"] .cv-primary-action { font-size:18px; line-height:26px; }
+@media (prefers-color-scheme:dark) {
+  [data-cv-product="account"] { --account-bg:#071018; --account-text:#f6f8fa; --account-muted:#c3ced8; --account-line:#40535e; --cv-card-face:var(--cv-face-dark); --cv-card-line:#40535e; --cv-card-rim:#0b141b; --cv-card-reflection:rgba(225,240,249,.12); --cv-card-shadow:rgba(0,0,0,.28); }
+  [data-cv-product="account"] a:not(.cv-primary-action) { color:#5ce5ac; }
+}

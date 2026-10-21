@@ -1,0 +1,68 @@
+/* The approved Home material, shared without changing live-stage geometry. */
+:root, :host {
+  --cv-face-light: linear-gradient(135deg, #fff 0%, #fcfdfe 42%, #f2f5f8 100%);
+  --cv-face-dark: linear-gradient(135deg, #29353c 0%, #101b21 42%, #142127 100%);
+  --cv-card-face: var(--cv-face-light);
+  --cv-card-line: #e3e9ef;
+  --cv-card-rim: #e2e8ee;
+  --cv-card-reflection: rgba(255,255,255,.95);
+  --cv-card-shadow: rgba(16,24,32,.12);
+  --cv-primary-material: url('./home-primary-action.svg');
+}
+.cv-dark-material {
+  --cv-card-face: var(--cv-face-dark);
+  --cv-card-line: #40535e;
+  --cv-card-rim: #0b141b;
+  --cv-card-reflection: rgba(225,240,249,.12);
+  --cv-card-shadow: rgba(0,0,0,.28);
+}
+.cv-raised-surface {
+  background: var(--cv-card-face);
+  border-color: var(--cv-card-line);
+  box-shadow: inset 0 1px 0 var(--cv-card-reflection), inset 0 -5px 0 var(--cv-card-rim), 0 5px 12px var(--cv-card-shadow);
+}
+:is(a, button).cv-primary-action, [data-cv-product] .cv-primary-action,
+body:not(.camera-mode) [data-cv-primary-action] {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 56px;
+  max-width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 0;
+  border-radius: 0;
+  padding: 14px 27px;
+  color: #061B13;
+  background: var(--cv-primary-material) center / 100% 100% no-repeat;
+  font-family: var(--cv-font);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  text-decoration: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  overflow: visible;
+  box-shadow: 0 4px 12px rgba(0,168,110,.13);
+}
+.cv-primary-action::before, body:not(.camera-mode) [data-cv-primary-action]::before { display: none !important; }
+.cv-primary-action::after, body:not(.camera-mode) [data-cv-primary-action]::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  background: currentColor;
+  -webkit-mask: var(--cv-action-glyph, url('./icons/chevron-section.svg')) center / contain no-repeat;
+  mask: var(--cv-action-glyph, url('./icons/chevron-section.svg')) center / contain no-repeat;
+}
+.cv-primary-action[data-cv-action='team'] { --cv-action-glyph: url('./icons/team-section.svg'); }
+.cv-primary-action[data-cv-action='fanview'], [data-cv-primary-action][data-cv-action='fanview'] { --cv-action-glyph: url('./icons/fanview-navigation.svg'); }
+.cv-primary-action[data-cv-action='games'] { --cv-action-glyph: url('./icons/games-navigation.svg'); }
+.cv-primary-action[data-cv-action='coach'] { --cv-action-glyph: url('./icons/coach-section.svg'); }
+.cv-primary-action[data-cv-action='home'] { --cv-action-glyph: url('./icons/home-navigation.svg'); }
+.cv-primary-action:disabled, .cv-primary-action[aria-disabled='true'] { opacity: .5; }
+.cv-primary-action:focus-visible { outline: 3px solid #1b70db; outline-offset: 4px; }

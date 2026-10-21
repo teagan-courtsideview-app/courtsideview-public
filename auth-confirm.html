@@ -1,25 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-cv-product="account">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex,nofollow">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src https://gnzhdhagvahylcjmyeeh.supabase.co; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self'; connect-src https://gnzhdhagvahylcjmyeeh.supabase.co; base-uri 'none'; form-action 'none'">
   <title>Confirm your email | CourtsideView</title>
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f3f6f4;color:#17382c;font-family:Arial,Helvetica,sans-serif;min-height:100vh;padding:clamp(16px,5vw,64px);display:grid;place-items:center}main{width:100%;max-width:540px;background:#fff;border:1px solid #dce7df;border-radius:24px;padding:clamp(20px,6vw,44px);box-shadow:0 16px 60px #17382c0a}.brand{font-size:13px;font-weight:800;letter-spacing:1.4px;margin:0 0 36px;overflow-wrap:anywhere}.eyebrow{font-size:12px;font-weight:700;letter-spacing:1.5px;color:#4b6658}h1{font-size:clamp(26px,6vw,36px);line-height:1.12;letter-spacing:-.8px;margin:12px 0 20px;overflow-wrap:anywhere}p{font-size:16px;line-height:1.6}button,.action{font:700 16px/1.4 Arial,sans-serif;display:block;min-height:48px;width:100%;padding:14px 18px;text-align:center;border:0;border-radius:12px;background:#12804a;color:#fff;text-decoration:none;cursor:pointer;overflow-wrap:anywhere}button:disabled{cursor:wait;background:#426b55}.action{margin-top:16px}a{color:#126b40}a:focus-visible,button:focus-visible{outline:3px solid #17382c;outline-offset:4px}.note{font-size:14px;color:#4c6257;margin-top:24px}.support{display:inline-flex;align-items:center;min-height:44px;overflow-wrap:anywhere}footer{border-top:1px solid #e4ebe6;margin-top:32px;padding-top:16px}footer p{font-size:13px;margin:0} [hidden]{display:none!important}
   </style>
   <script src="/auth-confirm.js" defer></script>
+  <link rel="stylesheet" href="/assets/product-design-v1/product-design.css">
+  <link rel="stylesheet" href="/assets/product-design-v1/account-pages.css">
 </head>
 <body>
   <main>
-    <p class="brand">COURTSIDEVIEW</p>
+    <a class="brand" href="/" aria-label="CourtsideView Home"><img src="/assets/courtsideview-app-icon-mark.png" alt="CourtsideView" width="64" height="64"></a>
     <p class="eyebrow">YOUR ACCOUNT. EVERY MATCH.</p>
     <h1 id="title">One step closer to courtside.</h1>
     <div role="status" aria-live="polite" aria-atomic="true"><p id="message">Confirm your email to finish creating your CourtsideView account.</p></div>
-    <button id="confirm" type="button">Confirm my email</button>
-    <a id="open-app" class="action" href="courtsideview://" aria-label="Open CourtsideView" hidden>Open the app</a>
+    <button class="cv-primary-action" id="confirm" type="button">Confirm my email</button>
+    <a id="open-app" class="action cv-primary-action" href="courtsideview://" aria-label="Open CourtsideView" hidden>Open the app</a>
     <p id="guidance" class="note">On a computer? Confirm here, then return to CourtsideView on your phone. Keep the app’s “Check your inbox” screen open to continue automatically.</p>
     <footer><p>Your place to score, follow, and stay connected to the match.</p><a class="support" href="mailto:teagan@courtsideviewapp.com">Need help? Contact CourtsideView</a></footer>
   </main>

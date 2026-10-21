@@ -82,7 +82,7 @@
             "@type": "WebPage",
             "name": "CourtsideView Privacy Policy",
             "url": "https://www.courtsideviewapp.com/privacy",
-            "dateModified": "2026-06-17",
+            "dateModified": "2026-10-21",
             "about": "CourtsideView privacy practices for local-first volleyball scoring, optional FanView sharing, Team Scout sharing, and website updates.",
             "publisher": {
                 "@type": "Organization",
@@ -124,7 +124,7 @@
                 CourtsideView
             </div>
             <h1 class="display-heading text-3xl md:text-4xl mb-3">Privacy Policy</h1>
-            <p class="text-sm text-gray-500 mb-10">Last updated: June 6, 2026</p>
+            <p class="text-sm text-gray-500 mb-10">Last updated: October 21, 2026</p>
 
             <!-- Highlight card -->
             <div class="glass p-6 md:p-8 rounded-3xl mb-12">
@@ -134,7 +134,7 @@
                     <span class="text-xs font-bold uppercase cv-pill">No ads</span>
                 </div>
                 <p class="text-gray-300 leading-relaxed">
-                    CourtsideView is a local-first volleyball stat-tracking app for parents and youth coaches. Core roster, scout, and match data stays on your device unless you choose to publish FanView or Team Scout sharing. We do not sell personal information, run ads, or use data for third-party tracking.
+                    CourtsideView is a local-first volleyball stat-tracking app for parents and youth coaches. Core roster, scout, and match data stays on your device unless you choose a private account backup or publish a FanView, Team Hub, Club Hub, or Team Scout page. We do not sell personal information, run ads, or use data for third-party tracking.
                 </p>
             </div>
 
@@ -147,7 +147,12 @@
                 <p><strong>Optional Team Scout sharing.</strong> When you create or share a Team Scout session, CourtsideView can sync that session through Supabase so coaches and contributors can review and combine observations.</p>
                 <p><strong>Website updates.</strong> If you choose to receive CourtsideView updates on our website, we store the email address you submit and the date it was submitted so we can send occasional product updates. Joining the list is optional and separate from using the app.</p>
 
-                <h2>What stays on your device</h2>
+                <h2>Optional accounts and private backups</h2>
+                <p>You can keep using CourtsideView as a guest. Creating an account is optional. If you register with email, Apple, or Google, Supabase processes the account identifier, contact details provided by that sign-in method, and authentication information needed to secure your account.</p>
+                <p>When you choose a private account backup, or explicitly confirm keeping both copies while moving guest data into an existing account, selected local roster, match, scouting, and preference data is sent to your private account. CourtsideView keeps the local originals and verifies the stored snapshot before displaying a successful backup. Existing-account transfers may also reassign your guest-owned shared pages and follows to your account without replacing the account's existing records.</p>
+                <p>Private snapshots are not public pages. They do not include passwords, sign-in tokens, camera footage, or local recording files. This feature is a manual backup and preservation workflow, not continuous synchronization or automatic restoration onto every device. You can request account deletion in the app under <strong>Settings → Account and saved data</strong> or through our <a href="/delete-account">account deletion page</a>.</p>
+
+                <h2>What stays on your device unless you choose backup or sharing</h2>
                 <ul>
                     <li>Roster details you enter (player names, jersey numbers, positions).</li>
                     <li>User-selected roster import files after they are parsed into app data.</li>
@@ -156,7 +161,7 @@
                     <li>Solo Scout sessions and local Coach Hub data unless you use Team Scout sharing.</li>
                     <li>App preferences: theme choice, team colors, dismissed coaching tips.</li>
                 </ul>
-                <p>Core app data is stored locally on your device using app storage. You can wipe local app data at any time from <strong>Settings → Wipe All Data</strong>.</p>
+                <p>Core app data is stored locally on your device using app storage. Use <strong>Settings → Reset Courtside match data</strong> to remove local Courtside matches and their saved match rosters. This action does not remove player profiles, Roster Hub teams, Scorekeeper data, saved videos, accounts, or published pages; those have separate controls.</p>
 
                 <h2>What FanView stores when you publish</h2>
                 <p>If you publish FanView, CourtsideView stores the information needed to show the live scoreboard and match context on a public-but-unlisted web link. This can include:</p>
@@ -187,17 +192,20 @@
                     <li>We don't sell, rent, or trade your information to third parties.</li>
                     <li>We don't make website signup email addresses publicly visible.</li>
                     <li>We don't access native contacts or location in the current mobile app.</li>
-                    <li>We don't use the native app camera or microphone for capture in the current mobile app.</li>
-                    <li>We don't store FanView live video on CourtsideView servers. The paired broadcaster browser uses a temporary local replay buffer, may save scorer-requested highlight clips locally, and can optionally save a full copy to that device.</li>
+                    <li>We don't upload or store FanView live video or locally saved highlight clips on CourtsideView servers through the FanView broadcast flow.</li>
                 </ul>
 
                 <h2>Permissions you may see</h2>
                 <p>The iOS and Android app may ask for photo library or media-picker access when you choose a team or opponent logo. The app may also open the system document/file picker when you import rosters or opponent scout files. These flows are initiated by you and are used only for the selected photo or file.</p>
-                <p>The FanView broadcaster web page may ask your browser for camera and microphone access when you choose to start live video. Camera and microphone access is used to send the live stream while the broadcaster keeps it running. The broadcaster browser also keeps a bounded temporary replay buffer on that device so the scorer can request a recent highlight; requested clips remain in that browser's local storage until the broadcaster deletes them or the browser or device clears or evicts site storage. CourtsideView does not upload or store that live video or audio on its servers through this FanView flow. If the broadcaster leaves the full-copy option on, the browser may also save set-based video files directly to that device. If microphone access is unavailable or declined, the web broadcaster may fall back to video-only where the browser allows it.</p>
+                <p>When you choose to start FanView live video, the native iOS or Android app, or the paired broadcaster web page, may request camera and microphone access. This access supports the camera preview and sends the live stream while you are broadcasting. If microphone access is unavailable or declined, FanView may fall back to video-only where the device or browser allows it.</p>
+                <p>On supported app builds, <strong>Save a copy</strong> lets you keep a broadcast locally on your phone. Native recording is off until you enable that option. If you choose <strong>Save to Photos</strong>, the app may request permission to add the saved video to your photo library. The paired web broadcaster also keeps a bounded temporary replay buffer on that device so the scorer can request a recent highlight; requested clips remain in that browser's local storage until the broadcaster deletes them or the browser or device clears or evicts site storage. If you enable the web broadcaster's full-copy option, the browser may also save video files directly to that device. CourtsideView does not upload or store these live video, audio, or locally saved files on its servers through the FanView broadcast flow.</p>
 
                 <h2>Retention and deletion</h2>
                 <ul>
-                    <li><strong>Local app data:</strong> remove it in the app with <strong>Settings → Wipe All Data</strong>.</li>
+                    <li><strong>Local Courtside match data:</strong> use <strong>Settings → Reset Courtside match data</strong>. Player profiles, Roster Hub teams, Scorekeeper data, saved videos, your account, and published pages are separate.</li>
+                    <li><strong>Account data and private backups:</strong> use <strong>Settings → Account and saved data → Delete account</strong>, or <a href="/delete-account">request deletion on the web</a>. Confirmed account deletion removes that account’s private backup snapshots and owned app records. Some shared activity, moderation history, and team administration records can remain with account references removed; contact support for help with shared content or separate hosted-processing test records.</li>
+                    <li><strong>Saved videos:</strong> after confirmed account deletion, the app attempts to remove that account’s app-private recordings on this device and reports cleanup failures. Copies saved to Photos or exported elsewhere remain under your control and must be deleted where you saved them.</li>
+                    <li><strong>Highlight Studio files:</strong> source videos and rendered reels in the public browser-local flow stay on your device. Delete those copies there. Contact support for separate private hosted-processing test records.</li>
                     <li><strong>FanView data:</strong> FanView links close 15 minutes after the match is marked complete. Some FanView rows or operational records may remain in Supabase unless removed by request.</li>
                     <li><strong>Team Scout data:</strong> shared Team Scout sessions and contributor records may remain in Supabase unless removed by request.</li>
                     <li><strong>Website signup data:</strong> we keep your email until you ask us to remove it or we no longer need it for CourtsideView update communications.</li>
@@ -205,7 +213,7 @@
                 <p>To request deletion of FanView data, Team Scout data, anonymous session data associated with a published share, or website signup email data, email <a href="mailto:teagan@courtsideviewapp.com">teagan@courtsideviewapp.com</a>. Include the FanView link, Team Scout link/session, or the email address you used so we can locate the data.</p>
 
                 <h2>Service providers</h2>
-                <p>CourtsideView uses service providers to operate the app and website, including Supabase for optional FanView publishing, Team Scout sharing/sync, anonymous session support, realtime updates, and website signup forms; Expo for app updates; Vercel for website hosting; and Cloudflare for the optional live-video relay. These providers process data only to provide CourtsideView functionality.</p>
+                <p>CourtsideView uses service providers to operate the app and website, including Supabase for optional accounts and private backups, FanView publishing, Team Scout sharing/sync, anonymous session support, realtime updates, and website signup forms; Expo for app updates; Vercel for website hosting; and Cloudflare for the optional live-video relay. These providers process data only to provide CourtsideView functionality.</p>
 
                 <h2>Security</h2>
                 <p>We use HTTPS, app-store platform controls, and database access rules to protect CourtsideView data. No system is perfect, so avoid sharing FanView links with people who should not see the match.</p>
@@ -214,7 +222,7 @@
                 <p>To deliver bug fixes quickly, CourtsideView uses Expo's update service to download new application bundles. The update service receives version, build, runtime, and device/update identifiers needed to deliver the right bundle.</p>
 
                 <h2>Children's privacy</h2>
-                <p>CourtsideView is designed for use by adult parents and youth coaches. We do not knowingly collect information directly from children. Adults may enter youth athlete names, jersey numbers, positions, stats, logos, roster imports, scouting notes, and opponent information. Users should only enter information they are authorized to share. That information stays local unless the adult user chooses to publish FanView or Team Scout sharing. Parents or guardians can wipe local data in the app or contact us to request deletion of shared FanView or Team Scout data.</p>
+                <p>CourtsideView is designed for use by adult parents and youth coaches. We do not knowingly collect information directly from children. Adults may enter youth athlete names, jersey numbers, positions, stats, logos, roster imports, scouting notes, and opponent information. Users should only enter information they are authorized to share. That information stays local unless the adult user chooses a private account backup or publishes a shared page. Parents or guardians can wipe local data in the app or contact us to request deletion of shared FanView or Team Scout data.</p>
 
                 <h2>Changes to this policy</h2>
                 <p>We will update this page if our practices change. The "Last updated" date at the top will reflect the most recent revision. Material changes will be summarized in the app's release notes.</p>

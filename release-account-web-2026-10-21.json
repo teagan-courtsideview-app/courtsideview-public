@@ -1,0 +1,134 @@
+{
+  "scope": "account-only static web pages; no FanView behavior or asset change",
+  "productionDeploymentBaseline": "dpl_E65wuypgfs2wS7s1zsMFvEJfdqyX",
+  "recoveredBaselineCommit": "85e8a75",
+  "destination": {
+    "projectId": "prj_NQJIWszWKfuuaT6Y2AsodRqH9yOY",
+    "orgId": "team_5GaFIGzRRao9LWdUt1dKUxpX",
+    "projectName": "courtsideview-public"
+  },
+  "runtimePublicHashesVerified": 215,
+  "deltaFiles": [
+    {
+      "path": "auth-confirm.html",
+      "bytes": 3214,
+      "sha256": "a1ffb3757982edffac4ce2f997b201f844f73ae677c1684c70ffadeced8b1157"
+    },
+    {
+      "path": "auth-confirm.js",
+      "bytes": 3716,
+      "sha256": "38711d1d241be49a275edc3046e92e5e4e0c9388035f7158b42f9468634504b1"
+    },
+    {
+      "path": "delete-account.html",
+      "bytes": 4256,
+      "sha256": "ad327413b3909327a69c93a30748192217abcf816cc62a7e070d79e2acde5864"
+    },
+    {
+      "path": "privacy.html",
+      "bytes": 25185,
+      "sha256": "f38c31f9af9b700f743dc6b2f9eb22478160673c4ff2f2cc0e147e7992fc7986"
+    },
+    {
+      "path": "assets/product-design-v1/product-design.css",
+      "bytes": 7367,
+      "sha256": "69b4d93d6ffd0119a9e3589a9e0f337cd60cb9ecf376a9b5a0996011bb960ff6"
+    },
+    {
+      "path": "assets/product-design-v1/home-materials.css",
+      "bytes": 2871,
+      "sha256": "452ea0f26df305b7fb73ed7d9715e81b7cdc6446ed8868c5d2a2b799ea104858"
+    },
+    {
+      "path": "assets/product-design-v1/account-pages.css",
+      "bytes": 2080,
+      "sha256": "6c76c3bb7c73c8e11c4bc20ca4721bdf15b7dfe053e419b41df615a100abaae8"
+    },
+    {
+      "path": "assets/product-design-v1/home-primary-action.svg",
+      "bytes": 414,
+      "sha256": "c976a0c6dfe532e660fa4194c8e54bb36462f7a1cf62fc98e25113092685b63f"
+    },
+    {
+      "path": "assets/fonts/courtside-type.css",
+      "bytes": 1074,
+      "sha256": "0a8e046c57aae9a3d9178d0f00de363720b09f22c304c030a049043b87aed4ed"
+    },
+    {
+      "path": "assets/fonts/PlusJakartaSans-Regular.ttf",
+      "bytes": 94756,
+      "sha256": "ca6ef907028d1d1808870967d7b7ddcf68c0f33552d15d7f0c6c7d6ae97e7571"
+    },
+    {
+      "path": "assets/fonts/PlusJakartaSans-Medium.ttf",
+      "bytes": 94808,
+      "sha256": "00ec347136c7f6d904fa8c54decba898cc2c74c17388e62fa4388433de8be226"
+    },
+    {
+      "path": "assets/fonts/PlusJakartaSans-SemiBold.ttf",
+      "bytes": 94836,
+      "sha256": "bbaa1d21ce4839070547b1cc06d5db2a56f520abe90278d971665b3f6dca6851"
+    },
+    {
+      "path": "assets/fonts/PlusJakartaSans-OFL.txt",
+      "bytes": 4401,
+      "sha256": "f9a8e776b4b048227f2f046b8716083eb04b1539d9ad1d4b87e81c1df28f86e3"
+    },
+    {
+      "path": "assets/product-design-v1/icons/home-navigation.svg",
+      "bytes": 268,
+      "sha256": "62ec17c319fa025e4da7ff00f2b715e65583f3c402377fa407fae60f508c7189"
+    },
+    {
+      "path": "assets/product-design-v1/icons/coach-section.svg",
+      "bytes": 1940,
+      "sha256": "7b232f06b9ce00c98a1aefa5b1296f11b48da824f975b3d57566f9b12b88cfdd"
+    },
+    {
+      "path": "assets/product-design-v1/icons/games-navigation.svg",
+      "bytes": 707,
+      "sha256": "4d7a135a9ce0a0bd04d11b2935ef902ba0c31e6cdd43162a543ec139f81a82df"
+    },
+    {
+      "path": "assets/product-design-v1/icons/team-section.svg",
+      "bytes": 4298,
+      "sha256": "d851022a5d055f5250ba3c689e32c3fac512ecf5e5a438ac2ad575619d483902"
+    },
+    {
+      "path": "assets/product-design-v1/icons/fanview-section.svg",
+      "bytes": 574,
+      "sha256": "f0bb1007cc97aba0d8f5d5b215f262a52d10aa1c81271892704830cd8b3672b3"
+    },
+    {
+      "path": "assets/product-design-v1/icons/scorekeeper-section.svg",
+      "bytes": 796,
+      "sha256": "cbe01c29bbb39eae1f38a23d3e6af334a91863073a7e53f40a4439161dea0977"
+    },
+    {
+      "path": "assets/product-design-v1/icons/coach-navigation.svg",
+      "bytes": 1273,
+      "sha256": "59e612c966fee9eaced2887af607570e0337524be4c5e1fccfedd03013f05721"
+    },
+    {
+      "path": "assets/product-design-v1/icons/fanview-navigation.svg",
+      "bytes": 574,
+      "sha256": "820d9db1709e61857bc76d37d5c10cd1e1b5e1d9f93150ef654d168e3baec898"
+    },
+    {
+      "path": "assets/product-design-v1/icons/chevron-section.svg",
+      "bytes": 245,
+      "sha256": "e0b4b6ad7cf333f50494be2912587daec009b6c30b12dd264d4a108e2f24b90b"
+    },
+    {
+      "path": "assets/product-design-v1/icons/courtside-section.svg",
+      "bytes": 4213,
+      "sha256": "b14d0813c4b0345ea2c93e6120375930e9fb76685845c70c2ef4c0e0fe8e11b0"
+    },
+    {
+      "path": "assets/product-design-v1/icons/team-navigation.svg",
+      "bytes": 4298,
+      "sha256": "d851022a5d055f5250ba3c689e32c3fac512ecf5e5a438ac2ad575619d483902"
+    }
+  ],
+  "deployStatus": "prepared; release gate still required"
+}
