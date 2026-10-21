@@ -13,7 +13,6 @@ import { formatViewerCount, ProductionApp } from "./ProductionApp";
 
 afterEach(() => {
   cleanup();
-  vi.useRealTimers();
   window.localStorage.clear();
   window.history.replaceState({}, "", "/");
 });
@@ -185,28 +184,8 @@ describe("Production FanView lifecycle", () => {
     expect(teamHub).toHaveAttribute("href", "/t/14s-blue");
     const header = teamHub.closest(".viewer-header");
     expect(header).not.toBeNull();
-    const status = screen.getByLabelText("Live").parentElement;
-    expect(status).toHaveClass("viewer-header__status");
-    expect(status).toContainElement(screen.getByLabelText("12 viewers"));
-    expect(header?.children).toHaveLength(2);
-    expect(header?.firstElementChild).toBe(teamHub);
-    expect(header?.lastElementChild).toBe(status);
-  });
-
-  it("keeps the live status and compact count grouped when there is no Team Hub", async () => {
-    renderApp({
-      async loadSnapshot() {
-        return snapshot("2026-07-25T20:01:00.000Z", 18);
-      },
-    });
-    const live = await screen.findByLabelText("Live");
-    const status = live.parentElement;
-    expect(status).toHaveClass("viewer-header__status");
-    expect(status).toContainElement(screen.getByLabelText("12 viewers"));
-    const header = status?.parentElement;
-    expect(header).toHaveClass("viewer-header--without-team-hub");
-    expect(header?.children).toHaveLength(1);
-    expect(header?.firstElementChild).toBe(status);
+    expect(header).toContainElement(screen.getByLabelText("Live"));
+    expect(header).toContainElement(screen.getByLabelText("12 viewers"));
   });
 
   it("uses the approved compact viewer-count label without losing its accessible total", async () => {
@@ -383,114 +362,10 @@ describe("Production FanView lifecycle", () => {
       "href",
       "/",
     );
-    expect(screen.queryByRole("link", { name: "Open Team Hub" })).toBeNull();
     expect(screen.getByRole("link", { name: "Email support" })).toHaveAttribute(
       "href",
       "mailto:teagan@courtsideviewapp.com?subject=CourtsideView%20Support",
     );
-  });
-
-  it("links an expired match to its known Team Hub", async () => {
-    const expired = snapshot(new Date().toISOString(), 18);
-    expired.expiresAt = new Date(Date.now() - 60_000).toISOString();
-    expired.match.teamHub = { name: "14s Blue", slug: "14s-blue" };
-    renderApp({ async loadSnapshot() { return expired; } });
-    expect(await screen.findByText("This FanView has ended")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Open Team Hub" })).toHaveAttribute(
-      "href",
-      "/t/14s-blue",
-    );
-  });
-
-  it("replaces a loaded match with recovery when its public link becomes unavailable", async () => {
-    let reportError!: (error: unknown) => void;
-    const linked = snapshot(new Date().toISOString(), 18);
-    linked.match.teamHub = { name: "14s Blue", slug: "14s-blue" };
-    renderApp({
-      async loadSnapshot() { return linked; },
-      subscribe(_shareId, _onSnapshot, onError) {
-        reportError = onError;
-        return () => {};
-      },
-    });
-    expect(await screen.findByText("18")).toBeVisible();
-    act(() => reportError(new FanViewUnavailableError()));
-    expect(screen.getByText("FanView unavailable")).toBeVisible();
-    expect(screen.queryByText("18")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open Team Hub" })).toHaveAttribute("href", "/t/14s-blue");
-  });
-
-  it("keeps the last score during a polling failure and clears reconnecting after recovery", async () => {
-    let reportError!: (error: unknown) => void;
-    let deliver!: (value: FanViewSnapshot) => void;
-    renderApp({
-      async loadSnapshot() { return snapshot(new Date().toISOString(), 18); },
-      subscribe(_shareId, onSnapshot, onError) {
-        deliver = onSnapshot;
-        reportError = onError;
-        return () => {};
-      },
-    });
-    expect(await screen.findByText("18")).toBeVisible();
-    act(() => reportError(new Error("offline")));
-    expect(screen.getByText("Live updates are reconnecting.")).toBeVisible();
-    expect(screen.getByText("18")).toBeVisible();
-    act(() => deliver(snapshot(new Date().toISOString(), 19)));
-    expect(screen.getByText("19")).toBeVisible();
-    expect(screen.queryByText("Live updates are reconnecting.")).not.toBeInTheDocument();
-  });
-
-  it("expires at the exact deadline and does not reopen on repeated refreshes", async () => {
-    vi.useFakeTimers();
-    const now = new Date("2026-09-29T20:00:00.000Z");
-    vi.setSystemTime(now);
-    const final = snapshot(now.toISOString(), 25);
-    final.match.isComplete = true;
-    final.match.isLive = false;
-    final.expiresAt = new Date(now.getTime() + 1_250).toISOString();
-    let deliver!: (value: FanViewSnapshot) => void;
-    renderApp({
-      async loadSnapshot() { return final; },
-      subscribe(_shareId, onSnapshot) {
-        deliver = onSnapshot;
-        return () => {};
-      },
-    });
-    await act(async () => {});
-    expect(screen.getByText("25")).toBeVisible();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1_249); });
-    expect(screen.queryByText("This FanView has ended")).not.toBeInTheDocument();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
-    expect(screen.getByText("This FanView has ended")).toBeVisible();
-    act(() => { deliver(final); deliver({ ...final, viewerCount: 20 }); });
-    expect(screen.getByText("This FanView has ended")).toBeVisible();
-    expect(screen.queryByText("25")).not.toBeInTheDocument();
-  });
-
-  it("retains a working local display when account preference sync rejects", async () => {
-    vi.useFakeTimers();
-    const save = vi.fn(async () => { throw new Error("offline"); });
-    render(
-      <ProductionApp
-        communityAdapter={community}
-        communityEnabled={false}
-        displayPreferenceAdapter={{
-          async load() { throw new Error("offline"); },
-          save,
-        }}
-        fanViewAdapter={{ async loadSnapshot() { return snapshot(new Date().toISOString(), 18); } }}
-        liveWorkerUrl="https://worker.example"
-        shareId="match-123"
-      />,
-    );
-    await act(async () => {});
-    expect(screen.getByText("18")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Scoreboard display" }));
-    fireEvent.click(screen.getByRole("button", { name: "Use minimal layout" }));
-    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
-    expect(save).toHaveBeenCalledWith(expect.objectContaining({ layout: "minimal" }));
-    expect(screen.getByTestId("fanview-production-app")).toHaveAttribute("data-scoreboard-layout", "minimal");
-    expect(window.localStorage.getItem("courtsideview_fanview_scoreboard_layout")).toBe("minimal");
   });
 
   it("does not let a slow initial request overwrite newer Realtime state", async () => {

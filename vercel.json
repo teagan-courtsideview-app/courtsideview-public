@@ -3,111 +3,327 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/auth/confirm", "destination": "/auth-confirm.html" },
-    { "source": "/scout/(.*)", "destination": "/scout.html" },
-    { "source": "/live", "destination": "/live.html" },
-    { "source": "/live/(.*)", "destination": "/live.html" },
-    { "source": "/fanview-next/v/(.*)", "destination": "/fanview-react.html" },
-    { "source": "/fanview/legacy/(.*)", "destination": "/fanview.html" },
-    { "source": "/v/(.*)", "destination": "/fanview-react.html" },
-    { "source": "/p/(.*)", "destination": "/player.html" },
-    { "source": "/t/(.*)", "destination": "/team.html" },
-    { "source": "/c/(.*)", "destination": "/club.html" },
-    { "source": "/courtsideview-app", "destination": "/courtsideview-app.html" },
-    { "source": "/volleyball-apps", "destination": "/volleyball-apps.html" },
-    { "source": "/best-volleyball-scorekeeping-apps-2026", "destination": "/best-volleyball-scorekeeping-apps-2026.html" },
-    { "source": "/best-volleyball-stat-tracking-apps-2026", "destination": "/best-volleyball-stat-tracking-apps-2026.html" },
-    { "source": "/best-apps-for-volleyball-clubs", "destination": "/best-apps-for-volleyball-clubs.html" },
-    { "source": "/best-apps-for-volleyball-parents", "destination": "/best-apps-for-volleyball-parents.html" },
-    { "source": "/volleyball-app-comparison-study", "destination": "/volleyball-app-comparison-study.html" },
-    { "source": "/vs/gamechanger", "destination": "/vs-gamechanger.html" },
-    { "source": "/volleyball-score-keeper", "destination": "/volleyball-scorekeeper.html" },
-    { "source": "/volleyball-player-stats", "destination": "/volleyball-player-stats.html" },
-    { "source": "/press", "destination": "/press.html" },
-    { "source": "/press-release-courtsideview-volleyball-app-launch", "destination": "/press-release-courtsideview-volleyball-app-launch.html" },
-    { "source": "/download", "destination": "/download.html" },
-    { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/support", "destination": "/support.html" },
-    { "source": "/delete-account", "destination": "/delete-account.html" }
+    {
+      "source": "/auth/confirm",
+      "destination": "/auth-confirm.html"
+    },
+    {
+      "source": "/scout/(.*)",
+      "destination": "/scout.html"
+    },
+    {
+      "source": "/live",
+      "destination": "/live.html"
+    },
+    {
+      "source": "/live/(.*)",
+      "destination": "/live.html"
+    },
+    {
+      "source": "/fanview-next/v/(.*)",
+      "destination": "/fanview-react.html"
+    },
+    {
+      "source": "/fanview/legacy/(.*)",
+      "destination": "/fanview.html"
+    },
+    {
+      "source": "/v/(.*)",
+      "destination": "/fanview-react.html"
+    },
+    {
+      "source": "/p/(.*)",
+      "destination": "/player.html"
+    },
+    {
+      "source": "/t/(.*)",
+      "destination": "/team.html"
+    },
+    {
+      "source": "/c/(.*)",
+      "destination": "/club.html"
+    },
+    {
+      "source": "/courtsideview-app",
+      "destination": "/courtsideview-app.html"
+    },
+    {
+      "source": "/volleyball-apps",
+      "destination": "/volleyball-apps.html"
+    },
+    {
+      "source": "/best-volleyball-scorekeeping-apps-2026",
+      "destination": "/best-volleyball-scorekeeping-apps-2026.html"
+    },
+    {
+      "source": "/best-volleyball-stat-tracking-apps-2026",
+      "destination": "/best-volleyball-stat-tracking-apps-2026.html"
+    },
+    {
+      "source": "/best-apps-for-volleyball-clubs",
+      "destination": "/best-apps-for-volleyball-clubs.html"
+    },
+    {
+      "source": "/best-apps-for-volleyball-parents",
+      "destination": "/best-apps-for-volleyball-parents.html"
+    },
+    {
+      "source": "/volleyball-app-comparison-study",
+      "destination": "/volleyball-app-comparison-study.html"
+    },
+    {
+      "source": "/vs/gamechanger",
+      "destination": "/vs-gamechanger.html"
+    },
+    {
+      "source": "/volleyball-score-keeper",
+      "destination": "/volleyball-scorekeeper.html"
+    },
+    {
+      "source": "/volleyball-player-stats",
+      "destination": "/volleyball-player-stats.html"
+    },
+    {
+      "source": "/press",
+      "destination": "/press.html"
+    },
+    {
+      "source": "/press-release-courtsideview-volleyball-app-launch",
+      "destination": "/press-release-courtsideview-volleyball-app-launch.html"
+    },
+    {
+      "source": "/download",
+      "destination": "/download.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/support",
+      "destination": "/support.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(self), geolocation=()" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(self), geolocation=()"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/live",
       "headers": [
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/live/(.*)",
       "headers": [
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/live.html",
       "headers": [
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/auth/confirm",
       "headers": [
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
       ]
     },
     {
       "source": "/auth-confirm(.*)",
       "headers": [
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
       ]
     }
   ],
   "redirects": [
-    { "source": "/privacy.html", "destination": "/privacy", "permanent": true },
-    { "source": "/support.html", "destination": "/support", "permanent": true },
-    { "source": "/delete-account.html", "destination": "/delete-account", "permanent": true },
-    { "source": "/download.html", "destination": "/download", "permanent": true },
-    { "source": "/courtsideview-app.html", "destination": "/courtsideview-app", "permanent": true },
-    { "source": "/courtsideviewapp", "destination": "/courtsideview-app", "permanent": true },
-    { "source": "/courtsideviewapp.html", "destination": "/courtsideview-app", "permanent": true },
-    { "source": "/courtside-view-app", "destination": "/courtsideview-app", "permanent": true },
-    { "source": "/courtside-view-app.html", "destination": "/courtsideview-app", "permanent": true },
-    { "source": "/what-is-courtsideview", "destination": "/courtsideview-app", "permanent": true },
-    { "source": "/what-is-courtsideview.html", "destination": "/courtsideview-app", "permanent": true },
-    { "source": "/press-release-courtsideview-volleyball-app-launch.html", "destination": "/press-release-courtsideview-volleyball-app-launch", "permanent": true },
-    { "source": "/press.html", "destination": "/press", "permanent": true },
-    { "source": "/vs-gamechanger.html", "destination": "/vs/gamechanger", "permanent": true },
-    { "source": "/volleyball-scorekeeper", "destination": "/volleyball-score-keeper", "permanent": true },
-    { "source": "/volleyball-scorekeeper.html", "destination": "/volleyball-score-keeper", "permanent": true },
-    { "source": "/volleyball-player-stats.html", "destination": "/volleyball-player-stats", "permanent": true },
-    { "source": "/volleyball-apps.html", "destination": "/volleyball-apps", "permanent": true },
-    { "source": "/best-volleyball-scorekeeping-apps-2026.html", "destination": "/best-volleyball-scorekeeping-apps-2026", "permanent": true },
-    { "source": "/best-volleyball-stat-tracking-apps-2026.html", "destination": "/best-volleyball-stat-tracking-apps-2026", "permanent": true },
-    { "source": "/best-apps-for-volleyball-clubs.html", "destination": "/best-apps-for-volleyball-clubs", "permanent": true },
-    { "source": "/best-apps-for-volleyball-parents.html", "destination": "/best-apps-for-volleyball-parents", "permanent": true },
-    { "source": "/volleyball-app-comparison-study.html", "destination": "/volleyball-app-comparison-study", "permanent": true },
-    { "source": "/index.html", "destination": "/", "permanent": true }
+    {
+      "source": "/privacy.html",
+      "destination": "/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/support.html",
+      "destination": "/support",
+      "permanent": true
+    },
+    {
+      "source": "/download.html",
+      "destination": "/download",
+      "permanent": true
+    },
+    {
+      "source": "/courtsideview-app.html",
+      "destination": "/courtsideview-app",
+      "permanent": true
+    },
+    {
+      "source": "/courtsideviewapp",
+      "destination": "/courtsideview-app",
+      "permanent": true
+    },
+    {
+      "source": "/courtsideviewapp.html",
+      "destination": "/courtsideview-app",
+      "permanent": true
+    },
+    {
+      "source": "/courtside-view-app",
+      "destination": "/courtsideview-app",
+      "permanent": true
+    },
+    {
+      "source": "/courtside-view-app.html",
+      "destination": "/courtsideview-app",
+      "permanent": true
+    },
+    {
+      "source": "/what-is-courtsideview",
+      "destination": "/courtsideview-app",
+      "permanent": true
+    },
+    {
+      "source": "/what-is-courtsideview.html",
+      "destination": "/courtsideview-app",
+      "permanent": true
+    },
+    {
+      "source": "/press-release-courtsideview-volleyball-app-launch.html",
+      "destination": "/press-release-courtsideview-volleyball-app-launch",
+      "permanent": true
+    },
+    {
+      "source": "/press.html",
+      "destination": "/press",
+      "permanent": true
+    },
+    {
+      "source": "/vs-gamechanger.html",
+      "destination": "/vs/gamechanger",
+      "permanent": true
+    },
+    {
+      "source": "/volleyball-scorekeeper",
+      "destination": "/volleyball-score-keeper",
+      "permanent": true
+    },
+    {
+      "source": "/volleyball-scorekeeper.html",
+      "destination": "/volleyball-score-keeper",
+      "permanent": true
+    },
+    {
+      "source": "/volleyball-player-stats.html",
+      "destination": "/volleyball-player-stats",
+      "permanent": true
+    },
+    {
+      "source": "/volleyball-apps.html",
+      "destination": "/volleyball-apps",
+      "permanent": true
+    },
+    {
+      "source": "/best-volleyball-scorekeeping-apps-2026.html",
+      "destination": "/best-volleyball-scorekeeping-apps-2026",
+      "permanent": true
+    },
+    {
+      "source": "/best-volleyball-stat-tracking-apps-2026.html",
+      "destination": "/best-volleyball-stat-tracking-apps-2026",
+      "permanent": true
+    },
+    {
+      "source": "/best-apps-for-volleyball-clubs.html",
+      "destination": "/best-apps-for-volleyball-clubs",
+      "permanent": true
+    },
+    {
+      "source": "/best-apps-for-volleyball-parents.html",
+      "destination": "/best-apps-for-volleyball-parents",
+      "permanent": true
+    },
+    {
+      "source": "/volleyball-app-comparison-study.html",
+      "destination": "/volleyball-app-comparison-study",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    }
   ]
 }

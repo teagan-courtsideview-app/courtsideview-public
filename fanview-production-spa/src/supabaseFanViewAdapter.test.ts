@@ -1,6 +1,5 @@
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
-import { FanViewUnavailableError } from "../../fanview-spa/src/adapters/contracts";
 import {
   createSupabaseFanViewAdapter,
   FANVIEW_SCORE_FALLBACK_POLL_MS,
@@ -47,30 +46,6 @@ const row = (overrides: Partial<PublicFanViewMatchRow> = {}) => ({
 });
 
 describe("FanView production row normalization", () => {
-  it("reads an invalid public link without creating an anonymous account", async () => {
-    const maybeSingle = vi.fn(async () => ({ data: null, error: null }));
-    const getSession = vi.fn();
-    const signInAnonymously = vi.fn();
-    const rpc = vi.fn(() => ({ maybeSingle }));
-    const client = {
-      auth: { getSession, signInAnonymously },
-      rpc,
-    } as unknown as SupabaseClient;
-    const adapter = createSupabaseFanViewAdapter({
-      client,
-      liveWorkerUrl: "https://live.example.test",
-    });
-
-    await expect(
-      adapter.loadSnapshot("invalid-link", new AbortController().signal),
-    ).rejects.toBeInstanceOf(FanViewUnavailableError);
-    expect(rpc).toHaveBeenCalledWith("fanview_public_match_v2", {
-      match_share_id: "invalid-link",
-    });
-    expect(getSession).not.toHaveBeenCalled();
-    expect(signInAnonymously).not.toHaveBeenCalled();
-  });
-
   it("keeps the durable score fallback inside a live-match window", () => {
     expect(FANVIEW_SCORE_FALLBACK_POLL_MS).toBe(5_000);
     expect(FANVIEW_STATUS_TIMEOUT_MS).toBe(2_500);

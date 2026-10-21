@@ -392,15 +392,13 @@ function RecoveryPage({
               <House aria-hidden="true" size={20} weight="bold" />
               Return Home
             </a>
-            {teamHub?.slug ? (
-              <a
-                className="fanview-state-action"
-                href={`/t/${encodeURIComponent(teamHub.slug)}`}
-              >
-                <UsersThree aria-hidden="true" size={20} weight="bold" />
-                Open Team Hub
-              </a>
-            ) : null}
+            <a
+              className="fanview-state-action"
+              href={teamHub ? `/t/${encodeURIComponent(teamHub.slug)}` : "/"}
+            >
+              <UsersThree aria-hidden="true" size={20} weight="bold" />
+              Open Team Hub
+            </a>
             <button
               className="fanview-state-action"
               disabled={!shareId}
@@ -548,9 +546,6 @@ export function ProductionApp({
         setScoreboardPosition(preference.position);
         setScoreboardAutomatic(preference.automatic);
       })
-      .catch(() => {
-        // Account sync may be unavailable; retain the working local display.
-      })
       .finally(() => {
         if (active) setAccountPreferenceHydrated(true);
       });
@@ -564,16 +559,12 @@ export function ProductionApp({
       return () => {};
     }
     const timer = window.setTimeout(() => {
-      void displayPreferenceAdapter
-        .save({
-          automatic: scoreboardAutomatic,
-          layout: scoreboardLayout,
-          position: scoreboardPosition,
-          size: scoreboardSize,
-        })
-        .catch(() => {
-          // The local preference remains usable when account sync is offline.
-        });
+      void displayPreferenceAdapter.save({
+        automatic: scoreboardAutomatic,
+        layout: scoreboardLayout,
+        position: scoreboardPosition,
+        size: scoreboardSize,
+      });
     }, 800);
     return () => window.clearTimeout(timer);
   }, [
@@ -650,20 +641,14 @@ export function ProductionApp({
       newestRevision.current = nextRevision;
       hasReadySnapshot.current = true;
       setSnapshot(next);
-      setScreen(
-        next.expiresAt && Date.now() >= Date.parse(next.expiresAt)
-          ? "expired"
-          : "ready",
-      );
+      setScreen("ready");
     };
     const handleError = (error: unknown) => {
       if (abortController.signal.aborted) return;
-      if (error instanceof FanViewUnavailableError) {
+      if (error instanceof FanViewUnavailableError && !hasReadySnapshot.current) {
         setScreen("unavailable");
       } else if (!hasReadySnapshot.current) {
         setScreen("error");
-      } else {
-        setSnapshot((current) => current && { ...current, connection: "reconnecting" });
       }
     };
 
@@ -683,22 +668,14 @@ export function ProductionApp({
 
   useEffect(() => {
     if (!snapshot?.expiresAt) return;
-    const expiresAt = Date.parse(snapshot.expiresAt);
-    if (!Number.isFinite(expiresAt)) return;
     const check = () => {
-      if (Date.now() >= expiresAt) {
+      if (Date.now() >= Date.parse(snapshot.expiresAt ?? "")) {
         setScreen("expired");
       }
     };
     check();
-    const timer = window.setTimeout(check, Math.max(0, expiresAt - Date.now()));
-    document.addEventListener("visibilitychange", check);
-    window.addEventListener("pageshow", check);
-    return () => {
-      window.clearTimeout(timer);
-      document.removeEventListener("visibilitychange", check);
-      window.removeEventListener("pageshow", check);
-    };
+    const timer = window.setInterval(check, 30_000);
+    return () => window.clearInterval(timer);
   }, [snapshot?.expiresAt]);
 
   if (!shareId || screen === "unavailable") {
@@ -706,7 +683,6 @@ export function ProductionApp({
       <RecoveryPage
         copy="This link is invalid, expired, or no longer published."
         shareId={shareId}
-        teamHub={snapshot?.match.teamHub}
         title="FanView unavailable"
       />
     );
@@ -759,7 +735,6 @@ export function ProductionApp({
     <main
       className="fanview-app"
       data-community-enabled={communityEnabled}
-      data-display-menu-open={displayMenuOpen}
       data-scoreboard-automatic={scoreboardAutomatic}
       data-scoreboard-layout={renderedScoreboardLayout}
       data-scoreboard-position={scoreboardPosition}
