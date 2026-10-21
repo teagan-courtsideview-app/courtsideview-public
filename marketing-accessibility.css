@@ -1,0 +1,65 @@
+/* Bounded QA repairs for the existing marketing pages. Preserve visual tokens. */
+.nav-dropdown summary {
+    min-height: 44px;
+    align-items: center;
+}
+.download-box > *,
+.hero > *,
+.section-heading--row > *,
+.demo-campaign-panel > *,
+.feature-panel > * {
+    min-width: 0;
+}
+.download-box .store-badges,
+.download-box .store-badges a,
+.download-box .store-badges img {
+    max-width: 100%;
+}
+.download-box h2,
+.download-box p {
+    overflow-wrap: anywhere;
+}
+.section-cream td::before { color: #4f5a58; }
+.section-cream .kicker { color: #147747; }
+@media (max-width: 760px) {
+    .product-comparison { min-width: 0; width: 100%; }
+    .product-comparison tbody,
+    .product-comparison tr,
+    .product-comparison td { display: block; width: 100%; }
+    .product-comparison thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    .product-comparison tr { padding: 0.85rem; border-bottom: 1px solid rgba(9, 16, 24, 0.15); }
+    .product-comparison td { min-width: 0; padding: 0.65rem 0; overflow-wrap: anywhere; }
+    .product-comparison td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #4f5a58;
+    }
+}
+@media (min-width: 901px) and (max-width: 1024px) {
+    [data-challenger-home] .feature-stage { grid-template-columns: minmax(0, 1fr); }
+    [data-challenger-home] .feature-caption { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 359px) {
+    main h1, main h2, main h3 { overflow-wrap: anywhere; }
+    .comparison-table-wrap td {
+        grid-template-columns: minmax(0, 1fr);
+        overflow-wrap: anywhere;
+    }
+    .comparison-table-wrap td::before { margin-bottom: 0.25rem; }
+    .section-heading--row { flex-wrap: wrap; }
+    .section-heading--row > div { max-width: 100%; }
+    .demo-campaign-copy { min-width: 0; max-width: 100%; }
+    [data-challenger-home] .demo-campaign-copy { grid-template-columns: minmax(0, 1fr); }
+    [data-challenger-home] .demo-campaign-copy > * { min-width: 0; overflow-wrap: anywhere; }
+    [data-challenger-home] .demo-campaign-copy strong { flex-wrap: wrap; }
+}

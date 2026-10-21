@@ -45,7 +45,6 @@
             "applicationCategory": "SportsApplication",
             "applicationSubCategory": "Volleyball scorekeeping app",
             "operatingSystem": "iOS, iPadOS, Android",
-            "softwareVersion": "1.0.2",
             "isAccessibleForFree": true,
             "inLanguage": "en-US",
             "description": "Volleyball scorekeeping and player stat tracking app for live scores, rosters, rotations, and FanView updates.",
@@ -136,45 +135,78 @@
         }
     </script>
     <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
         {
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-                {
-                    "@type": "Question",
-                    "name": "What is the CourtsideView app?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "CourtsideView is a volleyball match-day app for scorekeeping, player stats, rotations, rosters, and FanView live score sharing."
-                    }
-                },
-                {
-                    "@type": "Question",
-                    "name": "Can CourtsideView be used as a volleyball score keeper?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "Yes. CourtsideView is built for fast volleyball scorekeeping, live match flow, roster context, rotations, and player stats in one focused app."
-                    }
-                },
-                {
-                    "@type": "Question",
-                    "name": "What volleyball player stats can I track?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "CourtsideView helps track player-level match details such as assists, digs, serves, net touches, substitutions, rotations, and other volleyball stats."
-                    }
-                },
-                {
-                    "@type": "Question",
-                    "name": "Can family and fans follow live volleyball scores?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "Yes. FanView lets supporters follow live volleyball scores and match context from a shared web link."
-                    }
-                }
-            ]
+            "@type": "Question",
+            "name": "What is the CourtsideView app?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "CourtsideView is a volleyball match-day app for scorekeeping, player stats, rotations, rosters, and FanView live score sharing."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do fans need to install an app?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Fans open a shared FanView link in a modern browser to follow the score and match activity. Live video is available when the broadcaster chooses to start it."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What is the difference between live scores and live video?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "FanView can share scores and match activity without a camera. Live video is optional: a broadcaster must allow camera and microphone access and start the broadcast. Sharing a score link does not automatically start video or recording."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How long does a FanView link work?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The same FanView link stays with the game and expires 15 minutes after the game concludes. A live link is not a permanent video archive."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What does CourtsideView cost?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "CourtsideView is free to download. Check the App Store or Google Play listing for current availability and any purchase terms in your region."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do I need an account to keep score?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You can keep score locally without signing up. Connected features may have separate sign-in requirements. Fans can open a shared FanView link without installing the app."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What requires an internet connection?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Local scorekeeping and stored match data work on your device. Publishing and receiving FanView updates, streaming live video, and using connected account features require an internet connection. Offline scoring does not provide live updates to remote viewers."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Which devices can I use?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "CourtsideView is available for iPhone, iPad, and Android. Check the linked store listing for compatibility with your device. Fans follow FanView in a modern web browser."
+            }
         }
+    ]
+}
     </script>
+    <link rel="stylesheet" href="/marketing-accessibility.css">
 </head>
 <body>
     <div id="top" data-challenger-home>
@@ -209,7 +241,7 @@
                 <div class="hero-grid page-shell">
                     <div class="hero-copy">
                         <h1 id="hero-title">Built for six rotations.<span>Not six sports.</span></h1>
-                        <p class="hero-enemy">Other apps may support volleyball. <strong>CourtsideView is <span class="hero-built-underline">built for volleyball</span>.</strong></p>
+                        <p class="hero-enemy"><strong>CourtsideView is a <span class="hero-built-underline">volleyball scorekeeping app</span></strong> for scorekeepers, parents, and coaches. Track scores, player stats, and rotations, and share live updates with fans.</p>
                         <p class="hero-promise">Bring everyone courtside.</p>
                         <div class="hero-actions">
                             <a class="button button-primary" href="#download">Get CourtsideView — free <svg aria-hidden="true" viewBox="0 0 256 256"><path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z"/></svg></a>
@@ -509,16 +541,32 @@
                             <div class="seo-faq-answer"><p>CourtsideView is a volleyball match-day app for scorekeeping, player stats, rotations, rosters, and FanView live score sharing.</p></div>
                         </details>
                         <details>
-                            <summary>Can CourtsideView be used as a volleyball score keeper?</summary>
-                            <div class="seo-faq-answer"><p>Yes. CourtsideView is built for fast volleyball scorekeeping, live match flow, roster context, rotations, and player stats in one focused app.</p></div>
+                            <summary>Do fans need to install an app?</summary>
+                            <div class="seo-faq-answer"><p>No. Fans open a shared FanView link in a modern browser to follow the score and match activity. Live video is available when the broadcaster chooses to start it.</p></div>
                         </details>
                         <details>
-                            <summary>What volleyball player stats can I track?</summary>
-                            <div class="seo-faq-answer"><p>CourtsideView helps track player-level match details such as assists, digs, serves, net touches, substitutions, rotations, and other volleyball stats.</p></div>
+                            <summary>What is the difference between live scores and live video?</summary>
+                            <div class="seo-faq-answer"><p>FanView can share scores and match activity without a camera. Live video is optional: a broadcaster must allow camera and microphone access and start the broadcast. Sharing a score link does not automatically start video or recording.</p></div>
                         </details>
                         <details>
-                            <summary>Can family and fans follow live volleyball scores?</summary>
-                            <div class="seo-faq-answer"><p>Yes. FanView lets supporters follow live volleyball scores and match context from a shared web link.</p></div>
+                            <summary>How long does a FanView link work?</summary>
+                            <div class="seo-faq-answer"><p>The same FanView link stays with the game and expires 15 minutes after the game concludes. A live link is not a permanent video archive.</p></div>
+                        </details>
+                        <details>
+                            <summary>What does CourtsideView cost?</summary>
+                            <div class="seo-faq-answer"><p>CourtsideView is free to download. Check the App Store or Google Play listing for current availability and any purchase terms in your region.</p></div>
+                        </details>
+                        <details>
+                            <summary>Do I need an account to keep score?</summary>
+                            <div class="seo-faq-answer"><p>You can keep score locally without signing up. Connected features may have separate sign-in requirements. Fans can open a shared FanView link without installing the app.</p></div>
+                        </details>
+                        <details>
+                            <summary>What requires an internet connection?</summary>
+                            <div class="seo-faq-answer"><p>Local scorekeeping and stored match data work on your device. Publishing and receiving FanView updates, streaming live video, and using connected account features require an internet connection. Offline scoring does not provide live updates to remote viewers.</p></div>
+                        </details>
+                        <details>
+                            <summary>Which devices can I use?</summary>
+                            <div class="seo-faq-answer"><p>CourtsideView is available for iPhone, iPad, and Android. Check the linked store listing for compatibility with your device. Fans follow FanView in a modern web browser.</p></div>
                         </details>
                     </div>
                 </div>

@@ -55,9 +55,13 @@ const ROUTE_FILES = new Map([
 
 const FAQ_QUESTIONS = [
   "What is the CourtsideView app?",
-  "Can CourtsideView be used as a volleyball score keeper?",
-  "What volleyball player stats can I track?",
-  "Can family and fans follow live volleyball scores?",
+  "Do fans need to install an app?",
+  "What is the difference between live scores and live video?",
+  "How long does a FanView link work?",
+  "What does CourtsideView cost?",
+  "Do I need an account to keep score?",
+  "What requires an internet connection?",
+  "Which devices can I use?",
 ];
 
 const EXPECTED_REWRITES = [
@@ -457,7 +461,7 @@ const rootSitemapEntries = sitemapEntries.filter(({ loc }) => loc === `${ORIGIN}
 if (rootSitemapEntries.length !== 1) {
   fail(`sitemap must contain the homepage exactly once (found ${rootSitemapEntries.length})`);
 } else {
-  expectExact(rootSitemapEntries[0].lastmod, "2026-07-14", "homepage sitemap lastmod");
+  expectExact(rootSitemapEntries[0].lastmod, "2026-10-21", "homepage sitemap lastmod");
 }
 
 for (const [route, sourceFile] of ROUTE_FILES) {
