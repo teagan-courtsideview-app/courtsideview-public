@@ -1,0 +1,8 @@
+import { afterEach, expect, it, vi } from 'vitest';
+import { configureViewerRequests, viewerFetch } from './viewerFetch';
+afterEach(()=>vi.unstubAllGlobals());
+it('adds current bearer to WHEP requests and retains SDP headers',async()=>{const fetch=vi.fn().mockResolvedValue(new Response('ok'));vi.stubGlobal('fetch',fetch);configureViewerRequests(async()=>'current-session','https://worker.example');await viewerFetch('https://worker.example/play/match',{method:'PATCH',headers:{'content-type':'application/sdp'},body:'sdp'});expect(fetch).toHaveBeenCalledOnce();const options=fetch.mock.calls[0][1];expect(options.headers.get('Authorization')).toBe('Bearer current-session');expect(options.headers.get('content-type')).toBe('application/sdp');});
+it('never sends token to an untrusted negotiation destination',async()=>{const fetch=vi.fn();vi.stubGlobal('fetch',fetch);configureViewerRequests(async()=>'secret','https://worker.example');await expect(viewerFetch('https://other.example/play')).rejects.toThrow();expect(fetch).not.toHaveBeenCalled();});
+it('does not make unauthenticated media requests',async()=>{const fetch=vi.fn();vi.stubGlobal('fetch',fetch);configureViewerRequests(async()=>null,'https://worker.example');await expect(viewerFetch('https://worker.example/play')).rejects.toThrow('Sign in');expect(fetch).not.toHaveBeenCalled();});
+
+it('fails explicitly on worker unauthorized responses',async()=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('',{status:401})));configureViewerRequests(async()=>'revoked','https://worker.example');await expect(viewerFetch('https://worker.example/play')).rejects.toThrow('Sign in');});

@@ -2295,7 +2295,16 @@
           // The heartbeat TTL will clean this up if the browser drops pagehide.
         }
       });
-      boot().catch((err) => { console.error('[FanView] boot failed', err); showError('Something went wrong loading this match.'); });
+      // Legacy watch links enter the same authenticated viewer as current links.
+      const legacyShareId = getShareId();
+      if (legacyShareId && /^[A-Za-z0-9_-]{1,200}$/.test(legacyShareId)) {
+        const displayParams = new URLSearchParams();
+        for (const key of ['scoreboard','scoreboardSize','display','scoreSize','scoreboardLayout','scoreLayout','layout','scoreboardPosition','position','scoreboardAutomatic','automatic']) {
+          const value = new URLSearchParams(window.location.search).get(key);
+          if (value && /^[a-z0-9_-]{1,30}$/i.test(value)) displayParams.set(key, value);
+        }
+        window.location.replace('/v/' + encodeURIComponent(legacyShareId) + (displayParams.size ? '?' + displayParams : ''));
+      } else { showError('This match link is incomplete. Open the original FanView link.'); }
     </script>
   </body>
 </html>

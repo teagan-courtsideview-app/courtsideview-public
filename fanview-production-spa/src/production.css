@@ -84,7 +84,7 @@
   color: #fff;
   background: rgba(5, 10, 19, 0.82);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   transform: translate(-50%, -50%);
 }
 
@@ -137,7 +137,7 @@
   padding: 0;
   color: #fff;
   background: transparent;
-  font-weight: 850;
+  font-weight: 600;
   backdrop-filter: none;
 }
 
@@ -155,6 +155,17 @@
 .media-control__label {
   display: block;
   font-size: 10px;
+}
+
+/* Wide/landscape controls have separate icon tiles. Give their persistent
+ * labels the same dark backing so bright court footage cannot wash them out. */
+@media (min-width: 721px) {
+  .media-control__label {
+    border-radius: 4px;
+    background: rgba(3, 8, 15, 0.9);
+    box-shadow: 0 0 0 2px rgba(3, 8, 15, 0.9);
+    white-space: nowrap;
+  }
 }
 
 .media-control:disabled {
@@ -312,7 +323,7 @@
   background: rgba(255, 255, 255, 0.08);
   font: inherit;
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 600;
   text-align: center;
   text-decoration: none;
 }
@@ -345,7 +356,7 @@
   color: #fff;
   background: rgba(3, 8, 15, 0.74);
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 600;
   text-decoration: none;
   backdrop-filter: blur(8px);
 }
@@ -453,7 +464,7 @@
   padding: 0 12px;
   color: #fff;
   background: rgba(3, 8, 15, 0.74);
-  font-weight: 850;
+  font-weight: 600;
   backdrop-filter: blur(8px);
 }
 
@@ -488,7 +499,7 @@
 .scoreboard-display-menu__label {
   color: #bdc7d4;
   font-size: 9px;
-  font-weight: 850;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -512,7 +523,7 @@
   color: #fff;
   background: rgba(255, 255, 255, 0.04);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .scoreboard-display-menu button[aria-pressed="true"] {
@@ -531,7 +542,11 @@
       12px,
       env(safe-area-inset-bottom)
     );
-    --fanview-mobile-cheer-width: clamp(134px, 42vw, 160px);
+    /* Four 44px controls + 2px dock border + 8px separation take priority. */
+    --fanview-mobile-cheer-width: min(
+      clamp(104px, 42vw, 160px),
+      calc(100vw - max(10px, env(safe-area-inset-left)) - max(10px, env(safe-area-inset-right)) - 186px)
+    );
   }
 
   .match-status--action {
@@ -729,8 +744,7 @@
 
   .media-controls {
     right: calc(
-      var(--fanview-mobile-cheer-width) + 10px +
-        env(safe-area-inset-right)
+      var(--fanview-mobile-cheer-width) + max(10px, env(safe-area-inset-right)) + 8px
     );
     bottom: var(--fanview-mobile-bottom-inset);
     left: max(10px, env(safe-area-inset-left));
@@ -785,10 +799,13 @@
     max-width: 100%;
     color: #fff;
     font-size: 8px;
-    font-weight: 700;
-    line-height: 1.1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight: 500;
+    line-height: 1.15;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+    text-align: center;
   }
 
   .media-control svg {
@@ -1053,7 +1070,7 @@
 
 .arena-scoreboard__header span {
   font-size: clamp(16px, 1.55vw, 30px);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .arena-scoreboard__board {
@@ -1114,7 +1131,7 @@
 .arena-scoreboard__team small {
   color: var(--arena-home);
   font-size: clamp(18px, 2vw, 34px);
-  font-weight: 900;
+  font-weight: 600;
   letter-spacing: .08em;
 }
 
@@ -1139,7 +1156,7 @@
   border-inline: 1px solid rgba(255,255,255,.34);
   color: #c8ced6;
   font-size: clamp(22px, 2.6vw, 46px);
-  font-weight: 900;
+  font-weight: 600;
   letter-spacing: .08em;
 }
 
@@ -1191,7 +1208,7 @@
   color: #ffb320;
   background: rgba(52,31,4,.88);
   font-size: clamp(22px, 2.4vw, 42px);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .arena-scoreboard footer {
@@ -1324,7 +1341,7 @@
   .fanview-app[data-scoreboard-position="bottom-left"] .score-bug {
     top: auto;
     right: auto;
-    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 66px);
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 80px);
     left: max(10px, env(safe-area-inset-left));
     transform: none;
   }
@@ -1332,7 +1349,7 @@
   .fanview-app[data-scoreboard-position="bottom-right"] .score-bug {
     top: auto;
     right: max(10px, env(safe-area-inset-right));
-    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 66px);
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 80px);
     left: auto;
     transform: none;
   }
@@ -1340,7 +1357,7 @@
   .fanview-app[data-scoreboard-position="bottom-center"] .score-bug {
     top: auto;
     right: auto;
-    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 66px);
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 80px);
     left: 50%;
     transform: translateX(-50%);
   }
@@ -1411,28 +1428,8 @@
 
 }
 
-/* Approved FanView scoreboard preference system — July 29, 2026. */
-.viewer-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-}
-
-.viewer-header__status {
-  display: contents;
-}
-
-.viewer-header .team-hub-back {
-  justify-self: start;
-}
-
-.viewer-header .live-pill {
-  justify-self: center;
-}
-
-.viewer-header .viewer-pill {
-  justify-self: end;
-}
-
+/* Scoreboard preferences do not override the shared viewer-header row:
+ * Team Hub stays left; LIVE and viewer count stay grouped on the right. */
 .score-bug {
   width: auto;
   min-width: 0;
@@ -1481,7 +1478,7 @@
 .score-bug__full-team > strong {
   overflow: hidden;
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 600;
   letter-spacing: 0.01em;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -1491,7 +1488,7 @@
 .score-bug__full-team > b {
   font-size: 30px;
   font-variant-numeric: tabular-nums;
-  font-weight: 900;
+  font-weight: 600;
   line-height: 1;
   text-align: right;
 }
@@ -1525,7 +1522,7 @@
   padding: 0 12px;
   color: #aeb7c4;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.08em;
 }
 
@@ -1549,7 +1546,7 @@
   gap: 6px;
   color: #929aa6;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .score-bug__history-set + .score-bug__history-set {
@@ -1651,7 +1648,7 @@
 .score-bug__bar-team span {
   overflow: hidden;
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 600;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -1679,7 +1676,7 @@
 .score-bug__bar-center > span {
   color: #d8dde4;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.08em;
 }
 
@@ -1717,19 +1714,19 @@
   color: #07101b;
   background: #ff5f2d;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .score-bug__minimal-card > strong {
   font-size: 20px;
   font-variant-numeric: tabular-nums;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .score-bug__minimal-card > i {
   color: #969eaa;
   font-style: normal;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .fanview-app[data-scoreboard-layout="full-score"][data-scoreboard-size="small"]
@@ -1784,6 +1781,9 @@
   left: 50%;
   width: min(680px, 100vw);
   max-height: min(830px, calc(100dvh - 76px));
+  /* Scroll the sheet instead of compressing nested groups with overflow:hidden. */
+  grid-auto-rows: max-content;
+  align-content: start;
   overflow-y: auto;
   gap: 14px;
   border-radius: 24px 24px 0 0;
@@ -1828,13 +1828,16 @@
   position: relative;
   display: grid;
   min-height: 178px;
-  grid-template-rows: minmax(98px, 1fr) 20px 42px;
+  grid-template-rows: minmax(98px, 1fr) minmax(20px, auto) minmax(42px, auto);
   align-items: center;
   border-radius: 12px;
   padding: 10px 7px 0;
 }
 
 .scoreboard-display-menu__layout > b {
+  grid-row: 3;
+  min-width: 0;
+  overflow-wrap: anywhere;
   align-self: stretch;
   display: grid;
   place-items: center;
@@ -1844,9 +1847,13 @@
 }
 
 .scoreboard-display-menu__layout > small {
+  grid-row: 2;
+  min-width: 0;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
   color: #ff3f75;
   font-size: 8px;
-  font-weight: 850;
+  font-weight: 600;
 }
 
 .scoreboard-display-menu__check,
@@ -1949,7 +1956,13 @@
 .scoreboard-display-menu__options:not(.scoreboard-display-menu__positions)
   button {
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   min-height: 52px;
+  padding: 8px;
   border: 0;
   border-radius: 0;
   font-size: 13px;
@@ -1963,10 +1976,10 @@
 }
 
 .scoreboard-display-menu__option-check {
-  top: 8px;
-  right: 8px;
-  width: 23px;
-  height: 23px;
+  position: static;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .scoreboard-display-menu__positions {
@@ -1976,6 +1989,10 @@
 
 .scoreboard-display-menu__positions button {
   position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  display: grid;
   aspect-ratio: 1.15;
   min-height: 64px;
   padding: 8px;
@@ -1983,7 +2000,10 @@
 
 .scoreboard-position-icon {
   position: relative;
+  box-sizing: border-box;
   display: block;
+  min-width: 0;
+  min-height: 28px;
   width: 100%;
   height: 100%;
   border: 1px solid #5d6671;
@@ -2041,6 +2061,8 @@
 }
 
 .scoreboard-display-menu__automatic > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: grid;
   gap: 4px;
 }
@@ -2056,6 +2078,7 @@
 }
 
 .scoreboard-display-menu__switch {
+  flex: 0 0 54px;
   position: relative;
   width: 54px;
   height: 32px;
@@ -2167,7 +2190,7 @@
 
   .scoreboard-display-menu button.scoreboard-display-menu__layout {
     min-height: 146px;
-    grid-template-rows: minmax(78px, 1fr) 16px 37px;
+    grid-template-rows: minmax(78px, 1fr) minmax(16px, auto) minmax(37px, auto);
     padding: 7px 4px 0;
   }
 
@@ -2214,3 +2237,12 @@
     border-left: 1px solid rgba(255, 255, 255, 0.22);
   }
 }
+
+/* Approved Home material on recovery/display panels. Live stage and docks keep their geometry. */
+.fanview-state-card, .scoreboard-display-menu {
+  border-color: #40535e;
+  background: var(--cv-face-dark);
+  box-shadow: inset 0 1px 0 rgba(225,240,249,.12), inset 0 -5px 0 #0b141b, 0 18px 48px rgba(0,0,0,.42);
+}
+/* Recovery is ordinary content, so the shared primary action can span the existing grid. */
+.fanview-state-action--primary.cv-primary-action { grid-column: 1 / -1; }

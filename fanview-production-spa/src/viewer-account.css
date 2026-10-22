@@ -1,0 +1,23 @@
+.viewer-account{min-height:100dvh;display:grid;place-items:center;padding:24px 16px;background:#f5f7fa;color:#101827;font-family:var(--cv-font)}
+.viewer-account__card{width:min(100%,460px);box-sizing:border-box;padding:28px;border:1px solid #dbe2e9;border-radius:24px;background:linear-gradient(145deg,#fff,#f7f9fb);box-shadow:0 3px 0 #dfe5ea,0 12px 32px #13253818,inset 0 2px 0 #fff}
+.viewer-account h1{font-size:28px;line-height:1.25;font-weight:600;margin:12px 0}.viewer-account p{font-size:15px;line-height:1.6}.viewer-account__brand{font-weight:600;color:#26384a}.viewer-account button,.viewer-account input{font:inherit;min-height:46px;border-radius:12px;border:1px solid #c6d0db;padding:10px 14px;box-sizing:border-box}.viewer-account button{cursor:pointer;background:#fff;color:#101827;font-weight:600}.viewer-account button:disabled{opacity:.6;cursor:wait}.viewer-account__providers{display:grid;gap:10px;margin:22px 0}.viewer-account__modes{display:flex;gap:8px;margin:20px 0}.viewer-account__modes button{flex:1}.viewer-account__modes [aria-pressed=true]{border-color:#008954;box-shadow:inset 0 -3px #00c978}.viewer-account form,.viewer-account label{display:grid;gap:8px}.viewer-account form{gap:16px}.viewer-account input{width:100%;background:white;color:#101827}.viewer-account .viewer-account__primary{background:linear-gradient(135deg,#25ed96,#00cfa5);border:0;border-radius:14px;clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)}.viewer-account a{color:#27506e;text-decoration:underline}.viewer-account__legal{font-size:12px!important}.viewer-account__home{display:inline-flex;align-items:center;min-height:44px}.viewer-account :focus-visible{outline:3px solid #1769aa;outline-offset:3px}
+/* Match the native account sheet: exact saved marks, sentence case and Home CTA artwork. */
+.viewer-account,.viewer-account *{text-transform:none;letter-spacing:normal}
+.viewer-account__brand{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.viewer-account__brand img{display:block;flex-shrink:0;filter:none;opacity:1}
+.viewer-account__brand span{font-size:16px;font-weight:600}
+.viewer-account__providers button{display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;font-size:16px;line-height:24px}
+.viewer-account__providers img{object-fit:contain;flex-shrink:0}
+.viewer-account__providers .viewer-account__google{background:#fff;color:#171717;border-color:#aeb8c4}
+.viewer-account__providers .viewer-account__apple{background:#000;color:#fff;border-color:#000}
+.viewer-account .viewer-account__primary{min-height:56px;background:var(--cv-primary-material) center/100% 100% no-repeat;color:#061b13;clip-path:none;border-radius:0;padding:14px 27px;font-size:18px;line-height:28px;font-weight:600;opacity:1;box-shadow:0 4px 12px #00a86e21}
+.viewer-account .viewer-account__primary:disabled{opacity:.6}
+.viewer-account button,.viewer-account input{font-family:var(--cv-font);text-transform:none}
+@media(prefers-color-scheme:dark){
+.viewer-account{background:#070e13;color:#f5f8fb}
+.viewer-account__card{background:linear-gradient(145deg,#1b2931,#0e191f);border-color:#526773;box-shadow:0 4px 0 #050a0e,0 14px 32px #0009,inset 0 2px 0 #ffffff1c}
+.viewer-account__brand{color:#edf3f7}.viewer-account p{color:#cbd5df}.viewer-account h1{color:#f6f8fc}
+.viewer-account button,.viewer-account input{background:#14212a;color:#f5f8fb;border-color:#526773}
+.viewer-account__providers .viewer-account__apple{border-color:#82919d}.viewer-account__modes [aria-pressed=true]{border-color:#00c978}
+.viewer-account a{color:#b2d5f1}.viewer-account :focus-visible{outline-color:#72b9f4}
+}

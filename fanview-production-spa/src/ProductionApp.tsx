@@ -1,3 +1,4 @@
+import { ApprovedBrandIcon } from "../../fanview-spa/src/components/ApprovedBrandIcon";
 import {
   ArrowClockwise,
   ArrowLeft,
@@ -5,10 +6,7 @@ import {
   Clock,
   DeviceMobile,
   EnvelopeSimple,
-  Eye,
-  House,
   SlidersHorizontal,
-  UsersThree,
 } from "@phosphor-icons/react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type {
@@ -208,11 +206,13 @@ function ScoreboardDisplayMenu({
   size: ScoreboardSize;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
 
   useEffect(() => {
     menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
     const closeAndRestoreFocus = () => {
-      onClose();
+      closeRef.current();
       window.requestAnimationFrame(focusDisplayTrigger);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -255,7 +255,7 @@ function ScoreboardDisplayMenu({
       document.removeEventListener("keydown", closeOnEscape);
       document.removeEventListener("pointerdown", closeOutside);
     };
-  }, [onClose]);
+  }, []);
 
   return (
     <div
@@ -388,15 +388,14 @@ function RecoveryPage({
           <strong>{title}</strong>
           <span>{copy}</span>
           <div className="fanview-state-actions">
-            <a className="fanview-state-action fanview-state-action--primary" href="/">
-              <House aria-hidden="true" size={20} weight="bold" />
+            <a className="fanview-state-action fanview-state-action--primary cv-primary-action" data-cv-action="home" href="/">
               Return Home
             </a>
             <a
               className="fanview-state-action"
               href={teamHub ? `/t/${encodeURIComponent(teamHub.slug)}` : "/"}
             >
-              <UsersThree aria-hidden="true" size={20} weight="bold" />
+              <ApprovedBrandIcon name="team" size={20} />
               Open Team Hub
             </a>
             <button
@@ -806,7 +805,7 @@ export function ProductionApp({
               aria-live="polite"
               className="viewer-pill"
             >
-              <Eye aria-hidden="true" size={19} weight="bold" />
+              <ApprovedBrandIcon name="fanview" size={19} />
               <span>{compactViewerCount}</span>
             </div>
           </div>
@@ -858,15 +857,17 @@ export function ProductionApp({
       </section>
 
       {communityEnabled ? (
-        <CommunityErrorBoundary>
-          <CommunityPanel
-            adapter={communityAdapter}
-            matchComplete={snapshot.match.isComplete}
-            shareId={shareId}
-            startOpen={false}
-            teamName={snapshot.match.home.name}
-          />
-        </CommunityErrorBoundary>
+        <div hidden={displayMenuOpen} inert={displayMenuOpen} data-community-surface>
+          <CommunityErrorBoundary>
+            <CommunityPanel
+              adapter={communityAdapter}
+              matchComplete={snapshot.match.isComplete}
+              shareId={shareId}
+              startOpen={false}
+              teamName={snapshot.match.home.name}
+            />
+          </CommunityErrorBoundary>
+        </div>
       ) : null}
     </main>
   );

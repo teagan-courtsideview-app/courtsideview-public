@@ -1,3 +1,4 @@
+import { ViewerAuthenticationRequired, viewerFetch } from "./viewerFetch";
 import {
   ArrowsIn,
   ArrowsOut,
@@ -94,7 +95,7 @@ function useViewerPresence(
     const endpoint = `${liveWorkerUrl}/presence/${encodeURIComponent(shareId)}`;
     const send = (method: "POST" | "DELETE", keepalive = false) => {
       if (!active && method === "POST") return;
-      void fetch(endpoint, {
+      void viewerFetch(endpoint, {
         method,
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ viewerId: id }),
@@ -263,7 +264,7 @@ const drawPresentationFrame = (
 
   context.save();
   context.textBaseline = "middle";
-  context.font = `900 ${Math.round(14 * uiScale)}px system-ui, sans-serif`;
+  context.font = `600 ${Math.round(14 * uiScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
   roundedRect(context, edge, edge, 72 * uiScale, pillHeight, 8 * uiScale);
   context.fillStyle = "#e53935";
   context.fill();
@@ -365,7 +366,7 @@ const drawPresentationFrame = (
     context.fill();
     context.textAlign = "center";
     context.fillStyle = scoreBugTextColor(match.away.color || "#ff5f2d");
-    context.font = `900 ${Math.round(14 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.font = `600 ${Math.round(14 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
     context.fillText(
       `SET ${match.setNumber}`,
       cardX + 7 * uiScale + setWidth / 2,
@@ -426,14 +427,14 @@ const drawPresentationFrame = (
         panelHeight - 20 * uiScale,
       );
       context.fillStyle = "#ffffff";
-      context.font = `900 ${Math.round(15 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.font = `600 ${Math.round(15 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
       context.textAlign = reversed ? "right" : "left";
       context.fillText(
         fitCanvasText(context, team.name.toUpperCase(), sideWidth * 0.58),
         reversed ? x + sideWidth - 24 * uiScale : x + 22 * uiScale,
         panelY + panelHeight / 2,
       );
-      context.font = `900 ${Math.round(25 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.font = `600 ${Math.round(25 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
       context.textAlign = reversed ? "left" : "right";
       context.fillText(
         String(score),
@@ -457,13 +458,13 @@ const drawPresentationFrame = (
     context.stroke();
     context.textAlign = "center";
     context.fillStyle = "#d6dbe2";
-    context.font = `800 ${Math.round(11 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.font = `600 ${Math.round(11 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
     context.fillText(
       `SET ${match.setNumber}`,
       cardX + sideWidth + centerWidth / 2,
       panelY + panelHeight * 0.31,
     );
-    context.font = `800 ${Math.round(9 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.font = `600 ${Math.round(9 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
     const history = completedSets
       .map((set) => `S${set.setNumber}  ${set.homeScore}–${set.awayScore}`)
       .join("   ");
@@ -492,14 +493,14 @@ const drawPresentationFrame = (
       context.fill();
       context.textAlign = "left";
       context.fillStyle = "#ffffff";
-      context.font = `900 ${Math.round(15 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.font = `600 ${Math.round(15 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
       context.fillText(
         fitCanvasText(context, team.name.toUpperCase(), cardWidth * 0.54),
         cardX + cardPadding + 18 * uiScale,
         rowY + rowHeight * 0.58,
       );
       context.textAlign = "right";
-      context.font = `900 ${Math.round(26 * uiScale * sizeScale)}px system-ui, sans-serif`;
+      context.font = `600 ${Math.round(26 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
       context.fillText(
         String(team.score),
         cardX + cardWidth - cardPadding,
@@ -513,7 +514,7 @@ const drawPresentationFrame = (
     context.lineTo(cardX + cardWidth, metaY);
     context.stroke();
     context.fillStyle = "#c2c9d2";
-    context.font = `800 ${Math.round(10 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.font = `600 ${Math.round(10 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
     context.textAlign = "left";
     context.fillText(
       `SET ${match.setNumber}`,
@@ -551,7 +552,7 @@ const drawPresentationFrame = (
     context.stroke();
     context.textAlign = "center";
     context.fillStyle = "#ffb320";
-    context.font = `900 ${Math.round(11 * uiScale * sizeScale)}px system-ui, sans-serif`;
+    context.font = `600 ${Math.round(11 * uiScale * sizeScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
     context.fillText(
       `TIMEOUT — ${match.timeoutTeamName || "MATCH PAUSED"}`,
       cardX + cardWidth / 2,
@@ -686,7 +687,7 @@ function CloudflareVideo({
       });
 
       try {
-        const response = await fetch(
+        const response = await viewerFetch(
           `${liveWorkerUrl}/play/${encodeURIComponent(shareId)}`,
           { method: "POST", headers: { "content-type": "application/sdp" } },
         );
@@ -699,7 +700,7 @@ function CloudflareVideo({
         });
         const answer = await candidate.createAnswer();
         await candidate.setLocalDescription(answer);
-        const negotiated = await fetch(`${liveWorkerUrl}${location}`, {
+        const negotiated = await viewerFetch(`${liveWorkerUrl}${location}`, {
           method: "PATCH",
           headers: { "content-type": "application/sdp" },
           body: answer.sdp ?? "",
@@ -719,8 +720,12 @@ function CloudflareVideo({
             reconnect();
           }
         }, VIDEO_STALL_CHECK_MS);
-      } catch {
+      } catch (error) {
         candidate.close();
+        if (error instanceof ViewerAuthenticationRequired) {
+          setStatus("Sign in again to watch this match");
+          return;
+        }
         reconnect();
       }
     };

@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
@@ -126,6 +126,44 @@ describe("Production FanView lifecycle", () => {
     expect(
       window.localStorage.getItem("courtsideview_fanview_scoreboard_layout"),
     ).toBe("minimal");
+  });
+
+  it("keeps Chat outside the Display modal and restores stable focus without remounting Community", async () => {
+    const loadRoom = vi.fn(async () => ({
+      connection: "connected" as const, participantCount: 3,
+      canWriteText: false, messages: [],
+    }));
+    render(<ProductionApp
+      communityAdapter={{ ...community, loadRoom }} communityEnabled
+      fanViewAdapter={{ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } }}
+      liveWorkerUrl="https://worker.example" shareId="match-123"
+    />);
+    const chat = await screen.findByRole("button", { name: "Open chat, 3 in chat" });
+    const trigger = screen.getByRole("button", { name: "Scoreboard display" });
+    for (let repeat = 0; repeat < 2; repeat += 1) {
+      fireEvent.click(trigger);
+      expect(screen.queryByRole("button", { name: /Open chat/ })).not.toBeInTheDocument();
+      expect(chat.closest("[data-community-surface]")).toHaveAttribute("inert");
+      const first = screen.getByRole("button", { name: "Use full score layout" });
+      const reset = screen.getByRole("button", { name: "Use CourtsideView default" });
+      expect(first).toHaveFocus();
+      reset.focus();
+      fireEvent.keyDown(document, { key: "Tab" });
+      expect(first).toHaveFocus();
+      fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+      expect(reset).toHaveFocus();
+      const small = screen.getByRole("button", { name: "SMALL" });
+      small.focus();
+      fireEvent.click(small);
+      expect(small).toHaveFocus();
+      reset.focus();
+      fireEvent.click(reset);
+      expect(reset).toHaveFocus();
+      fireEvent.keyDown(document, { key: "Escape" });
+      await waitFor(() => expect(trigger).toHaveFocus());
+      expect(screen.getByRole("button", { name: "Open chat, 3 in chat" })).toBe(chat);
+    }
+    expect(loadRoom).toHaveBeenCalledTimes(1);
   });
 
   it("uses one aligned score bar without duplicating the live set", async () => {

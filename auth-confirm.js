@@ -53,6 +53,15 @@
       title.textContent = 'You’re in. Email confirmed.';
       message.textContent = 'Welcome to CourtsideView. Your email is verified and your account is ready for the next step.';
       guidance.textContent = 'Return to CourtsideView on your phone. If the “Check your inbox” screen is open, it will continue automatically. If you closed the app, sign in with the email and password you chose.';
+      // Same-origin web signup can return to its original watch link after verification.
+      let viewerReturn = null;
+      try { viewerReturn = sessionStorage.getItem('courtsideview_viewer_return'); } catch {}
+      if (viewerReturn && /^\/(?:v|fanview-next\/v)\/[A-Za-z0-9_-]{1,200}\/?$/.test(viewerReturn)) {
+        guidance.textContent = 'Your email is confirmed. Return to your match and sign in to start watching.';
+        openApp.href = viewerReturn;
+        openApp.textContent = 'Return to my match';
+        openApp.setAttribute('aria-label', 'Return to my FanView match');
+      }
       confirm.hidden = true;
       openApp.hidden = false;
     } catch (error) {

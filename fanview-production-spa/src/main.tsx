@@ -12,6 +12,8 @@ import {
   SUPABASE_URL,
 } from "./config";
 import { ProductionApp } from "./ProductionApp";
+import { configureViewerRequests, viewerFetch } from "./viewerFetch";
+import { ViewerAccountGate } from "./ViewerAccountGate";
 import type {
   DisplayPreferenceAdapter,
   ViewerDisplayPreference,
@@ -27,6 +29,11 @@ const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { autoRefreshToken: true, persistSession: true },
 });
 const liveWorkerUrl = configuredLiveWorkerUrl();
+configureViewerRequests(async () => {
+  const { data, error } = await client.auth.getSession();
+  if (error || !data.session || data.session.user.is_anonymous || !data.session.user.email_confirmed_at) return null;
+  return data.session.access_token;
+}, liveWorkerUrl);
 const mode = communityMode();
 const visualQaMode =
   (import.meta.env.DEV ||
@@ -72,6 +79,7 @@ const fanViewAdapter = visualQaMode
   ? visualQaFanViewAdapter
   : createSupabaseFanViewAdapter({
       client,
+      fetch: viewerFetch,
       liveWorkerUrl,
     });
 const communityAdapter =
@@ -120,6 +128,7 @@ const displayPreferenceAdapter: DisplayPreferenceAdapter = {
 
 createRoot(root).render(
   <React.StrictMode>
+    <ViewerAccountGate client={client}>
     <ProductionApp
       communityAdapter={communityAdapter}
       communityEnabled={mode !== "off"}
@@ -132,5 +141,6 @@ createRoot(root).render(
           : productionShareId(window.location.pathname)
       }
     />
+    </ViewerAccountGate>
   </React.StrictMode>,
 );
