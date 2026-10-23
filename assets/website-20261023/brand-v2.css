@@ -83,3 +83,4 @@ a[href^="mailto:"],a[href^="https://"] {overflow-wrap:anywhere;}
 .section-cream .kicker {color:#087347;}
 .button-primary {color:#04130d!important;}
 @media(max-width:620px){.fanview-modal .button-primary{font-size:16px;letter-spacing:0;}}
+.fanview-modal .button-primary {color:#04130d!important;}
