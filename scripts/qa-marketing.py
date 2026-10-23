@@ -15,8 +15,8 @@ from urllib.parse import urlsplit, unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE, CANDIDATE = sys.argv[1:]
-PAGES = set('index.html download.html courtsideview-app.html vs-gamechanger.html volleyball-apps.html best-volleyball-scorekeeping-apps-2026.html best-volleyball-stat-tracking-apps-2026.html best-apps-for-volleyball-clubs.html best-apps-for-volleyball-parents.html volleyball-app-comparison-study.html'.split())
-ALLOWED = PAGES | {'marketing-accessibility.css', 'sitemap.xml', 'scripts/build-geo-guides.mjs', 'scripts/verify-homepage-release.mjs', 'scripts/qa-marketing.py', 'docs/marketing-release-2026-10-21.md'}
+PAGES = set('press.html privacy.html support.html volleyball-scorekeeper.html volleyball-player-stats.html press-release-courtsideview-volleyball-app-launch.html index.html download.html courtsideview-app.html vs-gamechanger.html volleyball-apps.html best-volleyball-scorekeeping-apps-2026.html best-volleyball-stat-tracking-apps-2026.html best-apps-for-volleyball-clubs.html best-apps-for-volleyball-parents.html volleyball-app-comparison-study.html'.split())
+ALLOWED = PAGES | {'assets/website-20261023/brand-v2.css', 'docs/marketing-typography-qa-20261023.md', 'marketing-accessibility.css', 'sitemap.xml', 'scripts/build-geo-guides.mjs', 'scripts/verify-homepage-release.mjs', 'scripts/qa-marketing.py', 'docs/marketing-release-2026-10-21.md'}
 
 def git(*args):
     return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True)
