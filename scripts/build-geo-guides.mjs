@@ -598,7 +598,7 @@ function renderPage(page) {
     ${jsonLd(breadcrumbSchema)}
     ${jsonLd(itemListSchema)}
     ${jsonLd(faqSchema)}
-<link rel="stylesheet" href="/assets/website-20261023/brand-v2.css">
+<link rel="stylesheet" href="/assets/website-20261023/brand-v3.css">
 </head>
 <body>
     <div class="page-shell">

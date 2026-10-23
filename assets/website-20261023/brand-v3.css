@@ -1,0 +1,57 @@
+@import url("./brand-v2.css");
+/* Match Jakarta display labels to the available component width, not the viewport. */
+[data-challenger-home] .growth-broadcast-rail > div {
+  container-type: inline-size;
+  min-width: 0;
+}
+[data-challenger-home] .growth-broadcast-rail b,
+[data-challenger-home] .growth-broadcast-rail span {
+  font-size: clamp(24px, 16cqi, 40px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -.025em;
+  min-width: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+[data-challenger-home] .growth-broadcast-rail small { min-width: 0; }
+[data-challenger-home] .demo-campaign-tabs button { min-width: 0; grid-template-columns: minmax(0,1fr); }
+[data-challenger-home] .demo-campaign-tabs button span {
+  font-size: clamp(20px, 1.8vw, 30px);
+  line-height: 1.15;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.site-header .brand { flex-shrink: 0; }
+@media (min-width: 901px) and (max-width: 1180px) {
+  .desktop-nav { gap: 20px; }
+  .desktop-nav .nav-download { padding-inline: 18px; }
+}
+[data-challenger-home] .download-qr span {
+  font-size: 14px;
+  line-height: 1.5;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: normal;
+}
+
+/* The hero words must remain intact before the mobile wrap breakpoint. */
+[data-challenger-home] .hero-command-line {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+[data-challenger-home] .hero-command-line span {
+  font-size: clamp(25px, 4.5vw, 64px);
+  line-height: 1.15;
+  flex: 0 0 auto;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+@media (max-width: 620px) {
+  [data-challenger-home] .hero-command-line { gap: 10px; }
+  [data-challenger-home] .hero-command-line span { font-size: 25px; }
+}
+
+@media (max-width: 620px) {
+  .fanview-modal .button-primary { height: auto; min-height: 52px; padding-block: 10px; }
+}

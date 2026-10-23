@@ -16,7 +16,7 @@ from urllib.parse import urlsplit, unquote
 ROOT = Path(__file__).resolve().parents[1]
 BASE, CANDIDATE = sys.argv[1:]
 PAGES = set('press.html privacy.html support.html volleyball-scorekeeper.html volleyball-player-stats.html press-release-courtsideview-volleyball-app-launch.html index.html download.html courtsideview-app.html vs-gamechanger.html volleyball-apps.html best-volleyball-scorekeeping-apps-2026.html best-volleyball-stat-tracking-apps-2026.html best-apps-for-volleyball-clubs.html best-apps-for-volleyball-parents.html volleyball-app-comparison-study.html'.split())
-ALLOWED = PAGES | {'assets/website-20261023/brand-v2.css', 'docs/marketing-typography-qa-20261023.md', 'marketing-accessibility.css', 'sitemap.xml', 'scripts/build-geo-guides.mjs', 'scripts/verify-homepage-release.mjs', 'scripts/qa-marketing.py', 'docs/marketing-release-2026-10-21.md'}
+ALLOWED = PAGES | {'assets/website-20261023/brand-v2.css', 'assets/website-20261023/brand-v3.css', 'scripts/marketing-text-geometry.js', 'docs/marketing-text-qa-followup-20261023.md', 'docs/marketing-typography-qa-20261023.md', 'marketing-accessibility.css', 'sitemap.xml', 'scripts/build-geo-guides.mjs', 'scripts/verify-homepage-release.mjs', 'scripts/qa-marketing.py', 'docs/marketing-release-2026-10-21.md'}
 
 def git(*args):
     return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True)
@@ -122,7 +122,7 @@ for file in sorted(PAGES):
 # The new CSS may only affect these static pages, never viewer/app surfaces.
 for file in sorted(files):
     if file.endswith('.html') and file not in PAGES:
-        check('marketing-accessibility.css' not in read(file), file + ': marketing CSS leaks outside scope')
+        check(not any(css in read(file) for css in ['marketing-accessibility.css', '/assets/website-20261023/brand-v3.css']), file + ': marketing CSS leaks outside scope')
 check('Disallow: /\n' not in read('robots.txt'), 'robots blocks all crawling')
 print(json.dumps({'status': 'FAIL' if errors else 'PASS', 'base': git('rev-parse', BASE).strip(), 'candidate': git('rev-parse', CANDIDATE).strip(), 'pages': len(PAGES), 'json_ld_blocks': schemas, 'local_references': links, 'changed_files': sorted(changed), 'errors': errors}, indent=2))
 sys.exit(bool(errors))
