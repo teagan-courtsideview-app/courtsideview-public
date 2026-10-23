@@ -1,0 +1,35 @@
+@import url("../fonts/courtside-type.css");
+/* Marketing-only typography and current store screenshot presentation. */
+:root { --font-display:var(--cv-font); --font-body:var(--cv-font); --font-sans:var(--cv-font); }
+body, button, input, select, textarea {font-family:var(--font-body);font-synthesis:none;}
+h1,h2,h3,h4,h5,h6 {font-family:var(--font-display)!important;font-weight:600!important;letter-spacing:-.04em!important;line-height:1.08!important;}
+.hero h1 {font-size:clamp(44px,5.2vw,80px)!important;line-height:1.06!important;}
+[data-challenger-home] h2 {font-size:clamp(38px,4.4vw,68px)!important;}
+h3 {line-height:1.2!important;}
+p {font-weight:400!important;}
+nav a,.nav-links a {font-weight:500!important;}
+a[class*="button"],button,.nav-download,strong,b {font-weight:600!important;}
+@media(max-width:600px){.hero h1{font-size:clamp(38px,10vw,54px)!important;}[data-challenger-home] h2{font-size:clamp(32px,9vw,48px)!important;}}
+@media(max-width:600px){[data-challenger-home] .button-primary{font-size:16px;letter-spacing:0;}}
+
+body{overflow-wrap:break-word;}
+.hero-broadcast-control,.hero-screen-brandbar,.iphone17-brandbar{display:none!important;}
+.release-screen{display:block;max-width:100%;height:auto;object-fit:contain;border-radius:22px;}
+.release-landscape{width:100%;max-width:900px!important;aspect-ratio:2778/1284;object-fit:contain!important;height:auto!important;border-radius:18px;}
+.fanview-official-grid{min-width:0;align-self:center;}
+.fanview-official-screen{width:100%!important;max-width:none!important;transform:none!important;}
+.fanview-official-screen figcaption{font:400 14px/1.6 var(--cv-font);margin-top:16px;color:var(--gray);}
+.modal-official-grid{grid-template-columns:minmax(0,1fr)!important;}
+.modal-official-grid .release-screen{max-height:55vh;width:100%;object-fit:contain;}
+.storefront-spotlight-image img{width:100%;max-height:680px;object-fit:contain!important;}
+.storefront-spotlight-image{min-width:0;}
+.hero-phone,.feature-phone,.phone-shot{object-fit:contain!important;height:auto;}
+@media(max-width:600px){.hero h1{overflow-wrap:normal;} .release-landscape{border-radius:10px;} .storefront-spotlight-image img{max-height:560px;}}
+
+.fanview-official-grid{min-height:0!important;padding-block:32px;}
+.release-comparison{display:flex!important;flex-direction:column;align-items:center;gap:24px;min-height:0!important;}
+.release-comparison .phone-main{position:static!important;transform:none!important;width:min(58%,280px)!important;}
+
+.hero>*{min-width:0;}
+/* Jakarta's lighter approved weight needs dark ink on green action surfaces. */
+[data-challenger-home] .button-primary,[data-challenger-home] .nav-download{color:#04130d!important;}

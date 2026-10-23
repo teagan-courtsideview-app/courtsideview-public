@@ -530,7 +530,7 @@ function renderPage(page) {
       "url": site,
       "logo": `${site}/assets/courtsideview-app-icon.png`
     },
-    "image": `${site}/assets/og-image-20260617.png`,
+    "image": `${site}/assets/website-20261023/social-preview.jpg`,
     "citation": sources.map((source) => source.url),
     "about": [
       { "@type": "Thing", "name": "Volleyball apps" },
@@ -580,11 +580,11 @@ function renderPage(page) {
     <meta property="og:url" content="${esc(url)}">
     <meta property="og:title" content="${esc(page.ogTitle)}">
     <meta property="og:description" content="${esc(page.ogDescription)}">
-    <meta property="og:image" content="${site}/assets/og-image-20260617.png">
+    <meta property="og:image" content="${site}/assets/website-20261023/social-preview.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${esc(page.ogTitle)}">
     <meta name="twitter:description" content="${esc(page.ogDescription)}">
-    <meta name="twitter:image" content="${site}/assets/og-image-20260617.png">
+    <meta name="twitter:image" content="${site}/assets/website-20261023/social-preview.jpg">
 
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
@@ -598,6 +598,7 @@ function renderPage(page) {
     ${jsonLd(breadcrumbSchema)}
     ${jsonLd(itemListSchema)}
     ${jsonLd(faqSchema)}
+<link rel="stylesheet" href="/assets/website-20261023/brand.css">
 </head>
 <body>
     <div class="page-shell">

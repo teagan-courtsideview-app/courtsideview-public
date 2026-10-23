@@ -10,7 +10,7 @@ const ORIGIN = "https://www.courtsideviewapp.com";
 const HOME_TITLE = "CourtsideView | Volleyball Match Day in One App";
 const HOME_DESCRIPTION = "CourtsideView is a volleyball score keeper and player stats app for live scores, rotations, rosters, and FanView updates on iPhone, iPad, and Android.";
 const SOCIAL_DESCRIPTION = "Score the match, track rotations and player stats, and share live FanView updates with the whole volleyball family.";
-const SOCIAL_IMAGE = `${ORIGIN}/assets/og-image-20260617.png`;
+const SOCIAL_IMAGE = `${ORIGIN}/assets/website-20261023/social-preview.jpg`;
 const APPLE_BANNER = `app-id=6766532771, app-argument=${ORIGIN}/`;
 const APP_STORE_URL = "https://apps.apple.com/us/app/courtsideview/id6766532771";
 const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=app.courtsideview.android&pli=1";

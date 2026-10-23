@@ -1,0 +1,11 @@
+# Website typography and release imagery — October 23, 2026
+
+Approved scope: Plus Jakarta Sans 400/500/600 throughout the static marketing website; replace prior UI screenshots with 1.0.6 store-release imagery. Baseline c324f31d was verified byte-for-byte against production before edits.
+
+16 marketing pages use isolated brand.css. Gallery captures are unretouched native release images; landscape FanView is the submitted real-UI composition with illustrative match data and licensed CC0 footage, explicitly identified as illustrative. Screenshot context/captions were corrected where old rotation/stat imagery has no current equivalent. Social previews use the same font and actual Home image. Homepage action text is dark on green to preserve contrast with the approved lighter font. No account, viewer, broadcaster, scoring, API, routing, native source, or shared font asset changes.
+
+Validation: homepage release verifier passed metadata, one H1, schemas/FAQs, 15 internal routes, 35 local assets, 16 sitemap URLs, robots and routing. Guide generator regenerated its six outputs. JS syntax and git diff checks passed. All 16 pages were rendered at 390, 320 and 1280 CSS pixels; two 320px press grid overflows were corrected and rechecked. Jakarta computed font and loaded font verified. Six gallery selections, wrap-around, demo/feature tabs, arrow-key tabs, mobile navigation, FAQ expansion and FanView modal open/close/Escape/focus return exercised. Current image paths and source checksums verified. Existing Tailwind CDN production warnings on legacy static pages remain; no new console error observed. This is bounded marketing QA, not native or complete FanView QA.
+
+Independent source critique found and resolved overlapping comparison imagery, obsolete portrait space, stale social images and misleading stats captions. Product HTML, runtime bundles, shared assets and Vercel routing are unchanged. Static-marketing scope exception in AGENTS.md applies. Functional typography rollout is separate and not declared released here.
+
+Evidence: /Users/user/Documents/Claude/Projects/CourtsideView-research/website-brand-rollout-2026-10-23 (responsive matrices, captures, provenance, baseline verification). marketing/ remains untouched.
