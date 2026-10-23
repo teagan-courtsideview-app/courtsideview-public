@@ -1,0 +1,21 @@
+/* Prepared functional-page typography only. Release gate required before deployment.
+   Uses the selected existing 400/500/600 font files; no geometry or score-font override. */
+@font-face { font-family: "CV Plus Jakarta Sans"; src: url("./PlusJakartaSans-Regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "CV Plus Jakarta Sans"; src: url("./PlusJakartaSans-Medium.ttf") format("truetype"); font-style: normal; font-weight: 500; font-display: swap; }
+@font-face { font-family: "CV Plus Jakarta Sans"; src: url("./PlusJakartaSans-SemiBold.ttf") format("truetype"); font-style: normal; font-weight: 600; font-display: swap; }
+:root {
+  --cv-font: "CV Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: var(--cv-font); --font-sans: var(--cv-font);
+  --font-display: var(--cv-font); --font-control: var(--cv-font);
+  font-family: var(--cv-font); font-synthesis: none;
+}
+html, body, button, input, select, textarea { font-family: var(--cv-font); }
+body, input, select, textarea { font-weight: 400; }
+h1, h2, h3, h4, h5, h6, button, strong, b, th { font-weight: 600 !important; }
+nav a { font-weight: 500; }
+/* Higher specificity than Community's dynamically loaded font shorthand rules. */
+html .fv-community-launcher, html .fv-community-panel,
+html .fv-community-field input, html .fv-community-field select,
+html .fv-community-join-button, html .fv-community-composer { font-family: var(--cv-font); }
+html .fv-community-launcher, html .fv-community-join-button { font-weight: 600; }
+html .fv-community-field input, html .fv-community-field select, html .fv-community-composer { font-weight: 400; }
