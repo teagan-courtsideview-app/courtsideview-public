@@ -1,0 +1,199 @@
+{
+  "reviewed": "2026-10-26",
+  "publisher": "CourtsideView",
+  "basis": "Documentation review; no hands-on performance benchmark",
+  "facts": [
+    {
+      "product": "CourtsideView",
+      "topic": "Intended use",
+      "summary": "Volleyball family and team match-day scoring and sharing.",
+      "limit": "Published by CourtsideView. This is a documentation review, not a hands-on benchmark.",
+      "url": "https://www.courtsideviewapp.com/courtsideview-app",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "CourtsideView",
+      "topic": "Scorekeeping",
+      "summary": "Scorekeeper supports rally scores, sets and timeouts.",
+      "limit": "Confirm the format and settings before a match. Event acceptance is a separate requirement.",
+      "url": "https://apps.apple.com/us/app/courtsideview/id6766532771",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "CourtsideView",
+      "topic": "Player statistics",
+      "summary": "Player statistics, rotations and rosters are documented features.",
+      "limit": "Registration is required for features beyond guest Scorekeeper.",
+      "url": "https://www.courtsideviewapp.com/courtsideview-app",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "CourtsideView",
+      "topic": "Video and following",
+      "summary": "FanView shares live scores, match activity and optional live video. Fans can view in a browser without installing the app.",
+      "limit": "Registered accounts are required for FanView viewing and broadcasting. Live sharing needs internet.",
+      "url": "https://www.courtsideviewapp.com/privacy",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "CourtsideView",
+      "topic": "Access and devices",
+      "summary": "Downloads for iPhone, iPad and Android. Guest use is limited to Scorekeeper.",
+      "limit": "Other features require registration. Check current store compatibility for the device you plan to use.",
+      "url": "https://www.courtsideviewapp.com/download",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "CourtsideView",
+      "topic": "Cost boundary",
+      "summary": "Free to download.",
+      "limit": "Free download does not establish that every feature is always free. Check current feature access and store terms.",
+      "url": "https://apps.apple.com/us/app/courtsideview/id6766532771",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "GameChanger",
+      "topic": "Intended use",
+      "summary": "Multi-sport team platform with volleyball scoring, statistics, communication and streaming.",
+      "limit": "Check the workflow for your team role and sport.",
+      "url": "https://www.gc.com/volleyball",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "GameChanger",
+      "topic": "Scorekeeping",
+      "summary": "Volleyball point entry, player attribution, play editing and a Stats tab are documented.",
+      "limit": "Team access and scorer permissions affect who can score and edit.",
+      "url": "https://help.gc.com/hc/en-us/articles/30561565980173-Basic-Volleyball-Scorekeeping",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "GameChanger",
+      "topic": "Player statistics",
+      "summary": "Volleyball box scores, player attribution and season context are documented.",
+      "limit": "Some parent/fan features require a subscription.",
+      "url": "https://www.gc.com/volleyball",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "GameChanger",
+      "topic": "Video and following",
+      "summary": "Live volleyball streaming and viewing are documented. Volleyball live viewing is free.",
+      "limit": "The broadcaster selects the audience. Free live viewing does not make all replays, clips or fan features free.",
+      "url": "https://www.gc.com/live-streaming-tools",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "GameChanger",
+      "topic": "Access and devices",
+      "summary": "Scoring and broadcast actions use the GameChanger app and team roles.",
+      "limit": "Confirm account, audience, device and permission requirements for your exact workflow.",
+      "url": "https://www.gc.com/volleyball",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "GameChanger",
+      "topic": "Cost boundary",
+      "summary": "Free download. Coaches/staff use team features free; additional fan features may require a subscription.",
+      "limit": "Check current fan pricing and included features. Volleyball live viewing remains distinct from paid extras.",
+      "url": "https://www.gc.com/volleyball",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "SoloStats",
+      "topic": "Intended use",
+      "summary": "Coach-focused volleyball stat capture and analysis.",
+      "limit": "Choose the specific SoloStats app and plan that fits your task.",
+      "url": "https://www.solostatslive.com/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "SoloStats",
+      "topic": "Scorekeeping",
+      "summary": "SoloStats Live documents in-rally volleyball scorekeeping.",
+      "limit": "Try the entry method before relying on it at a live match.",
+      "url": "https://www.solostatslive.com/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "SoloStats",
+      "topic": "Player statistics",
+      "summary": "Apps document player actions and rotations. WebReports adds aggregated analysis and exports.",
+      "limit": "Reporting and multi-device features depend on plan.",
+      "url": "https://www.solostatslive.com/pricing",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "SoloStats",
+      "topic": "Video and following",
+      "summary": "The Pro plan lists SoloStats Video.",
+      "limit": "The reviewed page does not establish an equivalent family live-broadcast workflow. Verify the video feature you need.",
+      "url": "https://www.solostatslive.com/pricing",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "SoloStats",
+      "topic": "Access and devices",
+      "summary": "Offline stat capture is documented.",
+      "limit": "Confirm platform, account and sync requirements for the chosen app. Shared/cloud workflows may need internet.",
+      "url": "https://www.solostatslive.com/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "SoloStats",
+      "topic": "Cost boundary",
+      "summary": "Free stat capture is offered; Standard and Pro plans add reporting and other features.",
+      "limit": "Check current billing period, plan inclusions and club licensing before purchase.",
+      "url": "https://www.solostatslive.com/pricing",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "VolleyWrite",
+      "topic": "Intended use",
+      "summary": "Digital scorer-table scorekeeping, libero tracking and timing.",
+      "limit": "Ask the event or league which digital system and procedures it accepts.",
+      "url": "https://volleywrite.com/learn-more/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "VolleyWrite",
+      "topic": "Scorekeeping",
+      "summary": "Documents rule-aware event entry and printable/emailable scoresheets.",
+      "limit": "Select the correct competition rules and verify organizer acceptance.",
+      "url": "https://volleywrite.com/learn-more/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "VolleyWrite",
+      "topic": "Player statistics",
+      "summary": "Documents scoring events and a sideout-efficiency reporting option.",
+      "limit": "Confirm support for each player metric and any extra report license you need.",
+      "url": "https://volleywrite.com/learn-more/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "VolleyWrite",
+      "topic": "Video and following",
+      "summary": "Scoresheet and match-result sharing are documented.",
+      "limit": "Family live-video broadcasting was not verified from the reviewed pages.",
+      "url": "https://volleywrite.com/learn-more/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "VolleyWrite",
+      "topic": "Access and devices",
+      "summary": "Windows and iPad versions are documented. The iPad app does not run on iPhone.",
+      "limit": "Check current device requirements and version-specific capabilities.",
+      "url": "https://volleywrite.com/ipad/",
+      "reviewed": "2026-10-26"
+    },
+    {
+      "product": "VolleyWrite",
+      "topic": "Cost boundary",
+      "summary": "The iPad app is free to install; a valid license is required to score new matches.",
+      "limit": "License term and extra activations affect cost. Confirm current Windows/iPad pricing separately.",
+      "url": "https://volleywrite.com/ipad/",
+      "reviewed": "2026-10-26"
+    }
+  ]
+}

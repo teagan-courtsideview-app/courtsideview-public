@@ -1,0 +1,63 @@
+/* Only the approved static match-day resources use these classes. */
+.matchday-resource { scroll-margin-top: 24px; }
+.matchday-resource .resource-reading { max-width: 960px; }
+.matchday-resource h2 { line-height: 1.15; }
+.matchday-resource h3 { margin: 2rem 0 .75rem; font-size: clamp(1.2rem, 2.6vw, 1.55rem); line-height: 1.3; }
+.matchday-resource p, .matchday-resource li, .matchday-resource dd { line-height: 1.75; }
+.matchday-resource p { margin: .7rem 0 1.1rem; }
+.matchday-resource ul { padding-left: 1.35rem; }
+.matchday-resource li + li { margin-top: .65rem; }
+.matchday-resource li strong { font-weight: 600; }
+.matchday-resource a { color: #70dfaa; overflow-wrap: anywhere; }
+.matchday-resource a:focus-visible { outline: 3px solid #89f3bf; outline-offset: 4px; border-radius: 3px; }
+.matchday-resource p > a, .matchday-resource dd > a, .matchday-resource .source-list a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: .2em; }
+.matchday-resource .resource-meta, .matchday-resource .resource-limit { color: #bdc8d3; font-size: .95rem; }
+.matchday-resource .resource-note { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid #3e5a50; border-radius: 22px; background: #101e1b; margin: 2rem 0; }
+.matchday-resource .resource-note h2, .matchday-resource .resource-note h3 { margin-top: 0; }
+.matchday-resource .resource-actions { display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px; margin: 1.5rem 0; }
+.matchday-resource .resource-actions a { display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: .2rem; min-height: 56px; min-width: 0; max-width: 100%; padding: .85rem 1.3rem; text-decoration: none; white-space: normal; overflow-wrap: normal; }
+.matchday-resource .resource-actions .primary-button { background: #71dfaa; color: #07140e; }
+.matchday-resource .resource-actions .secondary-button { color: #f0f5f3; border-color: #6d827a; }
+.matchday-resource .resource-format { font-size: .78rem; line-height: 1.4; font-weight: 500; }
+.matchday-resource .resource-steps, .matchday-resource .resource-inline-steps { display: grid; gap: 18px; padding: 0; margin: 2rem 0; list-style: none; }
+.matchday-resource .resource-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.matchday-resource .resource-steps li { margin: 0; padding: 1.6rem; background: #111b24; border: 1px solid #384750; border-radius: 22px; }
+.matchday-resource .resource-steps h3 { margin-top: .8rem; }
+.matchday-resource .resource-step-number { font-size: 1rem; font-weight: 600; color: #70dfaa; }
+.matchday-resource .resource-inline-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.matchday-resource .resource-inline-steps li { padding: 1.1rem; border-left: 3px solid #70dfaa; margin: 0; }
+.matchday-resource .resource-products { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.matchday-resource .resource-product { padding: 1.6rem; background: #111b24; border: 1px solid #384750; border-radius: 22px; min-width: 0; }
+.matchday-resource .resource-product h3 { margin-top: 0; }
+.matchday-resource dt { font-size: .85rem; font-weight: 600; color: #8fe7b9; margin-top: 1.2rem; }
+.matchday-resource dd { margin: .35rem 0 0; }
+.matchday-resource dd .resource-limit { display: block; }
+.matchday-resource dd a { font-size: .9rem; }
+.matchday-resource .resource-question { border-top: 1px solid #42504c; padding: 2rem 0 1rem; }
+.matchday-resource .resource-question h2 { font-size: clamp(1.55rem, 3.5vw, 2rem); letter-spacing: -.02em; }
+.matchday-resource .resource-method { margin: 3rem 0; }
+@media (max-width: 760px) {
+ .matchday-resource .resource-steps, .matchday-resource .resource-products, .matchday-resource .resource-inline-steps { grid-template-columns: minmax(0,1fr); }
+ .matchday-resource .resource-actions a { width: 100%; }
+ .matchday-resource .resource-steps li, .matchday-resource .resource-product { padding: 1.2rem; }
+}
+@media print {
+ .matchday-resource { color: #111; background: white; }
+ .matchday-resource .resource-meta, .matchday-resource .resource-limit, .matchday-resource a, .matchday-resource dt { color: #222; }
+ .matchday-resource .resource-note, .matchday-resource .resource-product, .matchday-resource .resource-steps li { background: white; border-color: #555; break-inside: avoid; }
+ .matchday-resource .resource-actions { display: none; }
+}
+
+/* Resource pages reflow by their actual content width, including enlarged views. */
+body:has(.matchday-resource) .page-shell { container-type: inline-size; }
+@container (max-width: 760px) {
+ body:has(.matchday-resource) .hero,
+ body:has(.matchday-resource) .faq-grid,
+ body:has(.matchday-resource) .section-grid,
+ body:has(.matchday-resource) .feature-list,
+ body:has(.matchday-resource) .steps,
+ body:has(.matchday-resource) .download-box,
+ body:has(.matchday-resource) .stat-strip { grid-template-columns: minmax(0, 1fr); }
+ body:has(.matchday-resource) .hero h1 { font-size: clamp(30px, 7cqi, 44px) !important; }
+ body:has(.matchday-resource) .download-box { padding: 1.25rem; }
+}

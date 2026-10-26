@@ -18,6 +18,11 @@ BASE, CANDIDATE = sys.argv[1:]
 PAGES = set('press.html privacy.html support.html volleyball-scorekeeper.html volleyball-player-stats.html press-release-courtsideview-volleyball-app-launch.html index.html download.html courtsideview-app.html vs-gamechanger.html volleyball-apps.html best-volleyball-scorekeeping-apps-2026.html best-volleyball-stat-tracking-apps-2026.html best-apps-for-volleyball-clubs.html best-apps-for-volleyball-parents.html volleyball-app-comparison-study.html'.split())
 ALLOWED = PAGES | {'assets/website-20261023/brand-v2.css', 'assets/website-20261023/brand-v3.css', 'scripts/marketing-text-geometry.js', 'docs/marketing-text-qa-followup-20261023.md', 'docs/marketing-typography-qa-20261023.md', 'marketing-accessibility.css', 'sitemap.xml', 'scripts/build-geo-guides.mjs', 'scripts/verify-homepage-release.mjs', 'scripts/qa-marketing.py', 'docs/marketing-release-2026-10-21.md'}
 
+PAGES.add('resources/volleyball-match-day-workflows.html')
+ALLOWED |= {'scripts/matchday-resource-content.json', 'assets/website-20261026/resources.css', 'resources/2027-volleyball-match-day-checklist.txt', 'resources/volleyball-match-day-workflows.html', 'scripts/matchday-resources.mjs', 'scripts/build-comparison-worksheet.mjs', 'scripts/build-first-tournament-pdf.py', 'resources/hypothetical-workflow-examples.md', 'resources/volleyball-app-comparison-worksheet.csv', 'docs/growth-resources-release-2026-10-26.md', 'scripts/matchday-comparison-facts.json', 'resources/volleyball-app-comparison-worksheet.xlsx', 'resources/first-tournament-scorekeeper.pdf'}
+
+ALLOWED.add('resources/volleyball-workflow-observation-template.csv')
+
 def git(*args):
     return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True)
 
@@ -86,7 +91,8 @@ for file in sorted(PAGES):
     check(sum(t == 'title' for t, _ in p.tags) == 1, file + ': title count')
     check(any(t == 'meta' and a.get('name') == 'description' and a.get('content') for t, a in p.tags), file + ': description')
     check(sum(t == 'link' and a.get('rel') == 'canonical' and a.get('href', '').startswith('https://www.courtsideviewapp.com/') for t, a in p.tags) == 1, file + ': canonical')
-    old = Page(read(file, BASE))
+    base_files = set(git('ls-tree', '-r', '--name-only', BASE).splitlines())
+    old = Page(read(file, BASE)) if file in base_files else Page('')
     executable = lambda x: [s for s in x.scripts if s[0].get('type') != 'application/ld+json']
     check(executable(p) == executable(old), file + ': executable scripts changed')
     check([(t,a) for t,a in p.tags if any(k.startswith('on') for k in a)] == [(t,a) for t,a in old.tags if any(k.startswith('on') for k in a)], file + ': event handlers changed')
@@ -122,7 +128,7 @@ for file in sorted(PAGES):
 # The new CSS may only affect these static pages, never viewer/app surfaces.
 for file in sorted(files):
     if file.endswith('.html') and file not in PAGES:
-        check(not any(css in read(file) for css in ['marketing-accessibility.css', '/assets/website-20261023/brand-v3.css']), file + ': marketing CSS leaks outside scope')
+        check(not any(css in read(file) for css in ['marketing-accessibility.css', '/assets/website-20261023/brand-v3.css', '/assets/website-20261026/resources.css']), file + ': marketing CSS leaks outside scope')
 check('Disallow: /\n' not in read('robots.txt'), 'robots blocks all crawling')
 print(json.dumps({'status': 'FAIL' if errors else 'PASS', 'base': git('rev-parse', BASE).strip(), 'candidate': git('rev-parse', CANDIDATE).strip(), 'pages': len(PAGES), 'json_ld_blocks': schemas, 'local_references': links, 'changed_files': sorted(changed), 'errors': errors}, indent=2))
 sys.exit(bool(errors))

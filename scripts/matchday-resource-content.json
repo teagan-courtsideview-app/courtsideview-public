@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-26",
+  "parentChecklist": "- **Find the team’s source for schedules.** Ask your coach or team manager where court assignments, arrival times, work-team duties and last-minute changes will appear. Save that destination on every attending adult’s phone.\n- **Choose the scoring job.** Decide whether you want a family scoreboard, player-level stats or the event’s official scorekeeping record. Ask the event what system and training it requires for official duties.\n- **Choose one person to keep the family score.** Agree who will start each match and who can take over if that person needs to leave. A live score is useful only when someone keeps it current.\n- **Prepare supporters at home.** Confirm whether they want score updates, live video or both. Send account instructions before tournament morning and test the browser link together.\n- **Practise once.** Try a short practice match so the scorer can find point entry, correction, timeout and end-set actions. Check that team names are easy to distinguish on the screen.\n\n### The night before\n\n- Charge the scoring phone and any separate broadcasting device. Pack the charging cable and a charged power bank.\n- Recheck the venue address, arrival time, parking instructions and first court assignment in the team’s chosen schedule source.\n- Confirm the person who will score and the backup contact. Keep the plan simple enough to explain in one message.\n- If video is planned, check team and event filming rules, device placement and who will run the camera. Score sharing and video broadcasting are separate tasks.\n\n### Before first serve\n\n- Check the latest court and start-time information.\n- Confirm the two team names and the match format supplied by the event. If you are on official scorer duty, use the required materials and trained workflow.\n- Check the phone battery and your connection. Local scoring and online sharing have different connection needs; test the actual sharing connection at the court.\n- Start the correct match. If using CourtsideView, use Scorekeeper for a score-focused match or the appropriate registered-account tools when player stats and connected features are needed.\n- Open the shared view on a second device before sending it to supporters. Check the team names, set and current score.\n\n### During the match\n\nRecord each confirmed point promptly. Compare the score with the court scoreboard at natural pauses and resolve discrepancies before they grow. If you miss a rally, ask for the confirmed score instead of guessing. Keep the scorer’s screen focused on the match; use another adult for messages or camera work when possible.\n\n### After the final point\n\nConfirm the final result before ending the match. Tell supporters that play has finished and check where the next court or start-time update will appear. CourtsideView FanView links expire 15 minutes after the game concludes, so treat them as live match links rather than permanent archives.\n\n",
+  "scorerSteps": [
+    {
+      "title": "1. Confirm your role",
+      "body": "Ask whether you are keeping a personal/family score or creating the official match record. Those responsibilities can involve different tools and training. A phone app should replace an event’s required scoresheet only when the event expressly accepts that system and workflow."
+    },
+    {
+      "title": "2. Learn the controls before play",
+      "body": "Run a short practice match. Find point entry, the available correction action, timeout entry and end-set controls. Practise returning to the current match so you do not need to explore while a rally is under way."
+    },
+    {
+      "title": "3. Set up the correct match",
+      "body": "Check both team names and the event’s match format. In CourtsideView, Scorekeeper is the simple score-focused starting point; a score-only match does not require building a roster. Use the fuller player-tracking workflow when that is the job you have agreed to do."
+    },
+    {
+      "title": "4. Make the score easy to check",
+      "body": "Keep the screen where you can see it without missing the court. Check that you can distinguish the teams. Compare your starting state with the court scoreboard before the first serve. Keep the phone powered for the whole match."
+    },
+    {
+      "title": "5. Enter confirmed points consistently",
+      "body": "Wait for the rally’s awarded result, then record the point for the correct team. If you immediately tap a point for the wrong team in CourtsideView, tap Undo, then add that point to the correct team. Check both scores before recording the next rally. At natural pauses, compare the score and set with the court scoreboard. If you missed a point, ask for the confirmed score instead of guessing."
+    },
+    {
+      "title": "6. Record pauses and close each set carefully",
+      "body": "Record timeouts when called and check which team called them. Confirm the set’s final score before using the end-set action. Follow the event’s format and the app’s available workflow; this guide does not replace the competition’s rulebook."
+    },
+    {
+      "title": "7. Share only after checking the view",
+      "body": "If you want supporters to follow, open FanView and test the shared view on another device. FanView requires internet and a registered account for viewing and broadcasting. Supporters can open the link in a browser without installing CourtsideView. Tell them whether the link has scores only or also has a live broadcaster; a score link does not guarantee video."
+    },
+    {
+      "title": "8. Confirm the finish",
+      "body": "Check the final score before concluding the game. Let supporters know the match has ended. FanView links expire 15 minutes after game conclusion; send the next match’s information when it is available."
+    }
+  ],
+  "reportQuestions": [
+    {
+      "title": "1. What do I need if my job is simply to keep the score?",
+      "body": "Start with the scoreboard task: team names, current points, set progress and timeouts. CourtsideView's public app listing describes a score-only match that does not require a roster. That gives a clear starting point when player-level tracking is outside your role.",
+      "limit": "A product description does not establish how long setup takes or how easily every user will learn it. We did not run timed usability trials.",
+      "source": "CourtsideView on the App Store",
+      "url": "https://apps.apple.com/us/app/courtsideview/id6766532771"
+    },
+    {
+      "title": "2. What changes when I want player statistics as well?",
+      "body": "Player tracking needs more context than a running total. CourtsideView's player-stats page describes a workflow that connects recorded player actions with rosters, the on-court lineup, rotations and the live score. Prepare the relevant player information before the match if this is the job you plan to do.",
+      "limit": "Recorded stats depend on what the person tracking the match enters. This report does not test stat accuracy or claim that an app can replace a trained observer.",
+      "source": "Volleyball player stats",
+      "url": "https://www.courtsideviewapp.com/volleyball-player-stats"
+    },
+    {
+      "title": "3. Can someone follow the score from another location?",
+      "body": "CourtsideView documents FanView as a shared web page for match scores and activity. This gives supporters a browser destination while the scorer continues recording the match. Share access details before first serve and explain who will keep the information current. FanView viewing and broadcasting require registered accounts; browser viewers do not need to install the app.",
+      "limit": "Live sharing needs an active match publisher and an internet connection. A link alone does not make the score update itself.",
+      "source": "Volleyball scorekeeping and FanView sharing",
+      "url": "https://www.courtsideviewapp.com/volleyball-score-keeper"
+    },
+    {
+      "title": "4. Is live-score sharing the same thing as broadcasting video?",
+      "body": "No. The public app listing describes live scores, activity and optional live video as separate FanView capabilities. Decide whether supporters need a scoreboard, a camera view, or both before assigning match-day responsibilities.",
+      "limit": "Optional video is not proof that every venue, device or connection will support a reliable broadcast. This report does not test streaming quality, recording or long-term video storage.",
+      "source": "CourtsideView on the App Store",
+      "url": "https://apps.apple.com/us/app/courtsideview/id6766532771"
+    },
+    {
+      "title": "5. What should I plan for when gym internet is unreliable?",
+      "body": "The public app listing says core scoring can continue in limited-connectivity conditions and that sharing is optional. Treat keeping your local score and delivering updates to remote supporters as separate responsibilities. Test the connection before the match and agree on a fallback communication plan.",
+      "limit": "This is a product-documentation review, not a network or offline recovery test. It does not guarantee that a particular phone, gym or reconnection sequence will work.",
+      "source": "CourtsideView on the App Store",
+      "url": "https://apps.apple.com/us/app/courtsideview/id6766532771"
+    },
+    {
+      "title": "6. Does a family scoring app replace the event's official scoresheet?",
+      "body": "Ask the event organizer which scoring process is accepted. The existing CourtsideView scoring guide distinguishes family scorekeeping from formal event scoring tools. A personal match record and the official event record can serve different purposes.",
+      "limit": "This report does not certify CourtsideView, or any other tool, for a league, school, region or tournament. The event's current requirements control the official record.",
+      "source": "Volleyball scorekeeping app guide",
+      "url": "https://www.courtsideviewapp.com/best-volleyball-scorekeeping-apps-2026"
+    },
+    {
+      "title": "7. What happens to a FanView link after the match?",
+      "body": "The public app listing states that the match's stable FanView link expires 15 minutes after the game concludes. Plan around it as a live match-sharing destination. Tell supporters when the match is starting rather than presenting the link as a permanent archive.",
+      "limit": "This report does not establish a permanent match-video or postgame archive. Review the current product's save and export options separately if those are part of your requirements.",
+      "source": "CourtsideView on the App Store",
+      "url": "https://apps.apple.com/us/app/courtsideview/id6766532771"
+    }
+  ]
+}

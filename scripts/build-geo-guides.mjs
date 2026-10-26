@@ -1,3 +1,4 @@
+import { parentSeasonSection, worksheetSection, renderWorkflowReport, writeScorerSection, reportPath, resourceCss } from "./matchday-resources.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -290,18 +291,18 @@ const pages = [
     sources: ["sportsengineVolleyball", "sportsengineApp", "leagueappsVolleyball", "teamsnap", "teamsnapParents", "sportsengineAes", "aes", "gamechangerVolleyball"]
   },
   {
-    modifiedDate: "2026-10-21",
-    modifiedDateHuman: "October 21, 2026",
+    modifiedDate: "2026-10-26",
+    modifiedDateHuman: "October 26, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "best-apps-for-volleyball-parents.html",
     slug: "/best-apps-for-volleyball-parents",
-    title: "Best Apps for Volleyball Parents 2026 | CourtsideView",
-    meta: "Compare the best apps for volleyball parents: live scores, schedules, team chat, streaming, scorekeeping, and player stats.",
-    ogTitle: "Best Apps for Volleyball Parents",
-    ogDescription: "A parent-first guide to volleyball apps for live scores, schedules, communication, streaming, and player stats.",
+    title: "2027 Volleyball Parent Match-Day Guide | CourtsideView",
+    meta: "Prepare for the 2027 volleyball season with a parent match-day checklist, scorekeeping plan, family sharing steps and app-selection guide.",
+    ogTitle: "2027 Volleyball Parent Match-Day Guide",
+    ogDescription: "Prepare for tournament day with a 2027 checklist for schedules, scoring, devices and family updates.",
     eyebrow: "Parent app guide",
-    h1: "Best Apps for Volleyball Parents in 2026",
-    intro: "Volleyball parents do not wake up hoping to manage another app. They want to know where to be, when the match starts, what the score is, and how their athlete is doing.",
+    h1: "Get ready for the 2027 volleyball season",
+    intro: "Plan the schedule, choose your scorer and help family follow from home. Start with the 2027 match-day checklist, then compare tools for the jobs your team needs.",
     panelTitle: "Quick answer",
     panelBullets: [
       "For live volleyball score and family follow-along: CourtsideView.",
@@ -331,14 +332,14 @@ const pages = [
     ],
     faq: [
       ["What is the best volleyball app for parents at tournaments?", "Consider CourtsideView when parents need live match scoring, a visible scoreboard, and FanView sharing. TeamSnap, SportsEngine, AES, and GameChanger can be useful depending on what the team or tournament uses for schedules and communication."],
-      ["Can family follow CourtsideView without installing the app?", "Yes. FanView creates a shared web link so family can follow live volleyball scores and match context from a browser."],
+      ["Can family follow CourtsideView without installing the app?", "Yes. FanView lets family follow live scores and match activity in a browser without installing CourtsideView. Viewing and broadcasting require registered accounts. Live sharing needs internet, and video needs someone broadcasting."],
       ["What if I only want to track score for myself?", "Use CourtsideView Scorekeeper. It is fast enough for simple point-by-point scoring, but you are not boxed into a score-only tool if your team later wants rosters, Courtside mode, player stats, FanView sharing."]
     ],
     sources: ["gamechangerVolleyball", "teamsnap", "teamsnapParents", "sportsengineApp", "sportsengineAes"]
   },
   {
-    modifiedDate: "2026-10-21",
-    modifiedDateHuman: "October 21, 2026",
+    modifiedDate: "2026-10-26",
+    modifiedDateHuman: "October 26, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "volleyball-app-comparison-study.html",
     slug: "/volleyball-app-comparison-study",
@@ -592,7 +593,7 @@ function renderPage(page) {
     <link rel="apple-touch-icon" href="/assets/courtsideview-app-icon.png">
     <link rel="canonical" href="${esc(url)}">
     <link rel="stylesheet" href="/geo-guides.css">
-    <link rel="stylesheet" href="/marketing-accessibility.css">
+    <link rel="stylesheet" href="/marketing-accessibility.css">${["/best-apps-for-volleyball-parents", "/volleyball-app-comparison-study"].includes(page.slug) ? `\n    <link rel="stylesheet" href="${resourceCss}">` : ""}
 
     ${jsonLd(articleSchema)}
     ${jsonLd(breadcrumbSchema)}
@@ -637,7 +638,7 @@ function renderPage(page) {
                 </aside>
             </section>
 
-            <section class="section section-cream">
+            ${page.slug === "/best-apps-for-volleyball-parents" ? parentSeasonSection() + "\n\n            " : ""}<section class="section section-cream">
                 <div class="container-wide">
                     <div class="section-copy">
                         <h2>${esc(page.tableTitle)}</h2>
@@ -648,7 +649,7 @@ function renderPage(page) {
                 </div>
             </section>
 
-            ${page.guideCards ? `<section class="section">
+            ${page.slug === "/volleyball-app-comparison-study" ? worksheetSection() + "\n\n            " : ""}${page.guideCards ? `<section class="section">
                 <div class="container-wide">
                     <div class="section-copy">
                         <h2>Find the guide for your match-day job.</h2>
@@ -723,3 +724,7 @@ for (const page of pages) {
   fs.writeFileSync(path.join(root, page.file), renderPage(page));
   console.log(`wrote ${page.file}`);
 }
+
+fs.mkdirSync(path.join(root, "resources"), { recursive: true });
+fs.writeFileSync(path.join(root, reportPath.slice(1)), renderWorkflowReport({ nav: renderNav(), footer: renderFooter() }));
+writeScorerSection(import.meta.url);
