@@ -2,6 +2,7 @@
 """Validate the bounded SEO candidate directly from Git, excluding local edits.
 
 Usage: python3 scripts/qa-marketing.py BASE CANDIDATE
+Use CANDIDATE=WORKTREE for pre-commit checks; release checks still use an exact commit.
 This is a marketing-content check, never an app/FanView release waiver.
 """
 import json
@@ -22,11 +23,14 @@ PAGES.add('resources/volleyball-match-day-workflows.html')
 ALLOWED |= {'scripts/matchday-resource-content.json', 'assets/website-20261026/resources.css', 'resources/2027-volleyball-match-day-checklist.txt', 'resources/volleyball-match-day-workflows.html', 'scripts/matchday-resources.mjs', 'scripts/build-comparison-worksheet.mjs', 'scripts/build-first-tournament-pdf.py', 'resources/hypothetical-workflow-examples.md', 'resources/volleyball-app-comparison-worksheet.csv', 'docs/growth-resources-release-2026-10-26.md', 'scripts/matchday-comparison-facts.json', 'resources/volleyball-app-comparison-worksheet.xlsx', 'resources/first-tournament-scorekeeper.pdf'}
 
 ALLOWED.add('resources/volleyball-workflow-observation-template.csv')
+ALLOWED |= {'scripts/discovery-content.mjs', 'scripts/discovery-product-facts.json', 'assets/website-20261026/discovery.css', 'docs/discovery-content-release-2026-10-26.md'}
 
 def git(*args):
     return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True)
 
 def read(path, revision=CANDIDATE):
+    if revision == 'WORKTREE':
+        return (ROOT / path).read_text()
     return git('show', revision + ':' + path)
 
 class Page(HTMLParser):
@@ -70,9 +74,9 @@ def check(ok, label):
     if not ok:
         errors.append(label)
 
-changed = set(git('diff', '--name-only', BASE, CANDIDATE).splitlines())
+changed = (set(git('diff', '--name-only', BASE).splitlines()) | set(git('ls-files', '--others', '--exclude-standard').splitlines())) if CANDIDATE == 'WORKTREE' else set(git('diff', '--name-only', BASE, CANDIDATE).splitlines())
 check(not changed - ALLOWED, 'Outside marketing scope: ' + ', '.join(sorted(changed - ALLOWED)))
-files = set(git('ls-tree', '-r', '--name-only', CANDIDATE).splitlines())
+files = set(git('ls-files', '--cached', '--others', '--exclude-standard').splitlines()) if CANDIDATE == 'WORKTREE' else set(git('ls-tree', '-r', '--name-only', CANDIDATE).splitlines())
 config = json.loads(read('vercel.json'))
 routes = {r['source']: r['destination'].lstrip('/') for r in config['rewrites'] if '(' not in r['source']}
 routes['/'] = 'index.html'
@@ -128,7 +132,7 @@ for file in sorted(PAGES):
 # The new CSS may only affect these static pages, never viewer/app surfaces.
 for file in sorted(files):
     if file.endswith('.html') and file not in PAGES:
-        check(not any(css in read(file) for css in ['marketing-accessibility.css', '/assets/website-20261023/brand-v3.css', '/assets/website-20261026/resources.css']), file + ': marketing CSS leaks outside scope')
+        check(not any(css in read(file) for css in ['marketing-accessibility.css', '/assets/website-20261023/brand-v3.css', '/assets/website-20261026/resources.css', '/assets/website-20261026/discovery.css']), file + ': marketing CSS leaks outside scope')
 check('Disallow: /\n' not in read('robots.txt'), 'robots blocks all crawling')
-print(json.dumps({'status': 'FAIL' if errors else 'PASS', 'base': git('rev-parse', BASE).strip(), 'candidate': git('rev-parse', CANDIDATE).strip(), 'pages': len(PAGES), 'json_ld_blocks': schemas, 'local_references': links, 'changed_files': sorted(changed), 'errors': errors}, indent=2))
+print(json.dumps({'status': 'FAIL' if errors else 'PASS', 'base': git('rev-parse', BASE).strip(), 'candidate': 'WORKTREE (not a release acceptance)' if CANDIDATE == 'WORKTREE' else git('rev-parse', CANDIDATE).strip(), 'pages': len(PAGES), 'json_ld_blocks': schemas, 'local_references': links, 'changed_files': sorted(changed), 'errors': errors}, indent=2))
 sys.exit(bool(errors))

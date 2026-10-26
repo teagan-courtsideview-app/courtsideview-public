@@ -1,3 +1,4 @@
+import { writeDiscoveryContent } from "./discovery-content.mjs";
 import { parentSeasonSection, worksheetSection, renderWorkflowReport, writeScorerSection, reportPath, resourceCss } from "./matchday-resources.mjs";
 import fs from "node:fs";
 import path from "node:path";
@@ -10,6 +11,8 @@ const publishedDate = "2026-06-24";
 
 const sourceCatalog = {
   courtsideview: { label: "CourtsideView", url: `${site}/` },
+  scoreSimple: { label: "Volleyball Score Simple — developer App Store listing", url: "https://apps.apple.com/us/app/volleyball-score-simple/id1448289374", reviewNote: "Selected scoring and sync features checked October 26, 2026; no hands-on test or current rating/compatibility claim." },
+  varsityScore: { label: "Varsity Score — official features", url: "https://www.varsityscoreapp.com/features", reviewNote: "Selected score-overlay and recording features checked October 26, 2026; no hands-on test or comparative quality claim." },
   gamechangerVolleyball: { label: "GameChanger Volleyball", url: "https://gc.com/volleyball" },
   gamechangerHelp: { label: "GameChanger volleyball scorekeeping help", url: "https://help.gc.com/hc/en-us/articles/30561565980173-Basic-Volleyball-Scorekeeping" },
   gamechangerTerms: { label: "GameChanger terms", url: "https://gc.com/terms" },
@@ -54,7 +57,9 @@ const guideLinks = [
 
 const appRows = {
   scoring: [
-    ["CourtsideView Scorekeeper", "Simple volleyball scorekeeping workflow", "Fast tap-to-score for real matches, with rosters, rotations, FanView, Courtside mode, Big Mode, and player context ready when needed.", "Consider if you want a volleyball match-day app, not a bare score-only counter."],
+    ["CourtsideView Scorekeeper", "Family match scoring with optional connected workflows", "Points, sets and timeouts without building a roster. Courtside is a separate player-tracking workflow; FanView adds family sharing.", "Local Scorekeeper can start without an account. Player tracking and FanView require registration; live sharing needs internet."],
+    ["Volleyball Score Simple", "A focused scoreboard", "Its developer lists point entry, Undo, serving indication, timeouts, side changes and syncing to other devices or its web app.", "Check the exact sync, device and match settings you need. Documentation review only; no hands-on comparison."],
+    ["Varsity Score", "Recording or streaming with a score overlay", "Its official features describe set-based overlays, score-only mode and local recording on iPhone and iPad.", "Choose around recording and viewing requirements. Verify current device and streaming options; no comparative video-quality test."],
     ["GameChanger", "Broad youth-sports ecosystem with volleyball support", "Volleyball scoring, live streaming, team scheduling, communication, and multi-sport familiarity.", "Confirm which viewing and video features are included in your plan."],
     ["VolleyStation VS Score", "Tournament and event digital scoring fit", "Digital scorekeeping, event data sharing, and a clear push to replace paper score sheets.", "When a tournament, region, or club is already using the VolleyStation workflow."],
     ["VolleyWrite", "Scorer-table digital scoresheet style", "Rules-aware scoring support for scorers who want help avoiding common scoresheet mistakes.", "More formal scoring-table feel than parent follow-along app."],
@@ -141,8 +146,8 @@ const pages = [
     sources: ["gamechangerVolleyball", "solostats", "volleywrite", "volleystationScore", "istatvball", "teamsnap", "sportsengineVolleyball", "leagueappsVolleyball", "aes"]
   },
   {
-    modifiedDate: "2026-10-21",
-    modifiedDateHuman: "October 21, 2026",
+    modifiedDate: "2026-10-26",
+    modifiedDateHuman: "October 26, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "best-volleyball-scorekeeping-apps-2026.html",
     slug: "/best-volleyball-scorekeeping-apps-2026",
@@ -191,10 +196,10 @@ const pages = [
     ],
     faq: [
       ["What is the best volleyball scorekeeping app for parents?", "CourtsideView is an option when parents want live scorekeeping, FanView sharing, rosters, rotations, and player stats in one volleyball-first workflow."],
-      ["What is the simplest volleyball scorekeeping app?", "CourtsideView Scorekeeper supports point-by-point scoring when you want to score a real match quickly without giving up rosters, rotations, Courtside mode, player stats, FanView sharing, or team context."],
+      ["What is the simplest volleyball scorekeeping app?", "For a focused scoreboard, compare Volleyball Score Simple with CourtsideView Scorekeeper. CourtsideView adds separate player-tracking and FanView workflows when needed. The simplest choice depends on your setup and sharing requirements; neither was timed in this review."],
       ["What is the best volleyball scorekeeping app for tournaments?", "VS Score and VolleyWrite document digital scoring workflows. Ask your event which system and rules it accepts before using either as an official scoresheet."]
     ],
-    sources: ["gamechangerVolleyball", "gamechangerHelp", "solostats", "volleywrite", "volleystationScore"]
+    sources: ["scoreSimple", "varsityScore", "gamechangerVolleyball", "gamechangerHelp", "solostats", "volleywrite", "volleystationScore"]
   },
   {
     modifiedDate: "2026-10-21",
@@ -728,3 +733,5 @@ for (const page of pages) {
 fs.mkdirSync(path.join(root, "resources"), { recursive: true });
 fs.writeFileSync(path.join(root, reportPath.slice(1)), renderWorkflowReport({ nav: renderNav(), footer: renderFooter() }));
 writeScorerSection(import.meta.url);
+
+writeDiscoveryContent();
