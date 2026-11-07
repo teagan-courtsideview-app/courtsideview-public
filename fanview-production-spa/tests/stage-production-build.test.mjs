@@ -84,3 +84,21 @@ test("large Minimal scales inward at every corner without changing center or sca
   assert.ok(!css.includes('data-scoreboard-position="bottom-center"'));
   assert.ok(!css.includes("scale("));
 });
+
+test("LIVE and Chat opaque label backgrounds retain white-text contrast margin", () => {
+  const css = readFileSync(path.join(actualPackage, "scripts/reflow-corrections.css"), "utf8");
+  const contrast = (hex) => {
+    const rgb = hex.match(/../g).map((value) => parseInt(value, 16) / 255);
+    const linear = rgb.map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+    return 1.05 / (linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722 + 0.05);
+  };
+  for (const selector of [".fanview-app .viewer-header .live-pill", ".fanview-app .community-launcher"]) {
+    const rule = css.split(`${selector} { background-color: #`)[1];
+    assert.ok(rule, `Missing bounded contrast rule: ${selector}`);
+    const hex = rule.slice(0, 6);
+    assert.match(hex, /^[a-f\d]{6}$/);
+    assert.ok(contrast(hex) >= 4.7, `${selector} contrast ${contrast(hex)} must leave margin above 4.5:1`);
+  }
+  assert.ok(!css.includes("--fanview-live-red:"));
+  assert.ok(!css.includes("--fanview-pink-500:"));
+});

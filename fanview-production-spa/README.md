@@ -66,7 +66,9 @@ references the newly built application JS, approved unchanged CSS, and a separat
 content-hashed `scripts/reflow-corrections.css` stylesheet. That bounded correction
 fixes observed 200% reflow team-name/history clipping, timeout overflow, and
 undersized Display position targets, plus Full Score clipping in compact
-landscape. It does not rebuild the stale development styles or change ordinary
+landscape. It also fixes measured LIVE/Chat white-text contrast by darkening
+only those two element backgrounds, without changing global palette variables.
+It does not rebuild the stale development styles or change ordinary
 viewport presentation. Staging tests verify baseline bytes, exact correction
 bytes and ordering, and fail before mutation when required inputs are missing.
 
