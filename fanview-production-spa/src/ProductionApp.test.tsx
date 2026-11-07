@@ -13,6 +13,7 @@ import { formatViewerCount, ProductionApp } from "./ProductionApp";
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   window.localStorage.clear();
   window.history.replaceState({}, "", "/");
 });
@@ -443,5 +444,74 @@ describe("Production FanView lifecycle", () => {
     expect(await screen.findByText("18")).toBeVisible();
     view.unmount();
     expect(unsubscribe).toHaveBeenCalledOnce();
+  });
+});
+
+
+describe("public link access and account failure isolation", () => {
+  it("shows missing-link recovery without loading data or requesting an account", () => {
+    const loadSnapshot = vi.fn();
+    render(<ProductionApp communityAdapter={community} communityEnabled={false} fanViewAdapter={{ loadSnapshot }} liveWorkerUrl="https://worker.example" shareId={null} />);
+    expect(screen.getByText("FanView unavailable")).toBeVisible();
+    expect(loadSnapshot).not.toHaveBeenCalled();
+    expect(screen.queryByText(/create account|sign in/i)).not.toBeInTheDocument();
+  });
+
+  it("stops an already loaded viewer when its public link is revoked or expired", async () => {
+    let onSnapshot!: (next: FanViewSnapshot) => void;
+    let onError!: (error: unknown) => void;
+    const unsubscribe = vi.fn();
+    renderApp({
+      async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); },
+      subscribe(_shareId, next, error) { onSnapshot = next; onError = error; return unsubscribe; },
+    });
+    await screen.findByText("18");
+    act(() => onError(new FanViewUnavailableError()));
+    expect(screen.getByText("FanView unavailable")).toBeVisible();
+    expect(screen.queryByTestId("fanview-production-app")).not.toBeInTheDocument();
+    expect(unsubscribe).toHaveBeenCalled();
+    act(() => onSnapshot(snapshot("2026-07-25T20:02:00.000Z", 19)));
+    expect(screen.getByText("FanView unavailable")).toBeVisible();
+    expect(screen.queryByText("19")).not.toBeInTheDocument();
+  });
+
+  it("keeps a valid guest match visible when optional account preferences fail", async () => {
+    const preferences = { load: vi.fn().mockRejectedValue(new Error("expired account")), save: vi.fn().mockRejectedValue(new Error("invalid account")) };
+    render(<ProductionApp communityAdapter={community} communityEnabled={false} displayPreferenceAdapter={preferences} fanViewAdapter={{ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } }} liveWorkerUrl="https://worker.example" shareId="match-123" />);
+    expect(await screen.findByText("18")).toBeVisible();
+    await waitFor(() => expect(preferences.save).toHaveBeenCalled());
+    expect(screen.getByTestId("fanview-production-app")).toBeVisible();
+    expect(screen.queryByText(/create account|sign in/i)).not.toBeInTheDocument();
+  });
+
+  it("expires at the 15-minute boundary and cannot be revived by later score updates", async () => {
+    vi.useFakeTimers();
+    const endedAt = Date.parse("2026-11-07T08:00:00.000Z");
+    const expiresAt = new Date(endedAt + 15 * 60_000).toISOString();
+    vi.setSystemTime(endedAt + 15 * 60_000 - 1);
+    const complete = { ...snapshot("2026-11-07T08:00:00.000Z", 25), expiresAt };
+    let onSnapshot!: (next: FanViewSnapshot) => void;
+    renderApp({
+      async loadSnapshot() { return complete; },
+      subscribe(_shareId, next) { onSnapshot = next; return () => {}; },
+    });
+    await act(async () => {});
+    expect(screen.getByTestId("fanview-production-app")).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+    expect(screen.getByText("This FanView has ended")).toBeVisible();
+    act(() => onSnapshot({ ...complete, viewerCount: 15 }));
+    expect(screen.getByText("This FanView has ended")).toBeVisible();
+    expect(screen.queryByTestId("fanview-production-app")).not.toBeInTheDocument();
+  });
+
+  it("does not mount media for an already expired snapshot", async () => {
+    renderApp({
+      async loadSnapshot() {
+        return { ...snapshot("2026-07-25T20:01:00.000Z", 25), expiresAt: new Date(0).toISOString(), media: { kind: "cloudflare-realtime", alt: "Expired broadcast" } };
+      },
+    });
+    expect(await screen.findByText("This FanView has ended")).toBeVisible();
+    expect(screen.queryByLabelText("Video controls")).not.toBeInTheDocument();
+    expect(screen.queryByText(/create account|sign in/i)).not.toBeInTheDocument();
   });
 });

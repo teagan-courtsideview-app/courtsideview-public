@@ -1,4 +1,4 @@
-import { ViewerAuthenticationRequired, viewerFetch } from "./viewerFetch";
+import { viewerFetch } from "./viewerFetch";
 import {
   ArrowsIn,
   ArrowsOut,
@@ -641,17 +641,33 @@ function CloudflareVideo({
     let peer: RTCPeerConnection | null = null;
     let retry: number | undefined;
     let watchdog: number | undefined;
+    let disposeCurrent: (() => void) | undefined;
 
     const connect = async () => {
       if (!active || !videoRef.current) return;
       window.clearTimeout(retry);
       window.clearInterval(watchdog);
-      peer?.close();
+      disposeCurrent?.();
       const candidate = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.cloudflare.com:3478" }],
         bundlePolicy: "max-bundle",
       });
       peer = candidate;
+      const controller = new AbortController();
+      let disposed = false;
+      let sessionUrl: string | null = null;
+      let sessionReleased = false;
+      const isCurrent = () => active && !disposed && peer === candidate;
+      const dispose = () => {
+        disposed = true;
+        controller.abort();
+        candidate.close();
+        if (sessionUrl && !sessionReleased) {
+          sessionReleased = true;
+          void viewerFetch(sessionUrl, { method: "DELETE", keepalive: true }).catch(() => {});
+        }
+      };
+      disposeCurrent = dispose;
       const stream = new MediaStream();
       videoRef.current.srcObject = stream;
       setStatus("Waiting for broadcaster");
@@ -659,9 +675,9 @@ function CloudflareVideo({
       let lastProgressAt = Date.now();
 
       const reconnect = () => {
-        if (!active || peer !== candidate) return;
+        if (!isCurrent()) return;
         window.clearInterval(watchdog);
-        candidate.close();
+        dispose();
         setStatus("Reconnecting video");
         window.clearTimeout(retry);
         retry = window.setTimeout(
@@ -670,6 +686,7 @@ function CloudflareVideo({
         );
       };
       candidate.addEventListener("track", ({ track }) => {
+        if (!isCurrent()) return;
         stream.addTrack(track);
         setStatus("");
         lastProgressAt = Date.now();
@@ -677,6 +694,7 @@ function CloudflareVideo({
         track.addEventListener("ended", reconnect, { once: true });
       });
       candidate.addEventListener("connectionstatechange", () => {
+        if (!isCurrent()) return;
         if (candidate.connectionState === "connected") setStatus("");
         if (
           candidate.connectionState === "failed" ||
@@ -689,28 +707,40 @@ function CloudflareVideo({
       try {
         const response = await viewerFetch(
           `${liveWorkerUrl}/play/${encodeURIComponent(shareId)}`,
-          { method: "POST", headers: { "content-type": "application/sdp" } },
+          { method: "POST", headers: { "content-type": "application/sdp" }, signal: controller.signal },
         );
         if (!response.ok) throw new Error("viewer unavailable");
         const location = response.headers.get("location");
         if (!location) throw new Error("viewer session unavailable");
-        await candidate.setRemoteDescription({
-          type: "offer",
-          sdp: await response.text(),
-        });
+        const locationUrl = new URL(location, liveWorkerUrl);
+        const expectedPath = `/play/${encodeURIComponent(shareId)}/`;
+        if (locationUrl.origin !== new URL(liveWorkerUrl).origin ||
+            !locationUrl.pathname.startsWith(expectedPath) ||
+            !/^[A-Za-z0-9_-]+$/.test(locationUrl.pathname.slice(expectedPath.length)) ||
+            locationUrl.search || locationUrl.hash) throw new Error("invalid viewer session");
+        sessionUrl = locationUrl.href;
+        if (!isCurrent()) { dispose(); return; }
+        const offer = await response.text();
+        if (!isCurrent()) { dispose(); return; }
+        await candidate.setRemoteDescription({ type: "offer", sdp: offer });
+        if (!isCurrent()) { dispose(); return; }
         const answer = await candidate.createAnswer();
+        if (!isCurrent()) { dispose(); return; }
         await candidate.setLocalDescription(answer);
-        const negotiated = await viewerFetch(`${liveWorkerUrl}${location}`, {
+        if (!isCurrent()) { dispose(); return; }
+        const negotiated = await viewerFetch(sessionUrl, {
           method: "PATCH",
           headers: { "content-type": "application/sdp" },
           body: answer.sdp ?? "",
+          signal: controller.signal,
         });
+        if (!isCurrent()) { dispose(); return; }
         if (!negotiated.ok) throw new Error("viewer negotiation failed");
         setStatus("Live now");
         void resumeVideo();
         watchdog = window.setInterval(() => {
           const video = videoRef.current;
-          if (!active || !video || peer !== candidate) return;
+          if (!isCurrent() || !video) return;
           if (video.currentTime > lastCurrentTime + 0.05) {
             lastCurrentTime = video.currentTime;
             lastProgressAt = Date.now();
@@ -720,13 +750,9 @@ function CloudflareVideo({
             reconnect();
           }
         }, VIDEO_STALL_CHECK_MS);
-      } catch (error) {
-        candidate.close();
-        if (error instanceof ViewerAuthenticationRequired) {
-          setStatus("Sign in again to watch this match");
-          return;
-        }
-        reconnect();
+      } catch {
+        if (isCurrent()) reconnect();
+        else dispose();
       }
     };
 
@@ -735,7 +761,7 @@ function CloudflareVideo({
       active = false;
       window.clearTimeout(retry);
       window.clearInterval(watchdog);
-      peer?.close();
+      disposeCurrent?.();
       if (videoRef.current) videoRef.current.srcObject = null;
     };
   }, [liveWorkerUrl, resumeVideo, shareId, visualQa]);

@@ -30,3 +30,40 @@ live match passes video start, score/state events, reconnect, fullscreen,
 presence, completion, exact 15-minute expiry, Team Hub return, and Community
 failure-isolation checks. Rollback remains a single Vercel rewrite back to
 `fanview.html`.
+
+## Guest-viewing hotfix and presentation source drift (2026-11-07)
+
+Shared-link viewing is public. Match RPC/realtime uses a separate, nonpersistent
+Supabase client; viewer Worker requests carry neither account bearer tokens nor
+cookies. Optional account preferences and Community retain the account client.
+The server remains authoritative for publication and link expiry.
+
+**Do not stage CSS from the current development sources.** The verified deployed
+release `9f8ed8d92f52132ced70f3c540326e3f937057ea` contains approved typography,
+materials, and Community surface styling missing from the committed style
+sources. Ordinary `npm run build` intentionally stops at staging if its CSS
+hash differs. The development preview therefore is not presentation parity QA.
+Future style changes require reconciling those source files first.
+
+For this zero-style-change guest-viewing fix, use the explicit reproducible path:
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run test:staging
+npm run build:guest-hotfix
+```
+
+Install `../fanview-spa` dependencies with `npm ci` as well before typechecking
+or building. This command builds new application JavaScript, then preserves the
+exact verified deployed stylesheet and its font/icon dependencies. The
+`./scripts/approved-presentation.json` manifest records source commit and SHA-256
+hashes. Every baseline asset is checked before staging modifies any files;
+missing/mismatched inputs cause failure. The staged `../fanview-react.html`
+references only the newly built application JS and approved unchanged CSS.
+
+The missing `ApprovedBrandIcon` source was restored from function `K1` in that
+same release's `index-B4FcvEYS.js`; the original SVG sprite is byte-identical.
+DOM and sprite-hash tests pin this recovery without redesigning the icons.
+See `../docs/fanview-guest-viewing-2026-11-07.md` for scope and verification.

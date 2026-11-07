@@ -545,6 +545,9 @@ export function ProductionApp({
         setScoreboardPosition(preference.position);
         setScoreboardAutomatic(preference.automatic);
       })
+      .catch(() => {
+        // Optional account preferences must never interrupt public viewing.
+      })
       .finally(() => {
         if (active) setAccountPreferenceHydrated(true);
       });
@@ -563,6 +566,8 @@ export function ProductionApp({
         layout: scoreboardLayout,
         position: scoreboardPosition,
         size: scoreboardSize,
+      }).catch(() => {
+        // Local display preferences remain usable when sign-in is unavailable.
       });
     }, 800);
     return () => window.clearTimeout(timer);
@@ -640,11 +645,19 @@ export function ProductionApp({
       newestRevision.current = nextRevision;
       hasReadySnapshot.current = true;
       setSnapshot(next);
-      setScreen("ready");
+      setScreen(
+        next.expiresAt && Date.now() >= Date.parse(next.expiresAt)
+          ? "expired"
+          : "ready",
+      );
     };
     const handleError = (error: unknown) => {
       if (abortController.signal.aborted) return;
-      if (error instanceof FanViewUnavailableError && !hasReadySnapshot.current) {
+      if (error instanceof FanViewUnavailableError) {
+        // Definitive revocation/expiry must stop an already-playing match too.
+        abortController.abort();
+        unsubscribe();
+        setSnapshot(null);
         setScreen("unavailable");
       } else if (!hasReadySnapshot.current) {
         setScreen("error");
@@ -667,14 +680,16 @@ export function ProductionApp({
 
   useEffect(() => {
     if (!snapshot?.expiresAt) return;
+    const expiresAt = Date.parse(snapshot.expiresAt);
+    if (!Number.isFinite(expiresAt)) return;
     const check = () => {
-      if (Date.now() >= Date.parse(snapshot.expiresAt ?? "")) {
+      if (Date.now() >= expiresAt) {
         setScreen("expired");
       }
     };
     check();
-    const timer = window.setInterval(check, 30_000);
-    return () => window.clearInterval(timer);
+    const timer = window.setTimeout(check, Math.max(0, expiresAt - Date.now()));
+    return () => window.clearTimeout(timer);
   }, [snapshot?.expiresAt]);
 
   if (!shareId || screen === "unavailable") {

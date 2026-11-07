@@ -33,11 +33,11 @@ it('keeps the viewer mounted while a normal token refresh validates',async()=>{
  await act(async()=>authEvent('TOKEN_REFRESHED'));
  expect(screen.getByText('Private match')).toBeInTheDocument();
 });
-it('worker 401 removes the viewer and offers sign-in recovery',async()=>{
+it('public Worker errors cannot invalidate a separately verified account',async()=>{
  const c=client(verified);render(<ViewerAccountGate client={c as unknown as SupabaseClient}>Private match</ViewerAccountGate>);
- await screen.findByText('Private match');configureViewerRequests(async()=>'expired','https://worker.example');
+ await screen.findByText('Private match');configureViewerRequests('https://worker.example');
  vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('',{status:401})));
  await act(async()=>{await viewerFetch('https://worker.example/play/match').catch(()=>{});});
- expect(screen.queryByText('Private match')).not.toBeInTheDocument();
- expect(screen.getByText('Sign in again')).toBeInTheDocument();
+ expect(screen.getByText('Private match')).toBeInTheDocument();
+ expect(screen.queryByText('Sign in again')).not.toBeInTheDocument();
 });

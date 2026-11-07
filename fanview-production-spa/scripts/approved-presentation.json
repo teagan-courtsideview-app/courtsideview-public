@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "9f8ed8d92f52132ced70f3c540326e3f937057ea",
+  "sourceHtml": "fanview-react.html",
+  "stylesheet": "index-C5YhFcMd.css",
+  "files": [
+    {
+      "file": "index-C5YhFcMd.css",
+      "sha256": "8e7c4595f83b9c07f498935e3a2ca1b904a38c07e1dde8127eb85953b623b1fe"
+    },
+    {
+      "file": "PlusJakartaSans-Regular-C2UfmnDu.ttf",
+      "sha256": "ca6ef907028d1d1808870967d7b7ddcf68c0f33552d15d7f0c6c7d6ae97e7571"
+    },
+    {
+      "file": "PlusJakartaSans-Medium-C2x3RLjU.ttf",
+      "sha256": "00ec347136c7f6d904fa8c54decba898cc2c74c17388e62fa4388433de8be226"
+    },
+    {
+      "file": "PlusJakartaSans-SemiBold-BAz3r7B9.ttf",
+      "sha256": "bbaa1d21ce4839070547b1cc06d5db2a56f520abe90278d971665b3f6dca6851"
+    },
+    {
+      "file": "team-section-CMCCqbvK.svg",
+      "sha256": "d851022a5d055f5250ba3c689e32c3fac512ecf5e5a438ac2ad575619d483902"
+    },
+    {
+      "file": "approved-icons-B8z14ALv.svg",
+      "sha256": "4b41ad43fb11a8acddfeb968284f9b0ca068bee34f71ee4a264a6066329a0b4e"
+    }
+  ]
+}

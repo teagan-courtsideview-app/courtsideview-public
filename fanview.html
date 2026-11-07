@@ -2296,7 +2296,7 @@
           // The heartbeat TTL will clean this up if the browser drops pagehide.
         }
       });
-      // Legacy watch links enter the same authenticated viewer as current links.
+      // Legacy watch links enter the same public viewer as current links.
       const legacyShareId = getShareId();
       if (legacyShareId && /^[A-Za-z0-9_-]{1,200}$/.test(legacyShareId)) {
         const displayParams = new URLSearchParams();

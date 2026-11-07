@@ -4,7 +4,6 @@ import "./viewer-account.css";
 import cvMark from "./assets/approved-cv-mark.svg";
 import googleMark from "./assets/google-sign-in-mark.png";
 import appleMark from "./assets/apple-sign-in-logo-white.png";
-import { onViewerAuthenticationRequired } from "./viewerFetch";
 
 export function verifiedViewer(user: User | null): boolean {
   return !!user && user.is_anonymous !== true && !!user.email_confirmed_at;
@@ -54,10 +53,6 @@ export function ViewerAccountGate({ client, children }: { client: SupabaseClient
   useEffect(() => {
     let alive = true;
     void refresh();
-    const stopAuthRequired = onViewerAuthenticationRequired(() => {
-      ++generation.current;
-      setStatus("expired");
-    });
     const { data } = client.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
         ++generation.current; setStatus("guest"); setMode("signin"); return;
@@ -65,7 +60,7 @@ export function ViewerAccountGate({ client, children }: { client: SupabaseClient
       // Refresh identity without unmounting a playing match for normal token renewal.
       queueMicrotask(() => { if (alive) void refresh(event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION"); });
     });
-    return () => { alive = false; ++generation.current; stopAuthRequired(); data.subscription.unsubscribe(); };
+    return () => { alive = false; ++generation.current; data.subscription.unsubscribe(); };
   }, [client]);
   const displayParams = new URLSearchParams();
   for (const key of ['scoreboard','scoreboardSize','display','scoreSize','scoreboardLayout','scoreLayout','layout','scoreboardPosition','position','scoreboardAutomatic','automatic']) {
