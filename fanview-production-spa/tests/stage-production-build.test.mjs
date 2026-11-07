@@ -74,3 +74,13 @@ test("stages exact bounded correction after baseline stylesheet", () => {
   const html = readFileSync(path.join(f.root, "fanview-react.html"), "utf8");
   assert.ok(html.indexOf(name) > html.indexOf(manifest.stylesheet));
 });
+
+test("large Minimal scales inward at every corner without changing center or scale", () => {
+  const css = readFileSync(path.join(actualPackage, "scripts/reflow-corrections.css"), "utf8");
+  for (const corner of ["top-left", "top-right", "bottom-left", "bottom-right"]) {
+    const selector = `.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="${corner}"] .score-bug`;
+    assert.ok(css.includes(`${selector} { transform-origin: ${corner.replace("-", " ")}; }`));
+  }
+  assert.ok(!css.includes('data-scoreboard-position="bottom-center"'));
+  assert.ok(!css.includes("scale("));
+});

@@ -39,3 +39,8 @@
     top: max(64px, calc(env(safe-area-inset-top) + 60px));
   }
 }
+/* Large Minimal grows inward from the selected corner, not past its safe inset. */
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="top-left"] .score-bug { transform-origin: top left; }
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="top-right"] .score-bug { transform-origin: top right; }
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="bottom-left"] .score-bug { transform-origin: bottom left; }
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="bottom-right"] .score-bug { transform-origin: bottom right; }
