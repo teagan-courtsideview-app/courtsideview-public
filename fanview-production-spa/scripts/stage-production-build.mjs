@@ -41,7 +41,7 @@ export function stageProductionBuild({
   // Source styles lag the verified deployed presentation. Normal staging must
   // fail before deleting/replacing any deployed assets, rather than restyle it.
   if (!preserveApprovedPresentation && sha256(readFileSync(path.join(dist, "assets", builtCssName))) !== approvedCss.sha256) {
-    throw new Error("Production CSS differs from the approved release. Reconcile style sources, or use npm run build:guest-hotfix for the explicit zero-style-change guest-viewing fix.");
+    throw new Error("Production CSS differs from the approved release. Reconcile style sources, or use npm run build:guest-hotfix for the explicit baseline-preserving guest-viewing fix.");
   }
 
   const preserved = new Map();
@@ -65,6 +65,12 @@ export function stageProductionBuild({
     html = html.replace(builtCssUrl, `${assetPrefix}${manifest.stylesheet}`);
   }
 
+  // Keep stale development styles out; append only the bounded QA correction.
+  const correction = readFileSync(path.join(packageRoot, "scripts/reflow-corrections.css"));
+  const correctionName = `reflow-${sha256(correction).slice(0, 16)}.css`;
+  const currentLink = cssLinks[0][0].replace(builtCssUrl, preserveApprovedPresentation ? `${assetPrefix}${manifest.stylesheet}` : builtCssUrl);
+  html = html.replace(currentLink, `${currentLink}\n<link rel="stylesheet" href="${assetPrefix}${correctionName}">`);
+
   // Validate before replacing anything. Keep old application JS out of the
   // staged hotfix; only the newly built JS and the verified presentation ship.
   rmSync(stagedAssets, { recursive: true, force: true });
@@ -75,8 +81,9 @@ export function stageProductionBuild({
     cpSync(path.join(dist, "assets", entry), path.join(destination, entry), { recursive: true });
   }
   for (const [name, bytes] of preserved) writeFileSync(path.join(destination, name), bytes);
+  writeFileSync(path.join(destination, correctionName), correction);
   writeFileSync(stagedIndex, html);
-  console.log(`Staged FanView production SPA${preserveApprovedPresentation ? " with verified unchanged presentation" : ""} at fanview-react.html.`);
+  console.log(`Staged FanView production SPA${preserveApprovedPresentation ? " with verified baseline and bounded reflow corrections" : ""} at fanview-react.html.`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

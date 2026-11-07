@@ -20,6 +20,7 @@ function fixture() {
   mkdirSync(path.join(packageRoot, "dist/assets"), { recursive: true });
   mkdirSync(path.join(packageRoot, "scripts"), { recursive: true });
   for (const { file } of manifest.files) cpSync(path.resolve(actualPackage, "../assets/fanview-production/assets", file), path.join(assets, file));
+  cpSync(path.join(actualPackage, "scripts/reflow-corrections.css"), path.join(packageRoot, "scripts/reflow-corrections.css"));
   writeFileSync(path.join(assets, "old-app.js"), "old gate");
   writeFileSync(path.join(packageRoot, "scripts/approved-presentation.json"), JSON.stringify(manifest));
   writeFileSync(path.join(packageRoot, "dist/index.html"), '<html><script type="module" src="/assets/fanview-production/assets/new-guest.js"></script><link rel="stylesheet" href="/assets/fanview-production/assets/drifted.css"></html>');
@@ -28,14 +29,14 @@ function fixture() {
   return { root, packageRoot, assets };
 }
 
-test("stages only rebuilt JS plus exact approved CSS and dependencies", () => {
+test("stages rebuilt JS, exact approved assets, and bounded correction", () => {
   const f = fixture();
   stageProductionBuild({ packageRoot: f.packageRoot, preserveApprovedPresentation: true });
   const html = readFileSync(path.join(f.root, "fanview-react.html"), "utf8");
   assert.match(html, /new-guest\.js/);
   assert.ok(html.includes(manifest.stylesheet));
   assert.ok(!html.includes("drifted.css"));
-  assert.deepEqual(readdirSync(f.assets).sort(), [...manifest.files.map(({ file }) => file), "new-guest.js"].sort());
+  assert.deepEqual(readdirSync(f.assets).sort(), [...manifest.files.map(({ file }) => file), "new-guest.js", `reflow-${createHash("sha256").update(readFileSync(path.join(actualPackage, "scripts/reflow-corrections.css"))).digest("hex").slice(0, 16)}.css`].sort());
   for (const { file, sha256 } of manifest.files) assert.equal(createHash("sha256").update(readFileSync(path.join(f.assets, file))).digest("hex"), sha256);
 });
 
@@ -57,4 +58,19 @@ test("mismatched approved stylesheet blocks hotfix staging without deleting exis
   writeFileSync(path.join(f.assets, manifest.stylesheet), "unexpected style change");
   assert.throws(() => stageProductionBuild({ packageRoot: f.packageRoot, preserveApprovedPresentation: true }), /Approved presentation hash mismatch/);
   assert.ok(existsSync(path.join(f.assets, "old-app.js")));
+});
+
+test("missing bounded correction fails before modifying staged assets", () => {
+  const f = fixture();
+  rmSync(path.join(f.packageRoot, "scripts/reflow-corrections.css"));
+  assert.throws(() => stageProductionBuild({ packageRoot: f.packageRoot, preserveApprovedPresentation: true }), /ENOENT/);
+  assert.ok(existsSync(path.join(f.assets, "old-app.js")));
+});
+test("stages exact bounded correction after baseline stylesheet", () => {
+  const f = fixture();
+  stageProductionBuild({ packageRoot: f.packageRoot, preserveApprovedPresentation: true });
+  const name = readdirSync(f.assets).find((name) => name.startsWith("reflow-"));
+  assert.deepEqual(readFileSync(path.join(f.assets, name)), readFileSync(path.join(actualPackage, "scripts/reflow-corrections.css")));
+  const html = readFileSync(path.join(f.root, "fanview-react.html"), "utf8");
+  assert.ok(html.indexOf(name) > html.indexOf(manifest.stylesheet));
 });

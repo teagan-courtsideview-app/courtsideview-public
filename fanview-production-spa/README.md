@@ -43,9 +43,10 @@ release `9f8ed8d92f52132ced70f3c540326e3f937057ea` contains approved typography,
 materials, and Community surface styling missing from the committed style
 sources. Ordinary `npm run build` intentionally stops at staging if its CSS
 hash differs. The development preview therefore is not presentation parity QA.
-Future style changes require reconciling those source files first.
+General style changes require reconciling those source files first. The bounded
+QA correction described below is maintained separately to avoid that drift.
 
-For this zero-style-change guest-viewing fix, use the explicit reproducible path:
+For this guest-viewing fix, use the explicit reproducible path:
 
 ```bash
 npm ci
@@ -61,7 +62,13 @@ exact verified deployed stylesheet and its font/icon dependencies. The
 `./scripts/approved-presentation.json` manifest records source commit and SHA-256
 hashes. Every baseline asset is checked before staging modifies any files;
 missing/mismatched inputs cause failure. The staged `../fanview-react.html`
-references only the newly built application JS and approved unchanged CSS.
+references the newly built application JS, approved unchanged CSS, and a separate
+content-hashed `scripts/reflow-corrections.css` stylesheet. That bounded correction
+fixes observed 200% reflow team-name/history clipping, timeout overflow, and
+undersized Display position targets, plus Full Score clipping in compact
+landscape. It does not rebuild the stale development styles or change ordinary
+viewport presentation. Staging tests verify baseline bytes, exact correction
+bytes and ordering, and fail before mutation when required inputs are missing.
 
 The missing `ApprovedBrandIcon` source was restored from function `K1` in that
 same release's `index-B4FcvEYS.js`; the original SVG sprite is byte-identical.

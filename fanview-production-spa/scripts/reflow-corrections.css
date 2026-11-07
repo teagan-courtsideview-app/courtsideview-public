@@ -1,0 +1,30 @@
+/* Bounded QA corrections; approved baseline CSS remains byte-identical. */
+@media (max-width: 340px) {
+  .scoreboard-display-menu__positions { grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); }
+  .scoreboard-display-menu__positions button { min-width: 44px; min-height: 44px; }
+  .score-bug__timeout, .score-bug--score-bar .score-bug__timeout {
+    box-sizing: border-box; min-width: 0; max-width: 100%; padding: 4px 8px;
+  }
+  .score-bug__timeout strong { min-width: 0; overflow-wrap: anywhere; }
+  .score-bug__bar-card { grid-template-columns: minmax(0, 1fr); }
+  .score-bug__bar-team { min-height: 38px; }
+  .score-bug__bar-team span, .score-bug__full-team > strong { white-space: normal; overflow-wrap: anywhere; }
+  .score-bug__bar-center { grid-row: 3; border: 0; border-top: 1px solid rgba(255,255,255,.22); padding: 4px; }
+  .score-bug__history--bar { flex-wrap: wrap; gap: 4px 0; }
+  .score-bug__full-team {
+    height: auto; min-height: 54px; grid-template-columns: 6px minmax(0, 1fr) auto;
+    gap: 4px 6px; padding: 6px;
+  }
+  .score-bug__full-team > b { grid-column: 3; grid-row: 1; }
+  .score-bug__full-team .score-bug__set-dots { grid-column: 2; }
+  .score-bug__history--full { grid-template-columns: repeat(auto-fit, minmax(82px, 1fr)); }
+  .score-bug__history--full .score-bug__history-set { min-height: 28px; gap: 4px; }
+  .score-bug__history--full .score-bug__history-label { margin-right: 0; }
+}
+/* Preserve Full Score content within its anchor between header and control dock. */
+@media (orientation: landscape) and (max-height: 360px) {
+  .score-bug__full-team { height: 38px; }
+  .score-bug__full-meta { min-height: 28px; }
+  .score-bug__history--full { min-height: 28px; }
+  .score-bug--full-score .score-bug__timeout { min-height: 32px; margin-bottom: 4px; }
+}
