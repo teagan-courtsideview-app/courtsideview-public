@@ -28,3 +28,14 @@
   .score-bug__history--full { min-height: 28px; }
   .score-bug--full-score .score-bug__timeout { min-height: 32px; margin-bottom: 4px; }
 }
+/* At 200% phone reflow, prevent transformed overflow and reserve the dock. */
+@media (max-width: 240px) {
+  .fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"] .score-bug {
+    max-width: calc(100vw - 20px);
+    transform: none;
+  }
+  .fanview-app[data-scoreboard-layout="full-score"][data-scoreboard-position="top-left"] .score-bug,
+  .fanview-app[data-scoreboard-layout="full-score"][data-scoreboard-position="top-right"] .score-bug {
+    top: max(64px, calc(env(safe-area-inset-top) + 60px));
+  }
+}
