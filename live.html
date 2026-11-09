@@ -1636,7 +1636,7 @@
         return raw && Number.isFinite(raw) && raw > 0 ? raw : currentSetFromMatch || 1;
       }
       function handleMatchRow(row) {
-        if (!row) return;
+        if (!row || (intentionalStop && broadcastHasEnded)) return;
         if (shouldClearFinalRallyTimer(row) && finalRallyStopTimer) {
           clearTimeout(finalRallyStopTimer);
           finalRallyStopTimer = null;
@@ -1683,10 +1683,10 @@
         }
       }
       async function startMatchSync() {
-        if (!streamId) return;
+        if (!streamId || (intentionalStop && broadcastHasEnded)) return;
         if (matchRefreshTimer || matchChannel) return;
         const refreshAuthoritativeMatch = async () => {
-          if (matchRefreshInFlight) return;
+          if (matchRefreshInFlight || (intentionalStop && broadcastHasEnded)) return;
           matchRefreshInFlight = true;
           const controller = new AbortController(); matchRefreshAbort = controller;
           const timeout = setTimeout(() => controller.abort(), 8000);
@@ -1695,8 +1695,10 @@
               method: 'POST',
               headers: broadcastTokenHeaders({ 'content-type': 'application/json' }),
               cache: 'no-store',
+              signal: controller.signal,
             });
             const result = await response.json().catch(() => null);
+            if (intentionalStop && broadcastHasEnded) return;
             if (controller.signal.aborted) throw new Error('Match refresh timed out.');
             if (!response.ok || result?.ok !== true) {
               throw new Error(result?.reason || `match_state_${response.status}`);
@@ -1711,6 +1713,7 @@
                 : null,
             };
             handleMatchRow(row);
+            if (intentionalStop && broadcastHasEnded) return;
             if (displayActive) void refreshBroadcastDisplay();
 
             const finalRallyGraceActive = canUseFinalRallyTokenGrace({
@@ -1731,6 +1734,7 @@
               }
             }
           } catch (error) {
+            if (intentionalStop && broadcastHasEnded) return;
             if (displayActive) displayController?.setUnavailable();
             console.warn('[CourtsideView] authoritative match refresh unavailable', error);
           } finally {
@@ -1754,6 +1758,7 @@
           console.warn('[CourtsideView] match sync subscription unavailable', error);
         }
         await refreshAuthoritativeMatch();
+        if (intentionalStop && broadcastHasEnded) return;
         matchRefreshTimer = setInterval(() => void refreshAuthoritativeMatch(), MATCH_SYNC_REFRESH_MS);
       }
       async function stopMatchSync() {
@@ -2159,6 +2164,7 @@
         statusEl.classList.remove('on');
       }
       async function stopBroadcast(options = {}) {
+        if (intentionalStop && broadcastHasEnded) return;
         if (finalRallyStopTimer) {
           clearTimeout(finalRallyStopTimer);
           finalRallyStopTimer = null;
@@ -2168,6 +2174,10 @@
         live = false;
         displayController?.setPresentationActive(false);
         broadcastHasEnded = true;
+        void stopMatchSync();
+        broadcastBlocked = true;
+        setControlState('offline');
+        setStatus([{ text: 'Ending broadcast…', strong: true }], 'ENDING', { persistent: true });
         clearControlsHideTimer();
         document.body.classList.remove('controls-hidden');
         await stopHighlightReplay();
@@ -2178,6 +2188,20 @@
           media = null;
           preview.srcObject = null;
         }
+        if (options.blockReason) {
+          setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
+        } else {
+          cameraBtn.textContent = 'Camera setup ended';
+          broadcastBtn.textContent = 'Start Broadcast';
+          setPageCopy('Broadcast Ended', 'Fans can still follow the score on the Fan Link.');
+          hintEl.textContent = 'Fans can follow scores even without video.';
+          broadcastBlocked = true;
+          setControlState('offline');
+          setStatus([
+            { text: 'Broadcast ended.', strong: true },
+            { text: ' Fans can still follow the score. Open CourtsideView to broadcast again.' },
+          ], 'OFFLINE');
+        }
         await releaseScreenWakeLock();
         if (streamId) {
           await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
@@ -2185,20 +2209,6 @@
             headers: broadcastTokenHeaders(),
           }).catch(() => {});
         }
-        if (options.blockReason) {
-          setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
-          return;
-        }
-        cameraBtn.textContent = 'Camera setup ended';
-        broadcastBtn.textContent = 'Start Broadcast';
-        setPageCopy('Broadcast Ended', 'Fans can still follow the score on the Fan Link.');
-        hintEl.textContent = 'Fans can follow scores even without video.';
-        broadcastBlocked = true;
-        setControlState('offline');
-        setStatus([
-          { text: 'Broadcast ended.', strong: true },
-          { text: ' Fans can still follow the score. Create a new private camera setup in CourtsideView to broadcast again.' },
-        ], 'OFFLINE');
       }
       cameraBtn.addEventListener('click', async () => {
         cameraBtn.disabled = true;
