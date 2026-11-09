@@ -102,7 +102,8 @@
       button, a.button { appearance: none; min-height: 44px; border: 0; border-radius: 999px; padding: 13px 16px;
         font-family: var(--font-control);
         font-size: 15px; font-weight: 500; letter-spacing: 0.02em; text-align: center; text-transform: uppercase;
-        text-decoration: none; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        text-decoration: none; cursor: pointer; min-width: 44px; max-width: 100%;
+        white-space: normal; overflow: visible; overflow-wrap: normal; word-break: normal; line-height: 1.25; }
       .primary { color: #fff; background: var(--pink); }
       .fanview-primary { color: var(--ink); background: rgba(255,255,255,0.12); border: 1px solid var(--border); }
       .fanview-primary:active { background: rgba(255,255,255,0.16); }
@@ -145,7 +146,8 @@
       .download-panel span { display: block; color: rgba(232,238,244,0.82); font-size: 12px; line-height: 1.28; font-weight: 740; margin-top: 2px; }
       .download-button { appearance: none; border-radius: 999px; padding: 10px 12px;
         color: #0b1017; background: #fff; border: 0; font-size: 12px; font-weight: 950;
-        text-decoration: none; white-space: nowrap; }
+        text-decoration: none; display: flex; align-items: center; justify-content: center; min-height: 44px;
+        min-width: 44px; max-width: 100%; white-space: normal; overflow-wrap: normal; word-break: normal; line-height: 1.25; text-align: center; }
       .save-backdrop { position: fixed; inset: 0; z-index: 48; display: flex; align-items: flex-end;
         padding: 18px max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
         background: rgba(0,0,0,0.66); opacity: 0; pointer-events: none; transition: opacity 160ms ease; }
@@ -245,9 +247,9 @@
         max-width: min(86vw, 440px); transform: translate(-50%, -8px); border-radius: 999px;
         padding: 7px 11px; text-align: center; color: #dbe3ee; background: rgba(15,20,27,0.74);
         opacity: 0; pointer-events: none; box-shadow: 0 16px 40px rgba(0,0,0,0.24);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+        white-space: normal; overflow: visible; overflow-wrap: normal; word-break: normal; font-size: 12px; line-height: 1.4; }
       body.camera-mode.is-live .status { display: none !important; }
-      body.camera-mode.is-live .status.live-recovery { display: block !important; white-space: normal; overflow-wrap: anywhere; }
+      body.camera-mode.is-live .status.live-recovery { display: block !important; }
       body.camera-mode .status.on { opacity: 1; transform: translate(-50%, 0); }
       body.camera-mode .controls { position: fixed; z-index: 10; left: max(12px, env(safe-area-inset-left));
         right: max(12px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom));
@@ -268,7 +270,7 @@
       body.camera-mode.is-live #broadcastBtn,
       body.camera-mode.is-live #previewBtn { display: none !important; }
       body.camera-mode.is-setup .controls,
-      body.camera-mode.is-offline .controls { grid-template-columns: 1fr 0.78fr; }
+      body.camera-mode.is-offline .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       body.camera-mode.is-setup #cameraBtn,
       body.camera-mode.is-offline #cameraBtn { grid-column: 1 / -1; }
       body.camera-mode.is-ready .controls { gap: 7px; padding: 8px; }
@@ -284,8 +286,10 @@
       body.camera-mode.is-live #chatBtn,
       body.camera-mode.is-live #audioBtn,
       body.camera-mode.is-live #stopBtn {
-        min-width: 0; min-height: 48px; margin-top: 0; padding: 7px 4px; font-size: 10px;
+        min-width: 0; min-height: 48px; margin-top: 0; padding: 7px 4px; font-size: 11px;
       }
+      body.camera-mode.is-live #minimizeBtn[aria-label="Preparing Float"],
+      body.camera-mode.is-live #minimizeBtn[aria-label="Float unavailable"] { grid-column: span 2; }
       body.camera-mode.is-live #stopBtn { color: #fff;
         background: rgba(239,68,68,0.92); border: 1px solid rgba(255,255,255,0.18); }
       body.camera-mode.is-live .primary::after,
@@ -297,6 +301,7 @@
       body.camera-mode .hint { display: none; }
       @media (max-width: 430px) {
         body { padding-left: 12px; padding-right: 12px; }
+        .download-panel { grid-template-columns: minmax(0, 1fr); }
         .mark { width: 26px; height: 26px; }
         .brand { font-size: 21px; }
         .pill { padding: 5px 9px; font-size: 11px; }
@@ -310,6 +315,9 @@
         body.camera-mode .controls { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
         body.camera-mode .handoff-panel { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
           bottom: calc(max(16px, env(safe-area-inset-bottom)) + 238px); }
+      }
+      @media (max-width: 340px) {
+        .confirm-actions, .saved-card-actions { grid-template-columns: minmax(0, 1fr); }
       }
       @media (orientation: landscape) and (min-width: 760px) {
         .stage { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(360px, 1fr);
@@ -944,7 +952,7 @@
         if (displayController) return displayController;
         if (displayMountPromise) return displayMountPromise;
         displayMountPromise = (async () => {
-          const { mountBroadcasterDisplay } = await import('/assets/broadcaster-display/broadcaster-display-9a88d4f4198f3401.js');
+          const { mountBroadcasterDisplay } = await import('/assets/broadcaster-display/broadcaster-display-536c2e92c3c2e26e.js');
           if (displayDisposed || !displayActive) return null;
           displayController = mountBroadcasterDisplay(displayHost, {
             trigger: displayBtn, controls: controlsEl,
@@ -1116,27 +1124,27 @@
       }
       function broadcastUnavailableReason(row) {
         if (!row) {
-          return 'Broadcast link unavailable. Return to CourtsideView to create a fresh Broadcast setup.';
+          return 'This broadcast link is unavailable. Open CourtsideView to try again.';
         }
         if (row.is_published !== true) {
-          return 'Broadcast link expired. Return to CourtsideView to create a fresh Broadcast setup.';
+          return 'This broadcast link expired. Open CourtsideView to start again.';
         }
         if (row.is_complete === true) {
-          return 'This match has ended. Broadcast is closed for this FanView.';
+          return 'This match has ended. Broadcasting is closed.';
         }
         return null;
       }
       function broadcastTokenUnavailableReason(reason) {
         if (reason === 'match_closed') {
-          return 'This match has ended. Broadcast is closed for this FanView.';
+          return 'This match has ended. Broadcasting is closed.';
         }
         if (reason === 'expired' || reason === 'revoked') {
-          return 'Broadcast setup expired. Return to CourtsideView to create a fresh Broadcast setup.';
+          return 'Broadcast setup expired. Open CourtsideView to start again.';
         }
         if (reason === 'missing_token') {
-          return 'Private Broadcast setup required. Return to CourtsideView and scan the Broadcast QR again.';
+          return 'Open CourtsideView to start your broadcast.';
         }
-        return 'Broadcast setup could not be verified. Return to CourtsideView and create a fresh Broadcast setup.';
+        return 'This broadcast link is not working. Open CourtsideView to start again.';
       }
       function broadcastTokenState(reason) {
         if (reason === 'match_closed') return 'MATCH ENDED';
@@ -1154,7 +1162,6 @@
         cameraBtn.disabled = !broadcastValidationRetryable;
         setStatus([
           { text: reason, strong: true },
-          { text: ' Fans can still use the FanView spectator link when available.' },
         ], state, { persistent: true });
       }
       function clearBroadcastBlocked() {
@@ -1164,7 +1171,7 @@
       async function validateBroadcastAccess() {
         if (!streamId) return false;
         if (!broadcastToken) {
-          setBroadcastBlocked(broadcastTokenUnavailableReason('missing_token'), 'PRIVATE LINK');
+          setBroadcastBlocked(broadcastTokenUnavailableReason('missing_token'), 'OPEN APP');
           return false;
         }
         for (let attempt = 0; attempt < 3; attempt += 1) {

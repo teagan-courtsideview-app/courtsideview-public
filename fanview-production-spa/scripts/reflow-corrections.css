@@ -59,3 +59,46 @@
     overflow-y: auto;
   }
 }
+
+/* Action wording stays complete at compact widths and text zoom. Preserve the
+   approved control shapes/icons; only labels wrap and controls grow as needed. */
+.fanview-app button,
+.fanview-state-page button,
+.fanview-state-action,
+.scoreboard-display-menu button,
+.team-hub-back {
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-overflow: clip;
+  min-height: 44px;
+}
+.fanview-app .media-control__label,
+.scoreboard-display-menu__layout > b,
+.scoreboard-display-menu__layout > small {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-overflow: clip;
+}
+.fanview-app .community-launcher { white-space: normal; overflow: visible; height: auto; }
+.fanview-state-action, .team-hub-back { padding-top: 8px; padding-bottom: 8px; }
+@media (max-width: 240px) {
+  .scoreboard-display-menu__layouts { grid-template-columns: minmax(0, 1fr); }
+  .scoreboard-display-menu__options:not(.scoreboard-display-menu__positions) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Recovery and live activity are instructions/status, never truncated previews. */
+.fanview-app .match-status,
+.fanview-app .match-status--action {
+  max-width: min(440px, calc(100vw - 32px));
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-overflow: clip;
+  line-height: 1.4;
+}
