@@ -968,7 +968,7 @@
           isLive ? 'Return to scoring' : 'Return to scoring without starting video',
         );
         shareBtn.textContent = isLive ? 'Share' : 'Share Fan Link';
-        minimizeBtn.textContent = isLive ? 'Float' : 'Float Broadcast';
+        syncPictureInPictureControl();
         audioBtn.textContent = audioEnabled ? 'Mute' : 'Unmute';
         stopBtn.textContent = 'End';
         if (isLive) void mountBroadcasterCommunity();
@@ -1701,6 +1701,30 @@
           });
         }, delayMs);
       }
+      function syncPictureInPictureControl() {
+        const floating = document.pictureInPictureElement === preview;
+        minimizeBtn.textContent = floating ? 'Back to video' : live ? 'Float' : 'Float Broadcast';
+        minimizeBtn.setAttribute('aria-label', floating ? 'Return to broadcast video' : 'Float Broadcast');
+        minimizeBtn.setAttribute('aria-pressed', String(floating));
+        minimizeBtn.disabled = !live || (!floating && !canUsePictureInPicture());
+      }
+      async function togglePictureInPicture() {
+        if (document.pictureInPictureElement !== preview) {
+          await enterPictureInPicture();
+          syncPictureInPictureControl();
+          return;
+        }
+        try {
+          await document.exitPictureInPicture();
+          showLiveControls();
+        } catch {
+          setStatus([
+            { text: 'Could not return to video.', strong: true },
+            { text: ' Try Back to video again.' },
+          ], 'LIVE', { persistent: true });
+        }
+        syncPictureInPictureControl();
+      }
       async function enterPictureInPicture() {
         if (!canUsePictureInPicture()) {
           setStatus([
@@ -2068,7 +2092,7 @@
         window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
       });
       minimizeBtn.addEventListener('click', () => {
-        void enterPictureInPicture();
+        void togglePictureInPicture();
       });
       audioBtn.addEventListener('click', () => {
         if (!media) return;
@@ -2091,7 +2115,10 @@
       controlsEl?.addEventListener('pointerdown', () => {
         showLiveControls();
       });
+      preview.addEventListener('enterpictureinpicture', syncPictureInPictureControl);
       preview.addEventListener('leavepictureinpicture', () => {
+        syncPictureInPictureControl();
+        showLiveControls();
         if (!live || intentionalStop) return;
         setStatus([
           { text: 'Broadcast should keep running. Return here if it pauses.', strong: true },
@@ -2099,6 +2126,8 @@
       });
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
+          syncPictureInPictureControl();
+          showLiveControls();
           if (broadcastDesired) {
             void requestScreenWakeLock();
             if (!live || !pc || !cameraTracksAreLive()) {
