@@ -247,6 +247,7 @@
         opacity: 0; pointer-events: none; box-shadow: 0 16px 40px rgba(0,0,0,0.24);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
       body.camera-mode.is-live .status { display: none !important; }
+      body.camera-mode.is-live .status.live-recovery { display: block !important; white-space: normal; overflow-wrap: anywhere; }
       body.camera-mode .status.on { opacity: 1; transform: translate(-50%, 0); }
       body.camera-mode .controls { position: fixed; z-index: 10; left: max(12px, env(safe-area-inset-left));
         right: max(12px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom));
@@ -644,6 +645,8 @@
       const broadcasterCommunity = document.getElementById('broadcasterCommunity');
       const controlsEl = document.querySelector('.controls');
       const viewerRow = document.querySelector('.viewer-row');
+      let pipRequestFailed = false;
+      let pipRequestPending = false;
       let displayDisposed = false;
       let displayController = null;
       let displayMountPromise = null;
@@ -822,6 +825,7 @@
       function showStatus(options = {}) {
         if (statusTimer) clearTimeout(statusTimer);
         statusEl.classList.add('on');
+        statusEl.classList.toggle('live-recovery', options.liveRecovery === true);
         const isCameraMode = document.body.classList.contains('camera-mode');
         const persistent = options.persistent || !isCameraMode;
         if (!persistent) {
@@ -940,10 +944,12 @@
         if (displayController) return displayController;
         if (displayMountPromise) return displayMountPromise;
         displayMountPromise = (async () => {
-          const { mountBroadcasterDisplay } = await import('/assets/broadcaster-display/broadcaster-display-7c348d35d2b06be8.js');
+          const { mountBroadcasterDisplay } = await import('/assets/broadcaster-display/broadcaster-display-b8d9dbc7bf5bdf7f.js');
           if (displayDisposed || !displayActive) return null;
           displayController = mountBroadcasterDisplay(displayHost, {
             trigger: displayBtn, controls: controlsEl,
+            source: preview, viewerCount: () => lastViewerCount || 0,
+            onPresentationChange: () => { syncPictureInPictureControl(); showLiveControls(); },
             retry: () => { void refreshBroadcastDisplay(); },
             save: async (preference) => {
               // A camera pass does not create or identify an account. Sync only
@@ -960,6 +966,7 @@
               } } });
             },
           });
+          displayController.setPresentationActive(live);
           displayBtn.textContent = 'Display';
           if (!localVisualQaState) void hydrateBroadcastDisplayPreference();
           return displayController;
@@ -1028,6 +1035,7 @@
         if (displayDisposed) return;
         displayActive = active; displayHost.hidden = !displayActive;
         showControl(displayBtn, active); displayBtn.disabled = !active;
+        displayController?.setPresentationActive(displayActive && live);
         if (displayActive) void refreshBroadcastDisplay();
         else {
           displayRefreshAbort?.abort(); displayRefreshAbort = null;
@@ -1160,6 +1168,8 @@
           return false;
         }
         for (let attempt = 0; attempt < 3; attempt += 1) {
+          const controller = new AbortController();
+          const validationTimeout = setTimeout(() => controller.abort(), 8000);
           try {
             const response = await fetch(`${LIVE_WORKER_URL}/broadcast-token/${encodeURIComponent(streamId)}/validate`, {
               method: 'POST',
@@ -1195,6 +1205,8 @@
               );
               return false;
             }
+          } finally {
+            clearTimeout(validationTimeout);
           }
           await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 350 : 900));
         }
@@ -1208,6 +1220,7 @@
         return count === 1 ? 'watching' : 'watching';
       }
       function setViewerCount(count) {
+        displayController?.refreshPresentation();
         for (const target of [viewerCountEl, viewerCountTopEl]) {
           target.replaceChildren();
           const strong = document.createElement('strong');
@@ -1366,16 +1379,17 @@
           const status = await response.json();
           const count = typeof status.viewerCount === 'number' ? status.viewerCount : 0;
           const joinedAt = typeof status.lastJoinedAt === 'string' ? status.lastJoinedAt : null;
+          const previousViewerCount = lastViewerCount;
+          lastViewerCount = count;
           setViewerCount(count);
           if (
-            lastViewerCount !== null &&
-            (count > lastViewerCount || (count >= lastViewerCount && joinedAt !== lastJoinedAt)) &&
+            previousViewerCount !== null &&
+            (count > previousViewerCount || (count >= previousViewerCount && joinedAt !== lastJoinedAt)) &&
             joinedAt &&
             joinedAt !== lastJoinedAt
           ) {
             showJoinToast();
           }
-          lastViewerCount = count;
           lastJoinedAt = joinedAt;
         } catch {
           // Viewer count is informational only; keep broadcasting controls stable.
@@ -1751,15 +1765,13 @@
         });
       }
       function canUsePictureInPicture() {
-        if (document.pictureInPictureEnabled && typeof preview?.requestPictureInPicture === 'function') {
-          return true;
-        }
+        const video = displayController?.presentationVideo();
+        if (!video || displayController?.presentationPhase() !== 'ready') return false;
+        if (document.pictureInPictureEnabled && typeof video.requestPictureInPicture === 'function') return true;
         try {
-          return typeof preview?.webkitSetPresentationMode === 'function' &&
-            preview.webkitSupportsPresentationMode?.('picture-in-picture') === true;
-        } catch {
-          return false;
-        }
+          return typeof video.webkitSetPresentationMode === 'function' &&
+            video.webkitSupportsPresentationMode?.('picture-in-picture') === true;
+        } catch { return false; }
       }
       async function requestScreenWakeLock() {
         if (!('wakeLock' in navigator) || !navigator.wakeLock || document.visibilityState !== 'visible') {
@@ -1837,68 +1849,86 @@
         }, delayMs);
       }
       function isPictureInPictureActive() {
-        return document.pictureInPictureElement === preview ||
-          preview.webkitPresentationMode === 'picture-in-picture';
+        const video = displayController?.presentationVideo();
+        return Boolean(video && (document.pictureInPictureElement === video ||
+          video.webkitPresentationMode === 'picture-in-picture'));
       }
       function syncPictureInPictureControl() {
         const floating = isPictureInPictureActive();
-        minimizeBtn.textContent = floating ? 'Back to video' : live ? 'Float' : 'Float Broadcast';
-        minimizeBtn.setAttribute('aria-label', floating ? 'Return to broadcast video' : 'Float Broadcast');
+        const phase = displayController?.presentationPhase() || 'preparing';
+        const unavailable = phase === 'ready' && !canUsePictureInPicture();
+        minimizeBtn.textContent = floating ? 'Back to video' : !live ? 'Float Broadcast'
+          : phase === 'preparing' ? 'Preparing Float' : unavailable ? 'Float unavailable'
+          : pipRequestFailed || phase === 'unavailable' ? 'Retry Float' : 'Float';
+        minimizeBtn.setAttribute('aria-label', floating ? 'Return to broadcast video' : minimizeBtn.textContent);
         minimizeBtn.setAttribute('aria-pressed', String(floating));
-        minimizeBtn.disabled = !live || (!floating && !canUsePictureInPicture());
+        minimizeBtn.setAttribute('aria-busy', String(pipRequestPending));
+        minimizeBtn.disabled = !live || pipRequestPending || (!floating && (phase === 'preparing' || unavailable));
       }
       async function togglePictureInPicture() {
-        if (!isPictureInPictureActive()) {
-          await enterPictureInPicture();
-          syncPictureInPictureControl();
-          return;
-        }
-        try {
-          if (document.pictureInPictureElement === preview && typeof document.exitPictureInPicture === 'function') {
-            await document.exitPictureInPicture();
-          } else if (typeof preview.webkitSetPresentationMode === 'function') {
-            // Return to the existing camera page, preserving its controls and stream.
-            // A video-only system fullscreen would hide the page's controls.
-            preview.webkitSetPresentationMode('inline');
-          }
-          showLiveControls();
-        } catch {
-          setStatus([
-            { text: 'Could not return to video.', strong: true },
-            { text: ' Try Back to video again.' },
-          ], 'LIVE', { persistent: true });
-        }
+        if (pipRequestPending) return;
+        pipRequestPending = true;
         syncPictureInPictureControl();
+        try {
+          if (!isPictureInPictureActive()) {
+            await enterPictureInPicture();
+            return;
+          }
+          const video = displayController?.presentationVideo();
+          try {
+            if (document.pictureInPictureElement === video && typeof document.exitPictureInPicture === 'function') {
+              await document.exitPictureInPicture();
+            } else if (typeof video?.webkitSetPresentationMode === 'function') {
+              video.webkitSetPresentationMode('inline');
+            }
+            showLiveControls();
+          } catch {
+            setStatus([
+              { text: 'Could not return to video.', strong: true },
+              { text: ' Tap Back to video to try again.' },
+            ], 'LIVE', { persistent: true, liveRecovery: true });
+          }
+        } finally {
+          pipRequestPending = false;
+          syncPictureInPictureControl();
+        }
       }
       async function enterPictureInPicture() {
         if (!canUsePictureInPicture()) {
+          displayController?.preparePictureInPicture();
+          void refreshBroadcastDisplay();
+          syncPictureInPictureControl();
           setStatus([
-            { text: 'Float Broadcast is unavailable here.', strong: true },
-            { text: ' Broadcast may pause when you leave this page.' },
-          ], 'LIVE', { persistent: true });
+            { text: 'Float is not ready.', strong: true },
+            { text: ' Keep this page open. Try Float again when it is ready.' },
+          ], 'LIVE', { persistent: true, liveRecovery: true });
+          return false;
+        }
+        const video = displayController.presentationVideo();
+        // Refresh pixels synchronously, then invoke PiP directly from the tap.
+        // No awaited import, media creation or camera request consumes activation.
+        if (!displayController.preparePictureInPicture() || !canUsePictureInPicture()) {
+          syncPictureInPictureControl();
+          setStatus([{ text: 'Float is not ready. Tap Retry Float to try again.' }], 'LIVE', { persistent: true, liveRecovery: true });
           return false;
         }
         try {
-          if (document.pictureInPictureEnabled && typeof preview.requestPictureInPicture === 'function') {
-            await preview.requestPictureInPicture();
+          if (document.pictureInPictureEnabled && typeof video.requestPictureInPicture === 'function') {
+            await video.requestPictureInPicture();
           } else {
-            preview.webkitSetPresentationMode('picture-in-picture');
+            video.webkitSetPresentationMode('picture-in-picture');
           }
-          // Safari may confirm presentation asynchronously. Keep the label tied
-          // to its actual mode and let the presentation event update it.
+          pipRequestFailed = false;
           if (isPictureInPictureActive()) {
-            setStatusHtml(
-              '<strong>Broadcast is floating.</strong> Keep this window open while you score.',
-              'LIVE',
-              { duration: 4200 },
-            );
+            setStatusHtml('<strong>Broadcast is floating.</strong> Keep this window open while you score.', 'LIVE', { duration: 4200 });
           }
           return isPictureInPictureActive();
         } catch {
+          pipRequestFailed = true;
           setStatus([
-            { text: 'Broadcast may pause when you leave this page.', strong: true },
-            { text: ' Use another device for uninterrupted Broadcast.' },
-          ], 'LIVE', { persistent: true });
+            { text: 'Could not float the video.', strong: true },
+            { text: ' Tap Retry Float to try again.' },
+          ], 'LIVE', { persistent: true, liveRecovery: true });
           return false;
         }
       }
@@ -2124,6 +2154,7 @@
         intentionalStop = true;
         broadcastDesired = false;
         live = false;
+        displayController?.setPresentationActive(false);
         broadcastHasEnded = true;
         clearControlsHideTimer();
         document.body.classList.remove('controls-hidden');
@@ -2136,9 +2167,6 @@
           preview.srcObject = null;
         }
         await releaseScreenWakeLock();
-        if (document.pictureInPictureElement === preview) {
-          await document.exitPictureInPicture().catch(() => {});
-        }
         if (streamId) {
           await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
             method: 'DELETE',
@@ -2274,19 +2302,6 @@
       document.addEventListener('touchstart', revealLiveControls, { passive: true });
       controlsEl?.addEventListener('pointerdown', () => {
         showLiveControls();
-      });
-      preview.addEventListener('enterpictureinpicture', syncPictureInPictureControl);
-      preview.addEventListener('webkitpresentationmodechanged', () => {
-        syncPictureInPictureControl();
-        showLiveControls();
-      });
-      preview.addEventListener('leavepictureinpicture', () => {
-        syncPictureInPictureControl();
-        showLiveControls();
-        if (!live || intentionalStop) return;
-        setStatus([
-          { text: 'Broadcast should keep running. Return here if it pauses.', strong: true },
-        ], 'LIVE', { duration: 3200 });
       });
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {

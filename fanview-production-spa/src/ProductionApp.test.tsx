@@ -129,6 +129,47 @@ describe("Production FanView lifecycle", () => {
     ).toBe("minimal");
   });
 
+  it("keeps touch targets mounted through pointerdown/up and commits taps on card labels and icons", async () => {
+    renderApp({ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } });
+    await screen.findByText("18");
+    fireEvent.click(screen.getByRole("button", { name: "Scoreboard display" }));
+    const dialog = screen.getByRole("dialog", { name: "Scoreboard display" });
+    const app = screen.getByTestId("fanview-production-app");
+    for (const layout of ["full score", "minimal", "score bar"]) {
+      const button = screen.getByRole("button", { name: `Use ${layout} layout` });
+      const label = button.querySelector("b")!;
+      fireEvent.pointerDown(label, { pointerType: "touch", isPrimary: true });
+      fireEvent.pointerUp(label, { pointerType: "touch", isPrimary: true });
+      expect(dialog).toBeInTheDocument();
+      fireEvent.click(label);
+      expect(app).toHaveAttribute("data-scoreboard-layout", layout.replace(" ", "-"));
+      expect(button).toHaveAttribute("aria-pressed", "true");
+      expect(dialog).toBeInTheDocument();
+      const checkIcon = button.querySelector("svg")!;
+      fireEvent.pointerDown(checkIcon, { pointerType: "touch" });
+      fireEvent.pointerUp(checkIcon, { pointerType: "touch" });
+      fireEvent.click(checkIcon);
+      expect(dialog).toBeInTheDocument();
+    }
+  });
+
+  it("dismisses only after a completed backdrop tap, then restores Display focus", async () => {
+    renderApp({ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } });
+    await screen.findByText("18");
+    const trigger = screen.getByRole("button", { name: "Scoreboard display" });
+    fireEvent.click(trigger);
+    const backdrop = document.querySelector("[data-scoreboard-display-backdrop]")!;
+    fireEvent.pointerDown(backdrop, { pointerType: "touch" });
+    fireEvent.pointerUp(backdrop, { pointerType: "touch" });
+    expect(screen.getByRole("dialog", { name: "Scoreboard display" })).toBeInTheDocument();
+    fireEvent.click(backdrop);
+    expect(screen.queryByRole("dialog", { name: "Scoreboard display" })).not.toBeInTheDocument();
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await waitFor(() => expect(trigger).toHaveFocus());
+    fireEvent.click(trigger);
+    expect(screen.getByRole("dialog", { name: "Scoreboard display" })).toBeInTheDocument();
+  });
+
   it("keeps Chat outside the Display modal and restores stable focus without remounting Community", async () => {
     const loadRoom = vi.fn(async () => ({
       connection: "connected" as const, participantCount: 3,

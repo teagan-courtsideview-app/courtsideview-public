@@ -241,28 +241,26 @@ export function ScoreboardDisplayMenu({
         first.focus();
       }
     };
-    const closeOutside = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (
-        event.composedPath().includes(menuRef.current as EventTarget) ||
-        menuRef.current?.contains(target) ||
-        document
-          .querySelector("[data-scoreboard-display-trigger]")
-          ?.contains(target)
-      ) {
-        return;
-      }
-      closeAndRestoreFocus();
-    };
     document.addEventListener("keydown", closeOnEscape);
-    document.addEventListener("pointerdown", closeOutside);
     return () => {
       document.removeEventListener("keydown", closeOnEscape);
-      document.removeEventListener("pointerdown", closeOutside);
     };
   }, []);
 
   return (
+    <div
+      data-scoreboard-display-backdrop
+      style={{ position: "fixed", inset: 0, zIndex: 9, pointerEvents: "auto" }}
+      onClick={(event) => {
+        // Dismiss only a completed tap on the backdrop itself. A document
+        // pointerdown listener can remove a touch target before Safari delivers
+        // its click. Keep presses on card text, icons and Shadow DOM descendants
+        // inside the dialog, and avoid passing the closing tap to controls below.
+        if (event.target !== event.currentTarget) return;
+        closeRef.current();
+        window.requestAnimationFrame(onRestoreFocus);
+      }}
+    >
     <div
       aria-label="Scoreboard display"
       aria-modal="true"
@@ -369,6 +367,7 @@ export function ScoreboardDisplayMenu({
         Use CourtsideView default
       </button>
       {children}
+    </div>
     </div>
   );
 }

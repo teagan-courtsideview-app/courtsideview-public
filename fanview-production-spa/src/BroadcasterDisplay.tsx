@@ -1,3 +1,4 @@
+import { createBroadcasterPresentation } from './broadcasterPresentation';
 import { createRoot } from 'react-dom/client';
 import { useEffect, useState } from 'react';
 import { ScoreBug } from '../../fanview-spa/src/components/ScoreBug';
@@ -83,6 +84,9 @@ export function mountBroadcasterDisplay(host: HTMLElement, options: {
   controls: HTMLElement;
   retry: () => void;
   save?: (preference: ViewerDisplayPreference) => Promise<void>;
+  source?: HTMLVideoElement;
+  viewerCount?: () => number;
+  onPresentationChange?: () => void;
 }) {
   const shadow = host.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
@@ -100,10 +104,16 @@ export function mountBroadcasterDisplay(host: HTMLElement, options: {
   let preference = initialPreference(); let open = false; let error = false; let changed = false;
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
   let disposed = false;
+  const presentation = options.source ? createBroadcasterPresentation({
+    source: options.source, parent: shadow,
+    snapshot: () => match && !error ? { match, preference, viewerCount: options.viewerCount?.() || 0 } : null,
+    onChange: () => options.onPresentationChange?.(),
+  }) : null;
   const restoreFocus = () => options.trigger.focus();
   const close = (restore = true) => { const wasOpen = open; open = false; render(); if (wasOpen && restore) restoreFocus(); };
   const render = () => {
     if (disposed) return;
+    presentation?.refresh();
     options.trigger.setAttribute('aria-expanded', String(open));
     host.style.zIndex = open ? '30' : '9';
     root.render(<BroadcasterDisplayView match={match} error={error} open={open} preference={preference}
@@ -126,6 +136,11 @@ export function mountBroadcasterDisplay(host: HTMLElement, options: {
   window.addEventListener('resize', size); window.visualViewport?.addEventListener('resize', size);
   size(); render();
   return {
+    presentationVideo: () => presentation?.video || null,
+    presentationPhase: () => presentation?.phase() || 'unavailable',
+    preparePictureInPicture: () => presentation?.prepare() || false,
+    refreshPresentation: () => presentation?.refresh(),
+    setPresentationActive: (active: boolean) => presentation?.setActive(active),
     toggle() { if (open) { close(true); return; } open = true; size(); render(); },
     close,
     setRow(row: PublicFanViewMatchRow | null) {
@@ -134,6 +149,6 @@ export function mountBroadcasterDisplay(host: HTMLElement, options: {
     },
     setUnavailable() { match = null; error = true; render(); },
     hydrate(value: unknown) { if (!changed && isBroadcastPreference(value)) { preference = value; render(); } },
-    destroy() { if (disposed) return; disposed = true; clearTimeout(saveTimer); observer?.disconnect(); window.removeEventListener('resize', size); window.visualViewport?.removeEventListener('resize', size); root.unmount(); },
+    destroy() { if (disposed) return; disposed = true; presentation?.destroy(); clearTimeout(saveTimer); observer?.disconnect(); window.removeEventListener('resize', size); window.visualViewport?.removeEventListener('resize', size); root.unmount(); },
   };
 }
