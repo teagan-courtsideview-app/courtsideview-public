@@ -6,10 +6,28 @@ import type {
   CommunityRoomSnapshot,
 } from "./adapters/contracts";
 import { createFixtureCommunityAdapter } from "./adapters/fixtureCommunityAdapter";
+import { FanViewCommunitySignInRequiredError } from "./adapters/contracts";
 
 afterEach(cleanup);
 
 describe("FanView SPA isolation", () => {
+  it("keeps guest scoring visible and explains account-required chat only when opened", async () => {
+    const community: CommunityAdapter = {
+      async loadRoom() { throw new FanViewCommunitySignInRequiredError(); },
+      async sendCheer() { throw new FanViewCommunitySignInRequiredError(); },
+      async sendMessage() { throw new FanViewCommunitySignInRequiredError(); },
+    };
+    render(<App communityAdapter={community} flags={{ communityEnabled: true }} shareId="public-share" />);
+    const score = await screen.findByRole("region", { name: /14s Blue 18, Metro Red 16, set 2/i });
+    expect(score).toBeVisible();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /open chat/i }));
+    expect(await screen.findByText("Sign in to join chat.")).toBeVisible();
+    expect(screen.queryByText("Cheering is temporarily unavailable.")).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Add a positive cheer" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Send 👏 cheer" })).toBeDisabled();
+    expect(score).toBeVisible();
+  });
   it("does not mount community when the feature flag is off", async () => {
     render(
       <App

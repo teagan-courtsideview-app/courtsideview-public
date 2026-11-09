@@ -6,6 +6,7 @@ import type {
   CommunityRoomSnapshot,
   ConnectionState,
 } from "./contracts";
+import { FanViewCommunitySignInRequiredError } from "./contracts";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -60,6 +61,8 @@ export interface CommunitySupabaseClient {
 
 export interface SupabaseCommunityAdapterOptions {
   client: CommunitySupabaseClient;
+  /** Public spectators may use an existing account, but watching creates none. */
+  allowAnonymousSignIn?: boolean;
   displayName?: string;
   fetch?: typeof globalThis.fetch;
   gatewayUrl: string;
@@ -225,6 +228,10 @@ export function createSupabaseCommunityAdapter(
     const current = await options.client.auth.getSession();
     if (current.error) throw new Error(current.error.message);
     if (current.data.session) return current.data.session;
+
+    if (options.allowAnonymousSignIn === false) {
+      throw new FanViewCommunitySignInRequiredError();
+    }
 
     const anonymous = await options.client.auth.signInAnonymously();
     if (anonymous.error) throw new Error(anonymous.error.message);

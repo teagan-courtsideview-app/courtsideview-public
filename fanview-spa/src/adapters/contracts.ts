@@ -80,6 +80,12 @@ export class FanViewUnavailableError extends Error {
 }
 
 export type CommunityRole = "Family" | "Coach" | "Teammate" | "Fan";
+export class FanViewCommunitySignInRequiredError extends Error {
+  constructor() {
+    super("Sign in to join chat.");
+    this.name = "FanViewCommunitySignInRequiredError";
+  }
+}
 export type CheerEmoji = "👏" | "💗" | "🔥" | "🙌" | "🏐" | "💪";
 
 export interface CommunityReaction {

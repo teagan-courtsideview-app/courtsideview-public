@@ -1,6 +1,7 @@
 import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { CommunityRoomSnapshot } from "./contracts";
+import { FanViewCommunitySignInRequiredError } from "./contracts";
 import {
   createSupabaseCommunityAdapter,
   type CommunitySupabaseClient,
@@ -38,7 +39,7 @@ class TestChannel {
 }
 
 describe("Supabase Community adapter", () => {
-  it("joins, subscribes before history hydration, and sends cheers and friendly text", async () => {
+  it.each([undefined, false])("preserves signed-in join, subscription and sending with anonymous sign-in policy %s", async (allowAnonymousSignIn) => {
     const operations: Array<{
       operation: string;
       input: Record<string, unknown>;
@@ -116,6 +117,7 @@ describe("Supabase Community adapter", () => {
     };
     const adapter = createSupabaseCommunityAdapter({
       client,
+      allowAnonymousSignIn,
       displayName: "Fan",
       fetch: fetchMock,
       gatewayUrl:
@@ -229,5 +231,36 @@ describe("Supabase Community adapter", () => {
 
     await adapter.loadRoom("share-123", new AbortController().signal);
     expect(client.auth.signInAnonymously).toHaveBeenCalledTimes(1);
+  });
+
+  it("never creates an account or calls Community services for a signed-out public spectator", async () => {
+    const client: CommunitySupabaseClient = {
+      auth: {
+        getSession: vi.fn(async () => ({ data: { session: null }, error: null })),
+        signInAnonymously: vi.fn(async () => ({ data: { session, user: session.user }, error: null })),
+      },
+      channel: vi.fn(() => new TestChannel()),
+      realtime: { setAuth: vi.fn(async () => undefined) },
+      removeChannel: vi.fn(async () => undefined),
+    };
+    const fetchMock = vi.fn();
+    const adapter = createSupabaseCommunityAdapter({
+      client, allowAnonymousSignIn: false, fetch: fetchMock,
+      gatewayUrl: "https://example.supabase.co/functions/v1/fanview-community",
+      publishableKey: "publishable-test-key",
+    });
+    await expect(adapter.loadRoom("public-share", new AbortController().signal)).rejects.toBeInstanceOf(FanViewCommunitySignInRequiredError);
+    const onError = vi.fn();
+    const onSnapshot = vi.fn();
+    const unsubscribe = adapter.subscribe?.("public-share", onSnapshot, onError);
+    await waitFor(() => expect(onError).toHaveBeenCalledWith(expect.any(FanViewCommunitySignInRequiredError)));
+    await expect(adapter.sendCheer("public-share", "👏")).rejects.toThrow("Sign in to join chat.");
+    await expect(adapter.sendMessage("public-share", "Go team!")).rejects.toThrow("Sign in to join chat.");
+    unsubscribe?.();
+    expect(onSnapshot).not.toHaveBeenCalled();
+    expect(client.auth.signInAnonymously).not.toHaveBeenCalled();
+    expect(client.channel).not.toHaveBeenCalled();
+    expect(client.realtime.setAuth).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

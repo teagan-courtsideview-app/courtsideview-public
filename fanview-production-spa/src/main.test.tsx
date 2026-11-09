@@ -43,7 +43,7 @@ describe("production guest entrypoint", () => {
         auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false, storageKey: "courtsideview_fanview_public" },
       });
       expect(mocks.fanViewAdapter).toHaveBeenCalledWith(expect.objectContaining({ client: publicClient }));
-      expect(mocks.communityAdapter).toHaveBeenCalledWith(expect.objectContaining({ client: accountClient }));
+      expect(mocks.communityAdapter).toHaveBeenCalledWith(expect.objectContaining({ client: accountClient, allowAnonymousSignIn: false }));
       expect(mocks.configureViewerRequests).toHaveBeenCalledWith(expect.any(String));
       expect(accountClient.auth.getSession).not.toHaveBeenCalled();
       const tree = mocks.render.mock.calls[0][0] as ReactElement<{ children: ReactElement<{ shareId: string }> }>;

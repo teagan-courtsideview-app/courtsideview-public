@@ -92,6 +92,7 @@ const communityAdapter =
     ? createFixtureCommunityAdapter()
     : createSupabaseCommunityAdapter({
         client,
+        allowAnonymousSignIn: false,
         gatewayUrl: `${SUPABASE_URL}/functions/v1/fanview-community`,
         publishableKey: SUPABASE_PUBLISHABLE_KEY,
       });

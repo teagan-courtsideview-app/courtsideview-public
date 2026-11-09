@@ -15,6 +15,7 @@ import type {
   CommunityMessage,
   CommunityRoomSnapshot,
 } from "../adapters/contracts";
+import { FanViewCommunitySignInRequiredError } from "../adapters/contracts";
 
 const QUICK_CHEERS: CheerEmoji[] = ["👏", "💗", "🔥", "🙌", "🏐", "💪"];
 const EMPTY_ROOM: CommunityRoomSnapshot = {
@@ -44,6 +45,7 @@ export function CommunityPanel({
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
   const [failed, setFailed] = useState(false);
+  const [signInRequired, setSignInRequired] = useState(false);
   const [sending, setSending] = useState(false);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -56,21 +58,26 @@ export function CommunityPanel({
 
     setRoom(EMPTY_ROOM);
     setFailed(false);
+    setSignInRequired(false);
+
+    const fail = (error: unknown) => {
+      if (abortController.signal.aborted) return;
+      setSignInRequired(error instanceof FanViewCommunitySignInRequiredError);
+      setFailed(true);
+    };
 
     void adapter
       .loadRoom(shareId, abortController.signal)
       .then((snapshot) => {
         if (!abortController.signal.aborted) setRoom(snapshot);
       })
-      .catch(() => {
-        if (!abortController.signal.aborted) setFailed(true);
-      });
+      .catch(fail);
 
     if (adapter.subscribe) {
       unsubscribe = adapter.subscribe(
         shareId,
         setRoom,
-        () => setFailed(true),
+        fail,
       );
     }
 
@@ -273,7 +280,7 @@ export function CommunityPanel({
 
           {failed ? (
             <div className="community-inline-status" role="status">
-              <strong>Cheering is temporarily unavailable.</strong>
+              <strong>{signInRequired ? "Sign in to join chat." : "Cheering is temporarily unavailable."}</strong>
               <span>Video and live scoring will continue normally.</span>
             </div>
           ) : null}
