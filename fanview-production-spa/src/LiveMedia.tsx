@@ -266,7 +266,7 @@ const drawPresentationFrame = (
   context.textBaseline = "middle";
   context.font = `600 ${Math.round(14 * uiScale)}px "CV Plus Jakarta Sans", system-ui, sans-serif`;
   roundedRect(context, edge, edge, 72 * uiScale, pillHeight, 8 * uiScale);
-  context.fillStyle = "#e53935";
+  context.fillStyle = "#d32f2f";
   context.fill();
   context.fillStyle = "#ffffff";
   context.beginPath();
