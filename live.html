@@ -944,7 +944,7 @@
         if (displayController) return displayController;
         if (displayMountPromise) return displayMountPromise;
         displayMountPromise = (async () => {
-          const { mountBroadcasterDisplay } = await import('/assets/broadcaster-display/broadcaster-display-b8d9dbc7bf5bdf7f.js');
+          const { mountBroadcasterDisplay } = await import('/assets/broadcaster-display/broadcaster-display-9a88d4f4198f3401.js');
           if (displayDisposed || !displayActive) return null;
           displayController = mountBroadcasterDisplay(displayHost, {
             trigger: displayBtn, controls: controlsEl,
@@ -1848,9 +1848,14 @@
           });
         }, delayMs);
       }
+      function isStandardPictureInPictureActive(video) {
+        // The document returns the host for a PiP video inside the display's Shadow DOM.
+        return Boolean(video && (video.getRootNode?.()?.pictureInPictureElement === video ||
+          document.pictureInPictureElement === video));
+      }
       function isPictureInPictureActive() {
         const video = displayController?.presentationVideo();
-        return Boolean(video && (document.pictureInPictureElement === video ||
+        return Boolean(video && (isStandardPictureInPictureActive(video) ||
           video.webkitPresentationMode === 'picture-in-picture'));
       }
       function syncPictureInPictureControl() {
@@ -1876,7 +1881,7 @@
           }
           const video = displayController?.presentationVideo();
           try {
-            if (document.pictureInPictureElement === video && typeof document.exitPictureInPicture === 'function') {
+            if (isStandardPictureInPictureActive(video) && typeof document.exitPictureInPicture === 'function') {
               await document.exitPictureInPicture();
             } else if (typeof video?.webkitSetPresentationMode === 'function') {
               video.webkitSetPresentationMode('inline');

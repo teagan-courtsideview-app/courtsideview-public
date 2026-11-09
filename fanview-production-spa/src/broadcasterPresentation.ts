@@ -33,7 +33,9 @@ export function createBroadcasterPresentation(options: {
   let preparationTimeout: ReturnType<typeof setTimeout> | null = null;
   let lastDrawAt = 0; let frameValid = false;
   const source = options.source;
-  const floating = () => document.pictureInPictureElement === video || video.webkitPresentationMode === 'picture-in-picture';
+  // Document PiP state retargets a shadow video to its host. Query the video's own tree.
+  const standardFloating = () => (video.getRootNode() as Document | ShadowRoot).pictureInPictureElement === video || document.pictureInPictureElement === video;
+  const floating = () => standardFloating() || video.webkitPresentationMode === 'picture-in-picture';
   const setPhase = (next: BroadcastPresentationPhase) => {
     if (phase === next) return;
     phase = next; options.onChange();
@@ -43,7 +45,7 @@ export function createBroadcasterPresentation(options: {
     frameRequest = null;
   };
   const exitPresentation = () => {
-    if (document.pictureInPictureElement === video && document.exitPictureInPicture) {
+    if (standardFloating() && document.exitPictureInPicture) {
       void document.exitPictureInPicture().catch(() => {});
     } else if (video.webkitPresentationMode === 'picture-in-picture') {
       try { video.webkitSetPresentationMode?.('inline'); } catch { /* Track cleanup still ends the owned presentation. */ }

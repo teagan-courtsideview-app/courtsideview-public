@@ -45,6 +45,33 @@ function harness() {
   };
 }
 describe('broadcaster presentation isolation', () => {
+  it('keeps shadow-root PiP frames running and exits the owned presentation during teardown', async () => {
+    const h = harness(); const shadow = h.parent.attachShadow({ mode: 'open' }); shadow.appendChild(h.controller.video);
+    const schedule = vi.fn(() => 42); const cancel = vi.fn();
+    Object.defineProperty(h.source, 'requestVideoFrameCallback', { configurable: true, value: schedule });
+    Object.defineProperty(h.source, 'cancelVideoFrameCallback', { configurable: true, value: cancel });
+    const exit = vi.fn(async () => {});
+    const previous = Object.getOwnPropertyDescriptor(document, 'pictureInPictureElement');
+    const previousExit = Object.getOwnPropertyDescriptor(document, 'exitPictureInPicture');
+    Object.defineProperty(document, 'exitPictureInPicture', { configurable: true, value: exit });
+    try {
+      h.controller.setActive(true); await Promise.resolve();
+      Object.defineProperty(document, 'pictureInPictureElement', { configurable: true, value: h.parent });
+      Object.defineProperty(shadow, 'pictureInPictureElement', { configurable: true, value: h.controller.video });
+      h.controller.video.dispatchEvent(new Event('enterpictureinpicture'));
+      const before = vi.mocked(drawPresentationFrame).mock.calls.length;
+      await vi.advanceTimersByTimeAsync(500);
+      expect(vi.mocked(drawPresentationFrame).mock.calls.length).toBeGreaterThan(before);
+      expect(schedule).toHaveBeenCalled();
+      h.controller.setActive(false);
+      expect(exit).toHaveBeenCalledTimes(1); expect(cancel).toHaveBeenCalledWith(42);
+      expect(h.ownedTrack.stop).toHaveBeenCalledTimes(1); expect(h.originalTrack.stop).not.toHaveBeenCalled();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      if (previous) Object.defineProperty(document, 'pictureInPictureElement', previous); else delete (document as any).pictureInPictureElement;
+      if (previousExit) Object.defineProperty(document, 'exitPictureInPicture', previousExit); else delete (document as any).exitPictureInPicture;
+    }
+  });
   it('does nothing before live, prepares a separate muted video, and never touches source/recording tracks', async () => {
     const h = harness(); expect(h.capture).not.toHaveBeenCalled();
     h.controller.setActive(true); await Promise.resolve();
