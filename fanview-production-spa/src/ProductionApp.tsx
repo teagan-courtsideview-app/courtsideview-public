@@ -8,7 +8,7 @@ import {
   EnvelopeSimple,
   SlidersHorizontal,
 } from "@phosphor-icons/react";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type {
   CommunityAdapter,
   FanViewAdapter,
@@ -182,7 +182,7 @@ function focusDisplayTrigger() {
     ?.focus();
 }
 
-function ScoreboardDisplayMenu({
+export function ScoreboardDisplayMenu({
   automatic,
   layout,
   onAutomaticChange,
@@ -191,6 +191,8 @@ function ScoreboardDisplayMenu({
   onPositionChange,
   onReset,
   onSizeChange,
+  onRestoreFocus = focusDisplayTrigger,
+  children,
   position,
   size,
 }: {
@@ -202,6 +204,8 @@ function ScoreboardDisplayMenu({
   onPositionChange: (position: ScoreboardPosition) => void;
   onReset: () => void;
   onSizeChange: (size: ScoreboardSize) => void;
+  onRestoreFocus?: () => void;
+  children?: ReactNode;
   position: ScoreboardPosition;
   size: ScoreboardSize;
 }) {
@@ -213,7 +217,7 @@ function ScoreboardDisplayMenu({
     menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
     const closeAndRestoreFocus = () => {
       closeRef.current();
-      window.requestAnimationFrame(focusDisplayTrigger);
+      window.requestAnimationFrame(onRestoreFocus);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -229,10 +233,10 @@ function ScoreboardDisplayMenu({
       if (focusable.length === 0) return;
       const first = focusable[0]!;
       const last = focusable[focusable.length - 1]!;
-      if (event.shiftKey && document.activeElement === first) {
+      if (event.shiftKey && (menuRef.current?.getRootNode() as Document | ShadowRoot).activeElement === first) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && (menuRef.current?.getRootNode() as Document | ShadowRoot).activeElement === last) {
         event.preventDefault();
         first.focus();
       }
@@ -240,6 +244,7 @@ function ScoreboardDisplayMenu({
     const closeOutside = (event: PointerEvent) => {
       const target = event.target as Node;
       if (
+        event.composedPath().includes(menuRef.current as EventTarget) ||
         menuRef.current?.contains(target) ||
         document
           .querySelector("[data-scoreboard-display-trigger]")
@@ -363,6 +368,7 @@ function ScoreboardDisplayMenu({
       >
         Use CourtsideView default
       </button>
+      {children}
     </div>
   );
 }

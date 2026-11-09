@@ -274,11 +274,12 @@
       body.camera-mode.is-ready #broadcastBtn { grid-column: 1 / -1; min-height: 44px; }
       body.camera-mode.is-ready #scoreBtn,
       body.camera-mode.is-ready #shareBtn { min-height: 44px; }
-      body.camera-mode.is-live .controls { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+      body.camera-mode.is-live .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
         align-items: center; gap: 5px; padding: 6px; border-radius: 18px; max-width: 580px; }
       body.camera-mode.is-live #scoreBtn,
       body.camera-mode.is-live #shareBtn,
       body.camera-mode.is-live #minimizeBtn,
+      body.camera-mode.is-live #displayBtn,
       body.camera-mode.is-live #chatBtn,
       body.camera-mode.is-live #audioBtn,
       body.camera-mode.is-live #stopBtn {
@@ -399,7 +400,7 @@
           bottom: max(10px, env(safe-area-inset-bottom));
           transform: none;
           display: grid;
-          grid-template-columns: repeat(6, minmax(0, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
           align-items: center;
           gap: 6px;
           padding: 5px;
@@ -408,7 +409,8 @@
         body.camera-mode.is-live #scoreBtn,
         body.camera-mode.is-live #shareBtn,
         body.camera-mode.is-live #minimizeBtn,
-        body.camera-mode.is-live #chatBtn,
+        body.camera-mode.is-live #displayBtn,
+      body.camera-mode.is-live #chatBtn,
         body.camera-mode.is-live #audioBtn,
         body.camera-mode.is-live #stopBtn {
           min-height: 44px;
@@ -476,6 +478,7 @@
             <button id="clearHighlightStorageBtn" class="secondary is-hidden" type="button">Saved highlights</button>
             <button id="shareBtn" class="fanview-primary">Share Fan Link</button>
             <button id="minimizeBtn" class="secondary is-hidden" disabled>Float Broadcast</button>
+            <button id="displayBtn" data-scoreboard-display-trigger class="secondary is-hidden" type="button" aria-expanded="false" disabled>Display</button>
             <button id="chatBtn" class="secondary is-hidden" type="button" aria-expanded="false">Chat</button>
             <button id="audioBtn" class="secondary is-hidden" type="button">Muted</button>
             <button id="stopBtn" class="danger is-hidden" disabled>End</button>
@@ -496,6 +499,7 @@
         </section>
       </div>
     </main>
+    <div id="broadcasterDisplay" hidden></div>
     <fanview-community-widget id="broadcasterCommunity" hidden></fanview-community-widget>
     <div id="joinToast" class="join-toast" role="status" aria-live="polite">A fan joined FanView</div>
     <div id="savePrompt" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savePromptTitle" aria-hidden="true" hidden inert>
@@ -582,6 +586,7 @@
       });
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
+          storageKey: 'courtsideview_broadcaster_public',
           autoRefreshToken: false,
           detectSessionInUrl: false,
           persistSession: false,
@@ -589,6 +594,7 @@
       });
       const communitySupabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
+          storageKey: 'courtsideview_broadcaster_community',
           autoRefreshToken: true,
           detectSessionInUrl: false,
           persistSession: false,
@@ -598,6 +604,8 @@
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
       const chatBtn = document.getElementById('chatBtn');
+      const displayBtn = document.getElementById('displayBtn');
+      const displayHost = document.getElementById('broadcasterDisplay');
       const scoreBtn = document.getElementById('scoreBtn');
       const clearHighlightStorageBtn = document.getElementById('clearHighlightStorageBtn');
       const shareBtn = document.getElementById('shareBtn');
@@ -636,6 +644,12 @@
       const broadcasterCommunity = document.getElementById('broadcasterCommunity');
       const controlsEl = document.querySelector('.controls');
       const viewerRow = document.querySelector('.viewer-row');
+      let displayDisposed = false;
+      let displayController = null;
+      let displayMountPromise = null;
+      let displayActive = false;
+      let displayRefreshAbort = null;
+      let displayPreferenceClient = null;
       let media = null;
       let pc = null;
       let live = false;
@@ -657,6 +671,7 @@
       let matchChannel = null;
       let matchRefreshTimer = null;
       let matchRefreshInFlight = false;
+      let matchRefreshAbort = null;
       let currentSetFromMatch = 1;
       let recordEnabled = initialRecordEnabled;
       let mediaRecorder = null;
@@ -920,12 +935,119 @@
         }
         showLiveControls();
       }
+      async function mountBroadcastDisplay() {
+        if (displayDisposed || !displayActive) return null;
+        if (displayController) return displayController;
+        if (displayMountPromise) return displayMountPromise;
+        displayMountPromise = (async () => {
+          const { mountBroadcasterDisplay } = await import('/assets/broadcaster-display/broadcaster-display-7c348d35d2b06be8.js');
+          if (displayDisposed || !displayActive) return null;
+          displayController = mountBroadcasterDisplay(displayHost, {
+            trigger: displayBtn, controls: controlsEl,
+            retry: () => { void refreshBroadcastDisplay(); },
+            save: async (preference) => {
+              // A camera pass does not create or identify an account. Sync only
+              // an existing registered browser session, preserving saved-video choices.
+              if (localVisualQaState || displayDisposed) return;
+              const client = existingDisplayAccountClient();
+              const { data: session } = await client.auth.getSession();
+              if (!session.session || displayDisposed) return;
+              const { data, error } = await client.auth.getUser();
+              if (displayDisposed || error || !data.user || data.user.is_anonymous) return;
+              const previous = data.user.user_metadata.fanview_display_v1;
+              await client.auth.updateUser({ data: { fanview_display_v1: {
+                ...(previous && typeof previous === 'object' ? previous : {}), broadcaster: preference,
+              } } });
+            },
+          });
+          displayBtn.textContent = 'Display';
+          if (!localVisualQaState) void hydrateBroadcastDisplayPreference();
+          return displayController;
+        })().catch(() => {
+          displayMountPromise = null;
+          if (!displayDisposed) displayBtn.textContent = 'Retry Display';
+          return null;
+        }).finally(() => { displayMountPromise = null; });
+        return displayMountPromise;
+      }
+      function existingDisplayAccountClient() {
+        if (!displayPreferenceClient) displayPreferenceClient = createClient(SUPABASE_URL, SUPABASE_KEY, {
+          auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: true },
+        });
+        return displayPreferenceClient;
+      }
+      async function hydrateBroadcastDisplayPreference() {
+        if (displayDisposed || !displayActive) return;
+        try {
+          const client = existingDisplayAccountClient();
+          const { data: session } = await client.auth.getSession();
+          if (!session.session || displayDisposed || !displayActive) return;
+          const { data, error } = await client.auth.getUser();
+          if (!displayDisposed && displayActive && !error && data.user && !data.user.is_anonymous) {
+            displayController?.hydrate(data.user.user_metadata.fanview_display_v1?.broadcaster);
+          }
+        } catch { /* Local broadcaster preference remains available. */ }
+      }
+      async function refreshBroadcastDisplay() {
+        if (displayDisposed || !displayActive || !streamId || displayRefreshAbort) return;
+        const controller = new AbortController(); displayRefreshAbort = controller;
+        let timeout = null;
+        try {
+          const display = await mountBroadcastDisplay();
+          if (!display || !displayActive || controller.signal.aborted) return;
+          if (localVisualQaState) {
+            display.setRow({ share_id: streamId, is_published: true, is_complete: false,
+              home_name: 'QA Falcons', away_name: 'QA Canaries', home_color: '#1556C0', away_color: '#EA2850',
+              format: 'bo3', state: { homeScore: 7, awayScore: 6, currentSet: 1 },
+              updated_at: new Date(0).toISOString(), created_at: new Date(0).toISOString(),
+              video_url: null, video_type: null, team_name: null, team_slug: null });
+            return;
+          }
+          timeout = setTimeout(() => {
+            if (displayActive) display.setUnavailable();
+            controller.abort();
+          }, 8000);
+          controller.signal.addEventListener('abort', () => clearTimeout(timeout), { once: true });
+          let result = await supabase.rpc('fanview_public_match_v2', { match_share_id: streamId })
+            .abortSignal(controller.signal).maybeSingle();
+          if (result.error?.code === 'PGRST202' || result.error?.code === '42883') {
+            result = await supabase.rpc('fanview_public_match', { match_share_id: streamId })
+              .abortSignal(controller.signal).maybeSingle();
+          }
+          if (!displayActive || controller.signal.aborted) return;
+          if (result.error || !result.data || result.data.is_published !== true) display.setUnavailable();
+          else display.setRow(result.data);
+        } catch {
+          if (displayActive && !controller.signal.aborted) displayController?.setUnavailable();
+        } finally {
+          if (timeout) clearTimeout(timeout);
+          if (displayRefreshAbort === controller) displayRefreshAbort = null;
+        }
+      }
+      function setBroadcastDisplayActive(active) {
+        if (displayDisposed) return;
+        displayActive = active; displayHost.hidden = !displayActive;
+        showControl(displayBtn, active); displayBtn.disabled = !active;
+        if (displayActive) void refreshBroadcastDisplay();
+        else {
+          displayRefreshAbort?.abort(); displayRefreshAbort = null;
+          displayController?.close(false);
+          displayController?.setUnavailable();
+        }
+      }
+      function disposeBroadcastDisplay() {
+        if (displayDisposed) return;
+        displayDisposed = true; displayActive = false;
+        displayRefreshAbort?.abort(); displayRefreshAbort = null;
+        displayController?.destroy(); displayController = null;
+      }
       function setControlState(state) {
         setUiMode(state);
         const isSetup = state === 'setup';
         const isCameraReady = state === 'camera-ready';
         const isLive = state === 'live';
         const isOffline = state === 'offline';
+        setBroadcastDisplayActive(!broadcastBlocked && (isCameraReady || isLive));
         showControl(cameraBtn, isSetup || isOffline);
         showControl(broadcastBtn, isCameraReady);
         const canShowSavedCopy = Boolean(lastRecordingUrl) && isOffline;
@@ -949,7 +1071,7 @@
         scoreBtn.disabled = !canReturnToScore;
         minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
-        chatBtn.disabled = !isLive;
+        chatBtn.disabled = !isLive || Boolean(localVisualQaState);
         audioBtn.disabled = !isLive || !media;
         shareBtn.disabled = false;
         recordToggle.disabled = isLive || !recorderSupported;
@@ -971,7 +1093,7 @@
         syncPictureInPictureControl();
         audioBtn.textContent = audioEnabled ? 'Mute' : 'Unmute';
         stopBtn.textContent = 'End';
-        if (isLive) void mountBroadcasterCommunity();
+        if (isLive && !localVisualQaState) void mountBroadcasterCommunity();
         if (!isLive) {
           broadcasterCommunity?.closeCommunity?.();
           chatBtn.dataset.open = 'false';
@@ -1043,6 +1165,7 @@
               method: 'POST',
               headers: broadcastTokenHeaders({ 'content-type': 'application/json' }),
               cache: 'no-store',
+              signal: controller.signal,
             });
             const result = await response.json().catch(() => null);
             if (response.ok && result?.ok) {
@@ -1544,6 +1667,8 @@
         const refreshAuthoritativeMatch = async () => {
           if (matchRefreshInFlight) return;
           matchRefreshInFlight = true;
+          const controller = new AbortController(); matchRefreshAbort = controller;
+          const timeout = setTimeout(() => controller.abort(), 8000);
           try {
             const response = await fetch(`${LIVE_WORKER_URL}/broadcast-token/${encodeURIComponent(streamId)}/state`, {
               method: 'POST',
@@ -1551,6 +1676,7 @@
               cache: 'no-store',
             });
             const result = await response.json().catch(() => null);
+            if (controller.signal.aborted) throw new Error('Match refresh timed out.');
             if (!response.ok || result?.ok !== true) {
               throw new Error(result?.reason || `match_state_${response.status}`);
             }
@@ -1564,6 +1690,7 @@
                 : null,
             };
             handleMatchRow(row);
+            if (displayActive) void refreshBroadcastDisplay();
 
             const finalRallyGraceActive = canUseFinalRallyTokenGrace({
               isComplete: row.is_complete,
@@ -1583,8 +1710,11 @@
               }
             }
           } catch (error) {
+            if (displayActive) displayController?.setUnavailable();
             console.warn('[CourtsideView] authoritative match refresh unavailable', error);
           } finally {
+            clearTimeout(timeout);
+            if (matchRefreshAbort === controller) matchRefreshAbort = null;
             matchRefreshInFlight = false;
           }
         };
@@ -1606,6 +1736,7 @@
         matchRefreshTimer = setInterval(() => void refreshAuthoritativeMatch(), MATCH_SYNC_REFRESH_MS);
       }
       async function stopMatchSync() {
+        matchRefreshAbort?.abort(); matchRefreshAbort = null;
         if (matchRefreshTimer) clearInterval(matchRefreshTimer);
         matchRefreshTimer = null;
         if (!matchChannel) return;
@@ -1620,11 +1751,15 @@
         });
       }
       function canUsePictureInPicture() {
-        return Boolean(
-          document.pictureInPictureEnabled &&
-          preview &&
-          typeof preview.requestPictureInPicture === 'function',
-        );
+        if (document.pictureInPictureEnabled && typeof preview?.requestPictureInPicture === 'function') {
+          return true;
+        }
+        try {
+          return typeof preview?.webkitSetPresentationMode === 'function' &&
+            preview.webkitSupportsPresentationMode?.('picture-in-picture') === true;
+        } catch {
+          return false;
+        }
       }
       async function requestScreenWakeLock() {
         if (!('wakeLock' in navigator) || !navigator.wakeLock || document.visibilityState !== 'visible') {
@@ -1701,21 +1836,31 @@
           });
         }, delayMs);
       }
+      function isPictureInPictureActive() {
+        return document.pictureInPictureElement === preview ||
+          preview.webkitPresentationMode === 'picture-in-picture';
+      }
       function syncPictureInPictureControl() {
-        const floating = document.pictureInPictureElement === preview;
+        const floating = isPictureInPictureActive();
         minimizeBtn.textContent = floating ? 'Back to video' : live ? 'Float' : 'Float Broadcast';
         minimizeBtn.setAttribute('aria-label', floating ? 'Return to broadcast video' : 'Float Broadcast');
         minimizeBtn.setAttribute('aria-pressed', String(floating));
         minimizeBtn.disabled = !live || (!floating && !canUsePictureInPicture());
       }
       async function togglePictureInPicture() {
-        if (document.pictureInPictureElement !== preview) {
+        if (!isPictureInPictureActive()) {
           await enterPictureInPicture();
           syncPictureInPictureControl();
           return;
         }
         try {
-          await document.exitPictureInPicture();
+          if (document.pictureInPictureElement === preview && typeof document.exitPictureInPicture === 'function') {
+            await document.exitPictureInPicture();
+          } else if (typeof preview.webkitSetPresentationMode === 'function') {
+            // Return to the existing camera page, preserving its controls and stream.
+            // A video-only system fullscreen would hide the page's controls.
+            preview.webkitSetPresentationMode('inline');
+          }
           showLiveControls();
         } catch {
           setStatus([
@@ -1734,13 +1879,21 @@
           return false;
         }
         try {
-          await preview.requestPictureInPicture();
-          setStatusHtml(
-            '<strong>Broadcast is floating.</strong> Keep this window open while you score.',
-            'LIVE',
-            { duration: 4200 },
-          );
-          return true;
+          if (document.pictureInPictureEnabled && typeof preview.requestPictureInPicture === 'function') {
+            await preview.requestPictureInPicture();
+          } else {
+            preview.webkitSetPresentationMode('picture-in-picture');
+          }
+          // Safari may confirm presentation asynchronously. Keep the label tied
+          // to its actual mode and let the presentation event update it.
+          if (isPictureInPictureActive()) {
+            setStatusHtml(
+              '<strong>Broadcast is floating.</strong> Keep this window open while you score.',
+              'LIVE',
+              { duration: 4200 },
+            );
+          }
+          return isPictureInPictureActive();
         } catch {
           setStatus([
             { text: 'Broadcast may pause when you leave this page.', strong: true },
@@ -2091,6 +2244,13 @@
       previewBtn.addEventListener('click', () => {
         window.open(fanViewUrl(), '_blank', 'noopener,noreferrer');
       });
+      displayBtn.addEventListener('click', async () => {
+        if (!displayActive) return;
+        const display = await mountBroadcastDisplay();
+        if (!displayActive || !display) return;
+        display.toggle();
+        void refreshBroadcastDisplay();
+      });
       minimizeBtn.addEventListener('click', () => {
         void togglePictureInPicture();
       });
@@ -2116,6 +2276,10 @@
         showLiveControls();
       });
       preview.addEventListener('enterpictureinpicture', syncPictureInPictureControl);
+      preview.addEventListener('webkitpresentationmodechanged', () => {
+        syncPictureInPictureControl();
+        showLiveControls();
+      });
       preview.addEventListener('leavepictureinpicture', () => {
         syncPictureInPictureControl();
         showLiveControls();
@@ -2192,6 +2356,7 @@
         void startMatchSync();
       }
       window.addEventListener('beforeunload', () => {
+        disposeBroadcastDisplay();
         void stopMatchSync();
         void stopHighlightReplay();
         if (lastHighlightUrl) URL.revokeObjectURL(lastHighlightUrl);

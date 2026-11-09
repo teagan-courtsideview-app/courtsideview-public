@@ -7,3 +7,5 @@ output/
 .env.local
 .idea
 .vscode
+
+fanview-production-spa/dist-broadcaster/

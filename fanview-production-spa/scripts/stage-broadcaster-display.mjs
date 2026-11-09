@@ -1,0 +1,17 @@
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const bytes = readFileSync(path.join(root, 'dist-broadcaster/broadcaster-display.js'));
+if (bytes.length > 2 * 1024 * 1024) throw new Error('Unexpectedly large broadcaster display bundle.');
+const destination = path.resolve(root, '../assets/broadcaster-display');
+mkdirSync(destination, { recursive: true });
+const filename = `broadcaster-display-${createHash('sha256').update(bytes).digest('hex').slice(0, 16)}.js`;
+writeFileSync(path.join(destination, filename), bytes);
+const page = path.resolve(root, '../live.html');
+const html = readFileSync(page, 'utf8');
+const pattern = /\/assets\/broadcaster-display\/broadcaster-display(?:-[a-f\d]+)?\.js/g;
+if ([...html.matchAll(pattern)].length !== 1) throw new Error('Expected exactly one broadcaster display import.');
+writeFileSync(page, html.replace(pattern, `/assets/broadcaster-display/${filename}`));
+console.log(`Staged isolated broadcaster display: ${bytes.length} bytes.`);
