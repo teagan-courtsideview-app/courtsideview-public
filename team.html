@@ -981,7 +981,11 @@
         $('email').value = '';
       });
 
+      let sharePending = false;
       $('shareTeam').addEventListener('click', async () => {
+        if (sharePending) return;
+        sharePending = true;
+        try {
         const publicName = displayTeamName(state.team?.name);
         const share = {
           title: `${publicName} Team Hub`,
@@ -993,7 +997,7 @@
             await navigator.share(share);
             return;
           } catch (error) {
-            if (error instanceof DOMException && error.name === 'AbortError') return;
+            if (error?.name === 'AbortError') return;
           }
         }
         try {
@@ -1005,6 +1009,7 @@
         } catch {
           window.prompt('Copy this Team Hub link:', window.location.href);
         }
+        } finally { sharePending = false; }
       });
 
       (async function init() {

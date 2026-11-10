@@ -805,7 +805,11 @@
         window.setTimeout(() => els.toast.classList.remove('show'), 2200);
       }
 
+      let sharePending = false;
       async function shareHub() {
+        if (sharePending) return;
+        sharePending = true;
+        try {
         const url = currentUrl();
         if (navigator.share) {
           try {
@@ -825,6 +829,8 @@
         } catch {
           showToast('Copy this page link from your browser');
         }
+
+        } finally { sharePending = false; }
       }
 
       function heroAction(row, label = 'Watch FanView') {

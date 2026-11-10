@@ -678,6 +678,13 @@
       let statusTimer = null;
       let reconnectTimer = null;
       let reconnectAttempt = 0;
+      let reconnectPromise = null;
+      let resumePromise = null;
+      let sharePending = false;
+      let broadcastGeneration = 0;
+      let cameraStartPromise = null;
+      let broadcastStartPromise = null;
+      let recordingInterrupted = false;
       let finalRallyStopTimer = null;
       let matchChannel = null;
       let matchRefreshTimer = null;
@@ -1416,27 +1423,38 @@
         ], statePill.textContent || 'READY');
       }
       async function shareFanViewLink() {
-        ensureStreamId();
-        const url = fanViewUrl();
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title: 'Watch on FanView',
-              text: 'Follow the game live on FanView.',
-              url,
-            });
-            return;
-          } catch (error) {
-            if (error instanceof DOMException && error.name === 'AbortError') return;
-          }
-        }
+        if (sharePending) return;
+        sharePending = true;
+        shareBtn.disabled = true;
         try {
-          await copyFanViewLink();
+          ensureStreamId();
+          const url = fanViewUrl();
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: 'Watch on FanView',
+                text: 'Follow the game live on FanView.',
+                url,
+              });
+              return;
+            } catch (error) {
+              if (error?.name === 'AbortError') return;
+            }
+          }
+          try {
+            await copyFanViewLink();
+          } catch {
+            setStatus([
+              { text: 'Copy this game link:', strong: true },
+              { text: ` ${url}` },
+            ], statePill.textContent || 'READY', { persistent: true });
+          }
         } catch {
-          setStatus([
-            { text: 'Copy this game link:', strong: true },
-            { text: ` ${url}` },
-          ], statePill.textContent || 'READY', { persistent: true });
+          setStatus([{ text: 'Game link unavailable. Return to scoring and open FanView again.', strong: true }], 'UNAVAILABLE');
+        } finally {
+          sharePending = false;
+          shareBtn.disabled = !streamId;
+          void resumeCameraAfterReturn();
         }
       }
       function ensureStreamId() {
@@ -1822,9 +1840,15 @@
         }
       }
       function cameraTracksAreLive() {
-        return Boolean(media && media.getVideoTracks().some((track) => track.readyState === 'live'));
+        return Boolean(media && media.getVideoTracks().some((track) => track.readyState === 'live' && !track.muted));
       }
-      async function reconnectBroadcast(reason = 'Reconnecting Broadcast...') {
+      function reconnectBroadcast(reason = 'Reconnecting Broadcast...') {
+        if (reconnectPromise) return reconnectPromise;
+        reconnectPromise = performReconnect(reason).finally(() => { reconnectPromise = null; });
+        return reconnectPromise;
+      }
+      async function performReconnect(reason) {
+        const generation = broadcastGeneration;
         if (!broadcastDesired || intentionalStop) return;
         setStatus([
           { text: reason, strong: true },
@@ -1832,16 +1856,38 @@
         ], 'RECONNECTING', { persistent: true });
         closePeerConnection({ stopTracks: false });
         if (!cameraTracksAreLive()) {
-          if (media) {
-            media.getTracks().forEach((track) => track.stop());
-            media = null;
-            preview.srcObject = null;
-          }
-          await startCamera();
+          await startCamera({ preserveAudio: true });
+          if (generation !== broadcastGeneration || intentionalStop) return;
           if (!media) throw new Error('Camera could not be reacquired.');
         }
         await startBroadcast({ reconnecting: true });
+        if (generation !== broadcastGeneration || intentionalStop) return;
         if (!live) throw new Error('Broadcast ingest did not reconnect.');
+      }
+      function resumeCameraAfterReturn() {
+        if (document.visibilityState !== 'visible' || intentionalStop || !media) return Promise.resolve();
+        if (resumePromise) return resumePromise;
+        const generation = broadcastGeneration;
+        resumePromise = (async () => {
+          try {
+            if (broadcastDesired) {
+              void requestScreenWakeLock();
+              if (!live || !pc || ['failed', 'disconnected', 'closed'].includes(pc.connectionState) || !cameraTracksAreLive()) {
+                await reconnectBroadcast('Restoring Broadcast...');
+              }
+            } else if (!cameraTracksAreLive()) {
+              await startCamera({ preserveAudio: true });
+            }
+            if (generation !== broadcastGeneration || intentionalStop) return;
+            if (media && preview.paused) await preview.play();
+          } catch {
+            if (generation !== broadcastGeneration || intentionalStop) return;
+            setStatus([{ text: 'Video paused. Tap Start Camera to try again.', strong: true }], 'PAUSED', { persistent: true });
+            cameraBtn.disabled = false;
+            if (broadcastDesired) scheduleReconnect('Restoring Broadcast...');
+          }
+        })().finally(() => { resumePromise = null; });
+        return resumePromise;
       }
       function scheduleReconnect(reason = 'Reconnecting Broadcast...') {
         if (!broadcastDesired || intentionalStop || reconnectTimer) return;
@@ -2038,26 +2084,65 @@
           }
         }
       }
-      async function startCamera() {
+      async function startCamera(options = {}) {
+        if (cameraStartPromise) return cameraStartPromise;
+        cameraStartPromise = performCameraStart(options).finally(() => { cameraStartPromise = null; });
+        return cameraStartPromise;
+      }
+      async function performCameraStart({ preserveAudio = false } = {}) {
+        const generation = broadcastGeneration;
+        const previousAudioEnabled = audioEnabled;
         ensureStreamId();
         if (!(await validateBroadcastAccess())) return;
+        if (generation !== broadcastGeneration) return;
         if (!navigator.mediaDevices?.getUserMedia) {
           throw new Error('Camera is not available on this device.');
         }
+        if (media) {
+          if (mediaRecorder || recorderChunks.length || highlightRuntime) {
+            // Save the interrupted file before releasing the tracks it owns.
+            // A recovered camera must not silently start a second recording.
+            recordEnabled = false;
+            recordToggle.checked = false;
+            recordingInterrupted = true;
+            await stopHighlightReplay();
+            await finalizeRecordingChunk('camera-paused', { restart: false });
+            if (generation !== broadcastGeneration) return;
+            updateRecordingEstimate();
+          }
+          const previousMedia = media;
+          media = null;
+          preview.srcObject = null;
+          previousMedia.getTracks().forEach((track) => track.stop());
+        }
         broadcastHasEnded = false;
-        media = await requestCameraStream();
+        const nextMedia = await requestCameraStream();
+        if (generation !== broadcastGeneration) {
+          nextMedia.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        media = nextMedia;
+        if (preserveAudio) audioEnabled = previousAudioEnabled && media.getAudioTracks().length > 0;
+        media.getAudioTracks().forEach((track) => { track.enabled = audioEnabled; });
         const activeVideoTrack = media.getVideoTracks()[0];
         activeVideoTrack?.addEventListener('ended', () => {
           if (!broadcastDesired || intentionalStop || media?.getVideoTracks()[0] !== activeVideoTrack) return;
           scheduleReconnect('Camera video paused. Reconnecting Broadcast...');
         }, { once: true });
+        activeVideoTrack?.addEventListener('mute', () => {
+          if (media?.getVideoTracks()[0] === activeVideoTrack && document.visibilityState === 'visible') {
+            void resumeCameraAfterReturn();
+          }
+        });
         preview.srcObject = media;
         cameraBtn.textContent = 'Start Camera';
         broadcastBtn.textContent = 'Start Broadcast';
         setPageCopy('Ready To Broadcast', 'Check the court view, then start Broadcast.');
         hintEl.textContent = 'Check the court view, then start Broadcast.';
         setControlState('camera-ready');
-        if (audioEnabled) {
+        if (recordingInterrupted) {
+          setStatus([{ text: 'Camera ready. Recording paused; save any clip shown below.', strong: true }], 'READY', { persistent: true });
+        } else if (audioEnabled) {
           setStatusHtml('<strong>Ready to Broadcast.</strong>', 'READY');
         } else {
           setStatusHtml('<strong>Ready to Broadcast.</strong> Audio is off.', 'READY', { duration: 3600 });
@@ -2110,19 +2195,28 @@
         highlightRuntime = null;
         await runtime?.stop().catch(() => {});
       }
-      async function startBroadcast({ reconnecting = false } = {}) {
+      async function startBroadcast(options = {}) {
+        if (broadcastStartPromise) return broadcastStartPromise;
+        broadcastStartPromise = performBroadcastStart(options).finally(() => { broadcastStartPromise = null; });
+        return broadcastStartPromise;
+      }
+      async function performBroadcastStart({ reconnecting = false } = {}) {
+        const generation = broadcastGeneration;
         ensureStreamId();
         if (!(await validateBroadcastAccess())) return;
+        if (generation !== broadcastGeneration) return;
         if (!media) await startCamera();
-        if (!media) return;
+        if (!media || generation !== broadcastGeneration) return;
         intentionalStop = false;
         broadcastHasEnded = false;
         broadcastDesired = true;
         closePeerConnection({ stopTracks: false });
-        pc = createPeerConnection();
-        pc.addEventListener('connectionstatechange', () => {
-          if (!pc || intentionalStop) return;
-          if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+        const connection = createPeerConnection();
+        pc = connection;
+        const isCurrent = () => generation === broadcastGeneration && pc === connection && !intentionalStop;
+        connection.addEventListener('connectionstatechange', () => {
+          if (!isCurrent()) return;
+          if (connection.connectionState === 'failed' || connection.connectionState === 'disconnected') {
             live = false;
             cameraBtn.disabled = false;
             resetBroadcastControls('Reconnect Broadcast');
@@ -2133,18 +2227,23 @@
           }
         });
         media.getTracks().forEach((track) => {
-          pc.addTransceiver(track, { direction: 'sendonly' });
+          connection.addTransceiver(track, { direction: 'sendonly' });
         });
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
+        const offer = await connection.createOffer();
+        if (!isCurrent()) return;
+        await connection.setLocalDescription(offer);
+        if (!isCurrent()) return;
         const response = await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
           method: 'POST',
           headers: broadcastTokenHeaders({ 'content-type': 'application/sdp' }),
           body: offer.sdp || '',
         });
+        if (!isCurrent()) return;
         if (!response.ok) throw new Error(await response.text());
         const answer = await response.text();
-        await pc.setRemoteDescription({ type: 'answer', sdp: answer });
+        if (!isCurrent()) return;
+        await connection.setRemoteDescription({ type: 'answer', sdp: answer });
+        if (!isCurrent()) return;
         live = true;
         reconnectAttempt = 0;
         broadcastBtn.textContent = 'Broadcast live';
@@ -2161,7 +2260,11 @@
           startLocalRecording();
         }
         statePill.textContent = 'LIVE';
-        statusEl.classList.remove('on');
+        if (recordingInterrupted) {
+          setStatus([{ text: 'Video is back. Recording paused; save any clip shown below.', strong: true }], 'LIVE', { persistent: true });
+        } else {
+          statusEl.classList.remove('on');
+        }
       }
       async function stopBroadcast(options = {}) {
         if (intentionalStop && broadcastHasEnded) return;
@@ -2170,6 +2273,7 @@
           finalRallyStopTimer = null;
         }
         intentionalStop = true;
+        broadcastGeneration += 1;
         broadcastDesired = false;
         live = false;
         displayController?.setPresentationActive(false);
@@ -2318,6 +2422,7 @@
       });
       recordToggle.addEventListener('change', () => {
         recordEnabled = recordToggle.checked;
+        if (recordEnabled) recordingInterrupted = false;
         updateRecordingEstimate();
       });
       document.addEventListener('click', revealLiveControls);
@@ -2329,18 +2434,15 @@
         if (document.visibilityState === 'visible') {
           syncPictureInPictureControl();
           showLiveControls();
-          if (broadcastDesired) {
-            void requestScreenWakeLock();
-            if (!live || !pc || !cameraTracksAreLive()) {
-              void reconnectBroadcast('Restoring Broadcast...');
-            }
-          }
+          void resumeCameraAfterReturn();
         } else if (broadcastDesired) {
           setStatus([
             { text: 'Broadcast should keep running. Return here if it pauses.', strong: true },
           ], 'LIVE', { duration: 3600 });
         }
       });
+      window.addEventListener('pageshow', () => { void resumeCameraAfterReturn(); });
+      window.addEventListener('focus', () => { void resumeCameraAfterReturn(); });
       window.addEventListener('pagehide', () => {
         if (!broadcastDesired || intentionalStop) return;
         setStatus([

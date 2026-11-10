@@ -508,7 +508,11 @@
       $('trackTab').classList.toggle('active', !isDashboard);
     }
 
+    let sharePending = false;
     async function sharePage() {
+      if (sharePending) return;
+      sharePending = true;
+      try {
       const url = trackUrlFromPath();
       if (navigator.share) {
         try {
@@ -528,6 +532,8 @@
       } catch {
         setStatus('info', url);
       }
+
+      } finally { sharePending = false; }
     }
 
     $('dashboardTab').addEventListener('click', () => showTab('dashboard'));
