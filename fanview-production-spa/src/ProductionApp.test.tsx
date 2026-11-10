@@ -556,3 +556,13 @@ describe("public link access and account failure isolation", () => {
     expect(screen.queryByText(/create account|sign in/i)).not.toBeInTheDocument();
   });
 });
+
+
+describe("standalone scoreboard controls", () => {
+  it("reserves the left hit area for Display and a separate row when Chat fills narrow reflow", () => {
+    const corrections = fs.readFileSync(path.resolve(__dirname, "../scripts/reflow-corrections.css"), "utf8");
+    expect(corrections).toMatch(/\.fanview-app \.scoreboard-display-trigger--standalone\s*\{\s*right: auto;\s*left: max\(10px, env\(safe-area-inset-left\)\);\s*transform: none;/);
+    expect(corrections).toMatch(/@media \(max-width: 300px\)\s*\{\s*\.fanview-app \.scoreboard-display-trigger--standalone\s*\{[\s\S]*?bottom: calc\(var\(--fanview-mobile-bottom-inset\) \+ 66px\)/);
+    // Parent verifies actual geometry/hit-testing; jsdom does not lay out CSS.
+  });
+});

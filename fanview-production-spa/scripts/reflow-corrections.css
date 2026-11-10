@@ -102,3 +102,23 @@
   text-overflow: clip;
   line-height: 1.4;
 }
+
+/* Standalone Display and Chat must own separate hit areas. Keep the existing
+   mobile left/right arrangement on wide screens and compact landscape too. */
+.fanview-app .scoreboard-display-trigger--standalone {
+  right: auto;
+  left: max(10px, env(safe-area-inset-left));
+  transform: none;
+}
+@media (min-width: 721px) {
+  .fanview-app .scoreboard-display-trigger--standalone {
+    left: max(24px, env(safe-area-inset-left));
+  }
+}
+/* Chat occupies the full bottom row at extreme text reflow; reserve its row. */
+@media (max-width: 300px) {
+  .fanview-app .scoreboard-display-trigger--standalone {
+    left: max(8px, env(safe-area-inset-left));
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 66px);
+  }
+}
