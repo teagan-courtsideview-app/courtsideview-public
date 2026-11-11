@@ -36,6 +36,9 @@ interface Props {
 }
 
 const VIDEO_STALL_CHECK_MS = 2_000;
+// Initial ICE/media establishment needs its own window; a six-second stall
+// deadline is appropriate only after this session has actually delivered video.
+const VIDEO_FIRST_FRAME_TIMEOUT_MS = 12_000;
 const VIDEO_STALL_RECONNECT_MS = 6_000;
 const VIDEO_RECONNECT_DELAY_MS = 1_500;
 const VIDEO_NEGOTIATION_TIMEOUT_MS = 12_000;
@@ -456,7 +459,8 @@ function CloudflareVideo({
             } catch { /* Missing video evidence stays on the recovery surface. */ }
             finally { frameCheckPending = false; }
             if (!isCurrent() || document.visibilityState === "hidden" || playbackGestureRef.current) return;
-            if (Date.now() - lastProgressAt >= VIDEO_STALL_RECONNECT_MS) reconnect();
+            const frameDeadline = hasVideoProgress ? VIDEO_STALL_RECONNECT_MS : VIDEO_FIRST_FRAME_TIMEOUT_MS;
+            if (Date.now() - lastProgressAt >= frameDeadline) reconnect();
           })();
         }, VIDEO_STALL_CHECK_MS);
       } catch {

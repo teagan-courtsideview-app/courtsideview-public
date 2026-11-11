@@ -107,6 +107,24 @@ describe("viewer frame recovery on the original link", () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(0); });
     return { fetch, view, video: view.container.querySelector("video")! };
   };
+  it("allows slow initial ICE and first video without discarding the healthy pending session", async () => {
+    vi.useFakeTimers();
+    const { video, fetch } = await ready();
+    peers[0].connectionState = "connecting";
+    await act(async () => { await vi.advanceTimersByTimeAsync(8_000); });
+    expect(peers).toHaveLength(1);
+    expect(fetch.mock.calls.filter(([, init]) => init.method === "DELETE")).toHaveLength(0);
+    expect(screen.getByText("Connecting video")).toBeVisible();
+    Object.defineProperties(video, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
+    peers[0].connectionState = "connected";
+    videoFrames = 1;
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_000); });
+    expect(screen.queryByText("Connecting video")).not.toBeInTheDocument();
+    expect(peers).toHaveLength(1);
+    // Once real video exists, the shorter stalled-video deadline still applies.
+    await act(async () => { await vi.advanceTimersByTimeAsync(6_000); });
+    expect(screen.getByText("Reconnecting video")).toBeVisible();
+  });
   it("does not hide recovery for audio, a connected peer, or an advancing audio clock", async () => {
     vi.useFakeTimers();
     const { video } = await ready();
@@ -118,7 +136,7 @@ describe("viewer frame recovery on the original link", () => {
       await vi.advanceTimersByTimeAsync(2_000);
     });
     expect(screen.getByText("Connecting video")).toBeVisible();
-    await act(async () => { await vi.advanceTimersByTimeAsync(4_000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(10_000); });
     expect(screen.getByText("Reconnecting video")).toBeVisible();
   });
   it("recovers 20 frozen-video sessions on the same URL while preserving scores and controls", async () => {
@@ -166,7 +184,7 @@ describe("viewer frame recovery on the original link", () => {
     peers[0].connectionState = "connected"; videoFrames = 30; droppedFrames = 30;
     await act(async () => { await vi.advanceTimersByTimeAsync(2_000); });
     expect(screen.getByText("Connecting video")).toBeVisible();
-    await act(async () => { await vi.advanceTimersByTimeAsync(4_000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(10_000); });
     expect(screen.getByText("Reconnecting video")).toBeVisible();
   });
   it("prefers actual frame callbacks over quality counters that advance without rendering", async () => {
@@ -175,10 +193,10 @@ describe("viewer frame recovery on the original link", () => {
     const { video } = await ready();
     Object.defineProperties(video, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
     peers[0].connectionState = "connected"; videoFrames = 100;
-    await act(async () => { await vi.advanceTimersByTimeAsync(6_000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(12_000); });
     expect(screen.getByText("Reconnecting video")).toBeVisible();
   });
-  it("gives a slow successful negotiation a fresh six-second first-frame window", async () => {
+  it("gives a slow successful negotiation a fresh bounded twelve-second first-frame window", async () => {
     vi.useFakeTimers(); let release!: (response: Response) => void;
     vi.stubGlobal("fetch", vi.fn(async (url: string, init: RequestInit) => {
       if(url.includes("/presence/") || init.method === "DELETE") return new Response(null,{status:204});
@@ -187,7 +205,7 @@ describe("viewer frame recovery on the original link", () => {
     }));
     mountMedia(); await act(async()=>{await vi.advanceTimersByTimeAsync(10_000);});
     await act(async()=>release(new Response(null,{status:204})));
-    await act(async()=>{await vi.advanceTimersByTimeAsync(4_000);});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(10_000);});
     expect(screen.getByText("Connecting video")).toBeVisible();
     await act(async()=>{await vi.advanceTimersByTimeAsync(2_000);});
     expect(screen.getByText("Reconnecting video")).toBeVisible();
@@ -206,7 +224,7 @@ describe("viewer frame recovery on the original link", () => {
     vi.useFakeTimers(); Object.defineProperty(HTMLVideoElement.prototype,"getVideoPlaybackQuality",{configurable:true,value:undefined});
     await ready();peers[0].getStats.mockImplementation(()=>new Promise(()=>{}));
     await act(async()=>{await vi.advanceTimersByTimeAsync(2_500);});expect(peers[0].getStats).toHaveBeenCalledTimes(1);
-    await act(async()=>{await vi.advanceTimersByTimeAsync(5_500);});expect(screen.getByText('Reconnecting video')).toBeVisible();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(9_500);});expect(screen.getByText('Reconnecting video')).toBeVisible();
   });
   it("shows a usable Play action when autoplay is rejected while connecting", async () => {
     vi.useFakeTimers();vi.mocked(HTMLMediaElement.prototype.play).mockRejectedValue(new Error('gesture required'));
@@ -225,7 +243,7 @@ describe("viewer frame recovery on the original link", () => {
     vi.useFakeTimers();let resolve!:()=>void;let reject!:(error:Error)=>void;
     vi.mocked(HTMLMediaElement.prototype.play).mockImplementationOnce(()=>new Promise<void>((yes,no)=>{resolve=yes;reject=no;}));
     const { video }=await ready();const old=video.srcObject;
-    await act(async()=>{await vi.advanceTimersByTimeAsync(7_500);});expect(video.srcObject).not.toBe(old);
+    await act(async()=>{await vi.advanceTimersByTimeAsync(13_500);});expect(video.srcObject).not.toBe(old);
     vi.mocked(HTMLMediaElement.prototype.play).mockResolvedValue();
     await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Turn on live audio'})));
     expect(screen.getByRole('button',{name:'Mute live audio'})).toBeVisible();
