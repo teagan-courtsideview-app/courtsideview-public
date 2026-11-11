@@ -429,6 +429,34 @@
         body.camera-mode.is-live #stopBtn { color: #fff; background: rgba(239,68,68,0.92); border-color: rgba(255,255,255,0.18); }
         body.camera-mode.is-live.controls-hidden .controls { transform: none; }
       }
+    /* Shared journey copy retains sentence case at every action size. */
+      button, .download-button, .preview-link, .record-copy strong,
+      .save-sheet h2, .confirm-sheet h2 { text-transform: none; letter-spacing: 0; }
+      .controls button { white-space: normal; overflow-wrap: normal; word-break: normal; }
+      @media (prefers-color-scheme: light) {
+        :root { --bg: #f4f7fa; --panel: #ffffff; --ink: #111827; --muted: #526170; --dim: #526170; --border: #c6d0da; }
+        body:not(.camera-mode) .secondary { background: #ffffff; color: #111827; border-color: #c6d0da; }
+        body:not(.camera-mode) .record-panel { background: #ffffff; border-color: #c6d0da; }
+        body:not(.camera-mode) .record-switch { background: #657180; border-color: #657180; }
+        body:not(.camera-mode) .record-toggle input:checked + .record-switch { background: #00845a; border-color: #00845a; }
+        body:not(.camera-mode) .download-panel, body:not(.camera-mode) .handoff-panel { background: #e1f3e9; color: #111827; }
+        body:not(.camera-mode) .download-panel strong, body:not(.camera-mode) .handoff-title { color: #111827; }
+        body:not(.camera-mode) .download-panel span, body:not(.camera-mode) .handoff-copy { color: #526170; }
+        .video-shell, .join-toast { --ink: #f8fafc; --muted: #bac4d0; --dim: #bac4d0; }
+        /* Camera overlays retain their dark backing for readable video controls. */
+        body.camera-mode { --ink: #f8fafc; --muted: #bac4d0; --dim: #bac4d0; --border: #657180; }
+      }
+    @media (prefers-color-scheme: light) {
+        body.camera-mode .controls { --ink: #111827; --muted: #526170; --dim: #526170; --border: #788696;
+          background: rgba(248,250,252,0.97); border-color: #788696; }
+        body.camera-mode .record-panel { background: #fff; color: #111827; border-color: #788696; }
+        body.camera-mode .record-switch { background: #657180; border-color: #657180; }
+        body.camera-mode .record-toggle input:checked + .record-switch { background: #00845a; border-color: #00845a; }
+        body.camera-mode .controls .secondary, body.camera-mode .controls .fanview-primary { color: #111827; background: #fff; border-color: #788696; }
+        body.camera-mode .controls .primary { background: #9b2458; color: #fff; }
+        body.camera-mode .controls .record-copy span, body.camera-mode .controls .record-copy small { color: #526170; }
+        body.camera-mode .controls .preview-link { color: #526170; }
+      }
     </style>
     <link rel="stylesheet" href="/assets/fonts/public-page-type.css" />
 </head>
@@ -441,7 +469,7 @@
       </header>
       <div class="stage">
         <section class="hero">
-          <h1 id="pageTitle">Start Broadcast</h1>
+          <h1 id="pageTitle">Go live</h1>
           <p id="pageLead" class="lead">Aim at the court. You decide when to go live.</p>
         </section>
         <section class="broadcast-panel">
@@ -452,7 +480,7 @@
                 <path d="M18 23.5h6.2l3.1-4.5h9.4l3.1 4.5H46c3.3 0 6 2.7 6 6v15c0 3.3-2.7 6-6 6H18c-3.3 0-6-2.7-6-6v-15c0-3.3 2.7-6 6-6Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
                 <path d="M32 43.5a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" stroke="currentColor" stroke-width="4"/>
               </svg>
-              <div class="camera-placeholder-copy">Start Camera when you are ready to frame the court.</div>
+              <div class="camera-placeholder-copy">Open camera when you are ready to frame the court.</div>
             </div>
             <div class="top-overlay" aria-live="polite">
               <span id="broadcastStateChip" hidden>READY</span>
@@ -463,7 +491,7 @@
                 </span>
               </span>
             </div>
-            <div id="status" class="status"><strong>Broadcast off.</strong> Tap Start Camera when ready.</div>
+            <div id="status" class="status"><strong>Broadcast off.</strong> Tap Open camera when ready.</div>
           </div>
           <div class="viewer-row" aria-live="polite">
             <span class="viewer-dot"></span>
@@ -471,36 +499,36 @@
           </div>
           <div id="handoffPanel" class="handoff-panel" aria-live="polite">
             <div id="handoffTitle" class="handoff-title">Broadcast live</div>
-            <div id="handoffCopy" class="handoff-copy">Return to score to keep scoring.</div>
+            <div id="handoffCopy" class="handoff-copy">Back to score to keep scoring.</div>
           </div>
           <div class="controls">
             <div id="downloadPanel" class="download-panel is-hidden">
               <div>
                 <strong>Video ready to save</strong>
-                <span id="downloadMeta">Your Broadcast copy is ready.</span>
+                <span id="downloadMeta">Your video copy is ready.</span>
               </div>
-              <a id="downloadLink" class="download-button" href="#" download>Save Video</a>
+              <a id="downloadLink" class="download-button" href="#" download>Save video</a>
             </div>
-            <button id="cameraBtn" class="primary">Start Camera</button>
-            <button id="broadcastBtn" class="primary is-hidden" disabled>Start Broadcast</button>
-            <button id="scoreBtn" class="secondary is-hidden" disabled>Return to score</button>
+            <button id="cameraBtn" class="primary">Open camera</button>
+            <button id="broadcastBtn" class="primary is-hidden" disabled>Go live</button>
+            <button id="scoreBtn" class="secondary is-hidden" disabled>Back to score</button>
             <button id="clearHighlightStorageBtn" class="secondary is-hidden" type="button">Saved highlights</button>
-            <button id="shareBtn" class="fanview-primary">Share Fan Link</button>
-            <button id="minimizeBtn" class="secondary is-hidden" disabled>Float Broadcast</button>
+            <button id="shareBtn" class="fanview-primary">Share link</button>
+            <button id="minimizeBtn" class="secondary is-hidden" disabled>Float</button>
             <button id="displayBtn" data-scoreboard-display-trigger class="secondary is-hidden" type="button" aria-expanded="false" disabled>Display</button>
             <button id="chatBtn" class="secondary is-hidden" type="button" aria-expanded="false">Chat</button>
             <button id="audioBtn" class="secondary is-hidden" type="button">Muted</button>
-            <button id="stopBtn" class="danger is-hidden" disabled>End</button>
-            <button id="previewBtn" class="preview-link">View Fan Page</button>
+            <button id="stopBtn" class="danger is-hidden" disabled>End video</button>
+            <button id="previewBtn" class="preview-link">View as fan</button>
             <div id="recordPanel" class="record-panel">
               <label class="record-toggle" aria-label="Save a copy on this device">
                 <input id="recordToggle" type="checkbox" />
                 <span class="record-switch" aria-hidden="true"></span>
               </label>
               <div class="record-copy">
-                <strong>Recording optional</strong>
-                <span>Off unless you deliberately turn it on.</span>
-                <small id="recordEstimate">After you end the Broadcast, tap Save Video. Highlight requests may also keep local clips on this device.</small>
+                <strong>Save a copy</strong>
+                <span>Off by default.</span>
+                <small id="recordEstimate">Saved on this device. Highlights may also save local clips.</small>
               </div>
             </div>
           </div>
@@ -514,10 +542,10 @@
     <div id="savePrompt" class="save-backdrop" role="dialog" aria-modal="true" aria-labelledby="savePromptTitle" aria-hidden="true" hidden inert>
       <div class="save-sheet">
         <h2 id="savePromptTitle">Save your video?</h2>
-        <p>Your Broadcast copy is ready. Save it now before leaving this screen.</p>
+        <p>Your video copy is ready. Save it now before leaving this screen.</p>
         <div id="savePromptMeta" class="save-meta">Video ready.</div>
         <div class="save-actions">
-          <a id="savePromptLink" class="save-now" href="#" download>Save Video</a>
+          <a id="savePromptLink" class="save-now" href="#" download>Save video</a>
           <button id="savePromptDismiss" class="save-later" type="button">Not now</button>
         </div>
       </div>
@@ -534,11 +562,11 @@
     </div>
     <div id="endConfirm" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="endConfirmTitle" aria-hidden="true" hidden inert>
       <div class="confirm-sheet">
-        <h2 id="endConfirmTitle">End Broadcast?</h2>
+        <h2 id="endConfirmTitle">End video?</h2>
         <p>Fans will still see the score, but this Broadcast will stop.</p>
         <div class="confirm-actions">
           <button id="cancelEndBtn" class="keep" type="button">Keep Broadcast Live</button>
-          <button id="confirmEndBtn" class="danger" type="button">End Broadcast</button>
+          <button id="confirmEndBtn" class="danger" type="button">End video</button>
         </div>
       </div>
     </div>
@@ -1116,15 +1144,15 @@
         setButtonVariant(broadcastBtn, 'primary');
         setButtonVariant(scoreBtn, isLive ? 'primary' : 'secondary');
         setButtonVariant(shareBtn, 'fanview');
-        scoreBtn.textContent = isLive ? 'Return' : 'Return to score';
+        scoreBtn.textContent = 'Back to score';
         scoreBtn.setAttribute(
           'aria-label',
           isLive ? 'Return to scoring' : 'Return to scoring without starting video',
         );
-        shareBtn.textContent = isLive ? 'Share' : 'Share Fan Link';
+        shareBtn.textContent = 'Share link';
         syncPictureInPictureControl();
         audioBtn.textContent = audioEnabled ? 'Mute' : 'Unmute';
-        stopBtn.textContent = 'End';
+        stopBtn.textContent = 'End video';
         if (isLive && !localVisualQaState) void mountBroadcasterCommunity();
         if (!isLive) {
           broadcasterCommunity?.closeCommunity?.();
@@ -1171,7 +1199,7 @@
         broadcastBlocked = true;
         broadcastValidationRetryable = options.retryable === true;
         cameraBtn.textContent = broadcastValidationRetryable ? 'Retry setup' : 'Broadcast unavailable';
-        broadcastBtn.textContent = 'Start Broadcast';
+        broadcastBtn.textContent = 'Go live';
         setPageCopy('Broadcast unavailable', reason);
         hintEl.textContent = reason;
         setControlState('offline');
@@ -1239,7 +1267,7 @@
         }
         return false;
       }
-      function resetBroadcastControls(label = 'Start Broadcast') {
+      function resetBroadcastControls(label = 'Go live') {
         broadcastBtn.textContent = label;
         setControlState(media ? 'camera-ready' : 'setup');
       }
@@ -1553,7 +1581,7 @@
         lastRecordingUrl = url;
         downloadLink.href = url;
         downloadLink.download = filename;
-        downloadMeta.textContent = `${formatBytes(blob.size)} ready. Tap Save Video before leaving this screen.`;
+        downloadMeta.textContent = `${formatBytes(blob.size)} ready. Tap Save video before leaving this screen.`;
         if (!live) {
           downloadPanel.classList.remove('is-hidden');
           if (meta.reason === 'video-ended' || meta.reason === 'match-complete' || meta.reason === 'manual') {
@@ -1947,7 +1975,7 @@
         cameraBtn.textContent = 'Try camera again';
         showControl(stopBtn, broadcastDesired);
         stopBtn.disabled = !broadcastDesired;
-        setStatus([{ text: 'Camera paused. Try again. Your Fan Link stays the same.', strong: true }], 'PAUSED', { persistent: true });
+        setStatus([{ text: 'Camera paused. Try again. Your link stays the same.', strong: true }], 'PAUSED', { persistent: true });
       }
       function startVideoHealth(connection, generation, activity, previous) {
         let misses = 0;
@@ -1963,7 +1991,7 @@
           finally { if (videoHealthOwner === owner) videoHealthOwner = null; }
           if (misses < 2 || !cameraOperationCurrent(generation, activity) || pc !== connection) return;
           live = false;
-          if (automaticCameraRecoveries++ < 1) scheduleReconnect('Restoring Broadcast...');
+          if (automaticCameraRecoveries++ < 1) scheduleReconnect('Reconnecting video…');
           else showCameraRecoveryError();
         }, 3000);
       }
@@ -2009,7 +2037,7 @@
         const activity = cameraActivity;
         const pending = (async () => {
           try {
-            if (broadcastDesired) await reconnectBroadcast('Restoring Broadcast...');
+            if (broadcastDesired) await reconnectBroadcast('Reconnecting video…');
             else {
               if (cameraStartPromise) await cameraStartPromise.catch(() => {});
               assertCameraOperation(generation, activity);
@@ -2033,13 +2061,13 @@
         const generation = broadcastGeneration;
         const activity = cameraActivity;
         const delayMs = 1500 * (++reconnectAttempt);
-        setStatus([{ text: 'Restoring Broadcast...', strong: true }], 'RECONNECTING', { persistent: true });
+        setStatus([{ text: 'Reconnecting video…', strong: true }], 'RECONNECTING', { persistent: true });
         reconnectTimer = setTimeout(() => {
           reconnectTimer = null;
           if (!cameraOperationCurrent(generation, activity)) return;
           void reconnectBroadcast(reason).catch(error => {
             if (!cameraOperationCurrent(generation, activity) || error?.name === 'AbortError') return;
-            scheduleReconnect('Restoring Broadcast...');
+            scheduleReconnect('Reconnecting video…');
           });
         }, delayMs);
       }
@@ -2057,7 +2085,7 @@
         const floating = isPictureInPictureActive();
         const phase = displayController?.presentationPhase() || 'preparing';
         const unavailable = phase === 'ready' && !canUsePictureInPicture();
-        minimizeBtn.textContent = floating ? 'Back to video' : !live ? 'Float Broadcast'
+        minimizeBtn.textContent = floating ? 'Back to video' : !live ? 'Float'
           : phase === 'preparing' ? 'Preparing Float' : unavailable ? 'Float unavailable'
           : pipRequestFailed || phase === 'unavailable' ? 'Retry Float' : 'Float';
         minimizeBtn.setAttribute('aria-label', floating ? 'Return to broadcast video' : minimizeBtn.textContent);
@@ -2155,7 +2183,7 @@
         if (name === 'NotAllowedError' || name === 'SecurityError' || /permission denied/i.test(message)) {
           return [
             { text: 'Camera permission is blocked.', strong: true },
-            { text: ' Open this page’s site settings, allow Camera, then tap Start Camera again.' },
+            { text: ' Open this page’s site settings, allow Camera, then tap Open camera again.' },
           ];
         }
         if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
@@ -2167,7 +2195,7 @@
         if (name === 'NotReadableError' || name === 'TrackStartError') {
           return [
             { text: 'Camera is already in use.', strong: true },
-            { text: ' Close any other app using the camera, then tap Start Camera again.' },
+            { text: ' Close any other app using the camera, then tap Open camera again.' },
           ];
         }
         return [
@@ -2280,15 +2308,15 @@
         await waitForPreviewFrames(media, generation, activity);
         assertCameraOperation(generation, activity);
         previewConfirmedStream = media;
-        cameraBtn.textContent = 'Start Camera';
-        broadcastBtn.textContent = 'Start Broadcast';
-        setPageCopy('Ready To Broadcast', 'Check the court view, then start Broadcast.');
-        hintEl.textContent = 'Check the court view, then start Broadcast.';
+        cameraBtn.textContent = 'Open camera';
+        broadcastBtn.textContent = 'Go live';
+        setPageCopy('Camera preview', 'Check the court view, then tap Go live.');
+        hintEl.textContent = 'Check the court view, then tap Go live.';
         setControlState('camera-ready');
         if (broadcastDesired) {
           broadcastBtn.disabled = true;
           showControl(stopBtn, true); stopBtn.disabled = false;
-          setStatus([{ text: 'Restoring Broadcast...', strong: true }], 'RECONNECTING', { persistent: true });
+          setStatus([{ text: 'Reconnecting video…', strong: true }], 'RECONNECTING', { persistent: true });
           return;
         }
         if (recordingInterrupted) {
@@ -2366,7 +2394,7 @@
         intentionalStop = false;
         broadcastHasEnded = false;
         broadcastDesired = true;
-        setStatus([{ text: reconnecting ? 'Restoring Broadcast...' : 'Connecting Broadcast...', strong: true }], 'CONNECTING', { persistent: true });
+        setStatus([{ text: reconnecting ? 'Reconnecting video…' : 'Connecting Broadcast...', strong: true }], 'CONNECTING', { persistent: true });
         showControl(stopBtn, true); stopBtn.disabled = false;
         closePeerConnection({ stopTracks: false });
         const connection = createPeerConnection();
@@ -2381,7 +2409,7 @@
             setStatus([
               { text: 'Broadcast paused. Keep this page open while CourtsideView reconnects.', strong: true },
             ], 'OFFLINE', { persistent: true });
-            scheduleReconnect('Restoring Broadcast...');
+            scheduleReconnect('Reconnecting video…');
           }
         });
         media.getTracks().forEach((track) => {
@@ -2411,8 +2439,8 @@
         startVideoHealth(connection, generation, activity, frameCounts);
         live = true;
         broadcastBtn.textContent = 'Broadcast live';
-        setPageCopy('Broadcast Live', 'Return to score to keep scoring.');
-        hintEl.textContent = 'Broadcast live. Return to score to keep scoring.';
+        setPageCopy('Broadcast Live', 'Back to score to keep scoring.');
+        hintEl.textContent = 'Broadcast live. Back to score to keep scoring.';
         setControlState('live');
         void requestScreenWakeLock();
         if (!reconnecting && recordEnabled) {
@@ -2460,8 +2488,8 @@
           setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
         } else {
           cameraBtn.textContent = 'Camera setup ended';
-          broadcastBtn.textContent = 'Start Broadcast';
-          setPageCopy('Broadcast Ended', 'Fans can still follow the score on the Fan Link.');
+          broadcastBtn.textContent = 'Go live';
+          setPageCopy('Video ended', 'Fans can still follow the score with the same link.');
           hintEl.textContent = 'Fans can follow scores even without video.';
           broadcastBlocked = true;
           setControlState('offline');
@@ -2482,7 +2510,7 @@
         cameraBtn.disabled = true;
         try {
           automaticCameraRecoveries = 0; reconnectAttempt = 0;
-          if (broadcastDesired) await reconnectBroadcast('Restoring Broadcast...');
+          if (broadcastDesired) await reconnectBroadcast('Reconnecting video…');
           else await startCamera();
         } catch (error) {
           if (intentionalStop || error?.name === 'AbortError') return;

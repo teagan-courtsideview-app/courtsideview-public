@@ -62,9 +62,9 @@ const SCOREBOARD_LAYOUTS: Array<{
   label: string;
   value: ScoreboardLayout;
 }> = [
-  { label: "FULL SCORE", value: "full-score" },
-  { label: "SCORE BAR", value: "score-bar" },
-  { label: "MINIMAL", value: "minimal" },
+  { label: "Full score", value: "full-score" },
+  { label: "Score bar", value: "score-bar" },
+  { label: "Minimal", value: "minimal" },
 ];
 const SCOREBOARD_POSITIONS: Array<{
   label: string;
@@ -269,9 +269,14 @@ export function ScoreboardDisplayMenu({
       role="dialog"
     >
       <span aria-hidden="true" className="scoreboard-display-menu__handle" />
-      <strong>SCOREBOARD DISPLAY</strong>
+      <div className="scoreboard-display-menu__header">
+        <strong>Scoreboard display</strong>
+        <button type="button" aria-label="Close display" onClick={() => {
+          closeRef.current(); window.requestAnimationFrame(onRestoreFocus);
+        }}>Close</button>
+      </div>
       <p>This changes only your display.</p>
-      <span className="scoreboard-display-menu__label">LAYOUT</span>
+      <span className="scoreboard-display-menu__label">Layout</span>
       <div className="scoreboard-display-menu__layouts">
         {SCOREBOARD_LAYOUTS.map((option) => (
           <button
@@ -296,13 +301,13 @@ export function ScoreboardDisplayMenu({
               <i />
             </span>
             {option.value === "score-bar" ? (
-              <small>COURTSIDEVIEW DEFAULT</small>
+              <small>Default</small>
             ) : null}
             <b>{option.label}</b>
           </button>
         ))}
       </div>
-      <span className="scoreboard-display-menu__label">SIZE</span>
+      <span className="scoreboard-display-menu__label">Size</span>
       <div className="scoreboard-display-menu__options">
         {SCOREBOARD_SIZES.map((option) => (
           <button
@@ -311,7 +316,7 @@ export function ScoreboardDisplayMenu({
             onClick={() => onSizeChange(option)}
             type="button"
           >
-            {option.toUpperCase()}
+            {option.charAt(0).toUpperCase() + option.slice(1)}
             {size === option ? (
               <span className="scoreboard-display-menu__option-check">
                 <Check aria-hidden="true" size={13} strokeWidth={3} />
@@ -320,7 +325,7 @@ export function ScoreboardDisplayMenu({
           </button>
         ))}
       </div>
-      <span className="scoreboard-display-menu__label">POSITION</span>
+      <span className="scoreboard-display-menu__label">Position</span>
       <div className="scoreboard-display-menu__options scoreboard-display-menu__positions">
         {SCOREBOARD_POSITIONS.map((option) => (
           <button
@@ -335,7 +340,7 @@ export function ScoreboardDisplayMenu({
             >
               <i />
             </span>
-            <span className="scoreboard-sr-only">{option.label}</span>
+            <span className="scoreboard-display-menu__position-label">{option.label}</span>
             {position === option.value ? (
               <span className="scoreboard-display-menu__position-check">
                 <Check aria-hidden="true" size={12} strokeWidth={3} />
@@ -352,7 +357,7 @@ export function ScoreboardDisplayMenu({
         type="button"
       >
         <span>
-          <b>AUTOMATIC</b>
+          <b>Automatic</b>
           <small>Adjust by screen orientation</small>
         </span>
         <i className="scoreboard-display-menu__switch" data-on={automatic}>

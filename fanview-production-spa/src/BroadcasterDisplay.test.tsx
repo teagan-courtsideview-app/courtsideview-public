@@ -21,7 +21,7 @@ describe('isolated browser broadcaster display', () => {
     expect(screen.getByText('Falcons')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Use full score layout' }));
     expect(p.onPreference).toHaveBeenLastCalledWith({ ...p.preference, layout: 'full-score', automatic: false });
-    fireEvent.click(screen.getByRole('button', { name: 'LARGE' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Large' }));
     expect(p.onPreference).toHaveBeenLastCalledWith({ ...p.preference, size: 'large' });
     fireEvent.click(screen.getByRole('button', { name: 'Top right' }));
     expect(p.onPreference).toHaveBeenLastCalledWith({ ...p.preference, position: 'top-right' });
@@ -75,7 +75,7 @@ describe('isolated browser broadcaster display', () => {
     act(() => { display = mountBroadcasterDisplay(host, { trigger, controls, retry: vi.fn() }); });
     act(() => display.toggle());
     const shadow = within(host.shadowRoot as unknown as HTMLElement);
-    const first = shadow.getByRole('button', { name: 'Use full score layout' });
+    const first = shadow.getByRole('button', { name: 'Close display' });
     const last = shadow.getByRole('button', { name: 'Done' });
     last.focus(); fireEvent.keyDown(last, { key: 'Tab', composed: true });
     expect(host.shadowRoot!.activeElement).toBe(first);

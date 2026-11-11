@@ -100,7 +100,7 @@ describe("Production FanView lifecycle", () => {
     expect(
       screen.getByRole("dialog", { name: "Scoreboard display" }),
     ).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "SMALL" }));
+    fireEvent.click(screen.getByRole("button", { name: "Small" }));
     fireEvent.click(screen.getByRole("button", { name: "Top right" }));
     fireEvent.click(
       screen.getByRole("button", { name: "Use minimal layout" }),
@@ -127,6 +127,23 @@ describe("Production FanView lifecycle", () => {
     expect(
       window.localStorage.getItem("courtsideview_fanview_scoreboard_layout"),
     ).toBe("minimal");
+  });
+
+  it("shows complete position names and closes from the visible header without changing display", async () => {
+    renderApp({ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } });
+    await screen.findByText("18");
+    const trigger = screen.getByRole("button", { name: "Scoreboard display" });
+    fireEvent.click(trigger);
+    for (const label of ["Top left", "Top right", "Bottom left", "Bottom right", "Bottom center"]) {
+      const option = screen.getByRole("button", { name: label });
+      expect(option.querySelector(".scoreboard-display-menu__position-label")).toHaveTextContent(label);
+    }
+    const app = screen.getByTestId("fanview-production-app");
+    const before = app.getAttribute("data-scoreboard-layout");
+    fireEvent.click(screen.getByRole("button", { name: "Close display" }));
+    expect(screen.queryByRole("dialog", { name: "Scoreboard display" })).not.toBeInTheDocument();
+    await waitFor(() => expect(trigger).toHaveFocus());
+    expect(app).toHaveAttribute("data-scoreboard-layout", before);
   });
 
   it("keeps touch targets mounted through pointerdown/up and commits taps on card labels and icons", async () => {
@@ -186,7 +203,7 @@ describe("Production FanView lifecycle", () => {
       fireEvent.click(trigger);
       expect(screen.queryByRole("button", { name: /Open chat/ })).not.toBeInTheDocument();
       expect(chat.closest("[data-community-surface]")).toHaveAttribute("inert");
-      const first = screen.getByRole("button", { name: "Use full score layout" });
+      const first = screen.getByRole("button", { name: "Close display" });
       const reset = screen.getByRole("button", { name: "Use CourtsideView default" });
       expect(first).toHaveFocus();
       reset.focus();
@@ -194,7 +211,7 @@ describe("Production FanView lifecycle", () => {
       expect(first).toHaveFocus();
       fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
       expect(reset).toHaveFocus();
-      const small = screen.getByRole("button", { name: "SMALL" });
+      const small = screen.getByRole("button", { name: "Small" });
       small.focus();
       fireEvent.click(small);
       expect(small).toHaveFocus();
