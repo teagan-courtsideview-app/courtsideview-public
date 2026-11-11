@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LiveMedia } from "./LiveMedia";
 import { configureViewerRequests } from "./viewerFetch";
@@ -6,20 +6,31 @@ import { configureViewerRequests } from "./viewerFetch";
 const setRemoteDescription = vi.fn();
 const setLocalDescription = vi.fn();
 const close = vi.fn();
+const peers: Array<{ connectionState: string; events: Record<string, (event?: any) => void>; getStats: ReturnType<typeof vi.fn> }> = [];
+let videoFrames = 0;
+let droppedFrames = 0;
 
 beforeEach(() => {
   configureViewerRequests("https://worker.example");
   setRemoteDescription.mockReset().mockResolvedValue(undefined);
   setLocalDescription.mockReset().mockResolvedValue(undefined);
   close.mockClear();
+  peers.length = 0;
+  videoFrames = 0; droppedFrames = 0;
+  Object.defineProperty(HTMLVideoElement.prototype, "requestVideoFrameCallback", { configurable: true, value: undefined });
+  Object.defineProperty(HTMLVideoElement.prototype, "cancelVideoFrameCallback", { configurable: true, value: vi.fn() });
+  Object.defineProperty(HTMLVideoElement.prototype, "getVideoPlaybackQuality", { configurable: true, value: () => ({ totalVideoFrames: videoFrames, droppedVideoFrames: droppedFrames }) });
   vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
   vi.stubGlobal("MediaStream", class { addTrack() {} });
   vi.stubGlobal("RTCPeerConnection", class {
     connectionState = "new";
-    addEventListener() {}
+    events: Record<string, (event?: any) => void> = {};
+    constructor() { peers.push(this); }
+    addEventListener(name: string, callback: (event?: any) => void) { this.events[name] = callback; }
     setRemoteDescription = setRemoteDescription;
     setLocalDescription = setLocalDescription;
     createAnswer = vi.fn().mockResolvedValue({ type: "answer", sdp: "guest-answer" });
+    getStats = vi.fn(async () => new Map());
     close = close;
   });
 });
@@ -28,6 +39,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
   window.sessionStorage.clear();
+  vi.useRealTimers();
 });
 
 const mountMedia = () => render(
@@ -59,7 +71,7 @@ describe("guest live media", () => {
     });
     vi.stubGlobal("fetch", fetch);
     const view = mountMedia();
-    await screen.findByText("Live now");
+    await screen.findByText("Connecting video");
     expect(setRemoteDescription).toHaveBeenCalledWith({ type: "offer", sdp: "public-offer" });
     expect(setLocalDescription).toHaveBeenCalledWith({ type: "answer", sdp: "guest-answer" });
     expect(fetch).toHaveBeenCalledWith("https://worker.example/play/public-match/session", expect.objectContaining({ method: "PATCH", body: "guest-answer" }));
@@ -82,6 +94,145 @@ describe("guest live media", () => {
     expect(screen.getByRole("button", { name: "Scoreboard display" })).toBeVisible();
     expect(screen.queryByText(/sign in|create account/i)).not.toBeInTheDocument();
   });
+});
+
+describe("viewer frame recovery on the original link", () => {
+  const ready = async () => {
+    const fetch = vi.fn(async (input: string, init: RequestInit) => {
+      if (input.includes("/presence/") || init.method !== "POST") return new Response(null, { status: 204 });
+      return new Response("offer", { status: 201, headers: { location: `/play/public-match/session-${peers.length}` } });
+    });
+    vi.stubGlobal("fetch", fetch);
+    const view = mountMedia();
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    return { fetch, view, video: view.container.querySelector("video")! };
+  };
+  it("does not hide recovery for audio, a connected peer, or an advancing audio clock", async () => {
+    vi.useFakeTimers();
+    const { video } = await ready();
+    await act(async () => {
+      peers[0].connectionState = "connected";
+      peers[0].events.connectionstatechange();
+      peers[0].events.track({ track: { kind: "audio", addEventListener() {} } });
+      Object.defineProperty(video, "currentTime", { configurable: true, value: 30 });
+      await vi.advanceTimersByTimeAsync(2_000);
+    });
+    expect(screen.getByText("Connecting video")).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(4_000); });
+    expect(screen.getByText("Reconnecting video")).toBeVisible();
+  });
+  it("recovers 20 frozen-video sessions on the same URL while preserving scores and controls", async () => {
+    vi.useFakeTimers();
+    const { fetch, video } = await ready();
+    Object.defineProperties(video, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
+    for (let cycle = 0; cycle < 20; cycle += 1) {
+      await act(async () => {
+        peers.at(-1)!.connectionState = "connected";
+        videoFrames += 30;
+        await vi.advanceTimersByTimeAsync(2_000);
+      });
+      expect(screen.queryByText("Connecting video")).not.toBeInTheDocument();
+      expect(screen.queryByText("Reconnecting video")).not.toBeInTheDocument();
+      await act(async () => { await vi.advanceTimersByTimeAsync(6_000); });
+      expect(screen.getByText("Reconnecting video")).toBeVisible();
+      expect(screen.getByRole("button", { name: "Scoreboard display" })).toBeVisible();
+      await act(async () => { await vi.advanceTimersByTimeAsync(1_500); });
+      expect(screen.getByText("Connecting video")).toBeVisible();
+    }
+    const posts = fetch.mock.calls.filter(([url, init]) => url.includes("/play/") && init.method === "POST");
+    expect(posts).toHaveLength(21);
+    expect(new Set(posts.map(([url]) => url))).toEqual(new Set(["https://worker.example/play/public-match"]));
+    expect(screen.queryByText(/sign in|create account/i)).not.toBeInTheDocument();
+  });
+  it("abandons hung signaling and ignores late results from that attempt", async () => {
+    vi.useFakeTimers();
+    let complete!: (response: Response) => void;
+    const fetch = vi.fn(async (input: string, init: RequestInit) => {
+      if (input.includes("/presence/") || init.method === "DELETE") return new Response(null, { status: 204 });
+      return new Promise<Response>(resolve => { complete = resolve; });
+    });
+    vi.stubGlobal("fetch", fetch);
+    mountMedia();
+    await act(async () => { await vi.advanceTimersByTimeAsync(12_000); });
+    expect(screen.getByText("Reconnecting video")).toBeVisible();
+    expect(fetch.mock.calls.find(([url, init]) => url.includes("/play/") && init.method === "POST")?.[1].signal?.aborted).toBe(true);
+    await act(async () => complete(new Response("late", { status: 201, headers: { location: "/play/public-match/late" } })));
+    expect(setRemoteDescription).not.toHaveBeenCalled();
+    expect(fetch.mock.calls.some(([url, init]) => url.endsWith("/late") && init.method === "DELETE")).toBe(true);
+  });
+  it("does not count dropped frames as presented video", async () => {
+    vi.useFakeTimers(); const { video } = await ready();
+    Object.defineProperties(video, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
+    peers[0].connectionState = "connected"; videoFrames = 30; droppedFrames = 30;
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_000); });
+    expect(screen.getByText("Connecting video")).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(4_000); });
+    expect(screen.getByText("Reconnecting video")).toBeVisible();
+  });
+  it("prefers actual frame callbacks over quality counters that advance without rendering", async () => {
+    vi.useFakeTimers();
+    Object.defineProperty(HTMLVideoElement.prototype, "requestVideoFrameCallback", { configurable: true, value: vi.fn(() => 1) });
+    const { video } = await ready();
+    Object.defineProperties(video, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
+    peers[0].connectionState = "connected"; videoFrames = 100;
+    await act(async () => { await vi.advanceTimersByTimeAsync(6_000); });
+    expect(screen.getByText("Reconnecting video")).toBeVisible();
+  });
+  it("gives a slow successful negotiation a fresh six-second first-frame window", async () => {
+    vi.useFakeTimers(); let release!: (response: Response) => void;
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init: RequestInit) => {
+      if(url.includes("/presence/") || init.method === "DELETE") return new Response(null,{status:204});
+      if(init.method === "POST") return new Response("offer",{status:201,headers:{location:"/play/public-match/slow"}});
+      return new Promise<Response>(resolve=>{release=resolve;});
+    }));
+    mountMedia(); await act(async()=>{await vi.advanceTimersByTimeAsync(10_000);});
+    await act(async()=>release(new Response(null,{status:204})));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(4_000);});
+    expect(screen.getByText("Connecting video")).toBeVisible();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(2_000);});
+    expect(screen.getByText("Reconnecting video")).toBeVisible();
+  });
+  it("uses decoded video frames on older browsers without frame presentation APIs, not audio or bytes", async () => {
+    vi.useFakeTimers(); Object.defineProperty(HTMLVideoElement.prototype,"getVideoPlaybackQuality",{configurable:true,value:undefined});
+    const { video } = await ready();
+    Object.defineProperties(video, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
+    peers[0].connectionState="connected";let decoded=1;
+    peers[0].getStats.mockImplementation(async()=>new Map([['v',{id:'v',ssrc:1,type:'inbound-rtp',kind:'video',framesDecoded:decoded,bytesReceived:10000}]]));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(2_000);});expect(screen.getByText('Connecting video')).toBeVisible();
+    decoded=2;await act(async()=>{await vi.advanceTimersByTimeAsync(2_000);});expect(screen.queryByText('Connecting video')).not.toBeInTheDocument();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(6_000);});expect(screen.getByText('Reconnecting video')).toBeVisible();
+  });
+  it("bounds hung decoded-frame stats and prevents overlapping reads", async () => {
+    vi.useFakeTimers(); Object.defineProperty(HTMLVideoElement.prototype,"getVideoPlaybackQuality",{configurable:true,value:undefined});
+    await ready();peers[0].getStats.mockImplementation(()=>new Promise(()=>{}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(2_500);});expect(peers[0].getStats).toHaveBeenCalledTimes(1);
+    await act(async()=>{await vi.advanceTimersByTimeAsync(5_500);});expect(screen.getByText('Reconnecting video')).toBeVisible();
+  });
+  it("shows a usable Play action when autoplay is rejected while connecting", async () => {
+    vi.useFakeTimers();vi.mocked(HTMLMediaElement.prototype.play).mockRejectedValue(new Error('gesture required'));
+    const { video, fetch } = await ready();expect(screen.getByRole('button',{name:'Play live video'})).toBeVisible();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(20_000);});
+    expect(fetch.mock.calls.filter(([url,init])=>url.includes('/play/')&&init.method==='POST')).toHaveLength(1);
+    vi.mocked(HTMLMediaElement.prototype.play).mockResolvedValue();
+    await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Play live video'})));
+    Object.defineProperties(video,{readyState:{configurable:true,value:2},videoWidth:{configurable:true,value:1280},videoHeight:{configurable:true,value:720}});
+    peers[0].connectionState='connected';videoFrames+=1;
+    await act(async()=>{await vi.advanceTimersByTimeAsync(2_000);});
+    expect(screen.queryByRole('button',{name:'Play live video'})).not.toBeInTheDocument();
+    expect(screen.queryByText('Connecting video')).not.toBeInTheDocument();
+  });
+  it.each(['resolve','reject'])("ignores an old play promise's %s after a new stream has replaced it", async outcome => {
+    vi.useFakeTimers();let resolve!:()=>void;let reject!:(error:Error)=>void;
+    vi.mocked(HTMLMediaElement.prototype.play).mockImplementationOnce(()=>new Promise<void>((yes,no)=>{resolve=yes;reject=no;}));
+    const { video }=await ready();const old=video.srcObject;
+    await act(async()=>{await vi.advanceTimersByTimeAsync(7_500);});expect(video.srcObject).not.toBe(old);
+    vi.mocked(HTMLMediaElement.prototype.play).mockResolvedValue();
+    await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Turn on live audio'})));
+    expect(screen.getByRole('button',{name:'Mute live audio'})).toBeVisible();
+    await act(async()=>{if(outcome==='resolve')resolve();else reject(new Error('old stream gone'));});
+    expect(screen.getByRole('button',{name:'Mute live audio'})).toBeVisible();expect(video.muted).toBe(false);
+  });
+
 });
 
 

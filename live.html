@@ -685,6 +685,13 @@
       let cameraStartPromise = null;
       let broadcastStartPromise = null;
       let recordingInterrupted = false;
+      let cameraActivity = 0;
+      let cameraReturnPending = false;
+      let previewConfirmedStream = null;
+      let ingestAbort = null;
+      let videoHealthTimer = null;
+      let videoHealthOwner = null;
+      let automaticCameraRecoveries = 0;
       let finalRallyStopTimer = null;
       let matchChannel = null;
       let matchRefreshTimer = null;
@@ -801,6 +808,7 @@
           statusEl.appendChild(node);
         }
         statePill.textContent = state;
+        broadcastStateChip.textContent = state;
         showStatus(options);
       }
       function setStatusHtml(text, state = 'READY', options = {}) {
@@ -808,6 +816,7 @@
         template.innerHTML = text;
         statusEl.replaceChildren(template.content.cloneNode(true));
         statePill.textContent = state;
+        broadcastStateChip.textContent = state;
         showStatus(options);
       }
       function setPageCopy(title, lead) {
@@ -1176,6 +1185,8 @@
         broadcastValidationRetryable = false;
       }
       async function validateBroadcastAccess() {
+        const validationGeneration = broadcastGeneration;
+        const validationActivity = cameraActivity;
         if (!streamId) return false;
         if (!broadcastToken) {
           setBroadcastBlocked(broadcastTokenUnavailableReason('missing_token'), 'OPEN APP');
@@ -1191,7 +1202,8 @@
               cache: 'no-store',
               signal: controller.signal,
             });
-            const result = await response.json().catch(() => null);
+            const result = await withMediaDeadline(response.json().catch(() => null), 8000, () => controller.abort());
+            if (validationGeneration !== broadcastGeneration || validationActivity !== cameraActivity || intentionalStop) return false;
             if (response.ok && result?.ok) {
               clearBroadcastBlocked();
               return true;
@@ -1210,6 +1222,7 @@
               return false;
             }
           } catch (error) {
+            if (validationGeneration !== broadcastGeneration || validationActivity !== cameraActivity || intentionalStop) return false;
             console.warn('[CourtsideView] broadcast token unavailable', error);
             if (attempt === 2) {
               setBroadcastBlocked(
@@ -1305,11 +1318,14 @@
         return clips;
       }
       async function downloadStoredHighlight(summary, button) {
+        if (sharePending) return;
+        sharePending = true;
         button.disabled = true;
         try {
           const clip = await readFanViewSavedHighlight(summary.storageKey);
           const file = new File([clip.data], clip.filename, { type: clip.mimeType });
           if (navigator.canShare?.({ files: [file] })) {
+            markCameraInterrupted();
             await navigator.share({ files: [file], title: 'CourtsideView highlight' });
           } else {
             const url = URL.createObjectURL(clip.data);
@@ -1328,6 +1344,8 @@
           }
         } finally {
           button.disabled = false;
+          sharePending = false;
+          void resumeCameraAfterReturn();
         }
       }
       async function renderSavedHighlights() {
@@ -1431,6 +1449,7 @@
           const url = fanViewUrl();
           if (navigator.share) {
             try {
+              markCameraInterrupted();
               await navigator.share({
                 title: 'Watch on FanView',
                 text: 'Follow the game live on FanView.',
@@ -1827,6 +1846,10 @@
         }
       }
       function closePeerConnection({ stopTracks = false } = {}) {
+        ingestAbort?.abort(); ingestAbort = null;
+        if (videoHealthTimer) clearInterval(videoHealthTimer);
+        videoHealthTimer = null;
+        videoHealthOwner = null;
         if (reconnectTimer) {
           clearTimeout(reconnectTimer);
           reconnectTimer = null;
@@ -1842,67 +1865,181 @@
       function cameraTracksAreLive() {
         return Boolean(media && media.getVideoTracks().some((track) => track.readyState === 'live' && !track.muted));
       }
+      function cameraOperationCurrent(generation, activity) {
+        return generation === broadcastGeneration && activity === cameraActivity && !intentionalStop && document.visibilityState === 'visible';
+      }
+      function assertCameraOperation(generation, activity) {
+        if (!cameraOperationCurrent(generation, activity)) {
+          const error = new Error('Camera operation interrupted.'); error.name = 'AbortError'; throw error;
+        }
+      }
+      async function withMediaDeadline(operation, timeoutMs = 12000, onTimeout = () => {}) {
+        let timer;
+        try {
+          return await Promise.race([operation, new Promise((_, reject) => {
+            timer = setTimeout(() => { onTimeout(); reject(new Error('Camera connection timed out.')); }, timeoutMs);
+          })]);
+        } finally { clearTimeout(timer); }
+      }
+      async function boundedCameraCapture(constraints) {
+        let expired = false;
+        const pending = navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+          if (expired) { stream.getTracks().forEach(track => track.stop()); throw new Error('Camera request expired.'); }
+          return stream;
+        });
+        return withMediaDeadline(pending, 12000, () => { expired = true; });
+      }
+      function videoFrameCounts(report) {
+        const frames = new Map();
+        const sourceFrames = new Map();
+        report.forEach(row => {
+          if ((row.kind || row.mediaType) !== 'video' || !row.id || row.isRemote) return;
+          if (row.type === 'outbound-rtp') {
+            const field = Number.isFinite(row.framesEncoded) ? 'framesEncoded' : 'framesSent';
+            if (Number.isFinite(row[field]) && row[field] >= 0) frames.set(`${row.id}:${field}`, row[field]);
+          }
+          if (row.type === 'media-source' && Number.isFinite(row.frames) && row.frames >= 0) sourceFrames.set(row.id, row.frames);
+        });
+        return { frames, sourceFrames };
+      }
+      function videoFramesAdvanced(previous, current) {
+        const advances = (before, after) => [...after].some(([id, count]) => before.has(id) && count > before.get(id));
+        return advances(previous.frames, current.frames) &&
+          ((!previous.sourceFrames.size && !current.sourceFrames.size) || advances(previous.sourceFrames, current.sourceFrames));
+      }
+      async function waitForPreviewFrames(stream, generation, activity) {
+        let frameHandle = null;
+        let frames = 0;
+        const onFrame = () => { frames += 1; frameHandle = preview.requestVideoFrameCallback(onFrame); };
+        if (typeof preview.requestVideoFrameCallback === 'function') frameHandle = preview.requestVideoFrameCallback(onFrame);
+        const initialFrames = preview.getVideoPlaybackQuality?.().totalVideoFrames;
+        const deadline = Date.now() + 12000;
+        try {
+          await withMediaDeadline(Promise.resolve(preview.play()), 12000);
+          while (Date.now() < deadline) {
+            assertCameraOperation(generation, activity);
+            if (preview.srcObject !== stream || media !== stream) throw new Error('Camera changed.');
+            const progressed = frames >= 2 || (Number.isFinite(initialFrames) && preview.getVideoPlaybackQuality?.().totalVideoFrames > initialFrames + 1);
+            if (preview.videoWidth > 0 && preview.videoHeight > 0 && progressed) return;
+            await new Promise(resolve => setTimeout(resolve, 150));
+          }
+          throw new Error('Camera frames unavailable.');
+        } finally { if (frameHandle !== null) preview.cancelVideoFrameCallback?.(frameHandle); }
+      }
+      async function waitForOutgoingVideo(connection, isCurrent) {
+        let previous = videoFrameCounts(new Map());
+        const deadline = Date.now() + 12000;
+        while (Date.now() < deadline) {
+          if (!isCurrent()) { const error = new Error('Broadcast interrupted.'); error.name = 'AbortError'; throw error; }
+          const current = videoFrameCounts(await withMediaDeadline(connection.getStats(), 3000));
+          if (!isCurrent()) { const error = new Error('Broadcast interrupted.'); error.name = 'AbortError'; throw error; }
+          if (connection.connectionState === 'connected' && videoFramesAdvanced(previous, current)) return current;
+          previous = current;
+          await new Promise(resolve => setTimeout(resolve, 250));
+        }
+        throw new Error('Video is not reaching fans yet.');
+      }
+      function showCameraRecoveryError() {
+        live = false;
+        closePeerConnection();
+        setControlState('offline');
+        cameraBtn.disabled = false;
+        cameraBtn.textContent = 'Try camera again';
+        showControl(stopBtn, broadcastDesired);
+        stopBtn.disabled = !broadcastDesired;
+        setStatus([{ text: 'Camera paused. Try again. Your Fan Link stays the same.', strong: true }], 'PAUSED', { persistent: true });
+      }
+      function startVideoHealth(connection, generation, activity, previous) {
+        let misses = 0;
+        videoHealthTimer = setInterval(async () => {
+          if (videoHealthOwner || !live || !cameraOperationCurrent(generation, activity) || pc !== connection) return;
+          const owner = {}; videoHealthOwner = owner;
+          try {
+            const current = videoFrameCounts(await withMediaDeadline(connection.getStats(), 3000));
+            if (!cameraOperationCurrent(generation, activity) || pc !== connection) return;
+            misses = connection.connectionState === 'connected' && videoFramesAdvanced(previous, current) ? 0 : misses + 1;
+            previous = current;
+          } catch { if (cameraOperationCurrent(generation, activity) && pc === connection) misses += 1; }
+          finally { if (videoHealthOwner === owner) videoHealthOwner = null; }
+          if (misses < 2 || !cameraOperationCurrent(generation, activity) || pc !== connection) return;
+          live = false;
+          if (automaticCameraRecoveries++ < 1) scheduleReconnect('Restoring Broadcast...');
+          else showCameraRecoveryError();
+        }, 3000);
+      }
+      function markCameraInterrupted(resetBudget = true) {
+        if (intentionalStop || (!media && !cameraStartPromise && !broadcastStartPromise)) return;
+        cameraActivity += 1;
+        if (resetBudget) { reconnectAttempt = 0; automaticCameraRecoveries = 0; }
+        cameraReturnPending = true;
+        previewConfirmedStream = null;
+        live = false;
+        closePeerConnection();
+        setStatus([{ text: 'Camera paused. Return here to resume.', strong: true }], 'PAUSED', { persistent: true });
+      }
       function reconnectBroadcast(reason = 'Reconnecting Broadcast...') {
         if (reconnectPromise) return reconnectPromise;
-        reconnectPromise = performReconnect(reason).finally(() => { reconnectPromise = null; });
-        return reconnectPromise;
+        const pending = performReconnect(reason).finally(() => { if (reconnectPromise === pending) reconnectPromise = null; });
+        reconnectPromise = pending;
+        return pending;
       }
       async function performReconnect(reason) {
         const generation = broadcastGeneration;
-        if (!broadcastDesired || intentionalStop) return;
-        setStatus([
-          { text: reason, strong: true },
-          { text: '' },
-        ], 'RECONNECTING', { persistent: true });
-        closePeerConnection({ stopTracks: false });
-        if (!cameraTracksAreLive()) {
-          await startCamera({ preserveAudio: true });
-          if (generation !== broadcastGeneration || intentionalStop) return;
-          if (!media) throw new Error('Camera could not be reacquired.');
-        }
+        const activity = cameraActivity;
+        if (!broadcastDesired || intentionalStop || document.visibilityState !== 'visible') return;
+        live = false;
+        setStatus([{ text: reason, strong: true }], 'RECONNECTING', { persistent: true });
+        closePeerConnection();
+        // Always replace capture on return; an OS track can report live while delivering black frames.
+        if (broadcastStartPromise) await broadcastStartPromise.catch(() => {});
+        if (cameraStartPromise) await cameraStartPromise.catch(() => {});
+        assertCameraOperation(generation, activity);
+        await startCamera({ preserveAudio: true });
+        assertCameraOperation(generation, activity);
+        if (!media || previewConfirmedStream !== media) throw new Error('Camera could not be reacquired.');
         await startBroadcast({ reconnecting: true });
-        if (generation !== broadcastGeneration || intentionalStop) return;
+        assertCameraOperation(generation, activity);
         if (!live) throw new Error('Broadcast ingest did not reconnect.');
       }
       function resumeCameraAfterReturn() {
-        if (document.visibilityState !== 'visible' || intentionalStop || !media) return Promise.resolve();
+        if (document.visibilityState !== 'visible' || intentionalStop || sharePending || !cameraReturnPending) return Promise.resolve();
         if (resumePromise) return resumePromise;
+        cameraReturnPending = false;
         const generation = broadcastGeneration;
-        resumePromise = (async () => {
+        const activity = cameraActivity;
+        const pending = (async () => {
           try {
-            if (broadcastDesired) {
-              void requestScreenWakeLock();
-              if (!live || !pc || ['failed', 'disconnected', 'closed'].includes(pc.connectionState) || !cameraTracksAreLive()) {
-                await reconnectBroadcast('Restoring Broadcast...');
-              }
-            } else if (!cameraTracksAreLive()) {
+            if (broadcastDesired) await reconnectBroadcast('Restoring Broadcast...');
+            else {
+              if (cameraStartPromise) await cameraStartPromise.catch(() => {});
+              assertCameraOperation(generation, activity);
               await startCamera({ preserveAudio: true });
             }
-            if (generation !== broadcastGeneration || intentionalStop) return;
-            if (media && preview.paused) await preview.play();
-          } catch {
-            if (generation !== broadcastGeneration || intentionalStop) return;
-            setStatus([{ text: 'Video paused. Tap Start Camera to try again.', strong: true }], 'PAUSED', { persistent: true });
-            cameraBtn.disabled = false;
-            if (broadcastDesired) scheduleReconnect('Restoring Broadcast...');
+          } catch (error) {
+            if (!cameraOperationCurrent(generation, activity) || error?.name === 'AbortError') return;
+            showCameraRecoveryError();
           }
-        })().finally(() => { resumePromise = null; });
-        return resumePromise;
+        })().finally(() => {
+          if (resumePromise === pending) resumePromise = null;
+          if (cameraReturnPending) void resumeCameraAfterReturn();
+        });
+        resumePromise = pending;
+        return pending;
       }
       function scheduleReconnect(reason = 'Reconnecting Broadcast...') {
-        if (!broadcastDesired || intentionalStop || reconnectTimer) return;
-        const delayMs = Math.min(1_500 * (2 ** reconnectAttempt), 15_000);
-        reconnectAttempt += 1;
+        if (!broadcastDesired || intentionalStop || reconnectTimer || document.visibilityState !== 'visible') return;
+        live = false;
+        if (reconnectAttempt >= 2) { showCameraRecoveryError(); return; }
+        const generation = broadcastGeneration;
+        const activity = cameraActivity;
+        const delayMs = 1500 * (++reconnectAttempt);
+        setStatus([{ text: 'Restoring Broadcast...', strong: true }], 'RECONNECTING', { persistent: true });
         reconnectTimer = setTimeout(() => {
           reconnectTimer = null;
-          void reconnectBroadcast(reason).catch((error) => {
-            console.warn('[CourtsideView] Broadcast reconnect failed', error);
-            if (!broadcastDesired || intentionalStop) return;
-            setStatus([
-              { text: 'Broadcast is still reconnecting.', strong: true },
-              { text: ' Keep this page open.' },
-            ], 'RECONNECTING', { persistent: true });
-            scheduleReconnect('Retrying Broadcast...');
+          if (!cameraOperationCurrent(generation, activity)) return;
+          void reconnectBroadcast(reason).catch(error => {
+            if (!cameraOperationCurrent(generation, activity) || error?.name === 'AbortError') return;
+            scheduleReconnect('Restoring Broadcast...');
           });
         }, delayMs);
       }
@@ -2048,36 +2185,34 @@
         };
         const cameraOnly = { audio: false, video: preferredVideo };
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({
+          const stream = await boundedCameraCapture({
             audio,
             video: preferredVideo,
           });
-          audioEnabled = stream.getAudioTracks().length > 0;
           return stream;
         } catch (error) {
+          if (error?.message === 'Camera connection timed out.') throw error;
           if (
             error instanceof DOMException &&
             (error.name === 'OverconstrainedError' || error.name === 'NotFoundError')
           ) {
             try {
-              const stream = await navigator.mediaDevices.getUserMedia({ audio, video: true });
-              audioEnabled = stream.getAudioTracks().length > 0;
+              const stream = await boundedCameraCapture({ audio, video: true });
               return stream;
-            } catch {
+            } catch (fallbackError) {
+              if (fallbackError?.message === 'Camera connection timed out.') throw fallbackError;
               // Fall through to video-only so one bad constraint never blocks the match.
             }
           }
           try {
-            const stream = await navigator.mediaDevices.getUserMedia(cameraOnly);
-            audioEnabled = false;
+            const stream = await boundedCameraCapture(cameraOnly);
             return stream;
           } catch (cameraError) {
             if (
               cameraError instanceof DOMException &&
               (cameraError.name === 'OverconstrainedError' || cameraError.name === 'NotFoundError')
             ) {
-              const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
-              audioEnabled = false;
+              const stream = await boundedCameraCapture({ audio: false, video: true });
               return stream;
             }
             throw cameraError;
@@ -2091,10 +2226,11 @@
       }
       async function performCameraStart({ preserveAudio = false } = {}) {
         const generation = broadcastGeneration;
+        const activity = cameraActivity;
         const previousAudioEnabled = audioEnabled;
         ensureStreamId();
         if (!(await validateBroadcastAccess())) return;
-        if (generation !== broadcastGeneration) return;
+        assertCameraOperation(generation, activity);
         if (!navigator.mediaDevices?.getUserMedia) {
           throw new Error('Camera is not available on this device.');
         }
@@ -2107,7 +2243,7 @@
             recordingInterrupted = true;
             await stopHighlightReplay();
             await finalizeRecordingChunk('camera-paused', { restart: false });
-            if (generation !== broadcastGeneration) return;
+            assertCameraOperation(generation, activity);
             updateRecordingEstimate();
           }
           const previousMedia = media;
@@ -2115,13 +2251,15 @@
           preview.srcObject = null;
           previousMedia.getTracks().forEach((track) => track.stop());
         }
+        previewConfirmedStream = null;
         broadcastHasEnded = false;
         const nextMedia = await requestCameraStream();
-        if (generation !== broadcastGeneration) {
+        if (!cameraOperationCurrent(generation, activity)) {
           nextMedia.getTracks().forEach((track) => track.stop());
           return;
         }
         media = nextMedia;
+        audioEnabled = media.getAudioTracks().length > 0;
         if (preserveAudio) audioEnabled = previousAudioEnabled && media.getAudioTracks().length > 0;
         media.getAudioTracks().forEach((track) => { track.enabled = audioEnabled; });
         const activeVideoTrack = media.getVideoTracks()[0];
@@ -2131,15 +2269,28 @@
         }, { once: true });
         activeVideoTrack?.addEventListener('mute', () => {
           if (media?.getVideoTracks()[0] === activeVideoTrack && document.visibilityState === 'visible') {
-            void resumeCameraAfterReturn();
+            if (automaticCameraRecoveries++ < 1) {
+              markCameraInterrupted(false);
+              void resumeCameraAfterReturn();
+            } else showCameraRecoveryError();
           }
         });
         preview.srcObject = media;
+        document.body.classList.add('has-camera');
+        await waitForPreviewFrames(media, generation, activity);
+        assertCameraOperation(generation, activity);
+        previewConfirmedStream = media;
         cameraBtn.textContent = 'Start Camera';
         broadcastBtn.textContent = 'Start Broadcast';
         setPageCopy('Ready To Broadcast', 'Check the court view, then start Broadcast.');
         hintEl.textContent = 'Check the court view, then start Broadcast.';
         setControlState('camera-ready');
+        if (broadcastDesired) {
+          broadcastBtn.disabled = true;
+          showControl(stopBtn, true); stopBtn.disabled = false;
+          setStatus([{ text: 'Restoring Broadcast...', strong: true }], 'RECONNECTING', { persistent: true });
+          return;
+        }
         if (recordingInterrupted) {
           setStatus([{ text: 'Camera ready. Recording paused; save any clip shown below.', strong: true }], 'READY', { persistent: true });
         } else if (audioEnabled) {
@@ -2202,18 +2353,25 @@
       }
       async function performBroadcastStart({ reconnecting = false } = {}) {
         const generation = broadcastGeneration;
+        const activity = cameraActivity;
+        if (!reconnecting) { automaticCameraRecoveries = 0; reconnectAttempt = 0; }
         ensureStreamId();
+        assertCameraOperation(generation, activity);
+        broadcastDesired = true;
         if (!(await validateBroadcastAccess())) return;
-        if (generation !== broadcastGeneration) return;
-        if (!media) await startCamera();
-        if (!media || generation !== broadcastGeneration) return;
+        assertCameraOperation(generation, activity);
+        if (!media || previewConfirmedStream !== media) await startCamera();
+        assertCameraOperation(generation, activity);
+        if (!media || previewConfirmedStream !== media) return;
         intentionalStop = false;
         broadcastHasEnded = false;
         broadcastDesired = true;
+        setStatus([{ text: reconnecting ? 'Restoring Broadcast...' : 'Connecting Broadcast...', strong: true }], 'CONNECTING', { persistent: true });
+        showControl(stopBtn, true); stopBtn.disabled = false;
         closePeerConnection({ stopTracks: false });
         const connection = createPeerConnection();
         pc = connection;
-        const isCurrent = () => generation === broadcastGeneration && pc === connection && !intentionalStop;
+        const isCurrent = () => cameraOperationCurrent(generation, activity) && pc === connection;
         connection.addEventListener('connectionstatechange', () => {
           if (!isCurrent()) return;
           if (connection.connectionState === 'failed' || connection.connectionState === 'disconnected') {
@@ -2229,23 +2387,29 @@
         media.getTracks().forEach((track) => {
           connection.addTransceiver(track, { direction: 'sendonly' });
         });
-        const offer = await connection.createOffer();
+        const offer = await withMediaDeadline(connection.createOffer());
         if (!isCurrent()) return;
-        await connection.setLocalDescription(offer);
+        await withMediaDeadline(connection.setLocalDescription(offer));
         if (!isCurrent()) return;
-        const response = await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
-          method: 'POST',
-          headers: broadcastTokenHeaders({ 'content-type': 'application/sdp' }),
-          body: offer.sdp || '',
-        });
+        const controller = new AbortController();
+        ingestAbort = controller;
+        const answer = await withMediaDeadline((async () => {
+          const response = await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
+            method: 'POST',
+            headers: broadcastTokenHeaders({ 'content-type': 'application/sdp' }),
+            body: offer.sdp || '',
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error('Broadcast could not connect.');
+          return response.text();
+        })(), 12000, () => controller.abort()).finally(() => { if (ingestAbort === controller) ingestAbort = null; });
         if (!isCurrent()) return;
-        if (!response.ok) throw new Error(await response.text());
-        const answer = await response.text();
+        await withMediaDeadline(connection.setRemoteDescription({ type: 'answer', sdp: answer }));
         if (!isCurrent()) return;
-        await connection.setRemoteDescription({ type: 'answer', sdp: answer });
+        const frameCounts = await waitForOutgoingVideo(connection, isCurrent);
         if (!isCurrent()) return;
+        startVideoHealth(connection, generation, activity, frameCounts);
         live = true;
-        reconnectAttempt = 0;
         broadcastBtn.textContent = 'Broadcast live';
         setPageCopy('Broadcast Live', 'Return to score to keep scoring.');
         hintEl.textContent = 'Broadcast live. Return to score to keep scoring.';
@@ -2317,8 +2481,11 @@
       cameraBtn.addEventListener('click', async () => {
         cameraBtn.disabled = true;
         try {
-          await startCamera();
+          automaticCameraRecoveries = 0; reconnectAttempt = 0;
+          if (broadcastDesired) await reconnectBroadcast('Restoring Broadcast...');
+          else await startCamera();
         } catch (error) {
+          if (intentionalStop || error?.name === 'AbortError') return;
           cameraBtn.disabled = false;
           cameraBtn.textContent = 'Try camera again';
           setStatus(cameraPermissionMessage(error), 'CAMERA BLOCKED');
@@ -2329,8 +2496,8 @@
         try {
           await startBroadcast();
         } catch (error) {
-          broadcastBtn.disabled = false;
-          setStatus([{ text: String(error instanceof Error ? error.message : error) }], 'ERROR');
+          if (intentionalStop || error?.name === 'AbortError') return;
+          showCameraRecoveryError();
         }
       });
       chatBtn.addEventListener('click', async () => {
@@ -2435,20 +2602,11 @@
           syncPictureInPictureControl();
           showLiveControls();
           void resumeCameraAfterReturn();
-        } else if (broadcastDesired) {
-          setStatus([
-            { text: 'Broadcast should keep running. Return here if it pauses.', strong: true },
-          ], 'LIVE', { duration: 3600 });
-        }
+        } else { markCameraInterrupted(); }
       });
       window.addEventListener('pageshow', () => { void resumeCameraAfterReturn(); });
       window.addEventListener('focus', () => { void resumeCameraAfterReturn(); });
-      window.addEventListener('pagehide', () => {
-        if (!broadcastDesired || intentionalStop) return;
-        setStatus([
-          { text: 'Returning to scoring. If video pauses, come back here to reconnect.', strong: true },
-        ], 'LIVE', { persistent: true });
-      });
+      window.addEventListener('pagehide', () => { markCameraInterrupted(); });
       void refreshSavedHighlightsButton();
       if (localVisualQaState === 'setup' || localVisualQaState === 'ready' || localVisualQaState === 'live') {
         recordEnabled = false;

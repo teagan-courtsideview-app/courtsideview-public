@@ -362,7 +362,8 @@ describe("Production FanView lifecycle", () => {
     );
     expect(source).toContain('aria-label="Play live video"');
     expect(source).toContain("controls={false}");
-    expect(source).toContain("playbackPaused && !status");
+    // Recovery copy must not hide the user gesture required by autoplay policy.
+    expect(source).toContain("playbackPaused && (!status || needsPlaybackGesture)");
     expect(css).toContain(
       ".live-media__video::-webkit-media-controls-start-playback-button",
     );

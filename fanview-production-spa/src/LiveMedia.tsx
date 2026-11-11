@@ -38,6 +38,7 @@ interface Props {
 const VIDEO_STALL_CHECK_MS = 2_000;
 const VIDEO_STALL_RECONNECT_MS = 6_000;
 const VIDEO_RECONNECT_DELAY_MS = 1_500;
+const VIDEO_NEGOTIATION_TIMEOUT_MS = 12_000;
 
 type SafariVideoElement = HTMLVideoElement & {
   webkitDisplayingFullscreen?: boolean;
@@ -206,6 +207,9 @@ function CloudflareVideo({
   const scoreboardSizeRef = useRef(scoreboardSize);
   const [muted, setMuted] = useState(true);
   const [playbackPaused, setPlaybackPaused] = useState(true);
+  const [needsPlaybackGesture, setNeedsPlaybackGesture] = useState(false);
+  const playbackGestureRef = useRef(false);
+  const playbackAttemptRef = useRef(0);
   const [status, setStatus] = useState("Waiting for broadcaster");
   const [fullscreenMode, setFullscreenMode] = useState<
     "none" | "document" | "presentation" | "css"
@@ -231,16 +235,29 @@ function CloudflareVideo({
   const resumeVideo = useCallback(async () => {
     const video = videoRef.current;
     if (!video || !video.srcObject) return;
+    const source = video.srcObject;
+    const attempt = ++playbackAttemptRef.current;
+    const isCurrent = () => videoRef.current === video && video.srcObject === source && playbackAttemptRef.current === attempt;
+    const playing = () => {
+      if (!isCurrent()) return;
+      playbackGestureRef.current = false;
+      setNeedsPlaybackGesture(false);
+      setPlaybackPaused(false);
+    };
     try {
       await video.play();
-      setPlaybackPaused(false);
+      playing();
     } catch {
+      if (!isCurrent()) return;
       video.muted = true;
       setMuted(true);
       try {
         await video.play();
-        setPlaybackPaused(false);
+        playing();
       } catch {
+        if (!isCurrent()) return;
+        playbackGestureRef.current = true;
+        setNeedsPlaybackGesture(true);
         setPlaybackPaused(true);
       }
     }
@@ -273,9 +290,24 @@ function CloudflareVideo({
       let disposed = false;
       let sessionUrl: string | null = null;
       let sessionReleased = false;
+      let negotiationTimeout: number | undefined;
+      let frameCallback: number | undefined;
+      let renderedFrames = 0;
+      let frameCallbackSupported = typeof videoRef.current.requestVideoFrameCallback === "function";
+      let lastRenderedFrames = 0;
+      let decodedFrameSample = new Map<string, number>();
+      let frameCheckPending = false;
+      let frameStatsTimeout: number | undefined;
+      let cancelFrameStats: (() => void) | undefined;
+      let hasVideoProgress = false;
+      let negotiatedReady = false;
+      const video = videoRef.current;
       const isCurrent = () => active && !disposed && peer === candidate;
       const dispose = () => {
         disposed = true;
+        window.clearTimeout(negotiationTimeout);
+        cancelFrameStats?.();
+        if (frameCallback !== undefined) video.cancelVideoFrameCallback?.(frameCallback);
         controller.abort();
         candidate.close();
         if (sessionUrl && !sessionReleased) {
@@ -285,9 +317,8 @@ function CloudflareVideo({
       };
       disposeCurrent = dispose;
       const stream = new MediaStream();
-      videoRef.current.srcObject = stream;
+      video.srcObject = stream;
       setStatus("Waiting for broadcaster");
-      let lastCurrentTime = videoRef.current.currentTime;
       let lastProgressAt = Date.now();
 
       const reconnect = () => {
@@ -301,17 +332,67 @@ function CloudflareVideo({
           VIDEO_RECONNECT_DELAY_MS,
         );
       };
+      // A connected transport, audio track, or advancing media clock can all
+      // coexist with a black video. Keep the recovery surface until real video
+      // frames arrive, then keep checking them across camera replacements.
+      const confirmVideoProgress = () => {
+        if (!isCurrent() || !negotiatedReady || candidate.connectionState !== "connected" || video.readyState < 2 || !video.videoWidth || !video.videoHeight) return;
+        lastProgressAt = Date.now();
+        hasVideoProgress = true;
+        setStatus("");
+      };
+      const presentedFrames = (): number | null => {
+        try {
+          const quality = video.getVideoPlaybackQuality?.();
+          if (quality && Number.isFinite(quality.totalVideoFrames) && Number.isFinite(quality.droppedVideoFrames)) {
+            return Math.max(0, quality.totalVideoFrames - quality.droppedVideoFrames);
+          }
+        } catch { /* Fall through to bounded decoded-video stats. */ }
+        return null;
+      };
+      const decodedVideoAdvanced = async (): Promise<boolean> => {
+        if (typeof candidate.getStats !== "function") return false;
+        let stats: RTCStatsReport;
+        try {
+          stats = await Promise.race([
+            candidate.getStats(),
+            new Promise<never>((_, reject) => {
+              cancelFrameStats = () => reject(new Error("Video session changed"));
+              frameStatsTimeout = window.setTimeout(() => reject(new Error("Video stats timed out")), 2_000);
+            }),
+          ]);
+        } finally { window.clearTimeout(frameStatsTimeout); cancelFrameStats = undefined; }
+        if (!isCurrent()) return false;
+        const next = new Map<string, number>();
+        stats.forEach((item) => {
+          if (item.type !== "inbound-rtp" || (item.kind !== "video" && item.mediaType !== "video") || !Number.isFinite(item.framesDecoded) || item.framesDecoded < 0) return;
+          next.set(`${item.id}:${item.ssrc ?? ""}`, item.framesDecoded);
+        });
+        const advanced = [...next].some(([id, frames]) => decodedFrameSample.has(id) && frames > decodedFrameSample.get(id)!);
+        decodedFrameSample = next;
+        return advanced;
+      };
+      const onVideoFrame = () => {
+        if (!isCurrent()) return;
+        renderedFrames += 1;
+        confirmVideoProgress();
+        try { frameCallback = video.requestVideoFrameCallback(onVideoFrame); }
+        catch { frameCallbackSupported = false; }
+      };
+      if (frameCallbackSupported) {
+        try { frameCallback = video.requestVideoFrameCallback(onVideoFrame); }
+        catch { frameCallbackSupported = false; }
+      }
+      lastRenderedFrames = frameCallbackSupported ? 0 : presentedFrames() ?? 0;
+      negotiationTimeout = window.setTimeout(reconnect, VIDEO_NEGOTIATION_TIMEOUT_MS);
       candidate.addEventListener("track", ({ track }) => {
         if (!isCurrent()) return;
         stream.addTrack(track);
-        setStatus("");
-        lastProgressAt = Date.now();
         void resumeVideo();
         track.addEventListener("ended", reconnect, { once: true });
       });
       candidate.addEventListener("connectionstatechange", () => {
         if (!isCurrent()) return;
-        if (candidate.connectionState === "connected") setStatus("");
         if (
           candidate.connectionState === "failed" ||
           candidate.connectionState === "disconnected"
@@ -352,19 +433,31 @@ function CloudflareVideo({
         });
         if (!isCurrent()) { dispose(); return; }
         if (!negotiated.ok) throw new Error("viewer negotiation failed");
-        setStatus("Live now");
+        negotiatedReady = true;
+        lastProgressAt = Date.now();
+        window.clearTimeout(negotiationTimeout);
+        if (!hasVideoProgress) setStatus("Connecting video");
         void resumeVideo();
         watchdog = window.setInterval(() => {
-          const video = videoRef.current;
-          if (!isCurrent() || !video) return;
-          if (video.currentTime > lastCurrentTime + 0.05) {
-            lastCurrentTime = video.currentTime;
-            lastProgressAt = Date.now();
-            return;
-          }
-          if (Date.now() - lastProgressAt >= VIDEO_STALL_RECONNECT_MS) {
-            reconnect();
-          }
+          if (!isCurrent() || frameCheckPending) return;
+          // A blocked autoplay needs a tap, not a new session. Background tabs
+          // may stop presenting frames and must not cause reconnection churn.
+          if (document.visibilityState === "hidden" || playbackGestureRef.current) { lastProgressAt = Date.now(); return; }
+          frameCheckPending = true;
+          void (async () => {
+            try {
+              const frames = frameCallbackSupported ? renderedFrames : presentedFrames();
+              if (frames !== null) {
+                if (frames > lastRenderedFrames) confirmVideoProgress();
+                lastRenderedFrames = frames;
+              } else if (await decodedVideoAdvanced()) {
+                confirmVideoProgress();
+              }
+            } catch { /* Missing video evidence stays on the recovery surface. */ }
+            finally { frameCheckPending = false; }
+            if (!isCurrent() || document.visibilityState === "hidden" || playbackGestureRef.current) return;
+            if (Date.now() - lastProgressAt >= VIDEO_STALL_RECONNECT_MS) reconnect();
+          })();
         }, VIDEO_STALL_CHECK_MS);
       } catch {
         if (isCurrent()) reconnect();
@@ -638,6 +731,9 @@ function CloudflareVideo({
     const presentation =
       presentationVideoRef.current as SafariVideoElement | null;
     if (!video) return;
+    const source = video.srcObject;
+    const attempt = ++playbackAttemptRef.current;
+    const isCurrent = () => videoRef.current === video && video.srcObject === source && playbackAttemptRef.current === attempt;
     const nextMuted = !muted;
     video.muted = nextMuted;
     video.volume = 1;
@@ -649,8 +745,10 @@ function CloudflareVideo({
     if (nextMuted) return;
     try {
       await video.play();
+      if (!isCurrent()) return;
       setMuted(false);
     } catch {
+      if (!isCurrent()) return;
       video.muted = true;
       setMuted(true);
     }
@@ -779,7 +877,7 @@ function CloudflareVideo({
         playsInline
         ref={presentationVideoRef}
       />
-      {playbackPaused && !status ? (
+      {playbackPaused && (!status || needsPlaybackGesture) ? (
         <button
           aria-label="Play live video"
           className="live-media__play"
@@ -789,7 +887,7 @@ function CloudflareVideo({
           <Play aria-hidden="true" size={25} weight="fill" />
         </button>
       ) : null}
-      {status ? <div className="live-media__status">{status}</div> : null}
+      {status && !(playbackPaused && needsPlaybackGesture) ? <div className="live-media__status">{status}</div> : null}
       <div className="media-controls" aria-label="Video controls">
         <button
           aria-label={muted ? "Turn on live audio" : "Mute live audio"}
