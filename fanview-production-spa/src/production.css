@@ -2311,3 +2311,143 @@
 }
 
 .scoreboard-display-menu button.scoreboard-display-menu__reset { color: var(--display-accent); }
+
+/* November 11 approved FanView chrome. ScoreBug artwork remains unchanged. */
+@font-face { font-family: "CV Viewer Jakarta"; src: url("/assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "CV Viewer Jakarta"; src: url("/assets/fonts/PlusJakartaSans-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+.fanview-app, .fanview-state-page {
+  --viewer-bg: #f7f8fb; --viewer-face: #ffffff; --viewer-ink: #111827;
+  --viewer-muted: #626d7c; --viewer-border: #788696; --viewer-positive: #126b45;
+  --viewer-positive-bg: #e2f4ea; --viewer-court: rgba(17,24,39,.14);
+}
+@media (prefers-color-scheme: dark) {
+  .fanview-app, .fanview-state-page { --viewer-bg: #071018; --viewer-face: #101724; --viewer-ink: #f8fafc;
+    --viewer-muted: #b8c1d1; --viewer-border: #65758a; --viewer-positive: #6ee7af;
+    --viewer-positive-bg: #133a2b; --viewer-court: rgba(248,250,252,.14); }
+}
+.fanview-app[data-video-present="false"],
+.fanview-app[data-video-present="false"] .match-stage,
+.fanview-app[data-video-present="false"] .match-stage__empty { background: var(--viewer-bg); }
+.fanview-app[data-video-present="false"] .match-stage__shade { background: none; }
+.fanview-app[data-video-present="false"] .court-outline { border-color: var(--viewer-court); }
+.fanview-app[data-video-present="false"] .court-outline__net { border-color: var(--viewer-court); }
+.fanview-app .viewer-header, .fanview-app .viewer-brand,
+.fanview-app .media-control, .fanview-app .scoreboard-display-trigger,
+.fanview-app .community-launcher, .fanview-app .match-status {
+  font-family: "CV Viewer Jakarta", system-ui, sans-serif;
+  text-transform: none; letter-spacing: 0; line-height: 1.4;
+}
+.fanview-app .viewer-header { gap: 10px; }
+.fanview-app .viewer-brand { display: flex; align-items: center; gap: 8px; min-height: 44px; min-width: 0; color: var(--viewer-ink); font-weight: 600; }
+.fanview-app[data-video-present="true"] .viewer-brand { color: #fff; text-shadow: 0 1px 5px #000; }
+.fanview-app .viewer-header--without-team-hub { justify-content: space-between; }
+.fanview-app .viewer-header .live-pill { min-height: 44px; padding: 8px 12px; border-radius: 12px; font: inherit; font-weight: 600; color: var(--viewer-positive); background: var(--viewer-positive-bg); }
+.fanview-app .live-pill[data-state="scores"] .live-pill__dot,
+.fanview-app .live-pill[data-state="connecting"] .live-pill__dot,
+.fanview-app .live-pill[data-state="final"] .live-pill__dot { display: none; }
+.fanview-app .live-pill[data-state="connecting"], .fanview-app .live-pill[data-state="final"] { color: var(--viewer-muted); background: var(--viewer-face); }
+.fanview-app .viewer-pill, .fanview-app .team-hub-back,
+.fanview-app .media-control, .fanview-app .scoreboard-display-trigger {
+  color: var(--viewer-ink); background: var(--viewer-face); border-color: var(--viewer-border); min-height: 44px;
+}
+.fanview-app .community-launcher { color: #111827; background: #ff4f93; font-weight: 600; min-height: 48px; }
+.fanview-app .community-launcher > span { text-transform: none; }
+.fanview-app .match-status { color: var(--viewer-ink); background: var(--viewer-face); }
+@media (max-width: 360px) {
+  .fanview-app .viewer-header { flex-wrap: wrap; }
+  .fanview-app .viewer-header__status { flex-wrap: wrap; }
+}
+
+/* Preserve the native overlay's condensed heavy sports face, not UI-body type. */
+.fanview-app .score-bug__full-team > strong,
+.fanview-app .score-bug__full-team > b,
+.fanview-app .score-bug__bar-team span,
+.fanview-app .score-bug__bar-team strong,
+.fanview-app .score-bug__minimal-card > strong {
+  font-family: "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", sans-serif;
+  font-weight: 900;
+}
+/* Persistent controls own their labels and icons, including legacy descendants. */
+.fanview-app .media-controls {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+  width: min(360px, calc(100% - 140px)); max-width: calc(100% - 20px);
+  left: max(10px, env(safe-area-inset-left)); right: auto;
+}
+.fanview-app .media-control {
+  width: auto; min-width: 44px; min-height: 64px; height: auto;
+  padding: 8px 4px; gap: 4px; border: 1px solid var(--viewer-border); border-radius: 12px;
+}
+.fanview-app .media-control .media-control__label {
+  color: inherit; background: transparent; box-shadow: none;
+  font: 600 14px/1.35 "CV Viewer Jakarta", system-ui, sans-serif;
+  letter-spacing: 0; text-transform: none; white-space: normal;
+}
+.fanview-app .media-control svg {
+  color: inherit; fill: currentColor; width: 20px; height: 20px;
+  padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+}
+.fanview-app .scoreboard-display-trigger, .fanview-app .team-hub-back,
+.fanview-app .community-launcher { font-size: 14px; line-height: 1.4; }
+.fanview-app .scoreboard-display-trigger svg, .fanview-app .team-hub-back svg { color: inherit; }
+.fanview-app .community-launcher { width: auto; min-width: 0; max-width: calc(100% - 20px); padding: 10px 14px; gap: 8px; }
+.fanview-app .community-launcher > span { color: inherit; font-size: 14px; }
+.fanview-app .viewer-header .live-pill__dot { background: currentColor; }
+@media (max-width: 360px) {
+  .fanview-app .media-controls { width: calc(100% - 20px); bottom: calc(var(--fanview-mobile-bottom-inset) + 60px); }
+  .fanview-app[data-video-present="true"][data-scoreboard-position^="bottom"] .score-bug { bottom: calc(var(--fanview-mobile-bottom-inset) + 144px); }
+}
+@media (max-width: 260px) {
+  .fanview-app .media-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fanview-app[data-video-present="true"][data-scoreboard-position^="bottom"] .score-bug { bottom: calc(var(--fanview-mobile-bottom-inset) + 218px); }
+}
+.fanview-state-page, .fanview-state-camera { background: var(--viewer-bg); color: var(--viewer-ink); }
+.fanview-state-page .fanview-state-card {
+  background: var(--viewer-face); color: var(--viewer-ink); border-color: var(--viewer-border);
+  box-shadow: 0 12px 32px rgba(17,24,39,.12); border-radius: 20px;
+  font-family: "CV Viewer Jakarta", system-ui, sans-serif;
+}
+.fanview-state-page .fanview-state-card strong { font-family: inherit; font-size: 24px; line-height: 1.3; text-transform: none; }
+.fanview-state-page .fanview-state-card > span { color: var(--viewer-muted); font-size: 15px; line-height: 1.5; }
+.fanview-state-page .fanview-state-action {
+  color: var(--viewer-ink); background: var(--viewer-face); border-color: var(--viewer-border);
+  font: 600 14px/1.4 "CV Viewer Jakarta", system-ui, sans-serif; text-transform: none;
+  min-height: 48px; border-radius: 12px; padding: 12px 16px; box-shadow: none;
+}
+.fanview-state-page .fanview-state-action--primary { background: #ff4f93; color: #111827; clip-path: none; }
+/* Full team names wrap at word boundaries; score artwork and data stay intact. */
+.fanview-app .score-bug__full-team > strong,
+.fanview-app .score-bug__bar-team span {
+  white-space: normal; text-overflow: clip; overflow: visible;
+  overflow-wrap: normal; word-break: normal; line-height: 1.25;
+}
+.fanview-app .score-bug__full-team { height: auto; min-height: 54px; padding-top: 6px; padding-bottom: 6px; }
+.fanview-app .score-bug__bar-team { padding-top: 6px; padding-bottom: 6px; }
+@media (max-width: 340px) {
+  .fanview-app .score-bug__full-team { grid-template-columns: 6px minmax(0, 1fr) auto; }
+  .fanview-app .score-bug__full-team > i { grid-column: 1; grid-row: 1 / 3; }
+  .fanview-app .score-bug__full-team > strong { grid-column: 2 / 4; grid-row: 1; }
+  .fanview-app .score-bug__full-team > b { grid-column: 3; grid-row: 2; }
+  .fanview-app .score-bug__full-team .score-bug__set-dots { grid-column: 2; grid-row: 2; }
+  .fanview-app .score-bug__bar-team--home { grid-template-columns: 6px minmax(0, 1fr); }
+  .fanview-app .score-bug__bar-team--home i { grid-column: 1; grid-row: 1 / 3; }
+  .fanview-app .score-bug__bar-team--home span { grid-column: 2; grid-row: 1; }
+  .fanview-app .score-bug__bar-team--home strong { grid-column: 2; grid-row: 2; }
+  .fanview-app .score-bug__bar-team--away { grid-template-columns: minmax(0, 1fr) 6px; }
+  .fanview-app .score-bug__bar-team--away i { grid-column: 2; grid-row: 1 / 3; }
+  .fanview-app .score-bug__bar-team--away span { grid-column: 1; grid-row: 1; }
+  .fanview-app .score-bug__bar-team--away strong { grid-column: 1; grid-row: 2; text-align: right; }
+}
+/* Actual labelled dock/header dimensions reserve space around every anchor. */
+.fanview-app[data-scoreboard-position^="bottom"] .score-bug {
+  bottom: var(--viewer-dock-clearance, 112px);
+}
+.fanview-app[data-scoreboard-position^="top"] .score-bug {
+  top: var(--viewer-header-clearance, 76px);
+}
+.fanview-app .score-bug {
+  max-height: calc(100% - var(--viewer-dock-clearance, 112px) - var(--viewer-header-clearance, 76px));
+  overflow-y: auto;
+}
+
+.fanview-app .score-bug { pointer-events: auto; overscroll-behavior: contain; }
+.fanview-app .score-bug:focus-visible { outline: 3px solid var(--viewer-ink); outline-offset: 3px; }

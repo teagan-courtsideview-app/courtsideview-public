@@ -77,6 +77,14 @@ const visualQaFanViewAdapter = {
       activity: [],
       connection: "connected",
     };
+    if (new URLSearchParams(window.location.search).get("scores") === "1") {
+      snapshot.media = { kind: "none", alt: "Scores only" };
+      snapshot.match.teamHub = undefined;
+    }
+    if (new URLSearchParams(window.location.search).get("names") === "long") {
+      snapshot.match.home.name = "Charlotte Volleyball Families";
+      snapshot.match.away.name = "Carolina Volleyball Academy";
+    }
     return snapshot;
   },
 };

@@ -42,7 +42,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const mountMedia = () => render(
+const mountMedia = (onVideoConfirmed?: (confirmed: boolean) => void) => render(
   <LiveMedia
     displayMenuOpen={false}
     liveWorkerUrl="https://worker.example"
@@ -54,6 +54,7 @@ const mountMedia = () => render(
     }}
     media={{ kind: "cloudflare-realtime", alt: "Live match" }}
     onDisplayToggle={() => {}}
+    onVideoConfirmed={onVideoConfirmed}
     scoreboardLayout="score-bar"
     scoreboardPosition="bottom-center"
     scoreboardSize="standard"
@@ -63,6 +64,22 @@ const mountMedia = () => render(
 );
 
 describe("guest live media", () => {
+  it("keeps persistent Full screen and Float labels while confirmed API states change", () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 503 })));
+    const view = mountMedia();
+    const videos = view.container.querySelectorAll("video");
+    act(() => videos[1].dispatchEvent(new Event("webkitbeginfullscreen")));
+    const fullScreen = screen.getByRole("button", { name: "Exit full screen" });
+    expect(fullScreen).toHaveTextContent("Full screen");
+    expect(fullScreen).toHaveAttribute("aria-pressed", "true");
+    act(() => videos[0].dispatchEvent(new Event("enterpictureinpicture")));
+    expect(screen.getByRole("button", { name: "Return floating video" })).toHaveTextContent("Float");
+    expect(screen.getByRole("button", { name: "Return floating video" })).toHaveAttribute("aria-pressed", "true");
+    act(() => videos[1].dispatchEvent(new Event("webkitendfullscreen")));
+    expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveTextContent("Full screen");
+    act(() => videos[0].dispatchEvent(new Event("leavepictureinpicture")));
+    expect(screen.getByRole("button", { name: "Float live video" })).toHaveTextContent("Float");
+  });
   it("completes guest WHEP negotiation and presence, then releases presence when unmounted", async () => {
     const fetch = vi.fn(async (input: string, init: RequestInit) => {
       if (input.includes("/presence/")) return new Response(null, { status: 204 });
@@ -97,16 +114,34 @@ describe("guest live media", () => {
 });
 
 describe("viewer frame recovery on the original link", () => {
-  const ready = async () => {
+  const ready = async (onVideoConfirmed?: (confirmed: boolean) => void) => {
     const fetch = vi.fn(async (input: string, init: RequestInit) => {
       if (input.includes("/presence/") || init.method !== "POST") return new Response(null, { status: 204 });
       return new Response("offer", { status: 201, headers: { location: `/play/public-match/session-${peers.length}` } });
     });
     vi.stubGlobal("fetch", fetch);
-    const view = mountMedia();
+    const view = mountMedia(onVideoConfirmed);
     await act(async () => { await vi.advanceTimersByTimeAsync(0); });
     return { fetch, view, video: view.container.querySelector("video")! };
   };
+  it("reports confirmed video only after frames and clears it on pause, recovery and unmount", async () => {
+    vi.useFakeTimers();
+    const confirmed = vi.fn();
+    const { video, view } = await ready(confirmed);
+    expect(confirmed).toHaveBeenLastCalledWith(false);
+    Object.defineProperties(video, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
+    peers[0].connectionState = "connected";
+    fireEvent.playing(video); videoFrames = 1;
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_000); });
+    expect(confirmed).toHaveBeenLastCalledWith(true);
+    fireEvent.pause(video);
+    expect(confirmed).toHaveBeenLastCalledWith(false);
+    fireEvent.playing(video);
+    expect(confirmed).toHaveBeenLastCalledWith(true);
+    await act(async () => { await vi.advanceTimersByTimeAsync(6_000); });
+    expect(confirmed).toHaveBeenLastCalledWith(false);
+    view.unmount(); expect(confirmed).toHaveBeenLastCalledWith(false);
+  });
   it("allows slow initial ICE and first video without discarding the healthy pending session", async () => {
     vi.useFakeTimers();
     const { video, fetch } = await ready();

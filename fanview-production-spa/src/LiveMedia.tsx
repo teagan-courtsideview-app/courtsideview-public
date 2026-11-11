@@ -28,6 +28,7 @@ interface Props {
   match: FanViewMatch;
   media: FanViewMedia;
   onDisplayToggle: () => void;
+  onVideoConfirmed?: (confirmed: boolean) => void;
   scoreboardLayout: ScoreboardLayout;
   scoreboardPosition: ScoreboardPosition;
   scoreboardSize: ScoreboardSize;
@@ -187,6 +188,7 @@ function CloudflareVideo({
   liveWorkerUrl,
   match,
   onDisplayToggle,
+  onVideoConfirmed,
   rotation,
   scoreboardLayout,
   scoreboardPosition,
@@ -214,6 +216,10 @@ function CloudflareVideo({
   const playbackGestureRef = useRef(false);
   const playbackAttemptRef = useRef(0);
   const [status, setStatus] = useState("Waiting for broadcaster");
+  useEffect(() => {
+    onVideoConfirmed?.(!status && !playbackPaused);
+    return () => onVideoConfirmed?.(false);
+  }, [status, playbackPaused, onVideoConfirmed]);
   const [fullscreenMode, setFullscreenMode] = useState<
     "none" | "document" | "presentation" | "css"
   >("none");
@@ -909,6 +915,7 @@ function CloudflareVideo({
         </button>
         <button
           aria-label={floating ? "Return floating video" : "Float live video"}
+          aria-pressed={floating}
           className="media-control media-control--pip"
           disabled={!pictureInPictureAvailable}
           onClick={() => void toggleFloatingVideo()}
@@ -916,7 +923,7 @@ function CloudflareVideo({
         >
           <PictureInPicture aria-hidden="true" size={18} weight="bold" />
           <span className="media-control__label">
-            {floating ? "Return" : "Float"}
+            {"Float"}
           </span>
         </button>
         <button
@@ -943,7 +950,7 @@ function CloudflareVideo({
             <ArrowsOut aria-hidden="true" size={19} weight="bold" />
           )}
           <span className="media-control__label">
-            {fullscreen ? "Exit" : "Full screen"}
+            {"Full screen"}
           </span>
         </button>
       </div>
@@ -957,6 +964,7 @@ export function LiveMedia({
   match,
   media,
   onDisplayToggle,
+  onVideoConfirmed,
   scoreboardLayout,
   scoreboardPosition,
   scoreboardSize,
@@ -971,6 +979,7 @@ export function LiveMedia({
         liveWorkerUrl={liveWorkerUrl}
         match={match}
         onDisplayToggle={onDisplayToggle}
+        onVideoConfirmed={onVideoConfirmed}
         rotation={media.rotation}
         scoreboardLayout={scoreboardLayout}
         scoreboardPosition={scoreboardPosition}

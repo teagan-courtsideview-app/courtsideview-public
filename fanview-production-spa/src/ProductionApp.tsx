@@ -399,15 +399,15 @@ function RecoveryPage({
           <span>{copy}</span>
           <div className="fanview-state-actions">
             <a className="fanview-state-action fanview-state-action--primary cv-primary-action" data-cv-action="home" href="/">
-              Return Home
+              Back to home
             </a>
-            <a
+            {teamHub ? <a
               className="fanview-state-action"
-              href={teamHub ? `/t/${encodeURIComponent(teamHub.slug)}` : "/"}
+              href={`/t/${encodeURIComponent(teamHub.slug)}`}
             >
               <ApprovedBrandIcon name="team" size={20} />
               Open Team Hub
-            </a>
+            </a> : null}
             <button
               className="fanview-state-action"
               disabled={!shareId}
@@ -516,6 +516,8 @@ export function ProductionApp({
   liveWorkerUrl,
   shareId,
 }: Props) {
+  const viewerStageRef = useRef<HTMLElement>(null);
+  const [videoConfirmed, setVideoConfirmed] = useState(false);
   const [snapshot, setSnapshot] = useState<FanViewSnapshot | null>(null);
   const [screen, setScreen] = useState<ScreenState>(
     shareId ? "loading" : "unavailable",
@@ -536,6 +538,29 @@ export function ProductionApp({
   );
   const [displayMenuOpen, setDisplayMenuOpen] = useState(false);
   const [arenaPresentation] = useState(arenaPresentationRequested);
+  useEffect(() => {
+    const root = viewerStageRef.current;
+    if (!root || typeof ResizeObserver === "undefined") return;
+    const stage = root.querySelector<HTMLElement>(".match-stage");
+    if (!stage) return;
+    const measure = () => {
+      const bounds = stage.getBoundingClientRect();
+      if (!bounds.height) return;
+      const dock = [...root.querySelectorAll<HTMLElement>(".media-controls, .community-launcher, .scoreboard-display-trigger--standalone")]
+        .map(node => node.getBoundingClientRect()).filter(rect => rect.height > 0);
+      const header = root.querySelector(".viewer-header")?.getBoundingClientRect();
+      const bottom = dock.length ? Math.max(0, bounds.bottom - Math.min(...dock.map(rect => rect.top)) + 12) : 20;
+      const top = header?.height ? Math.max(0, header.bottom - bounds.top + 12) : 64;
+      root.style.setProperty("--viewer-dock-clearance", `${bottom}px`);
+      root.style.setProperty("--viewer-header-clearance", `${top}px`);
+      const scoreboard = root.querySelector<HTMLElement>(".score-bug");
+      if (scoreboard) scoreboard.tabIndex = scoreboard.scrollHeight > scoreboard.clientHeight ? 0 : -1;
+    };
+    const observer = new ResizeObserver(measure);
+    [stage, ...root.querySelectorAll<HTMLElement>(".viewer-header, .media-controls, .community-launcher, .scoreboard-display-trigger--standalone, .score-bug")].forEach(node => observer.observe(node));
+    window.addEventListener("resize", measure); measure();
+    return () => { observer.disconnect(); window.removeEventListener("resize", measure); };
+  }, [screen, snapshot?.media.kind, communityEnabled, displayMenuOpen]);
   const [accountPreferenceHydrated, setAccountPreferenceHydrated] = useState(
     displayPreferenceAdapter === undefined,
   );
@@ -758,7 +783,9 @@ export function ProductionApp({
   return (
     <main
       className="fanview-app"
+      ref={viewerStageRef}
       data-community-enabled={communityEnabled}
+      data-video-present={hasVideo}
       data-scoreboard-automatic={scoreboardAutomatic}
       data-scoreboard-layout={renderedScoreboardLayout}
       data-scoreboard-position={scoreboardPosition}
@@ -769,6 +796,7 @@ export function ProductionApp({
         {hasVideo ? (
           <LiveMedia
             liveWorkerUrl={liveWorkerUrl}
+            onVideoConfirmed={setVideoConfirmed}
             match={snapshot.match}
             media={snapshot.media}
             displayMenuOpen={displayMenuOpen}
@@ -814,14 +842,15 @@ export function ProductionApp({
               <ArrowLeft aria-hidden="true" size={18} weight="bold" />
               <span>Team Hub</span>
             </a>
-          ) : null}
+          ) : <div className="viewer-brand"><ApprovedBrandIcon name="fanview" size={22} /><span>FanView</span></div>}
           <div className="viewer-header__status">
             <div
               className="live-pill"
-              aria-label={snapshot.match.isLive ? "Live" : "Final"}
+              data-state={!snapshot.match.isLive ? "final" : !hasVideo ? "scores" : videoConfirmed ? "live" : "connecting"}
+              aria-label={snapshot.match.isLive ? (!hasVideo ? "Live score" : videoConfirmed ? "Live" : snapshot.media.kind === "youtube" ? "Video" : "Connecting") : "Final"}
             >
               <span className="live-pill__dot" aria-hidden="true" />
-              {snapshot.match.isLive ? "LIVE" : "FINAL"}
+              {snapshot.match.isLive ? (!hasVideo ? "Live score" : videoConfirmed ? "Live" : snapshot.media.kind === "youtube" ? "Video" : "Connecting") : "Final"}
             </div>
             <div
               aria-label={`${snapshot.viewerCount.toLocaleString("en-US")} ${

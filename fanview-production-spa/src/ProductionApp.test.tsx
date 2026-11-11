@@ -192,11 +192,11 @@ describe("Production FanView lifecycle", () => {
       connection: "connected" as const, participantCount: 3,
       canWriteText: false, messages: [],
     }));
-    render(<ProductionApp
+    await act(async () => { render(<ProductionApp
       communityAdapter={{ ...community, loadRoom }} communityEnabled
       fanViewAdapter={{ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } }}
       liveWorkerUrl="https://worker.example" shareId="match-123"
-    />);
+    />); });
     const chat = await screen.findByRole("button", { name: "Open chat, 3 in chat" });
     const trigger = screen.getByRole("button", { name: "Scoreboard display" });
     for (let repeat = 0; repeat < 2; repeat += 1) {
@@ -267,6 +267,43 @@ describe("Production FanView lifecycle", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("reserves actual header and growing control heights around the scoreboard", async () => {
+    let resize: () => void = () => {};
+    let dockTop = 872;
+    const rect = (top: number, height: number) => ({ top, bottom: top + height, height, width: 440, left: 0, right: 440, x: 0, y: top, toJSON() {} });
+    const geometry = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      if (this.classList.contains("match-stage")) return rect(0, 956);
+      if (this.classList.contains("viewer-header")) return rect(12, 64);
+      if (this.classList.contains("scoreboard-display-trigger")) return rect(dockTop, 72);
+      return rect(0, 0);
+    });
+    vi.stubGlobal("ResizeObserver", class { constructor(callback: () => void) { resize = callback; } observe() {} disconnect() {} });
+    try {
+      renderApp({ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } });
+      const app = await screen.findByTestId("fanview-production-app");
+      await waitFor(() => expect(app.style.getPropertyValue("--viewer-header-clearance")).toBe("88px"));
+      expect(app.style.getPropertyValue("--viewer-dock-clearance")).toBe("96px");
+      const scoreboard = app.querySelector<HTMLElement>(".score-bug")!;
+      Object.defineProperties(scoreboard, { scrollHeight: { configurable: true, value: 240 }, clientHeight: { configurable: true, value: 100 } });
+      dockTop = 800; act(() => resize());
+      expect(scoreboard.tabIndex).toBe(0);
+      Object.defineProperty(scoreboard, "clientHeight", { configurable: true, value: 240 });
+      act(() => resize());
+      expect(scoreboard.tabIndex).toBe(-1);
+      expect(app.style.getPropertyValue("--viewer-dock-clearance")).toBe("168px");
+    } finally { cleanup(); geometry.mockRestore(); vi.unstubAllGlobals(); }
+  });
+
+  it("identifies a guest score-only game without inventing a Team Hub or video", async () => {
+    renderApp({ async loadSnapshot() { return snapshot("2026-07-25T20:01:00.000Z", 18); } });
+    expect(await screen.findByLabelText("Live score")).toBeVisible();
+    expect(screen.getByText("FanView")).toBeVisible();
+    expect(screen.queryByRole("link", { name: /Team Hub/ })).toBeNull();
+    expect(screen.getByTestId("fanview-production-app")).toHaveAttribute("data-video-present", "false");
+    fireEvent.click(screen.getByRole("button", { name: "Scoreboard display" }));
+    expect(screen.getByRole("dialog")).toBeVisible();
+  });
+
   it("renders the linked Team Hub action in the active viewer route", async () => {
     const linked = snapshot("2026-07-25T20:01:00.000Z", 18);
     linked.match.teamHub = { name: "14s Blue", slug: "14s-blue" };
@@ -281,7 +318,7 @@ describe("Production FanView lifecycle", () => {
     expect(teamHub).toHaveAttribute("href", "/t/14s-blue");
     const header = teamHub.closest(".viewer-header");
     expect(header).not.toBeNull();
-    expect(header).toContainElement(screen.getByLabelText("Live"));
+    expect(header).toContainElement(screen.getByLabelText("Live score"));
     expect(header).toContainElement(screen.getByLabelText("12 viewers"));
   });
 
@@ -331,9 +368,10 @@ describe("Production FanView lifecycle", () => {
       path.resolve(__dirname, "production.css"),
       "utf8",
     );
-    for (const label of ["Muted", "Float", "Full screen"]) {
-      expect(source).toContain(`"${label}"`);
-    }
+    expect(source).toContain('"Muted"');
+    // These labels stay literal in both confirmed active and inactive states.
+    expect(source).toMatch(/className="media-control__label">\s*\{"Float"\}\s*<\/span>/);
+    expect(source).toMatch(/className="media-control__label">\s*\{"Full screen"\}\s*<\/span>/);
     expect(source).toContain(">Display</span>");
     expect(css).toMatch(
       /\.media-control__label\s*\{[\s\S]*?display:\s*block;/,
@@ -455,8 +493,9 @@ describe("Production FanView lifecycle", () => {
       },
     });
     expect(await screen.findByText("FanView is reconnecting")).toBeVisible();
+    expect(screen.queryByRole("link", { name: "Open Team Hub" })).toBeNull();
     expect(screen.getByRole("button", { name: "Try again" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "Return Home" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to home" })).toHaveAttribute(
       "href",
       "/",
     );
