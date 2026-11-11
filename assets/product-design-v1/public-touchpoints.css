@@ -1,0 +1,127 @@
+/* Functional shared pages only. Team identity, stats, and FanView score artwork
+   remain independent of these app-shell tokens. */
+body[data-cv-public] {
+  color-scheme: light dark;
+  --paper: #f7f8fb; --bg: #f7f8fb; --panel: #fff; --card: #fff; --panel-soft: #eef2f6;
+  --ink: #111827; --ink-soft: #263241; --muted: #626d7c; --dim: #626d7c;
+  --line: #d5dde6; --line-strong: #788696; --border: #d5dde6;
+  --green: #126b45; --green-dark: #126b45; --pink: #ff4f93;
+  --public-positive-soft: #e2f4ea; --public-danger: #aa1f29;
+  background: var(--paper); color: var(--ink); font-family: var(--cv-font);
+}
+@media (prefers-color-scheme: dark) {
+  body[data-cv-public] {
+    --paper: #071018; --bg: #071018; --panel: #101724; --card: #101724; --panel-soft: #192330;
+    --ink: #f8fafc; --ink-soft: #e0e7ef; --muted: #b8c1d1; --dim: #b8c1d1;
+    --line: #405063; --line-strong: #65758a; --border: #405063;
+    --green: #6ee7af; --green-dark: #6ee7af; --public-positive-soft: #133a2b; --public-danger: #ffa5a5;
+  }
+}
+body[data-cv-public] .cv-public-brand { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; margin-bottom: 16px; color: var(--ink); text-decoration: none; font-size: 16px; font-weight: 600; }
+body[data-cv-public] .cv-public-brand img { width: 48px; height: 36px; object-fit: contain; flex-shrink: 0; }
+body[data-cv-public] h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.2; text-transform: none; letter-spacing: 0; overflow-wrap: normal; word-break: normal; }
+body[data-cv-public] h2, body[data-cv-public] .section-title,
+body[data-cv-public] .hero-title { font-family: var(--cv-font); font-size: clamp(20px, 4vw, 28px); line-height: 1.3; text-transform: none; letter-spacing: 0; }
+body[data-cv-public] .eyebrow, body[data-cv-public] .section-label,
+body[data-cv-public] .hero-label, body[data-cv-public] .headline-label,
+body[data-cv-public] .stat-label, body[data-cv-public] .resume-label,
+body[data-cv-public] .metric .label, body[data-cv-public] .mode,
+body[data-cv-public] .tracking, body[data-cv-public] .status,
+body[data-cv-public] .pill { text-transform: none; letter-spacing: 0; line-height: 1.4; }
+body[data-cv-public] .eyebrow, body[data-cv-public] .section-label,
+body[data-cv-public] .stat-label, body[data-cv-public] .resume-label,
+body[data-cv-public] .headline-label { font-size: 13px; color: var(--muted); }
+body[data-cv-public] button, body[data-cv-public] .button,
+body[data-cv-public] .top-action, body[data-cv-public] .tab,
+body[data-cv-public] .team-tabs a, body[data-cv-public] .back,
+body[data-cv-public] .cv-public-actions a {
+  font-family: var(--cv-font); font-size: 14px; line-height: 1.4; font-weight: 600;
+  text-transform: none; letter-spacing: 0; white-space: normal; word-break: normal;
+  overflow-wrap: normal; text-overflow: clip; min-height: 48px; min-width: 44px;
+}
+body[data-cv-public] .hero, body[data-cv-public] .hero-card:not(.live),
+body[data-cv-public] .card, body[data-cv-public] .metric, body[data-cv-public] .section,
+body[data-cv-public] .team-link, body[data-cv-public] .match-row,
+body[data-cv-public] .player, body[data-cv-public] .resume-item,
+body[data-cv-public] .stat, body[data-cv-public] .best {
+  background: var(--panel); color: var(--ink); border-color: var(--line);
+}
+body[data-cv-public] .button, body[data-cv-public] button[type="submit"] { background: var(--green); color: var(--paper); border-color: var(--green); }
+body[data-cv-public] .button.secondary, body[data-cv-public] .top-action,
+body[data-cv-public] .share, body[data-cv-public] .choice,
+body[data-cv-public] .tab, body[data-cv-public] .back,
+body[data-cv-public] input, body[data-cv-public] select, body[data-cv-public] textarea {
+  background: var(--panel); color: var(--ink); border-color: var(--line-strong);
+}
+body[data-cv-public] .button.fanview { background: var(--pink); color: #111827; border-color: var(--pink); }
+body[data-cv-public] .tab.active, body[data-cv-public] .choice.active { color: var(--green); background: var(--public-positive-soft); border-color: var(--green); }
+body[data-cv-public] .status.err { color: var(--public-danger); }
+body[data-cv-public] .cv-public-recovery { margin: 16px 0; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); color: var(--ink); }
+body[data-cv-public] .cv-public-recovery[hidden] { display: none; }
+body[data-cv-public] .cv-public-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+body[data-cv-public] .cv-public-actions button, body[data-cv-public] .cv-public-actions a { display: inline-flex; align-items: center; justify-content: center; padding: 12px 16px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--panel); color: var(--ink); text-decoration: none; }
+body[data-cv-public] :focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+body[data-cv-public] .team-tabs { flex-wrap: wrap; }
+body[data-cv-public] .hero-actions, body[data-cv-public] .topbar-actions { flex-wrap: wrap; }
+@media (max-width: 360px) {
+  body[data-cv-public] .identity, body[data-cv-public] .topbar { display: flex; flex-wrap: wrap; }
+  body[data-cv-public] .grid, body[data-cv-public] .resume, body[data-cv-public] .metric-grid { grid-template-columns: minmax(0, 1fr); }
+  body[data-cv-public] .tabs, body[data-cv-public] .top { flex-wrap: wrap; }
+  body[data-cv-public] .cv-public-actions > * { width: 100%; }
+}
+
+/* Complete shell surfaces: no pale legacy cards beneath dark-theme text. */
+body[data-cv-public] section, body[data-cv-public] .side-card,
+body[data-cv-public] .share-card, body[data-cv-public] .headline,
+body[data-cv-public] .highlight, body[data-cv-public] .highlight-note,
+body[data-cv-public] .tabs, body[data-cv-public] .obs-pill,
+body[data-cv-public] .ghost, body[data-cv-public] .zone-cell {
+  background: var(--panel); color: var(--ink); border-color: var(--line);
+}
+body[data-cv-public] .share-title, body[data-cv-public] .family-title {
+  text-transform: none; letter-spacing: 0; font-size: 22px; line-height: 1.3;
+}
+body[data-cv-public] p, body[data-cv-public] .meta,
+body[data-cv-public] .section-note, body[data-cv-public] .hero-helper,
+body[data-cv-public] .player-meta, body[data-cv-public] .note,
+body[data-cv-public] .empty { font-weight: 400 !important; }
+body[data-cv-public="player"] .resume { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body[data-cv-public="player"] .resume-team { grid-column: 1 / -1; }
+body[data-cv-public="player"] .resume-value { font-size: 20px; line-height: 1.35; overflow-wrap: normal; word-break: normal; }
+body[data-cv-public="scout"] .primary { background: var(--green); color: var(--paper); }
+body[data-cv-public="scout"] .type { background: var(--panel); color: var(--ink); border-color: var(--line-strong); }
+body[data-cv-public="scout"] .player-pill.active { background: var(--public-positive-soft); color: var(--green); border-color: var(--green); }
+body[data-cv-public="scout"] .status.err, body[data-cv-public="scout"] .locked { background: var(--panel); color: var(--public-danger); }
+body[data-cv-public="scout"] .status.info { background: var(--panel-soft); color: var(--ink); }
+@media (max-width: 360px) {
+  body[data-cv-public="player"] .resume { grid-template-columns: minmax(0, 1fr); }
+}
+body[data-cv-public="team"] .team-tabs,
+body[data-cv-public="team"] .score-chip,
+body[data-cv-public="team"] .live-feed-card,
+body[data-cv-public="team"] .timebox { background: var(--panel-soft); color: var(--ink); }
+body[data-cv-public="team"] .team-tabs a:first-child { color: var(--paper); }
+/* The live club card intentionally remains a dark media surface in both themes. */
+body[data-cv-public="club"] .hero-card.live .hero-label,
+body[data-cv-public="club"] .hero-card.live .hero-helper { color: #e0e7ef; }
+body[data-cv-public] .powered, body[data-cv-public] .games,
+body[data-cv-public] .live-feed-cta { white-space: normal; text-transform: none; }
+body[data-cv-public="scout"] .player-name { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: normal; word-break: normal; }
+body[data-cv-public="scout"] .player-strip { flex-wrap: wrap; overflow-x: visible; }
+@media (max-width: 360px) {
+  body[data-cv-public="scout"] .player-row { flex-wrap: wrap; }
+  body[data-cv-public="scout"] .player-main { flex-basis: 100%; }
+  body[data-cv-public="scout"] .type-grid { grid-template-columns: minmax(0, 1fr); }
+  body[data-cv-public="scout"] .choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body[data-cv-public="scout"] .tracking { flex-wrap: wrap; gap: 8px; border-radius: 16px; }
+}
+body[data-cv-public="scout"] .player-row, body[data-cv-public="scout"] .player-name,
+body[data-cv-public="scout"] .player-pill { color: var(--ink); }
+body[data-cv-public="scout"] .player-pill.active { color: var(--green); }
+body[data-cv-public="scout"] .tracking { color: var(--ink); border-color: var(--line-strong); }
+@media (max-width: 360px) {
+  body[data-cv-public="scout"] .tabs { grid-template-columns: minmax(0, 1fr); border-radius: 18px; gap: 4px; }
+  body[data-cv-public="scout"] .tab { min-width: 0; width: 100%; border-radius: 14px; }
+}
+
+body[data-cv-public] [hidden] { display: none !important; }

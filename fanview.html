@@ -635,6 +635,35 @@
         .app-promo-actions { display: grid; grid-template-columns: 1fr; }
         .app-promo-button { width: 100%; }
       }
+
+      /* Public journey chrome only: preserve legacy score/video presentation. */
+      :root { --legacy-bg:#f4f7fa; --legacy-surface:#ffffff; --legacy-text:#111827; --legacy-muted:#526170; --legacy-line:#788696; --legacy-link:#087544; }
+      body { background:var(--legacy-bg); }
+      header.brand, .status, .expired-panel, .app-promo { color:var(--legacy-text); }
+      header.brand { border-color:var(--legacy-line); }
+      .brand-word, .expired-title, .app-promo-title { text-transform:none; letter-spacing:0; font-weight:600; }
+      .status { padding:32px 20px; line-height:1.5; color:var(--legacy-muted); }
+      .status.err { color:var(--legacy-text); }
+      .expired-panel, .app-promo { background:var(--legacy-surface); border-color:var(--legacy-line); border-radius:20px; }
+      .expired-title { font-size:clamp(24px,6vw,32px); line-height:1.2; }
+      .expired-body, .app-promo-body, .app-promo-note { color:var(--legacy-muted); line-height:1.5; }
+      .display-menu { background:var(--legacy-surface); border-color:var(--legacy-line); max-height:calc(100svh - 32px); overflow-y:auto; }
+      .display-menu-label { color:var(--legacy-muted); font-size:13px; line-height:1.4; text-transform:none; letter-spacing:0; }
+      .display-choice, .display-header-button, .display-button {
+        background:var(--legacy-surface); color:var(--legacy-text); border-color:var(--legacy-line);
+        min-height:48px; font-size:14px; line-height:1.4; padding:10px 12px;
+        text-transform:none; letter-spacing:0; white-space:normal; word-break:normal; overflow-wrap:normal;
+      }
+      .display-menu-options, .display-menu-options.position-options { grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr)); }
+      .display-choice[aria-pressed="true"], .app-promo-button { background:#ff4f93; color:#130913; border-color:#ff4f93; }
+      .refresh-btn, .app-promo-button, .app-promo-link, .legacy-recovery a { min-height:44px; display:inline-flex; align-items:center; justify-content:center; font-size:14px; line-height:1.4; text-transform:none; letter-spacing:0; white-space:normal; }
+      .app-promo-link, .legacy-recovery a { color:var(--legacy-link); }
+      .legacy-recovery { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; padding:12px; }
+      .legacy-recovery a { padding:8px 12px; border-radius:12px; }
+      .legacy-recovery a:focus-visible, .display-choice:focus-visible { outline:3px solid #1b70db; outline-offset:3px; }
+      @media(prefers-color-scheme:dark) {
+        :root { --legacy-bg:#071018; --legacy-surface:#111827; --legacy-text:#f8fafc; --legacy-muted:#c3ced8; --legacy-line:#657180; --legacy-link:#5ce5ac; }
+      }
     </style>
     <link rel="stylesheet" href="/assets/fonts/public-page-type.css" />
 </head>
@@ -646,7 +675,7 @@
         <span class="header-actions">
           <span id="headerViewerCount" class="viewer-pill"><span class="dot"></span><span>0 watching</span></span>
           <button id="displayHeaderButton" class="display-header-button" type="button" aria-expanded="false">Scoreboard: Standard · Bottom Left</button>
-          <span id="fanViewPill" class="fanview-pill">FanView Live</span>
+          <span id="fanViewPill" class="fanview-pill">FanView</span>
         </span>
       </header>
       <div id="displayMenu" class="display-menu" role="menu" aria-label="Scoreboard display">
@@ -673,8 +702,9 @@
       <div id="errorBox" class="status err" style="display:none"></div>
       <section id="expiredPanel" class="expired-panel">
         <div class="expired-title">This FanView link has expired.</div>
-        <p class="expired-body">Live game links close 15 minutes after the match ends. A paired camera may keep requested highlights locally; this link no longer serves the live broadcast.</p>
+        <p class="expired-body">Game links close 15 minutes after the match ends. Ask the person scoring for a current game link.</p>
       </section>
+      <nav class="legacy-recovery" aria-label="FanView help"><a href="/">CourtsideView home</a><a href="/support">Get help</a></nav>
       <main id="board" style="display:none">
         <div class="fanview-layout">
           <button id="displayButton" class="display-button" type="button" aria-expanded="false">Scoreboard: Standard · Bottom Left</button>
@@ -688,7 +718,7 @@
               <div id="videoStatus" class="video-status" role="status" aria-live="polite"></div>
               <div id="broadcastScoreRail" class="broadcast-score-rail" aria-label="Live match score">
                 <div class="broadcast-meta-row">
-                  <span class="broadcast-live-label"><span class="broadcast-live-dot"></span><span>FanView Live</span></span>
+                  <span class="broadcast-live-label"><span class="broadcast-live-dot"></span><span>FanView</span></span>
                   <span class="broadcast-match-meta"><span>Set <span id="broadcastSetNumber">1</span></span><span aria-hidden="true">•</span><span id="broadcastTarget">To 25</span></span>
                 </div>
                 <div class="broadcast-team broadcast-home" id="broadcastHome">
@@ -780,7 +810,7 @@
           <a class="app-promo-button" id="appPromoPrimary" href="https://www.courtsideviewapp.com/">Get the app</a>
           <a class="app-promo-link" id="appPromoSecondary" href="https://www.courtsideviewapp.com/">Learn more</a>
         </div>
-        <div class="app-promo-note">The paired camera uses a temporary local replay buffer and may save requested highlights on that device. FanView links close 15 minutes after the game ends.</div>
+        <div class="app-promo-note">Bring your next game courtside.</div>
       </section>
       <div class="footer-hint">Powered by <a href="https://www.courtsideviewapp.com/">CourtsideView</a></div>
     </div>
@@ -2075,7 +2105,7 @@
           $('setLine').textContent = scoreOnly
             ? 'SET ' + currentSet + ' OF ' + totalSets + ' · TO ' + setTarget
             : 'MATCH · SET ' + currentSet + ' OF ' + totalSets;
-          $('fanViewPill').textContent = 'FanView Live';
+          $('fanViewPill').textContent = 'FanView';
         }
         $('scoreMetaTile').innerHTML =
           '<span>Set ' + currentSet + '</span><strong>' + homeSets + '-' + awaySets + '</strong><span>To ' + setTarget + '</span>';
@@ -2251,7 +2281,7 @@
       });
       async function boot() {
         shareId = getShareId();
-        if (!shareId) { showError('Missing share ID in the URL.'); return; }
+        if (!shareId) { showError('Open the full game link shared with you.'); return; }
         try { await supabase.auth.signInAnonymously(); } catch (e) { console.warn('[FanView] anon auth failed', e); }
         const initial = await fetchMatch();
         if (!initial) { showError('This match is not available. The link may be expired or unpublished.'); return; }

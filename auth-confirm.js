@@ -57,7 +57,7 @@
       let viewerReturn = null;
       try { viewerReturn = sessionStorage.getItem('courtsideview_viewer_return'); } catch {}
       if (viewerReturn && /^\/(?:v|fanview-next\/v)\/[A-Za-z0-9_-]{1,200}\/?$/.test(viewerReturn)) {
-        guidance.textContent = 'Your email is confirmed. Return to your match and sign in to start watching.';
+        guidance.textContent = 'Your email is confirmed. Return to your match.';
         openApp.href = viewerReturn;
         openApp.textContent = 'Return to my match';
         openApp.setAttribute('aria-label', 'Return to my FanView match');

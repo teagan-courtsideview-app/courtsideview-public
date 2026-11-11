@@ -457,6 +457,33 @@
         body.camera-mode .controls .record-copy span, body.camera-mode .controls .record-copy small { color: #526170; }
         body.camera-mode .controls .preview-link { color: #526170; }
       }
+
+      /* November 11 public journey: shared chrome, never the camera/score artwork. */
+      :root { --journey-surface: #111827; --journey-text: #f8fafc; --journey-muted: #c3ced8; --journey-line: #657180; --journey-danger-bg:#351c25; --journey-danger-ink:#ffb3bd; }
+      .brand, .hero h1, .pill, .camera-placeholder-copy, .record-copy strong,
+      .save-sheet h2, .confirm-sheet h2 { text-transform: none; letter-spacing: 0; }
+      .hero h1, .save-sheet h2, .confirm-sheet h2 { font-size: 28px; line-height: 1.2; overflow-wrap: normal; }
+      .controls button, body.camera-mode.is-live .controls :is(#scoreBtn, #shareBtn, #minimizeBtn, #displayBtn, #chatBtn, #audioBtn, #stopBtn) {
+        min-height: 48px; font-size: 14px; line-height: 1.4; padding: 10px 12px;
+        white-space: normal; word-break: normal; overflow-wrap: normal;
+      }
+      .primary, body.camera-mode .controls .primary { background: #ff4f93; color: #130913; }
+      body.camera-mode.is-live .controls #shareBtn, body.fanview-options .controls #shareBtn { background:#ff4f93; color:#130913; border-color:#ff4f93; }
+      body.camera-mode.is-live .controls #scoreBtn, body.fanview-options .controls #scoreBtn { background:var(--journey-surface); color:var(--journey-text); border:1px solid var(--journey-line); }
+      body.camera-mode.is-live .controls #stopBtn, #confirmEndBtn { background:var(--journey-danger-bg); color:var(--journey-danger-ink); border:1px solid var(--journey-danger-ink); }
+      .confirm-actions .keep { background:var(--journey-surface); color:var(--journey-text); border-color:var(--journey-line); }
+      body.fanview-options .video-shell { display:none; }
+      body.fanview-options .stage { grid-template-columns:minmax(0,1fr); max-width:640px; margin-inline:auto; }
+      .lead, .hint, .handoff-copy, .camera-placeholder-copy, .download-panel span, .record-copy span, .record-copy small { font-weight:400; }
+      .record-copy span, .record-copy small, body.camera-mode .record-copy span { font-size: 13px; line-height: 1.4; }
+      .save-sheet, .confirm-sheet { background: var(--journey-surface); color: var(--journey-text); border: 1px solid var(--journey-line); }
+      .save-sheet p, .confirm-sheet p { color: var(--journey-muted); font-weight: 400; line-height: 1.5; }
+      .save-meta { color: var(--journey-text); font-weight: 600; line-height: 1.5; }
+      .save-actions .save-now { min-height: 48px; background: #ff4f93; color: #130913; border-radius: 14px; font-weight: 600; }
+      .save-actions .save-later { min-height: 48px; background: var(--journey-surface); color: var(--journey-text); border-color: var(--journey-line); border-radius: 14px; }
+      @media (prefers-color-scheme: light) {
+        :root { --journey-surface: #ffffff; --journey-text: #111827; --journey-muted: #526170; --journey-line: #788696; --journey-danger-bg:#fbe8eb; --journey-danger-ink:#992d36; }
+      }
     </style>
     <link rel="stylesheet" href="/assets/fonts/public-page-type.css" />
 </head>
@@ -898,6 +925,7 @@
         document.body.classList.toggle('is-offline', state === 'offline');
         document.body.classList.toggle('is-ready', state === 'camera-ready');
         document.body.classList.toggle('is-live', state === 'live');
+        document.body.classList.toggle('fanview-options', state === 'options');
       }
       async function mountBroadcasterCommunity() {
         if (!streamId || !broadcasterCommunity) return false;
@@ -1106,9 +1134,9 @@
         const isSetup = state === 'setup';
         const isCameraReady = state === 'camera-ready';
         const isLive = state === 'live';
-        const isOffline = state === 'offline';
+        const isOffline = state === 'offline' || state === 'options';
         setBroadcastDisplayActive(!broadcastBlocked && (isCameraReady || isLive));
-        showControl(cameraBtn, isSetup || isOffline);
+        showControl(cameraBtn, isSetup || (isOffline && !broadcastHasEnded));
         showControl(broadcastBtn, isCameraReady);
         const canShowSavedCopy = Boolean(lastRecordingUrl) && isOffline;
         const canShowRecordChoice =
@@ -2439,7 +2467,7 @@
         startVideoHealth(connection, generation, activity, frameCounts);
         live = true;
         broadcastBtn.textContent = 'Broadcast live';
-        setPageCopy('Broadcast Live', 'Back to score to keep scoring.');
+        setPageCopy('Live video', 'Back to score to keep scoring.');
         hintEl.textContent = 'Broadcast live. Back to score to keep scoring.';
         setControlState('live');
         void requestScreenWakeLock();
@@ -2460,6 +2488,11 @@
       }
       async function stopBroadcast(options = {}) {
         if (intentionalStop && broadcastHasEnded) return;
+        // Never navigate away from an opted-in copy or pending local save.
+        const keepRecordingAccess = Boolean(recordEnabled || mediaRecorder || recorderStopPromise || recorderChunks.length || lastRecordingUrl);
+        const requestedReturnMode = new URLSearchParams(window.location.search).get('returnMode');
+        const returnToKnownScorer = options.returnToOptions === true && Boolean(streamId) &&
+          (requestedReturnMode === 'scorekeeper' || requestedReturnMode === 'courtside') && !keepRecordingAccess;
         if (finalRallyStopTimer) {
           clearTimeout(finalRallyStopTimer);
           finalRallyStopTimer = null;
@@ -2487,24 +2520,22 @@
         if (options.blockReason) {
           setBroadcastBlocked(options.blockReason, options.blockState || 'UNAVAILABLE');
         } else {
-          cameraBtn.textContent = 'Camera setup ended';
           broadcastBtn.textContent = 'Go live';
-          setPageCopy('Video ended', 'Fans can still follow the score with the same link.');
+          setPageCopy('FanView', 'Fans can still follow the score with the same link.');
           hintEl.textContent = 'Fans can follow scores even without video.';
           broadcastBlocked = true;
-          setControlState('offline');
-          setStatus([
-            { text: 'Broadcast ended.', strong: true },
-            { text: ' Fans can still follow the score. Open CourtsideView to broadcast again.' },
-          ], 'OFFLINE');
+          setControlState('options');
+          setStatus([{ text: 'Video ended. Your game link stays the same.' }], 'SCORES ONLY');
         }
         await releaseScreenWakeLock();
-        if (streamId) {
-          await fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
-            method: 'DELETE',
-            headers: broadcastTokenHeaders(),
-          }).catch(() => {});
-        }
+        const stopRequest = streamId ? fetch(`${LIVE_WORKER_URL}/ingest/${encodeURIComponent(streamId)}`, {
+          method: 'DELETE',
+          headers: broadcastTokenHeaders(),
+          keepalive: true,
+        }).catch(() => {}) : Promise.resolve();
+        // Use only the existing explicit scoring route; otherwise keep useful local options.
+        if (returnToKnownScorer && !options.blockReason) void returnToScoring();
+        await stopRequest;
       }
       cameraBtn.addEventListener('click', async () => {
         cameraBtn.disabled = true;
@@ -2554,7 +2585,7 @@
       });
       confirmEndBtn.addEventListener('click', () => {
         closeEndConfirm();
-        void stopBroadcast();
+        void stopBroadcast({ returnToOptions: true });
       });
       endConfirm.addEventListener('click', (event) => {
         if (event.target === endConfirm) closeEndConfirm();

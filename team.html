@@ -447,9 +447,11 @@
       }
     </style>
     <link rel="stylesheet" href="/assets/fonts/public-page-type.css" />
+    <link rel="stylesheet" href="/assets/product-design-v1/public-touchpoints.css" />
 </head>
-  <body>
+  <body data-cv-public="team">
     <main>
+      <a class="cv-public-brand" href="/" aria-label="CourtsideView home"><img src="/assets/courtsideview-app-icon-mark.png" alt="" width="48" height="36"><span>CourtsideView</span></a>
       <div class="topbar">
         <header>
           <p class="eyebrow">CourtsideView Team Hub</p>
@@ -462,6 +464,7 @@
         </div>
       </div>
 
+      <div class="cv-public-recovery" id="publicRecovery" hidden><p>Check the link or try again.</p><div class="cv-public-actions"><button type="button" data-public-retry>Try again</button><a href="/">Back to home</a></div></div>
       <nav class="team-tabs" aria-label="Team Hub sections">
         <a href="#hero">Home</a>
         <a href="#scheduleSection">Schedule</a>
@@ -476,7 +479,7 @@
           <p class="hero-copy" id="heroCopy">Schedule, live score, roster, and results will appear here.</p>
           <div class="scoreline" id="scoreline"></div>
         </div>
-        <a class="button" id="heroAction" href="#follow">Follow Team</a>
+        <a class="button" id="heroAction" href="#follow">Follow team</a>
       </section>
 
       <div class="layout">
@@ -499,24 +502,24 @@
         <aside>
           <section>
             <div class="section-head">
-              <h2>Family Link</h2>
+              <h2>Family link</h2>
             </div>
             <p class="family-title">One page for game day.</p>
             <p class="note">Share this Team Hub with families. It shows the schedule now, then live FanView links when scorers go live.</p>
           </section>
           <section>
             <div class="section-head">
-              <h2>Free App Alerts</h2>
+              <h2>Game-day alerts</h2>
             </div>
             <p class="note">Watch in the browser anytime. Download the free app to follow this team, get push alerts, and keep live matches in your Following tab.</p>
-            <a class="button" href="/download">Get the Free App</a>
+            <a class="button" href="/download">Get the app</a>
           </section>
           <section>
             <div class="section-head">
-              <h2>Score This Team</h2>
+              <h2>Score this team</h2>
             </div>
             <p class="note">Add this team to CourtsideView to score from the roster and keep the schedule connected.</p>
-            <a class="button secondary" id="openInApp" href="#">Add Team to App</a>
+            <a class="button secondary" id="openInApp" href="#">Open in app</a>
           </section>
           <section id="follow">
             <div class="section-head">
@@ -524,7 +527,7 @@
             </div>
             <form id="followForm">
               <input id="email" type="email" autocomplete="email" placeholder="Email address" required />
-              <button type="submit">Notify Me</button>
+              <button type="submit">Notify me</button>
             </form>
             <p class="note" id="followNote">Bookmark this Team Hub. We will email when the team goes live, and this page will show every active FanView feed.</p>
           </section>
@@ -814,7 +817,7 @@
           $('heroTitle').textContent = `vs ${next.opponent || 'Opponent'}`;
           $('heroCopy').textContent = `${fmtDate(next.starts_at)}${next.location ? ` at ${next.location}` : ''}. ${countdown(next.starts_at)}`;
           $('scoreline').innerHTML = `<span class="score-chip">Team Hub link stays the same</span>`;
-          $('heroAction').textContent = 'Add to Calendar';
+          $('heroAction').textContent = 'Add to calendar';
           $('heroAction').href = icsHref(next);
           return;
         }
@@ -873,7 +876,7 @@
 
       function renderRoster() {
         const roster = Array.isArray(state.team.roster) ? state.team.roster : [];
-        $('rosterCount').textContent = roster.length ? `${roster.length} players` : '';
+        $('rosterCount').textContent = roster.length ? `${roster.length} ${roster.length === 1 ? 'player' : 'players'}` : '';
         $('roster').innerHTML = roster.length
           ? roster.map((player) => `
               <div class="player">
@@ -898,7 +901,7 @@
         document.documentElement.style.setProperty('--accent-soft', `${color}1f`);
         $('teamName').textContent = publicName;
         const rosterSize = Array.isArray(team.roster) ? team.roster.length : 0;
-        $('teamMeta').textContent = `${seasonText(team)}${rosterSize ? ` · ${rosterSize} players` : ''}`;
+        $('teamMeta').textContent = `${seasonText(team)}${rosterSize ? ` · ${rosterSize} ${rosterSize === 1 ? 'player' : 'players'}` : ''}`;
         $('teamMark').textContent = displayTeamMark(team, publicName);
         $('teamMark').style.background = color;
         $('openInApp').href = `courtsideview://team/${encodeURIComponent(team.slug)}`;
@@ -953,6 +956,11 @@
           if (error) throw error;
           if (!data?.team) throw new Error('This team page is private or does not exist.');
           state.team = data.team;
+          $('publicRecovery').hidden = true;
+          $('hero').style.display = '';
+          document.querySelector('.layout').style.display = '';
+          document.querySelector('.team-tabs').hidden = false;
+          $('shareTeam').hidden = false;
           state.matches = Array.isArray(data.matches) ? data.matches : [];
           if (state.team.redirect && state.team.slug && state.team.slug !== slug) {
             window.history.replaceState(null, '', `/t/${encodeURIComponent(state.team.slug)}`);
@@ -1017,7 +1025,10 @@
           await loadTeam();
         } catch (error) {
           $('teamName').textContent = 'Team page unavailable';
-          $('teamMeta').textContent = error.message || 'This team page is private or unknown.';
+          $('teamMeta').textContent = 'We couldn’t open this team page. It may be private or unavailable.';
+          $('publicRecovery').hidden = false;
+          document.querySelector('.team-tabs').hidden = true;
+          $('shareTeam').hidden = true;
           $('hero').style.display = 'none';
           document.querySelector('.layout').style.display = 'none';
         }
@@ -1029,6 +1040,7 @@
           loadTeam({ scheduled: true }).catch((error) => console.warn('[Team Hub] visible refresh failed', error));
         }
       });
-    </script>
+    document.querySelector('[data-public-retry]')?.addEventListener('click', () => window.location.reload());
+  </script>
   </body>
 </html>

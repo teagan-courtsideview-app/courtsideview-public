@@ -74,22 +74,21 @@
       }
     </style>
     <link rel="stylesheet" href="/assets/fonts/public-page-type.css" />
+    <link rel="stylesheet" href="/assets/product-design-v1/public-touchpoints.css" />
 </head>
-  <body>
+  <body data-cv-public="player">
     <main class="page">
-      <header class="brand">
-        <img src="/assets/courtsideview-app-icon.png" alt="CourtsideView app logo" />
-        <span class="word">CourtsideView</span>
-      </header>
+<a class="cv-public-brand" href="/" aria-label="CourtsideView home"><img src="/assets/courtsideview-app-icon-mark.png" alt="" width="48" height="36"><span>CourtsideView</span></a>
 
       <div id="loading" class="status">Loading player profile...</div>
-      <div id="errorBox" class="status err" style="display:none"></div>
+      <div id="errorBox" class="status err" role="alert" style="display:none"></div>
+      <div class="cv-public-recovery" id="publicRecovery" hidden><p>Check the link or try again.</p><div class="cv-public-actions"><button type="button" data-public-retry>Try again</button><a href="/">Back to home</a></div></div>
 
       <article id="profile" style="display:none">
         <section class="hero">
           <div class="stripe"></div>
           <div class="hero-body">
-            <div class="eyebrow" id="season">Season Stats</div>
+            <div class="eyebrow" id="season">Season stats</div>
             <div class="identity">
               <div class="avatar" id="jersey">0</div>
               <div>
@@ -107,7 +106,7 @@
             </div>
             <div class="grid" id="statsGrid"></div>
             <div class="best" id="bestGame">
-              <div class="eyebrow">Best Game</div>
+              <div class="eyebrow">Best game</div>
               <div id="bestText"></div>
             </div>
           </div>
@@ -140,6 +139,7 @@
       function showError(message) {
         $('loading').style.display = 'none';
         $('profile').style.display = 'none';
+        $('publicRecovery').hidden = false;
         $('errorBox').textContent = message;
         $('errorBox').style.display = 'block';
       }
@@ -212,11 +212,11 @@
       function resumeCells(row, stats) {
         return [
           ['Position', row.position || '-'],
-          ['Grad Year', row.grad_year || 'Add in app'],
+          ['Graduation year', row.grad_year || 'Add in app'],
           ['Height', row.height || 'Add in app'],
           ['Team', row.team_name || 'Team'],
           ['Season', row.season || 'Season'],
-          ['Best Game', statNumber(stats, 'bestGameKills') > 0
+          [statNumber(stats, 'bestGameKills') > 0 ? 'Best game' : 'Games played', statNumber(stats, 'bestGameKills') > 0
             ? `${statNumber(stats, 'bestGameKills')} kills`
             : `${statNumber(stats, 'gamesPlayed')} games`],
         ];
@@ -263,7 +263,7 @@
         const teamColor = /^#[0-9a-f]{6}$/i.test(row.team_color || '') ? row.team_color : '#20A66B';
         document.documentElement.style.setProperty('--team', teamColor);
         document.title = `${row.display_name} · CourtsideView`;
-        $('season').textContent = row.season || 'Season Stats';
+        $('season').textContent = row.season || 'Season stats';
         $('jersey').textContent = String(row.jersey_number ?? '');
         $('name').textContent = row.display_name || 'Player';
         $('meta').textContent = [
@@ -274,7 +274,7 @@
           row.team_name || 'Team',
         ].filter(Boolean).join(' · ');
         $('resumeGrid').innerHTML = resumeCells(row, stats)
-          .map(([label, value]) => `<div class="resume-item"><div class="resume-label">${escapeHtml(label)}</div><div class="resume-value">${escapeHtml(value)}</div></div>`)
+          .map(([label, value]) => `<div class="resume-item${label === 'Team' ? ' resume-team' : ''}"><div class="resume-label">${escapeHtml(label)}</div><div class="resume-value">${escapeHtml(value)}</div></div>`)
           .join('');
         const headline = headlineFor(row, stats);
         $('headlineValue').textContent = String(headline.value);
@@ -305,7 +305,7 @@
           .eq('is_public', true)
           .maybeSingle();
         if (error) {
-          showError(error.message);
+          showError('We couldn’t load this profile. Check your connection and try again.');
           return;
         }
         if (!data) {
@@ -314,7 +314,8 @@
         }
         render(data);
       }
-      void init();
-    </script>
+      void init().catch(() => showError('We couldn’t load this profile. Check your connection and try again.'));
+    document.querySelector('[data-public-retry]')?.addEventListener('click', () => window.location.reload());
+  </script>
   </body>
 </html>

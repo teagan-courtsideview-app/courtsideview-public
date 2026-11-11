@@ -539,9 +539,11 @@
       }
     </style>
     <link rel="stylesheet" href="/assets/fonts/public-page-type.css" />
+    <link rel="stylesheet" href="/assets/product-design-v1/public-touchpoints.css" />
 </head>
-  <body>
+  <body data-cv-public="club">
     <main>
+      <a class="cv-public-brand" href="/" aria-label="CourtsideView home"><img src="/assets/courtsideview-app-icon-mark.png" alt="" width="48" height="36"><span>CourtsideView</span></a>
       <div class="page-shell">
         <header>
           <div>
@@ -553,6 +555,7 @@
         </header>
 
         <div id="hero"></div>
+        <div class="cv-public-recovery" id="publicRecovery" hidden><p>Check the link or try again.</p><div class="cv-public-actions"><button type="button" data-public-retry>Try again</button><a href="/">Back to home</a></div></div>
 
         <div class="content-grid">
           <div class="main-stack">
@@ -569,7 +572,7 @@
             <section>
               <div class="section-head">
                 <div>
-                  <h2>Recent Results</h2>
+                  <h2>Recent results</h2>
                   <p class="section-note">Final scores and match history stay here after matches finish.</p>
                 </div>
               </div>
@@ -579,27 +582,27 @@
 
           <aside class="side-stack">
             <div class="side-card share-card">
-              <span class="section-label">Family Link</span>
+              <span class="section-label">Family link</span>
               <p class="share-title">One page for game day.</p>
               <p class="share-body">
                 Share this hub with families. It shows the schedule now and live FanView links when scorers go live.
               </p>
-              <button class="button secondary" type="button" id="shareHub">Share Hub</button>
+              <button class="button secondary" type="button" id="shareHub">Share club</button>
             </div>
 
             <div class="side-card share-card">
-              <span class="section-label">Free App Alerts</span>
+              <span class="section-label">Game-day alerts</span>
               <p class="share-title">Follow from the app.</p>
               <p class="share-body">
                 Families can watch in the browser. The free app adds push alerts, Following, and quick access when a team goes live.
               </p>
-              <a class="button" href="/download">Get the Free App</a>
+              <a class="button" href="/download">Get the app</a>
             </div>
 
             <section>
               <div class="section-head">
                 <div>
-                  <h2>Choose Your Team</h2>
+                  <h2>Choose your team</h2>
                   <p class="section-note">Open a team for roster details, match links, and follow alerts.</p>
                 </div>
               </div>
@@ -877,7 +880,7 @@
               </div>
               <div class="hero-actions">
                 ${renderFanViewChooser(activeLive)}
-                <button class="button secondary" type="button" data-share-hub>Share Hub</button>
+                <button class="button secondary" type="button" data-share-hub>Share club</button>
               </div>
             </div>
           `;
@@ -903,7 +906,7 @@
               <div class="hero-actions">
                 ${heroAction(next, 'Open FanView')}
                 ${next.external_url ? `<a class="button secondary" href="${escapeHtml(next.external_url)}" rel="noopener">Official Bracket</a>` : ''}
-                <button class="button secondary" type="button" data-share-hub>Share Hub</button>
+                <button class="button secondary" type="button" data-share-hub>Share club</button>
               </div>
             </div>
           `;
@@ -913,12 +916,12 @@
         els.hero.innerHTML = `
           <div class="hero-card">
             <div>
-              <span class="hero-label">Schedule Coming Soon</span>
+              <span class="hero-label">Schedule coming soon</span>
               <p class="hero-title">Game day details will appear here.</p>
-              <p class="hero-helper">This page becomes the live hub once the club posts matches or a scorer starts FanView.</p>
+              <p class="hero-helper">Match times and live games will appear here.</p>
             </div>
             <div class="hero-actions">
-              <button class="button secondary" type="button" data-share-hub>Share Hub</button>
+              <button class="button secondary" type="button" data-share-hub>Share club</button>
             </div>
           </div>
         `;
@@ -928,7 +931,7 @@
         const firstEvent = rows.find((row) => row.event_name)?.event_name;
         els.scheduleTitle.textContent = firstEvent
           ? `${cleanDisplayName(firstEvent, 'Tournament Day')} Schedule`
-          : "Today's Schedule";
+          : "Today's schedule";
         els.scheduleNote.textContent = rows.length
           ? 'Live FanView links appear here when a scorer publishes.'
           : 'Match times and courts will appear here when the club posts the schedule.';
@@ -985,12 +988,14 @@
               <span class="team-name">${escapeHtml(cleanDisplayName(team.name))}</span>
               <span class="row-meta">${escapeHtml(team.season || 'Team page')}</span>
             </span>
-            <span class="team-cta">View Team</span>
+            <span class="team-cta">View team</span>
           </a>
         `).join('');
       }
 
       function render404() {
+        document.getElementById('publicRecovery').hidden = false;
+        document.querySelector('.content-grid').hidden = true;
         latestClubName = 'Club not found';
         document.title = 'Club not found - CourtsideView';
         els.clubName.textContent = 'Club not found';
@@ -1043,6 +1048,8 @@
             return;
           }
 
+          document.getElementById('publicRecovery').hidden = true;
+          document.querySelector('.content-grid').hidden = false;
           const club = data.club;
           const color = club.color || '#F4B400';
           const teams = data.teams || [];
@@ -1083,6 +1090,7 @@
           loadClub({ scheduled: true }).catch((error) => console.warn('[Club Hub] visible refresh failed', error));
         }
       });
-    </script>
+    document.querySelector('[data-public-retry]')?.addEventListener('click', () => window.location.reload());
+  </script>
   </body>
 </html>

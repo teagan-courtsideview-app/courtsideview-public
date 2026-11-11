@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex,nofollow" />
-  <meta name="description" content="CourtsideView Team Scout shared tracking link." />
-  <meta property="og:title" content="CourtsideView Team Scout" />
+  <meta name="description" content="CourtsideView team Scout shared tracking link." />
+  <meta property="og:title" content="CourtsideView team Scout" />
   <meta property="og:description" content="Open a shared scouting session and contribute observations." />
   <meta property="og:type" content="website" />
-  <title>CourtsideView Team Scout</title>
+  <title>CourtsideView team Scout</title>
   <style>
     :root {
       color-scheme: light;
@@ -103,12 +103,14 @@
     }
   </style>
   <link rel="stylesheet" href="/assets/fonts/public-page-type.css" />
+    <link rel="stylesheet" href="/assets/product-design-v1/public-touchpoints.css" />
 </head>
-<body>
+<body data-cv-public="scout">
   <main class="shell">
+    <a class="cv-public-brand" href="/" aria-label="CourtsideView home"><img src="/assets/courtsideview-app-icon-mark.png" alt="" width="48" height="36"><span>CourtsideView</span></a>
     <div class="top">
       <a class="back" href="/" aria-label="CourtsideView home">‹</a>
-      <div class="mode"><span class="mode-dot"></span><span>Team Scout Mode</span></div>
+      <div class="mode"><span class="mode-dot"></span><span>Team Scout</span></div>
       <button class="share" type="button" id="shareBtn">Share</button>
     </div>
 
@@ -116,6 +118,7 @@
     <div class="subtitle" id="sessionMeta">Loading session...</div>
     <div id="status" class="status info">Loading Team Scout link...</div>
 
+    <div class="cv-public-recovery" id="publicRecovery" hidden><p>Check the link or try again.</p><div class="cv-public-actions"><button type="button" data-public-retry>Try again</button><a href="/">Back to home</a></div></div>
     <div class="tabs">
       <button type="button" class="tab active" id="dashboardTab">Dashboard</button>
       <button type="button" class="tab" id="trackTab">Track</button>
@@ -125,7 +128,7 @@
       <div class="metric-grid">
         <div class="metric">
           <div class="value" id="totalObs">0</div>
-          <div class="label">Total Observations</div>
+          <div class="label">Total observations</div>
         </div>
         <div class="metric">
           <div class="value" id="playerCount">0</div>
@@ -139,7 +142,7 @@
       </div>
 
       <div class="card">
-        <p class="section-label">Recent Observations</p>
+        <p class="section-label">Recent observations</p>
         <div id="feedList"></div>
       </div>
     </section>
@@ -175,7 +178,7 @@
         <textarea class="note" id="noteInput" placeholder="Optional note"></textarea>
       </div>
 
-      <button type="button" class="primary" id="logBtn">Log Observation</button>
+      <button type="button" class="primary" id="logBtn">Log observation</button>
       <div id="saveStatus" class="status ok save-status hidden" role="status" aria-live="polite"></div>
       <button type="button" class="ghost" id="refreshBtn">Refresh Session</button>
     </section>
@@ -265,6 +268,12 @@
     }
 
     function setStatus(kind, text) {
+      $('publicRecovery').hidden = kind !== 'err' || Boolean(state.session);
+      const unavailable = !$('publicRecovery').hidden;
+      document.querySelector('.tabs').hidden = unavailable;
+      $('shareBtn').hidden = unavailable;
+      $('dashboard').hidden = unavailable;
+      $('track').hidden = unavailable;
       const el = $('status');
       el.className = `status ${kind}`;
       el.textContent = text;
@@ -316,12 +325,12 @@
       if (!session) return;
       const ended = Boolean(session.ended_at);
       $('opponentName').textContent = session.opponent_name || 'Team Scout';
-      $('sessionMeta').textContent = `${state.observations.length} Total Observations${session.match_context ? ` · ${session.match_context}` : ''}`;
+      $('sessionMeta').textContent = `${state.observations.length} Total observations${session.match_context ? ` · ${session.match_context}` : ''}`;
       $('totalObs').textContent = String(state.observations.length);
       $('playerCount').textContent = String(state.players.length);
       $('endedNotice').classList.toggle('hidden', !ended);
       $('logBtn').disabled = !canLogObservation();
-      $('logBtn').textContent = state.saving ? 'Saving...' : 'Log Observation';
+      $('logBtn').textContent = state.saving ? 'Saving...' : 'Log observation';
       renderPlayers();
       renderTracker();
       renderFeed();
@@ -429,7 +438,7 @@
 
     function updateLogButtonState() {
       $('logBtn').disabled = !canLogObservation();
-      if (!state.saving) $('logBtn').textContent = 'Log Observation';
+      if (!state.saving) $('logBtn').textContent = 'Log observation';
     }
 
     function renderFeed() {
@@ -517,8 +526,8 @@
       if (navigator.share) {
         try {
           await navigator.share({
-            title: 'CourtsideView Team Scout',
-            text: `Track ${state.session?.opponent_name || 'this team'} with CourtsideView Team Scout.`,
+            title: 'CourtsideView team Scout',
+            text: `Track ${state.session?.opponent_name || 'this team'} with CourtsideView team Scout.`,
             url,
           });
           return;
@@ -549,6 +558,7 @@
       setStatus('err', 'Something went wrong loading this Team Scout link.');
     });
     setInterval(() => loadSession({ quiet: true }).catch(() => {}), 8000);
+  document.querySelector('[data-public-retry]')?.addEventListener('click', () => window.location.reload());
   </script>
 </body>
 </html>
