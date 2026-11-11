@@ -511,6 +511,7 @@ function renderFooter() {
                     <a href="/download">Download</a>
                     <a href="/support">Support</a>
                     <a href="/privacy">Privacy</a>
+                    <button type="button" data-cv-analytics-choices hidden>Privacy choices</button>
                     <a href="/sitemap.xml">Sitemap</a>
                     <a href="mailto:teagan@courtsideviewapp.com">Contact</a>
                 </div>
@@ -605,6 +606,9 @@ function renderPage(page) {
     ${jsonLd(itemListSchema)}
     ${jsonLd(faqSchema)}
 <link rel="stylesheet" href="/assets/website-20261023/brand-v3.css">
+
+    <link rel="stylesheet" href="/assets/website-analytics/consent.css?v=20261111">
+    <script defer src="/assets/website-analytics/consent.js?v=20261111" data-collect="true"></script>
 </head>
 <body>
     <div class="page-shell">
