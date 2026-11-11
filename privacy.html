@@ -79,7 +79,7 @@
             "@type": "WebPage",
             "name": "CourtsideView Privacy Policy",
             "url": "https://www.courtsideviewapp.com/privacy",
-            "dateModified": "2026-10-21",
+            "dateModified": "2026-11-11",
             "about": "CourtsideView privacy practices for local-first volleyball scoring, optional FanView sharing, Team Scout sharing, and website updates.",
             "publisher": {
                 "@type": "Organization",
@@ -91,6 +91,9 @@
     </script>
 <link rel="stylesheet" href="/assets/website-20261023/brand-v3.css">
     <link rel="stylesheet" href="/assets/website-20261111/privacy-support-tailwind.css">
+
+    <link rel="stylesheet" href="/assets/website-analytics/consent.css?v=20261111">
+    <script defer src="/assets/website-analytics/consent.js?v=20261111.2"></script>
 </head>
 <body class="text-white">
     <div class="hero-gradient min-h-screen flex flex-col">
@@ -123,17 +126,17 @@
                 CourtsideView
             </div>
             <h1 class="display-heading text-3xl md:text-4xl mb-3">Privacy Policy</h1>
-            <p class="text-sm text-gray-500 mb-10">Last updated: October 21, 2026</p>
+            <p class="text-sm text-gray-500 mb-10">Last updated: November 11, 2026</p>
 
             <!-- Highlight card -->
             <div class="glass p-6 md:p-8 rounded-3xl mb-12">
                 <div class="flex flex-wrap gap-2 mb-4">
                     <span class="text-xs font-bold uppercase cv-pill">Guest Scorekeeper available</span>
-                    <span class="text-xs font-bold uppercase cv-pill">No tracking</span>
+                    <span class="text-xs font-bold uppercase cv-pill">Optional website analytics</span>
                     <span class="text-xs font-bold uppercase cv-pill">No ads</span>
                 </div>
                 <p class="text-gray-300 leading-relaxed">
-                    CourtsideView is a local-first volleyball stat-tracking app for parents and youth coaches. Core roster, scout, and match data stays on your device unless you choose a private account backup or publish a FanView, Team Hub, Club Hub, or Team Scout page. We do not sell personal information, run ads, or use data for third-party tracking.
+                    CourtsideView is a local-first volleyball stat-tracking app for parents and youth coaches. Core roster, scout, and match data stays on your device unless you choose a private account backup or publish a FanView, Team Hub, Club Hub, or Team Scout page. We do not sell personal information or run ads. Website analytics is optional.
                 </p>
             </div>
 
@@ -145,6 +148,10 @@
                 <p><strong>Optional FanView sharing.</strong> When you tap <strong>FANVIEW</strong> and publish a live view, CourtsideView sends a match snapshot to Supabase so family and fans can open a read-only web link. FanView publishing is user-initiated and optional.</p>
                 <p><strong>Optional Team Scout sharing.</strong> When you create or share a Team Scout session, CourtsideView can sync that session through Supabase so coaches and contributors can review and combine observations.</p>
                 <p><strong>Website updates.</strong> If you choose to receive CourtsideView updates on our website, we store the email address you submit and the date it was submitted so we can send occasional product updates. Joining the list is optional and separate from using the app.</p>
+
+                <h2>Optional website analytics</h2>
+                <p>If you choose <strong>Allow analytics</strong>, we use Google Analytics to understand which public website pages people visit. Google receives the page address without query strings, device and browser information, and a browser identifier stored in first-party cookies. Google receives your IP address to determine approximate location and says Google Analytics does not log or store individual IP addresses. We use this information for website measurement and have advertising features off. Read <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>.</p>
+                <p>Use <strong>Privacy choices</strong> at the bottom of any public marketing page to change your decision. Rejecting stops future website measurement and removes our analytics cookies from that browser. The website remembers your choice for up to 180 days. CourtsideView does not run Google Analytics on Privacy, Support, sign-in, or live match pages.</p>
 
                 <h2>Accounts and optional private backups</h2>
                 <p>Scorekeeper is available without an account. An account is required for FanView and the other account features; private backup remains optional. If you register with email, Apple, or Google, Supabase processes the account identifier, contact details provided by that sign-in method, and authentication information needed to secure your account.</p>
@@ -186,7 +193,7 @@
 
                 <h2>What we don't do</h2>
                 <ul>
-                    <li>We don't run analytics or telemetry on your usage.</li>
+                    <li>We don't run analytics or telemetry on your in-app usage.</li>
                     <li>We don't display ads or share data with advertisers.</li>
                     <li>We don't sell, rent, or trade your information to third parties.</li>
                     <li>We don't make website signup email addresses publicly visible.</li>
@@ -208,6 +215,7 @@
                     <li><strong>FanView data:</strong> FanView links close 15 minutes after the match is marked complete. Some FanView rows or operational records may remain in Supabase unless removed by request.</li>
                     <li><strong>Team Scout data:</strong> shared Team Scout sessions and contributor records may remain in Supabase unless removed by request.</li>
                     <li><strong>Website signup data:</strong> we keep your email until you ask us to remove it or we no longer need it for CourtsideView update communications.</li>
+                    <li><strong>Website analytics:</strong> Google Analytics is set to retain user-level and event-level data for two months. Aggregate reports may remain available longer.</li>
                 </ul>
                 <p>To request deletion of FanView data, Team Scout data, anonymous session data associated with a published share, or website signup email data, email <a href="mailto:teagan@courtsideviewapp.com">teagan@courtsideviewapp.com</a>. Include the FanView link, Team Scout link/session, or the email address you used so we can locate the data.</p>
 
@@ -245,6 +253,7 @@
                 <a href="/download" class="hover:text-white transition">Download</a>
                 <a href="/support" class="hover:text-white transition">Support</a>
                 <a href="/privacy" class="hover:text-white transition">Privacy</a>
+                <button type="button" data-cv-analytics-choices hidden>Privacy choices</button>
                 <a href="/sitemap.xml" class="hover:text-white transition">Sitemap</a>
                 <a href="mailto:teagan@courtsideviewapp.com" class="hover:text-white transition">Contact</a>
             </div>
