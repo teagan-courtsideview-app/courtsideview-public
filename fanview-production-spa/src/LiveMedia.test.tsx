@@ -50,7 +50,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const mountMedia = (onVideoConfirmed?: (confirmed: boolean) => void) => render(
+const mountMedia = (onVideoConfirmed?: (confirmed: boolean) => void, rotation?: 90) => render(
   <section className="match-stage"><LiveMedia
     displayMenuOpen={false}
     liveWorkerUrl="https://worker.example"
@@ -60,7 +60,7 @@ const mountMedia = (onVideoConfirmed?: (confirmed: boolean) => void) => render(
       home: { name: "Home", score: 0, color: "#1556C0" },
       away: { name: "Away", score: 0, color: "#EA2850" },
     }}
-    media={{ kind: "cloudflare-realtime", alt: "Live match" }}
+    media={{ kind: "cloudflare-realtime", alt: "Live match", rotation }}
     onDisplayToggle={() => {}}
     onVideoConfirmed={onVideoConfirmed}
     scoreboardLayout="score-bar"
@@ -466,26 +466,29 @@ describe("Float preserves the viewer’s sound choice", () => {
 });
 
 describe("Safari native video preparation", () => {
-  const setupSafari = () => {
+  const setupSafari = (rotation?: 90) => {
     vi.useFakeTimers();
-    vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 503 })));
+    // The fixture supplies the live stream directly; leave negotiation pending
+    // so its reconnect timer cannot replace that stream during preparation.
+    vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>(() => {})));
     Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: false });
     const nativeEnter = vi.fn();
     Object.defineProperty(HTMLVideoElement.prototype, "webkitEnterFullscreen", { configurable: true, value: nativeEnter });
     const stop = vi.fn();
     const clone = vi.fn(() => ({ kind: "audio", stop }));
-    const tracks = [{ kind: "video", stop }] as Array<{ kind: string; stop: () => void }>;
-    const capture = { removeTrack: (t: any) => { const index = tracks.indexOf(t); if(index >= 0) tracks.splice(index, 1); }, getTracks: () => tracks, getAudioTracks: () => tracks.filter(t => t.kind === "audio"), addTrack: (t: any) => tracks.push(t) };
+    const requestFrame = vi.fn();
+    const tracks: Array<{ kind: string; stop: () => void; requestFrame?: () => void }> = [{ kind: "video", stop, requestFrame }];
+    const capture = { removeTrack: (t: any) => { const index = tracks.indexOf(t); if(index >= 0) tracks.splice(index, 1); }, getTracks: () => tracks, getVideoTracks: () => tracks.filter(t => t.kind === "video"), getAudioTracks: () => tracks.filter(t => t.kind === "audio"), addTrack: (t: any) => tracks.push(t) };
     Object.defineProperty(HTMLCanvasElement.prototype, "captureStream", { configurable: true, value: vi.fn(() => capture) });
     vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
-    const view = mountMedia();
+    const view = mountMedia(undefined, rotation);
     const [source, presentation] = Array.from(view.container.querySelectorAll("video"));
     const stream = new MediaStream();
     const audioTrack = { kind: "audio", clone };
     stream.getAudioTracks = () => [audioTrack] as any;
     source.srcObject = stream;
     Object.defineProperties(source, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
-    return { source, presentation, nativeEnter, stop, clone, capture, view };
+    return { source, presentation, nativeEnter, stop, clone, capture, requestFrame, view };
   };
   it("primes one muted frame without cloning audio or continuously drawing before the tap", async () => {
     const { source, presentation, clone } = setupSafari();
@@ -520,22 +523,64 @@ describe("Safari native video preparation", () => {
     fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
     expect(nativeEnter).toHaveBeenCalledTimes(2);
   });
-  it("keeps its label truthful while Safari metadata is not ready", () => {
-    const { source, nativeEnter } = setupSafari();
+  it("recovers a dropped priming frame and requires a new gesture to open scored fullscreen", async () => {
+    const { source, presentation, nativeEnter, requestFrame, clone } = setupSafari();
     fireEvent.playing(source);
+    expect(requestFrame).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(screen.getByText("Preparing full screen…")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveAttribute("aria-busy", "true");
+    await act(async () => { await vi.advanceTimersByTimeAsync(250); });
+    expect(requestFrame.mock.calls.length).toBeGreaterThan(2);
+    expect(clone).not.toHaveBeenCalled();
+    Object.defineProperty(presentation, "readyState", { configurable: true, value: 1 });
+    fireEvent.loadedMetadata(presentation);
     expect(nativeEnter).not.toHaveBeenCalled();
-    expect(screen.getByText("Video is getting ready. Try Full screen again.")).toBeVisible();
+    expect(screen.getByText("Full screen is ready. Tap Full screen.")).toBeVisible();
     expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(nativeEnter).toHaveBeenCalledOnce();
+    expect(nativeEnter.mock.contexts[0]).toBe(presentation);
   });
-  it("keeps metadata preparation across early repeated taps", () => {
-    const { source, presentation } = setupSafari();
+  it("bounds stalled preparation, keeps inline audio, and creates a fresh stream on retry", async () => {
+    const { source, presentation, stop, clone, nativeEnter, requestFrame } = setupSafari();
     fireEvent.playing(source);
-    const prepared = presentation.srcObject;
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Turn on live audio" })));
     fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
     fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
-    expect(presentation.srcObject).toBe(prepared);
     expect(HTMLCanvasElement.prototype.captureStream).toHaveBeenCalledOnce();
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_000); });
+    expect(screen.getByText("Full screen couldn’t open. Keep watching here or try again.")).toBeVisible();
+    expect(stop).toHaveBeenCalledOnce();
+    expect(presentation.srcObject).toBeNull();
+    expect(source.muted).toBe(false);
+    expect(clone).not.toHaveBeenCalled();
+    expect(nativeEnter).not.toHaveBeenCalled();
+    const frameCount = requestFrame.mock.calls.length;
+    await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+    expect(requestFrame).toHaveBeenCalledTimes(frameCount);
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(HTMLCanvasElement.prototype.captureStream).toHaveBeenCalledTimes(2);
+  });
+  it("hands the scored stream to Float without leaving a fullscreen timer that could stop it", async () => {
+    const { source, presentation, stop } = setupSafari(90);
+    Object.defineProperties(presentation, {
+      webkitSupportsPresentationMode: { configurable: true, value: () => true },
+      webkitSetPresentationMode: { configurable: true, value: (mode: string) => {
+        Object.defineProperty(presentation, "webkitPresentationMode", { configurable: true, value: mode });
+        presentation.dispatchEvent(new Event("webkitpresentationmodechanged"));
+      } },
+    });
+    fireEvent.loadedMetadata(source);
+    fireEvent.playing(source);
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    Object.defineProperty(presentation, "readyState", { configurable: true, value: 2 });
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Float live video" })));
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_100); });
+    expect(screen.getByRole("button", { name: "Return floating video" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveAttribute("aria-busy", "false");
+    expect(presentation.srcObject).toBeTruthy();
+    expect(stop).not.toHaveBeenCalled();
   });
   it("plays audio only through the active presentation and restores the latest mute choice", async () => {
     const { source, presentation, nativeEnter } = setupSafari();

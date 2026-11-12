@@ -43,6 +43,8 @@ const VIDEO_FIRST_FRAME_TIMEOUT_MS = 12_000;
 const VIDEO_STALL_RECONNECT_MS = 6_000;
 const VIDEO_RECONNECT_DELAY_MS = 1_500;
 const VIDEO_NEGOTIATION_TIMEOUT_MS = 12_000;
+const FULLSCREEN_PREPARATION_TIMEOUT_MS = 2_000;
+const FULLSCREEN_PREPARATION_FRAME_MS = 100;
 
 type SafariVideoElement = HTMLVideoElement & {
   webkitDisplayingFullscreen?: boolean;
@@ -62,6 +64,7 @@ type PresentationStream = {
   cleanup: () => void;
   video: SafariVideoElement;
   source: MediaProvider | null;
+  refreshFrame: () => void;
   activate: () => void;
   isActive: () => boolean;
 };
@@ -188,6 +191,7 @@ function CloudflareVideo({
   const fullscreenButtonRef = useRef<HTMLButtonElement>(null);
   const fullscreenPendingRef = useRef(false);
   const fullscreenTimeoutRef = useRef<number | undefined>(undefined);
+  const cancelFullscreenPreparationRef = useRef<(() => void) | null>(null);
   const [fullscreenPending, setFullscreenPending] = useState(false);
   const [fullscreenNotice, setFullscreenNotice] = useState("");
   const fullscreenModeRef = useRef<
@@ -567,6 +571,12 @@ function CloudflareVideo({
     // One muted frame primes Safari metadata. Continuous drawing and audio
     // begin only when the viewer asks for fullscreen or Float.
     const stream = canvas.captureStream(30);
+    const captureTrack = stream.getVideoTracks?.()[0] as CanvasCaptureMediaStreamTrack | undefined;
+    const refreshFrame = () => {
+      // Engines without a usable manual request still capture regular paints.
+      try { captureTrack?.requestFrame?.(); } catch { /* Draw below. */ }
+      draw();
+    };
     let sourceAudioTracks: MediaStreamTrack[] = [];
     let clonedAudioTracks: MediaStreamTrack[] = [];
     const syncAudioTracks = () => {
@@ -584,8 +594,6 @@ function CloudflareVideo({
     presentation.volume = 1;
     // Capture must exist before the priming paint. Safari does not have to
     // deliver a canvas frame that was drawn before captureStream was created.
-    draw();
-    void presentation.play().catch(() => undefined);
     const activate = () => {
       if (!active || activated) return;
       activated = true;
@@ -623,8 +631,15 @@ function CloudflareVideo({
       }
     };
     presentationCleanupRef.current = cleanup;
-    const result = { cleanup, video: presentation, source: source.srcObject, activate, isActive: () => activated };
+    const result = { cleanup, video: presentation, source: source.srcObject, refreshFrame, activate, isActive: () => activated };
     presentationStreamRef.current = result;
+    try {
+      refreshFrame();
+      void presentation.play().catch(() => undefined);
+    } catch (error) {
+      stopPresentation();
+      throw error;
+    }
     if (!prepareOnly) activate();
     return result;
   }, [stopPresentation]);
@@ -660,6 +675,7 @@ function CloudflareVideo({
       presentationVideoRef.current as SafariVideoElement | null;
     const stage = frameRef.current?.closest<HTMLElement>(".match-stage");
     const finishRequest = () => {
+      cancelFullscreenPreparationRef.current?.();
       window.clearTimeout(fullscreenTimeoutRef.current);
       fullscreenPendingRef.current = false;
       setFullscreenPending(false);
@@ -770,6 +786,7 @@ function CloudflareVideo({
     );
     updatePictureInPictureAvailability();
     return () => {
+      cancelFullscreenPreparationRef.current?.();
       document.removeEventListener("fullscreenchange", changed);
       document.removeEventListener("webkitfullscreenchange", changed);
       video?.removeEventListener(
@@ -898,13 +915,69 @@ function CloudflareVideo({
     const elementFullscreenEnabled = document.fullscreenEnabled ||
       (document as Document & { webkitFullscreenEnabled?: boolean }).webkitFullscreenEnabled;
     if (!elementFullscreenEnabled && presentation.webkitEnterFullscreen) {
+      const source = videoRef.current;
+      if (!source?.srcObject || source.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !source.videoWidth) {
+        fail("Wait for live video to start, then tap Full screen.", true);
+        return;
+      }
       let stream: PresentationStream | null = null;
       try { stream = startPresentation(true); } catch { fail(); return; }
       if (!stream) {
         fail("Full screen isn’t supported in this browser.", true); return;
       }
-      if (stream.video.readyState < 1) {
-        fail("Video is getting ready. Try Full screen again.", true); return;
+      if (stream.video.readyState < HTMLMediaElement.HAVE_METADATA) {
+        const preparing = stream;
+        fullscreenPendingRef.current = true;
+        setFullscreenPending(true);
+        setFullscreenNotice("Preparing full screen…");
+        let frameTimer: number | undefined;
+        let deadline: number | undefined;
+        const isCurrent = () =>
+          presentationStreamRef.current === preparing && source.srcObject === preparing.source;
+        const cleanup = () => {
+          window.clearInterval(frameTimer);
+          window.clearTimeout(deadline);
+          preparing.video.removeEventListener("loadedmetadata", ready);
+          document.removeEventListener("visibilitychange", visibilityChanged);
+          window.removeEventListener("pagehide", interrupted);
+          cancelFullscreenPreparationRef.current = null;
+          fullscreenPendingRef.current = false;
+        };
+        const finish = (message: string, keepStream = false) => {
+          if (cancelFullscreenPreparationRef.current !== cleanup) return;
+          cleanup();
+          if (!keepStream && presentationStreamRef.current === preparing) stopPresentation();
+          setFullscreenPending(false);
+          setFullscreenNotice(message);
+        };
+        const interrupted = () => finish("");
+        const visibilityChanged = () => {
+          if (document.visibilityState === "hidden") interrupted();
+        };
+        const ready = () => {
+          if (!isCurrent()) { interrupted(); return; }
+          if (preparing.video.readyState < HTMLMediaElement.HAVE_METADATA) return;
+          const supported = preparing.video.webkitSupportsFullscreen !== false;
+          finish(supported ? "Full screen is ready. Tap Full screen." : "Full screen isn’t supported in this browser.", supported);
+        };
+        const refresh = () => {
+          if (!isCurrent()) { interrupted(); return; }
+          if (preparing.video.readyState >= HTMLMediaElement.HAVE_METADATA) { ready(); return; }
+          try { preparing.refreshFrame(); } catch { finish("Full screen couldn’t open. Keep watching here or try again."); }
+        };
+        cancelFullscreenPreparationRef.current = cleanup;
+        preparing.video.addEventListener("loadedmetadata", ready);
+        document.addEventListener("visibilitychange", visibilityChanged);
+        window.addEventListener("pagehide", interrupted);
+        frameTimer = window.setInterval(refresh, FULLSCREEN_PREPARATION_FRAME_MS);
+        deadline = window.setTimeout(() => {
+          finish("Full screen couldn’t open. Keep watching here or try again.");
+        }, FULLSCREEN_PREPARATION_TIMEOUT_MS);
+        // Retry playback in the gesture and keep producing fresh muted frames
+        // until this video reports metadata. Opening fullscreen needs a new tap.
+        void preparing.video.play().catch(() => undefined);
+        refresh();
+        return;
       }
       if (stream.video.webkitSupportsFullscreen === false) {
         fail("Full screen isn’t supported in this browser.", true); return;
@@ -930,6 +1003,13 @@ function CloudflareVideo({
   const toggleFloatingVideo = async () => {
     const source = videoRef.current as SafariVideoElement | null;
     if (!source) return;
+    // Float can take ownership of the same prepared video. Its stream must
+    // not be stopped later by an abandoned fullscreen preparation timeout.
+    if (cancelFullscreenPreparationRef.current) {
+      cancelFullscreenPreparationRef.current();
+      setFullscreenPending(false);
+      setFullscreenNotice("");
+    }
     try {
       if (floating) {
         const active =
