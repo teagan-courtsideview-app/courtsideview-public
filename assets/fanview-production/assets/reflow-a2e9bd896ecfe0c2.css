@@ -1,0 +1,320 @@
+/* Bounded QA corrections; approved baseline CSS remains byte-identical. */
+@media (max-width: 340px) {
+  .scoreboard-display-menu__positions { grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); }
+  .scoreboard-display-menu__positions button { min-width: 44px; min-height: 44px; }
+  .score-bug__timeout, .score-bug--score-bar .score-bug__timeout {
+    box-sizing: border-box; min-width: 0; max-width: 100%; padding: 4px 8px;
+  }
+  .score-bug__timeout strong { min-width: 0; overflow-wrap: anywhere; }
+  .score-bug__bar-card { grid-template-columns: minmax(0, 1fr); }
+  .score-bug__bar-team { min-height: 38px; }
+  .score-bug__bar-team span, .score-bug__full-team > strong { white-space: normal; overflow-wrap: anywhere; }
+  .score-bug__bar-center { grid-row: 3; border: 0; border-top: 1px solid rgba(255,255,255,.22); padding: 4px; }
+  .score-bug__history--bar { flex-wrap: wrap; gap: 4px 0; }
+  .score-bug__full-team {
+    height: auto; min-height: 54px; grid-template-columns: 6px minmax(0, 1fr) auto;
+    gap: 4px 6px; padding: 6px;
+  }
+  .score-bug__full-team > b { grid-column: 3; grid-row: 1; }
+  .score-bug__full-team .score-bug__set-dots { grid-column: 2; }
+  .score-bug__history--full { grid-template-columns: repeat(auto-fit, minmax(82px, 1fr)); }
+  .score-bug__history--full .score-bug__history-set { min-height: 28px; gap: 4px; }
+  .score-bug__history--full .score-bug__history-label { margin-right: 0; }
+}
+/* Preserve Full Score content within its anchor between header and control dock. */
+@media (orientation: landscape) and (max-height: 360px) {
+  .score-bug__full-team { height: 38px; }
+  .score-bug__full-meta { min-height: 28px; }
+  .score-bug__history--full { min-height: 28px; }
+  .score-bug--full-score .score-bug__timeout { min-height: 32px; margin-bottom: 4px; }
+}
+/* At 200% phone reflow, prevent transformed overflow and reserve the dock. */
+@media (max-width: 240px) {
+  .fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"] .score-bug {
+    max-width: calc(100vw - 20px);
+    transform: none;
+  }
+  .fanview-app[data-scoreboard-layout="full-score"][data-scoreboard-position="top-left"] .score-bug,
+  .fanview-app[data-scoreboard-layout="full-score"][data-scoreboard-position="top-right"] .score-bug {
+    top: max(64px, calc(env(safe-area-inset-top) + 60px));
+  }
+}
+/* Large Minimal grows inward from the selected corner, not past its safe inset. */
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="top-left"] .score-bug { transform-origin: top left; }
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="top-right"] .score-bug { transform-origin: top right; }
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="bottom-left"] .score-bug { transform-origin: bottom left; }
+.fanview-app[data-scoreboard-layout="minimal"][data-scoreboard-size="large"][data-scoreboard-position="bottom-right"] .score-bug { transform-origin: bottom right; }
+/* Small white labels require >=4.5:1; retain red LIVE and pink Chat semantics. */
+.fanview-app .viewer-header .live-pill { background-color: #d32f2f; }
+.fanview-app .community-launcher { background-color: #d6296b; }
+/* Preserve Community styling while meeting contrast and touch-target minimums. */
+.fanview-app .community-message__header span[data-role="Teammate"] { color: #8a5600; }
+.fanview-app .community-panel .icon-button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; flex-shrink: 0; }
+.fanview-app .community-panel .reaction-row button { min-width: 44px; min-height: 44px; }
+/* Short screens must retain a readable feed and reachable composer. */
+@media (max-width: 720px) and (max-height: 500px) {
+  .fanview-app .community-panel:not(.community-panel--broadcaster) {
+    height: calc(100dvh - max(16px, env(safe-area-inset-top)));
+    grid-template-rows: auto auto minmax(96px, 1fr) auto;
+    overflow-y: auto;
+  }
+}
+
+/* Action wording stays complete at compact widths and text zoom. Preserve the
+   approved control shapes/icons; only labels wrap and controls grow as needed. */
+.fanview-app button,
+.fanview-state-page button,
+.fanview-state-action,
+.scoreboard-display-menu button,
+.team-hub-back {
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-overflow: clip;
+  min-height: 44px;
+}
+.fanview-app .media-control__label,
+.scoreboard-display-menu__layout > b,
+.scoreboard-display-menu__layout > small {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-overflow: clip;
+}
+.fanview-app .community-launcher { white-space: normal; overflow: visible; height: auto; }
+.fanview-state-action, .team-hub-back { padding-top: 8px; padding-bottom: 8px; }
+@media (max-width: 240px) {
+  .scoreboard-display-menu__layouts { grid-template-columns: minmax(0, 1fr); }
+  .scoreboard-display-menu__options:not(.scoreboard-display-menu__positions) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Recovery and live activity are instructions/status, never truncated previews. */
+.fanview-app .match-status,
+.fanview-app .match-status--action {
+  max-width: min(440px, calc(100vw - 32px));
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-overflow: clip;
+  line-height: 1.4;
+}
+
+/* Standalone Display and Chat must own separate hit areas. Keep the existing
+   mobile left/right arrangement on wide screens and compact landscape too. */
+.fanview-app .scoreboard-display-trigger--standalone {
+  right: auto;
+  left: max(10px, env(safe-area-inset-left));
+  transform: none;
+}
+@media (min-width: 721px) {
+  .fanview-app .scoreboard-display-trigger--standalone {
+    left: max(24px, env(safe-area-inset-left));
+  }
+}
+/* Chat occupies the full bottom row at extreme text reflow; reserve its row. */
+@media (max-width: 300px) {
+  .fanview-app .scoreboard-display-trigger--standalone {
+    left: max(8px, env(safe-area-inset-left));
+    bottom: calc(var(--fanview-mobile-bottom-inset) + 66px);
+  }
+}
+
+/* FanView display controls share the native journey's compact, readable sheet. */
+.scoreboard-display-menu {
+  --display-face: #101b21; --display-raised: #1e2b35; --display-ink: #f8fafc;
+  --display-muted: #bac4d0; --display-line: #657180;
+  background: var(--display-face); color: var(--display-ink);
+  padding: 12px 16px max(16px, env(safe-area-inset-bottom)); gap: 12px;
+}
+.scoreboard-display-menu__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.scoreboard-display-menu__header strong { font-size: 20px; line-height: 1.3; }
+.scoreboard-display-menu__header button { flex: 0 0 auto; min-width: 60px; min-height: 48px; }
+.scoreboard-display-menu > p { color: var(--display-muted); text-align: left; font-size: 13px; }
+.scoreboard-display-menu__label { color: var(--display-ink); letter-spacing: 0; font-size: 14px; }
+.scoreboard-display-menu button { color: var(--display-ink); background: var(--display-raised); border-color: var(--display-line); text-transform: none; letter-spacing: 0; }
+.scoreboard-display-menu button[aria-pressed="true"] { border-color: #00b87b; background: #173b32; color: #f8fafc; }
+.scoreboard-display-menu button.scoreboard-display-menu__layout { min-height: 136px; grid-template-rows: auto 54px auto auto; gap: 5px; padding: 8px; }
+.scoreboard-display-menu__layout > b { grid-row: 4; min-height: 32px; border: 0; letter-spacing: 0; font-size: 13px; }
+.scoreboard-display-menu__layout > small { grid-row: 3; color: var(--display-muted); font-size: 11px; }
+.scoreboard-display-menu__layout > .scoreboard-layout-preview { grid-row: 2; }
+.scoreboard-display-menu__check, .scoreboard-display-menu__position-check { position: static; width: 20px; height: 20px; justify-self: end; align-self: start; flex-shrink: 0; }
+.scoreboard-display-menu__check { grid-row: 1; }
+.scoreboard-display-menu__positions { grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px; }
+.scoreboard-display-menu__positions button { aspect-ratio: auto; min-height: 88px; grid-template-rows: auto auto auto; gap: 6px; }
+.scoreboard-display-menu__position-label { font-size: 12px; line-height: 1.35; white-space: normal; overflow-wrap: normal; }
+.scoreboard-display-menu__automatic small { color: var(--display-muted); }
+.scoreboard-display-menu__automatic b { letter-spacing: 0; }
+@media (prefers-color-scheme: light) {
+  .scoreboard-display-menu { --display-face: #f8fafc; --display-raised: #fff; --display-ink: #111827; --display-muted: #526170; --display-line: #94a3b8; }
+  .scoreboard-display-menu button[aria-pressed="true"] { background: #dcf4e9; color: #111827; border-color: #00845a; }
+}
+
+/* Complete labels and selected states match native light/dark chrome. */
+.scoreboard-display-menu { --display-accent: #ff9cc5; --display-selected: #342335; --display-check-ink: #111827; }
+.scoreboard-display-menu__label { text-transform: none; }
+.scoreboard-display-menu button[aria-pressed="true"] { border-color: var(--display-accent); background: var(--display-selected); color: var(--display-ink); box-shadow: inset 0 0 0 1px var(--display-accent); }
+.scoreboard-display-menu__check, .scoreboard-display-menu__option-check, .scoreboard-display-menu__position-check { background: var(--display-accent); color: var(--display-check-ink); }
+.scoreboard-display-menu__positions button { grid-template-columns: minmax(0, 1fr) 20px; grid-template-rows: auto auto; }
+.scoreboard-display-menu__positions .scoreboard-position-icon { grid-column: 1 / -1; grid-row: 1; }
+.scoreboard-display-menu__position-label { grid-column: 1; grid-row: 2; align-self: center; }
+.scoreboard-display-menu__position-check { grid-column: 2; grid-row: 2; align-self: center; }
+@media (prefers-color-scheme: light) {
+ .scoreboard-display-menu { --display-accent: #9b2458; --display-selected: #fce5ef; --display-check-ink: #fff; }
+}
+
+.scoreboard-display-menu button.scoreboard-display-menu__reset { color: var(--display-accent); }
+
+/* November 11 approved FanView chrome. ScoreBug artwork remains unchanged. */
+@font-face { font-family: "CV Viewer Jakarta"; src: url("/assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "CV Viewer Jakarta"; src: url("/assets/fonts/PlusJakartaSans-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+.fanview-app, .fanview-state-page {
+  --viewer-bg: #f7f8fb; --viewer-face: #ffffff; --viewer-ink: #111827;
+  --viewer-muted: #626d7c; --viewer-border: #788696; --viewer-positive: #126b45;
+  --viewer-positive-bg: #e2f4ea; --viewer-court: rgba(17,24,39,.14);
+}
+@media (prefers-color-scheme: dark) {
+  .fanview-app, .fanview-state-page { --viewer-bg: #071018; --viewer-face: #101724; --viewer-ink: #f8fafc;
+    --viewer-muted: #b8c1d1; --viewer-border: #65758a; --viewer-positive: #6ee7af;
+    --viewer-positive-bg: #133a2b; --viewer-court: rgba(248,250,252,.14); }
+}
+.fanview-app[data-video-present="false"],
+.fanview-app[data-video-present="false"] .match-stage,
+.fanview-app[data-video-present="false"] .match-stage__empty { background: var(--viewer-bg); }
+.fanview-app[data-video-present="false"] .match-stage__shade { background: none; }
+.fanview-app[data-video-present="false"] .court-outline { border-color: var(--viewer-court); }
+.fanview-app[data-video-present="false"] .court-outline__net { border-color: var(--viewer-court); }
+.fanview-app .viewer-header, .fanview-app .viewer-brand,
+.fanview-app .media-control, .fanview-app .scoreboard-display-trigger,
+.fanview-app .community-launcher, .fanview-app .match-status {
+  font-family: "CV Viewer Jakarta", system-ui, sans-serif;
+  text-transform: none; letter-spacing: 0; line-height: 1.4;
+}
+.fanview-app .viewer-header { gap: 10px; }
+.fanview-app .viewer-brand { display: flex; align-items: center; gap: 8px; min-height: 44px; min-width: 0; color: var(--viewer-ink); font-weight: 600; }
+.fanview-app[data-video-present="true"] .viewer-brand { color: #fff; text-shadow: 0 1px 5px #000; }
+.fanview-app .viewer-header--without-team-hub { justify-content: space-between; }
+.fanview-app .viewer-header .live-pill { min-height: 44px; padding: 8px 12px; border-radius: 12px; font: inherit; font-weight: 600; color: var(--viewer-positive); background: var(--viewer-positive-bg); }
+.fanview-app .live-pill[data-state="scores"] .live-pill__dot,
+.fanview-app .live-pill[data-state="connecting"] .live-pill__dot,
+.fanview-app .live-pill[data-state="final"] .live-pill__dot { display: none; }
+.fanview-app .live-pill[data-state="connecting"], .fanview-app .live-pill[data-state="final"] { color: var(--viewer-muted); background: var(--viewer-face); }
+.fanview-app .viewer-pill, .fanview-app .team-hub-back,
+.fanview-app .media-control, .fanview-app .scoreboard-display-trigger {
+  color: var(--viewer-ink); background: var(--viewer-face); border-color: var(--viewer-border); min-height: 44px;
+}
+.fanview-app .community-launcher { color: #111827; background: #ff4f93; font-weight: 600; min-height: 48px; }
+.fanview-app .community-launcher > span { text-transform: none; }
+.fanview-app .match-status { color: var(--viewer-ink); background: var(--viewer-face); }
+@media (max-width: 360px) {
+  .fanview-app .viewer-header { flex-wrap: wrap; }
+  .fanview-app .viewer-header__status { flex-wrap: wrap; }
+}
+
+/* Preserve the native overlay's condensed heavy sports face, not UI-body type. */
+.fanview-app .score-bug__full-team > strong,
+.fanview-app .score-bug__full-team > b,
+.fanview-app .score-bug__bar-team span,
+.fanview-app .score-bug__bar-team strong,
+.fanview-app .score-bug__minimal-card > strong {
+  font-family: "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", sans-serif;
+  font-weight: 900;
+}
+/* Persistent controls own their labels and icons, including legacy descendants. */
+.fanview-app .media-controls {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+  width: min(360px, calc(100% - 140px)); max-width: calc(100% - 20px);
+  left: max(10px, env(safe-area-inset-left)); right: auto;
+}
+.fanview-app .media-control {
+  width: auto; min-width: 44px; min-height: 64px; height: auto;
+  padding: 8px 4px; gap: 4px; border: 1px solid var(--viewer-border); border-radius: 12px;
+}
+.fanview-app .media-control .media-control__label {
+  color: inherit; background: transparent; box-shadow: none;
+  font: 600 14px/1.35 "CV Viewer Jakarta", system-ui, sans-serif;
+  letter-spacing: 0; text-transform: none; white-space: normal;
+}
+.fanview-app .media-control svg {
+  color: inherit; fill: currentColor; width: 20px; height: 20px;
+  padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+}
+.fanview-app .scoreboard-display-trigger, .fanview-app .team-hub-back,
+.fanview-app .community-launcher { font-size: 14px; line-height: 1.4; }
+.fanview-app .scoreboard-display-trigger svg, .fanview-app .team-hub-back svg { color: inherit; }
+.fanview-app .community-launcher { width: auto; min-width: 0; max-width: calc(100% - 20px); padding: 10px 14px; gap: 8px; }
+.fanview-app .community-launcher > span { color: inherit; font-size: 14px; }
+.fanview-app .viewer-header .live-pill__dot { background: currentColor; }
+@media (max-width: 360px) {
+  .fanview-app .media-controls { width: calc(100% - 20px); bottom: calc(var(--fanview-mobile-bottom-inset) + 60px); }
+  .fanview-app[data-video-present="true"][data-scoreboard-position^="bottom"] .score-bug { bottom: calc(var(--fanview-mobile-bottom-inset) + 144px); }
+}
+@media (max-width: 260px) {
+  .fanview-app .media-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fanview-app[data-video-present="true"][data-scoreboard-position^="bottom"] .score-bug { bottom: calc(var(--fanview-mobile-bottom-inset) + 218px); }
+}
+.fanview-state-page, .fanview-state-camera { background: var(--viewer-bg); color: var(--viewer-ink); }
+.fanview-state-page .fanview-state-card {
+  background: var(--viewer-face); color: var(--viewer-ink); border-color: var(--viewer-border);
+  box-shadow: 0 12px 32px rgba(17,24,39,.12); border-radius: 20px;
+  font-family: "CV Viewer Jakarta", system-ui, sans-serif;
+}
+.fanview-state-page .fanview-state-card strong { font-family: inherit; font-size: 24px; line-height: 1.3; text-transform: none; }
+.fanview-state-page .fanview-state-card > span { color: var(--viewer-muted); font-size: 15px; line-height: 1.5; }
+.fanview-state-page .fanview-state-action {
+  color: var(--viewer-ink); background: var(--viewer-face); border-color: var(--viewer-border);
+  font: 600 14px/1.4 "CV Viewer Jakarta", system-ui, sans-serif; text-transform: none;
+  min-height: 48px; border-radius: 12px; padding: 12px 16px; box-shadow: none;
+}
+.fanview-state-page .fanview-state-action--primary { background: #ff4f93; color: #111827; clip-path: none; }
+/* Full team names wrap at word boundaries; score artwork and data stay intact. */
+.fanview-app .score-bug__full-team > strong,
+.fanview-app .score-bug__bar-team span {
+  white-space: normal; text-overflow: clip; overflow: visible;
+  overflow-wrap: normal; word-break: normal; line-height: 1.25;
+}
+.fanview-app .score-bug__full-team { height: auto; min-height: 54px; padding-top: 6px; padding-bottom: 6px; }
+.fanview-app .score-bug__bar-team { padding-top: 6px; padding-bottom: 6px; }
+@media (max-width: 340px) {
+  .fanview-app .score-bug__full-team { grid-template-columns: 6px minmax(0, 1fr) auto; }
+  .fanview-app .score-bug__full-team > i { grid-column: 1; grid-row: 1 / 3; }
+  .fanview-app .score-bug__full-team > strong { grid-column: 2 / 4; grid-row: 1; }
+  .fanview-app .score-bug__full-team > b { grid-column: 3; grid-row: 2; }
+  .fanview-app .score-bug__full-team .score-bug__set-dots { grid-column: 2; grid-row: 2; }
+  .fanview-app .score-bug__bar-team--home { grid-template-columns: 6px minmax(0, 1fr); }
+  .fanview-app .score-bug__bar-team--home i { grid-column: 1; grid-row: 1 / 3; }
+  .fanview-app .score-bug__bar-team--home span { grid-column: 2; grid-row: 1; }
+  .fanview-app .score-bug__bar-team--home strong { grid-column: 2; grid-row: 2; }
+  .fanview-app .score-bug__bar-team--away { grid-template-columns: minmax(0, 1fr) 6px; }
+  .fanview-app .score-bug__bar-team--away i { grid-column: 2; grid-row: 1 / 3; }
+  .fanview-app .score-bug__bar-team--away span { grid-column: 1; grid-row: 1; }
+  .fanview-app .score-bug__bar-team--away strong { grid-column: 1; grid-row: 2; text-align: right; }
+}
+/* Actual labelled dock/header dimensions reserve space around every anchor. */
+.fanview-app[data-scoreboard-position^="bottom"] .score-bug {
+  bottom: var(--viewer-dock-clearance, 112px);
+}
+.fanview-app[data-scoreboard-position^="top"] .score-bug {
+  top: var(--viewer-header-clearance, 76px);
+}
+.fanview-app .score-bug {
+  max-height: calc(100% - var(--viewer-dock-clearance, 112px) - var(--viewer-header-clearance, 76px));
+  overflow-y: auto;
+}
+
+.fanview-app .score-bug { pointer-events: auto; overscroll-behavior: contain; }
+.fanview-app .score-bug:focus-visible { outline: 3px solid var(--viewer-ink); outline-offset: 3px; }
+
+/* A successful browser API owns fullscreen; never imitate it by hiding siblings. */
+.match-stage:fullscreen { width: 100%; height: 100%; min-height: 0; margin: 0; }
+.match-stage:-webkit-full-screen { width: 100%; height: 100%; min-height: 0; margin: 0; }
+.live-media__fullscreen-notice {
+  position: absolute; z-index: 7; top: max(74px, calc(env(safe-area-inset-top) + 58px));
+  left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+  box-sizing: border-box; border-radius: 16px; padding: 10px 14px;
+  background: #101827; color: #fff; font-family: inherit; font-size: 14px; font-weight: 600; line-height: 1.4;
+  text-align: center; pointer-events: none;
+}

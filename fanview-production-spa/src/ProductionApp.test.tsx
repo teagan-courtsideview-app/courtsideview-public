@@ -60,6 +60,14 @@ const renderApp = (adapter: FanViewAdapter) =>
   );
 
 describe("Production FanView lifecycle", () => {
+  it("does not mount or request unavailable Chat while the rollout is off", async () => {
+    const loadRoom = vi.fn();
+    render(<ProductionApp communityAdapter={{...community, loadRoom}} communityEnabled={false} fanViewAdapter={{async loadSnapshot(){return snapshot(new Date().toISOString(), 18)}}} liveWorkerUrl="https://worker.example" shareId="match-123" />);
+    await screen.findByText("18");
+    expect(loadRoom).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", {name: /chat|cheer/i})).not.toBeInTheDocument();
+  });
+
   it("uses readable scoreboard text for white and bright team colors", () => {
     expect(scoreBugTextColor("#FFFFFF")).toBe("#101827");
     expect(scoreBugTextColor("#10B981")).toBe("#101827");
@@ -448,8 +456,8 @@ describe("Production FanView lifecycle", () => {
     expect(source).toContain('closest<HTMLElement>(".match-stage")');
     expect(source).toContain("drawPresentationFrame");
     expect(source).toContain("matchRef.current");
-    expect(source).toContain("stream.video.webkitEnterFullscreen()");
-    expect(source).toContain('stage.classList.add("is-web-fullscreen")');
+    expect(source).toContain("stream.video.webkitEnterFullscreen?.()");
+    expect(source).not.toContain('stage.classList.add("is-web-fullscreen")');
   });
 
   it("composites rotated video before entering picture-in-picture", () => {
@@ -459,10 +467,10 @@ describe("Production FanView lifecycle", () => {
     );
     expect(source).toContain("canvas.captureStream(30)");
     expect(source).toContain("sourceStream?.getAudioTracks()");
-    expect(source).toContain("stream.addTrack(track.clone())");
+    expect(source).toContain("tracks.map(track => track.clone())");
     expect(source).toContain("rotationRef.current");
     expect(source).toContain("rotation");
-    expect(source).toContain("? startPresentation()?.video");
+    expect(source).toContain("rotation ? startPresentation(true)");
   });
 
   it("does not hide the Cheering Section after a startup error", () => {

@@ -14,9 +14,10 @@ declare global {
 export const configuredLiveWorkerUrl = () =>
   window.COURTSIDEVIEW_LIVE_WORKER_URL || LIVE_WORKER_URL;
 
-export const communityMode = (): "off" | "preview" | "live" => {
-  const requested = new URLSearchParams(window.location.search).get("community");
-  if (requested === "preview") return "preview";
-  if (requested === "live") return "live";
-  return window.COURTSIDEVIEW_FANVIEW_COMMUNITY_ENABLED === true ? "live" : "off";
+// Chat is paused for this release. A shared URL or account session cannot
+// enable an unavailable product surface. Local design fixtures remain usable.
+export const communityMode = (location: Pick<Location, "hostname" | "search"> = window.location): "off" | "preview" | "live" => {
+  const local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  const requested = new URLSearchParams(location.search).get("community");
+  return local && requested === "preview" ? "preview" : "off";
 };

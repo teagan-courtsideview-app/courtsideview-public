@@ -656,14 +656,16 @@
           persistSession: false,
         },
       });
-      const communitySupabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+      // Keep Chat hidden and disconnected until its rollout gates are approved.
+      const broadcasterCommunityEnabled = false;
+      const communitySupabase = broadcasterCommunityEnabled ? createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
           storageKey: 'courtsideview_broadcaster_community',
           autoRefreshToken: true,
           detectSessionInUrl: false,
           persistSession: false,
         },
-      });
+      }) : null;
       const preview = document.getElementById('preview');
       const cameraBtn = document.getElementById('cameraBtn');
       const broadcastBtn = document.getElementById('broadcastBtn');
@@ -928,7 +930,7 @@
         document.body.classList.toggle('fanview-options', state === 'options');
       }
       async function mountBroadcasterCommunity() {
-        if (!streamId || !broadcasterCommunity) return false;
+        if (!broadcasterCommunityEnabled || !communitySupabase || !streamId || !broadcasterCommunity) return false;
         if (broadcasterCommunityMountPromise) return broadcasterCommunityMountPromise;
         broadcasterCommunityMountPromise = (async () => {
           try {
@@ -1147,7 +1149,7 @@
         showControl(recordPanel, canShowRecordChoice);
         const canReturnToScore = Boolean(streamId);
         showControl(viewerRow, isLive);
-        showControl(chatBtn, isLive);
+        showControl(chatBtn, isLive && broadcasterCommunityEnabled);
         showControl(scoreBtn, canReturnToScore);
         showControl(minimizeBtn, isLive);
         showControl(audioBtn, isLive);
@@ -1159,7 +1161,7 @@
         scoreBtn.disabled = !canReturnToScore;
         minimizeBtn.disabled = !(isLive && canUsePictureInPicture());
         stopBtn.disabled = !isLive;
-        chatBtn.disabled = !isLive || Boolean(localVisualQaState);
+        chatBtn.disabled = !broadcasterCommunityEnabled || !isLive || Boolean(localVisualQaState);
         audioBtn.disabled = !isLive || !media;
         shareBtn.disabled = false;
         recordToggle.disabled = isLive || !recorderSupported;
@@ -1181,7 +1183,7 @@
         syncPictureInPictureControl();
         audioBtn.textContent = audioEnabled ? 'Mute' : 'Unmute';
         stopBtn.textContent = 'End video';
-        if (isLive && !localVisualQaState) void mountBroadcasterCommunity();
+        if (broadcasterCommunityEnabled && isLive && !localVisualQaState) void mountBroadcasterCommunity();
         if (!isLive) {
           broadcasterCommunity?.closeCommunity?.();
           chatBtn.dataset.open = 'false';

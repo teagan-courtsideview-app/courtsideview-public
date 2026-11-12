@@ -1,21 +1,29 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LiveMedia } from "./LiveMedia";
+import { drawPresentationFrame } from "./presentationFrame";
+vi.mock("./presentationFrame", () => ({ drawPresentationFrame: vi.fn() }));
 import { configureViewerRequests } from "./viewerFetch";
 
 const setRemoteDescription = vi.fn();
 const setLocalDescription = vi.fn();
 const close = vi.fn();
 const peers: Array<{ connectionState: string; events: Record<string, (event?: any) => void>; getStats: ReturnType<typeof vi.fn> }> = [];
+const realSetInterval = window.setInterval;
 let videoFrames = 0;
 let droppedFrames = 0;
 
 beforeEach(() => {
+  window.setInterval = realSetInterval;
   configureViewerRequests("https://worker.example");
   setRemoteDescription.mockReset().mockResolvedValue(undefined);
   setLocalDescription.mockReset().mockResolvedValue(undefined);
   close.mockClear();
   peers.length = 0;
+  Object.defineProperty(document, "fullscreenElement", { configurable: true, writable: true, value: null });
+  Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: true });
+  Object.defineProperty(HTMLVideoElement.prototype, "webkitEnterFullscreen", { configurable: true, value: undefined });
+  vi.mocked(drawPresentationFrame).mockClear();
   videoFrames = 0; droppedFrames = 0;
   Object.defineProperty(HTMLVideoElement.prototype, "requestVideoFrameCallback", { configurable: true, value: undefined });
   Object.defineProperty(HTMLVideoElement.prototype, "cancelVideoFrameCallback", { configurable: true, value: vi.fn() });
@@ -43,7 +51,7 @@ afterEach(() => {
 });
 
 const mountMedia = (onVideoConfirmed?: (confirmed: boolean) => void) => render(
-  <LiveMedia
+  <section className="match-stage"><LiveMedia
     displayMenuOpen={false}
     liveWorkerUrl="https://worker.example"
     match={{
@@ -60,7 +68,7 @@ const mountMedia = (onVideoConfirmed?: (confirmed: boolean) => void) => render(
     scoreboardSize="standard"
     shareId="public-match"
     viewerCount={1}
-  />,
+  /></section>,
 );
 
 describe("guest live media", () => {
@@ -338,4 +346,277 @@ describe("obsolete guest media negotiation", () => {
     expect(fetch.mock.calls.some(([,init]) => init.method === "PATCH")).toBe(false);
     expect(fetch.mock.calls.some(([url]) => url.includes("attacker.example") || url.includes("/ingest/") || url.includes("other-match"))).toBe(false);
   });
+});
+
+
+describe("fullscreen must change the browser, not just hide Chat", () => {
+  it("does not claim full screen when a browser resolves the request without entering", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 503 })));
+    Object.defineProperty(document, "fullscreenElement", { configurable: true, value: null });
+    const view = mountMedia();
+    const stage = view.container.querySelector(".match-stage") as HTMLElement;
+    stage.requestFullscreen = vi.fn().mockResolvedValue(undefined);
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_000); });
+    expect(stage.requestFullscreen).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveAttribute("aria-pressed", "false");
+    expect(stage).not.toHaveClass("is-web-fullscreen");
+    expect(screen.getByText(/Full screen couldn.t open/)).toBeVisible();
+  });
+});
+
+
+describe("confirmed fullscreen transitions", () => {
+  const prepare = () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 503 })));
+    const view = mountMedia();
+    const stage = view.container.querySelector(".match-stage") as HTMLElement;
+    const setFullscreen = (element: Element | null) => {
+      Object.defineProperty(document, "fullscreenElement", { configurable: true, value: element });
+      document.dispatchEvent(new Event("fullscreenchange"));
+    };
+    stage.requestFullscreen = vi.fn(async () => setFullscreen(stage));
+    document.exitFullscreen = vi.fn(async () => setFullscreen(null));
+    return { view, stage, setFullscreen };
+  };
+  it("enters and exits repeatedly only on API confirmation and restores the trigger focus", () => {
+    const { stage } = prepare();
+    for (let i = 0; i < 20; i++) {
+      fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+      expect(document.fullscreenElement).toBe(stage);
+      expect(screen.getByRole("button", { name: "Exit full screen" })).toHaveAttribute("aria-pressed", "true");
+      fireEvent.click(screen.getByRole("button", { name: "Exit full screen" }));
+      expect(document.fullscreenElement).toBeNull();
+      expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveFocus();
+    }
+    expect(stage.requestFullscreen).toHaveBeenCalledTimes(20);
+    expect(document.exitFullscreen).toHaveBeenCalledTimes(20);
+  });
+  it("does not claim an exit when the browser rejects it", async () => {
+    prepare();
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    document.exitFullscreen = vi.fn().mockRejectedValue(new Error("busy"));
+    fireEvent.click(screen.getByRole("button", { name: "Exit full screen" }));
+    await screen.findByText(/Full screen couldn.t close/);
+    expect(screen.getByRole("button", { name: "Exit full screen" })).toHaveAttribute("aria-pressed", "true");
+  });
+  it("retains the page and offers retry after rejected entry", async () => {
+    const { stage } = prepare();
+    stage.requestFullscreen = vi.fn().mockRejectedValue(new Error("denied"));
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    await screen.findByText(/Full screen couldn.t open/);
+    expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveAttribute("aria-pressed", "false");
+    expect(stage).not.toHaveClass("is-web-fullscreen");
+    expect(screen.getByRole("button", { name: "Scoreboard display" })).toBeVisible();
+  });
+  it("does not issue duplicate requests while the browser is deciding", () => {
+    const { stage } = prepare();
+    stage.requestFullscreen = vi.fn(() => new Promise<void>(() => {}));
+    const button = screen.getByRole("button", { name: "Enter full screen" });
+    fireEvent.click(button); fireEvent.click(button);
+    expect(stage.requestFullscreen).toHaveBeenCalledOnce();
+    expect(button).toHaveAttribute("aria-busy", "true");
+  });
+});
+
+describe("Float preserves the viewer’s sound choice", () => {
+  const setupFloat = () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 503 })));
+    Object.defineProperty(document, "pictureInPictureEnabled", { configurable: true, value: true });
+    Object.defineProperty(document, "pictureInPictureElement", { configurable: true, value: null });
+    const view = mountMedia();
+    const source = view.container.querySelector("video")!;
+    const stream = new MediaStream();
+    stream.getAudioTracks = () => [{ kind: "audio" }] as MediaStreamTrack[];
+    source.srcObject = stream;
+    Object.defineProperty(source, "readyState", { configurable: true, value: 2 });
+    source.requestPictureInPicture = vi.fn(async () => {
+      Object.defineProperty(document, "pictureInPictureElement", { configurable: true, value: source });
+      source.dispatchEvent(new Event("enterpictureinpicture"));
+      return {} as PictureInPictureWindow;
+    });
+    document.exitPictureInPicture = vi.fn(async () => {
+      Object.defineProperty(document, "pictureInPictureElement", { configurable: true, value: null });
+      source.dispatchEvent(new Event("leavepictureinpicture"));
+    });
+    fireEvent.loadedMetadata(source);
+    return source;
+  };
+
+  it.each([false, true])("retains sound-on=%s through repeated Float and return", async (soundOn) => {
+    const source = setupFloat();
+    if (soundOn) await act(async () => fireEvent.click(screen.getByRole("button", { name: "Turn on live audio" })));
+    for (let repeat = 0; repeat < 3; repeat++) {
+      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Float live video" })));
+      expect(source.muted).toBe(!soundOn);
+      expect(screen.getByRole("button", { name: soundOn ? "Mute live audio" : "Turn on live audio" })).toHaveAttribute("aria-pressed", String(soundOn));
+      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Return floating video" })));
+      expect(source.muted).toBe(!soundOn);
+    }
+  });
+
+  it("keeps a muted viewer muted when the browser rejects Float", async () => {
+    const source = setupFloat();
+    source.requestPictureInPicture = vi.fn().mockRejectedValue(new Error("denied"));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Float live video" })));
+    expect(source.muted).toBe(true);
+    expect(screen.getByRole("button", { name: "Turn on live audio" })).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+describe("Safari native video preparation", () => {
+  const setupSafari = () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 503 })));
+    Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: false });
+    const nativeEnter = vi.fn();
+    Object.defineProperty(HTMLVideoElement.prototype, "webkitEnterFullscreen", { configurable: true, value: nativeEnter });
+    const stop = vi.fn();
+    const clone = vi.fn(() => ({ kind: "audio", stop }));
+    const tracks = [{ kind: "video", stop }] as Array<{ kind: string; stop: () => void }>;
+    const capture = { removeTrack: (t: any) => { const index = tracks.indexOf(t); if(index >= 0) tracks.splice(index, 1); }, getTracks: () => tracks, getAudioTracks: () => tracks.filter(t => t.kind === "audio"), addTrack: (t: any) => tracks.push(t) };
+    Object.defineProperty(HTMLCanvasElement.prototype, "captureStream", { configurable: true, value: vi.fn(() => capture) });
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    const view = mountMedia();
+    const [source, presentation] = Array.from(view.container.querySelectorAll("video"));
+    const stream = new MediaStream();
+    const audioTrack = { kind: "audio", clone };
+    stream.getAudioTracks = () => [audioTrack] as any;
+    source.srcObject = stream;
+    Object.defineProperties(source, { readyState: { configurable: true, value: 2 }, videoWidth: { configurable: true, value: 1280 }, videoHeight: { configurable: true, value: 720 } });
+    return { source, presentation, nativeEnter, stop, clone, capture, view };
+  };
+  it("primes one muted frame without cloning audio or continuously drawing before the tap", async () => {
+    const { source, presentation, clone } = setupSafari();
+    fireEvent.playing(source);
+    expect(presentation.srcObject).toBeTruthy();
+    expect(presentation.muted).toBe(true);
+    expect(drawPresentationFrame).toHaveBeenCalledOnce();
+    await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+    expect(drawPresentationFrame).toHaveBeenCalledOnce();
+    expect(clone).not.toHaveBeenCalled();
+  });
+  it("requests native fullscreen synchronously from the tap after metadata, retains mute, and cleans up on exit", async () => {
+    const { source, presentation, nativeEnter, clone, stop } = setupSafari();
+    fireEvent.playing(source);
+    Object.defineProperty(presentation, "readyState", { configurable: true, value: 2 });
+    nativeEnter.mockImplementation(() => {
+      Object.defineProperty(presentation, "webkitDisplayingFullscreen", { configurable: true, value: true });
+      presentation.dispatchEvent(new Event("webkitbeginfullscreen"));
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(nativeEnter).toHaveBeenCalledOnce();
+    expect(clone).toHaveBeenCalledOnce();
+    expect(presentation.muted).toBe(true);
+    expect(screen.getByRole("button", { name: "Exit full screen" })).toHaveAttribute("aria-pressed", "true");
+    act(() => {
+      Object.defineProperty(presentation, "webkitDisplayingFullscreen", { configurable: true, value: false });
+      presentation.dispatchEvent(new Event("webkitendfullscreen"));
+    });
+    expect(stop).toHaveBeenCalled();
+    expect(source.muted).toBe(true);
+    expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveFocus();
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(nativeEnter).toHaveBeenCalledTimes(2);
+  });
+  it("keeps its label truthful while Safari metadata is not ready", () => {
+    const { source, nativeEnter } = setupSafari();
+    fireEvent.playing(source);
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(nativeEnter).not.toHaveBeenCalled();
+    expect(screen.getByText("Video is getting ready. Try Full screen again.")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Enter full screen" })).toHaveAttribute("aria-pressed", "false");
+  });
+  it("keeps metadata preparation across early repeated taps", () => {
+    const { source, presentation } = setupSafari();
+    fireEvent.playing(source);
+    const prepared = presentation.srcObject;
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(presentation.srcObject).toBe(prepared);
+    expect(HTMLCanvasElement.prototype.captureStream).toHaveBeenCalledOnce();
+  });
+  it("plays audio only through the active presentation and restores the latest mute choice", async () => {
+    const { source, presentation, nativeEnter } = setupSafari();
+    fireEvent.playing(source);
+    Object.defineProperty(presentation, "readyState", { configurable: true, value: 2 });
+    nativeEnter.mockImplementation(() => {
+      Object.defineProperty(presentation, "webkitDisplayingFullscreen", { configurable: true, value: true });
+      presentation.dispatchEvent(new Event("webkitbeginfullscreen"));
+    });
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Turn on live audio" })));
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    expect(source.muted).toBe(true); expect(presentation.muted).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Mute live audio" }));
+    expect(source.muted).toBe(true); expect(presentation.muted).toBe(true);
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Turn on live audio" })));
+    expect(source.muted).toBe(true); expect(presentation.muted).toBe(false);
+    act(() => { Object.defineProperty(presentation, "webkitDisplayingFullscreen", { configurable: true, value: false }); presentation.dispatchEvent(new Event("webkitendfullscreen")); });
+    expect(source.muted).toBe(false);
+  });
+  it("replaces cloned audio after a new source stream reconnects", async () => {
+    const { source, presentation, stop, capture } = setupSafari();
+    fireEvent.playing(source);
+    Object.defineProperty(presentation, "readyState", { configurable: true, value: 2 });
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    const nextClone = vi.fn(() => ({kind: "audio", stop: vi.fn()}));
+    const nextTrack = {kind: "audio", clone: nextClone};
+    const replacement = new MediaStream(); replacement.getAudioTracks = () => [nextTrack] as any;
+    source.srcObject = replacement;
+    await act(async () => { await vi.advanceTimersByTimeAsync(260); });
+    expect(nextClone).toHaveBeenCalledOnce();
+    expect(stop).toHaveBeenCalled();
+    expect(capture.getAudioTracks()).toHaveLength(1);
+  });
+  it("cleans the compositor when Safari leaves PiP through its native controls", () => {
+    const { source, presentation, stop } = setupSafari();
+    fireEvent.playing(source);
+    Object.defineProperty(presentation, "readyState", { configurable: true, value: 2 });
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    act(() => { Object.defineProperty(presentation, "webkitPresentationMode", { configurable: true, value: "picture-in-picture" }); presentation.dispatchEvent(new Event("webkitpresentationmodechanged")); });
+    expect(screen.getByRole("button", { name: "Return floating video" })).toHaveAttribute("aria-pressed", "true");
+    act(() => { Object.defineProperty(presentation, "webkitPresentationMode", { configurable: true, value: "inline" }); presentation.dispatchEvent(new Event("webkitpresentationmodechanged")); });
+    expect(stop).toHaveBeenCalled(); expect(presentation.srcObject).toBeNull();
+    expect(screen.getByRole("button", { name: "Float live video" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("keeps the presentation stream when Safari moves from fullscreen into PiP and back", () => {
+    const { source, presentation, nativeEnter, stop } = setupSafari();
+    fireEvent.playing(source);
+    Object.defineProperty(presentation, "readyState", { configurable: true, value: 2 });
+    nativeEnter.mockImplementation(() => {
+      Object.defineProperties(presentation, {
+        webkitDisplayingFullscreen: { configurable: true, value: true },
+        webkitPresentationMode: { configurable: true, value: "fullscreen" },
+      });
+      presentation.dispatchEvent(new Event("webkitbeginfullscreen"));
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Enter full screen" }));
+    const prepared = presentation.srcObject;
+    act(() => {
+      Object.defineProperties(presentation, {
+        webkitDisplayingFullscreen: { configurable: true, value: false },
+        webkitPresentationMode: { configurable: true, value: "picture-in-picture" },
+      });
+      presentation.dispatchEvent(new Event("webkitendfullscreen"));
+      presentation.dispatchEvent(new Event("webkitpresentationmodechanged"));
+    });
+    expect(presentation.srcObject).toBe(prepared);
+    expect(stop).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Return floating video" })).toHaveAttribute("aria-pressed", "true");
+    act(() => {
+      Object.defineProperties(presentation, {
+        webkitDisplayingFullscreen: { configurable: true, value: true },
+        webkitPresentationMode: { configurable: true, value: "fullscreen" },
+      });
+      presentation.dispatchEvent(new Event("leavepictureinpicture"));
+      presentation.dispatchEvent(new Event("webkitbeginfullscreen"));
+      presentation.dispatchEvent(new Event("webkitpresentationmodechanged"));
+    });
+    expect(presentation.srcObject).toBe(prepared);
+    expect(stop).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Exit full screen" })).toHaveAttribute("aria-pressed", "true");
+  });
+
 });

@@ -842,12 +842,12 @@
       function communityActivationMode() {
         try {
           const requested = new URLSearchParams(window.location.search).get('community');
-          if (requested === 'preview') return 'preview';
-          if (requested === 'live') return 'live';
+          const local = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          if (local && requested === 'preview') return 'preview';
         } catch {
           return 'off';
         }
-        return window.COURTSIDEVIEW_FANVIEW_COMMUNITY_ENABLED === true ? 'live' : 'off';
+        return 'off';
       }
       async function mountCommunity(row) {
         const mode = communityActivationMode();

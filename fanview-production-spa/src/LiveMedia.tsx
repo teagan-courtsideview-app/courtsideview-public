@@ -61,6 +61,9 @@ type SafariVideoElement = HTMLVideoElement & {
 type PresentationStream = {
   cleanup: () => void;
   video: SafariVideoElement;
+  source: MediaProvider | null;
+  activate: () => void;
+  isActive: () => boolean;
 };
 
 const viewerId = (): string => {
@@ -121,30 +124,9 @@ function useViewerPresence(
   }, [enabled, liveWorkerUrl, shareId]);
 }
 
-async function enterStageFullscreen(
-  element: HTMLElement,
-): Promise<"document" | null> {
-  if (element.requestFullscreen) {
-    try {
-      await element.requestFullscreen();
-      return "document";
-    } catch {
-      // iPhone browsers can expose this API while rejecting non-video elements.
-    }
-  }
-  const request = (
-    element as HTMLElement & { webkitRequestFullscreen?: () => void }
-  ).webkitRequestFullscreen;
-  if (request) {
-    try {
-      request.call(element);
-      return "document";
-    } catch {
-      // The presentation-video or CSS fallback handles this browser.
-    }
-  }
-  return null;
-}
+const documentFullscreenElement = (): Element | null =>
+  document.fullscreenElement ||
+  (document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement || null;
 
 const supportsPictureInPicture = (video: SafariVideoElement): boolean =>
   Boolean(
@@ -159,25 +141,25 @@ async function togglePictureInPicture(
 ): Promise<boolean> {
   if (document.pictureInPictureElement === video) {
     await document.exitPictureInPicture();
-    return false;
+    return document.pictureInPictureElement === video;
   }
   if (video.webkitPresentationMode === "picture-in-picture") {
     video.webkitSetPresentationMode?.("inline");
-    return false;
+    return (video as SafariVideoElement).webkitPresentationMode === "picture-in-picture";
   }
   if (
     document.pictureInPictureEnabled &&
     typeof video.requestPictureInPicture === "function"
   ) {
     await video.requestPictureInPicture();
-    return true;
+    return document.pictureInPictureElement === video;
   }
   if (
     video.webkitSupportsPresentationMode?.("picture-in-picture") &&
     video.webkitSetPresentationMode
   ) {
     video.webkitSetPresentationMode("picture-in-picture");
-    return true;
+    return (video as SafariVideoElement).webkitPresentationMode === "picture-in-picture";
   }
   return false;
 }
@@ -201,8 +183,15 @@ function CloudflareVideo({
   const presentationCanvasRef = useRef<HTMLCanvasElement>(null);
   const presentationVideoRef = useRef<HTMLVideoElement>(null);
   const presentationCleanupRef = useRef<(() => void) | null>(null);
+  const presentationStreamRef = useRef<PresentationStream | null>(null);
+  const [presentationActive, setPresentationActive] = useState(false);
+  const fullscreenButtonRef = useRef<HTMLButtonElement>(null);
+  const fullscreenPendingRef = useRef(false);
+  const fullscreenTimeoutRef = useRef<number | undefined>(undefined);
+  const [fullscreenPending, setFullscreenPending] = useState(false);
+  const [fullscreenNotice, setFullscreenNotice] = useState("");
   const fullscreenModeRef = useRef<
-    "none" | "document" | "presentation" | "css"
+    "none" | "document" | "presentation"
   >("none");
   const matchRef = useRef(match);
   const rotationRef = useRef(rotation);
@@ -211,6 +200,8 @@ function CloudflareVideo({
   const scoreboardPositionRef = useRef(scoreboardPosition);
   const scoreboardSizeRef = useRef(scoreboardSize);
   const [muted, setMuted] = useState(true);
+  const mutedRef = useRef(true);
+  mutedRef.current = muted;
   const [playbackPaused, setPlaybackPaused] = useState(true);
   const [needsPlaybackGesture, setNeedsPlaybackGesture] = useState(false);
   const playbackGestureRef = useRef(false);
@@ -221,11 +212,13 @@ function CloudflareVideo({
     return () => onVideoConfirmed?.(false);
   }, [status, playbackPaused, onVideoConfirmed]);
   const [fullscreenMode, setFullscreenMode] = useState<
-    "none" | "document" | "presentation" | "css"
+    "none" | "document" | "presentation"
   >("none");
   const [pictureInPictureAvailable, setPictureInPictureAvailable] =
     useState(false);
   const [floating, setFloating] = useState(false);
+  const floatingRef = useRef(false);
+  floatingRef.current = floating;
   const fullscreen = fullscreenMode !== "none";
   const visualQa =
     shareId === "fanview-spa-fixture" &&
@@ -501,9 +494,10 @@ function CloudflareVideo({
   const stopPresentation = useCallback(() => {
     presentationCleanupRef.current?.();
     presentationCleanupRef.current = null;
+    presentationStreamRef.current = null;
   }, []);
 
-  const startPresentation = useCallback((): PresentationStream | null => {
+  const startPresentation = useCallback((prepareOnly = false): PresentationStream | null => {
     const source = videoRef.current;
     const canvas = presentationCanvasRef.current;
     const presentation =
@@ -511,26 +505,35 @@ function CloudflareVideo({
     const stage = frameRef.current?.closest<HTMLElement>(".match-stage");
     if (!source || !canvas || !presentation || !stage) return null;
     if (typeof canvas.captureStream !== "function") return null;
-
-    stopPresentation();
-    const bounds = stage.getBoundingClientRect();
-    const stageWidth = Math.max(1, bounds.width || window.innerWidth);
-    const stageHeight = Math.max(1, bounds.height || window.innerHeight);
-    if (stageWidth >= stageHeight) {
-      canvas.width = 1280;
-      canvas.height = Math.max(
-        360,
-        Math.round((1280 * stageHeight) / stageWidth),
-      );
-    } else {
-      canvas.height = 1280;
-      canvas.width = Math.max(
-        360,
-        Math.round((1280 * stageWidth) / stageHeight),
-      );
+    const prepared = presentationStreamRef.current;
+    if (prepared && prepared.source === source.srcObject && presentation.srcObject) {
+      if (!prepareOnly) prepared.activate();
+      return prepared;
     }
+    stopPresentation();
+    const resizeCanvas = () => {
+      const bounds = stage.getBoundingClientRect();
+      const stageWidth = Math.max(1, bounds.width || window.innerWidth);
+      const stageHeight = Math.max(1, bounds.height || window.innerHeight);
+      if (stageWidth >= stageHeight) {
+        canvas.width = 1280;
+        canvas.height = Math.max(
+          360,
+          Math.round((1280 * stageHeight) / stageWidth),
+        );
+      } else {
+        canvas.height = 1280;
+        canvas.width = Math.max(
+          360,
+          Math.round((1280 * stageWidth) / stageHeight),
+        );
+      }
 
+    };
+    resizeCanvas();
     let active = true;
+    let activated = false;
+    let safetyDraw: number | undefined;
     let frameRequest: number | null = null;
     let lastDrawAt = 0;
     const frameSource = source as HTMLVideoElement & {
@@ -541,6 +544,7 @@ function CloudflareVideo({
     };
     const draw = () => {
       if (!active) return;
+      if (activated) syncAudioTracks();
       drawPresentationFrame(
         canvas,
         source,
@@ -560,28 +564,51 @@ function CloudflareVideo({
         drawNextVideoFrame();
       });
     };
-    draw();
-    drawNextVideoFrame();
-    const safetyDraw = window.setInterval(() => {
-      if (performance.now() - lastDrawAt >= 220) draw();
-    }, 250);
+    // One muted frame primes Safari metadata. Continuous drawing and audio
+    // begin only when the viewer asks for fullscreen or Float.
     const stream = canvas.captureStream(30);
-    const sourceStream =
-      source.srcObject instanceof MediaStream ? source.srcObject : null;
-    sourceStream?.getAudioTracks().forEach((track) => {
-      stream.addTrack(track.clone());
-    });
-    const sourceWasMuted = source.muted;
+    let sourceAudioTracks: MediaStreamTrack[] = [];
+    let clonedAudioTracks: MediaStreamTrack[] = [];
+    const syncAudioTracks = () => {
+      const sourceStream = source.srcObject instanceof MediaStream ? source.srcObject : null;
+      const tracks = sourceStream?.getAudioTracks() ?? [];
+      if (tracks.length === sourceAudioTracks.length && tracks.every((track, index) => track === sourceAudioTracks[index])) return;
+      clonedAudioTracks.forEach(track => { stream.removeTrack(track); track.stop(); });
+      sourceAudioTracks = tracks;
+      clonedAudioTracks = tracks.map(track => track.clone());
+      clonedAudioTracks.forEach(track => stream.addTrack(track));
+      presentation.muted = mutedRef.current || clonedAudioTracks.length === 0;
+    };
     presentation.srcObject = stream;
-    presentation.muted = stream.getAudioTracks().length === 0;
+    presentation.muted = true;
     presentation.volume = 1;
-    source.muted = true;
+    // Capture must exist before the priming paint. Safari does not have to
+    // deliver a canvas frame that was drawn before captureStream was created.
+    draw();
     void presentation.play().catch(() => undefined);
+    const activate = () => {
+      if (!active || activated) return;
+      activated = true;
+      setPresentationActive(true);
+      syncAudioTracks();
+      presentation.muted = mutedRef.current || stream.getAudioTracks().length === 0;
+      source.muted = true;
+      resizeCanvas();
+      draw();
+      drawNextVideoFrame();
+      safetyDraw = window.setInterval(() => {
+        if (performance.now() - lastDrawAt >= 220) draw();
+      }, 250);
+      window.addEventListener("resize", resizeCanvas);
+      void presentation.play().catch(() => undefined);
+    };
 
     const cleanup = () => {
       if (!active) return;
       active = false;
+      if (activated) setPresentationActive(false);
       window.clearInterval(safetyDraw);
+      window.removeEventListener("resize", resizeCanvas);
       if (
         frameRequest !== null &&
         frameSource.cancelVideoFrameCallback
@@ -589,55 +616,116 @@ function CloudflareVideo({
         frameSource.cancelVideoFrameCallback(frameRequest);
       }
       stream.getTracks().forEach((track) => track.stop());
-      source.muted = sourceWasMuted;
-      setMuted(sourceWasMuted);
+      if (activated) source.muted = mutedRef.current;
       if (presentation.srcObject === stream) {
         presentation.pause();
         presentation.srcObject = null;
       }
     };
     presentationCleanupRef.current = cleanup;
-    return { cleanup, video: presentation };
+    const result = { cleanup, video: presentation, source: source.srcObject, activate, isActive: () => activated };
+    presentationStreamRef.current = result;
+    if (!prepareOnly) activate();
+    return result;
   }, [stopPresentation]);
+
+  useEffect(() => {
+    const source = videoRef.current;
+    const presentation = presentationVideoRef.current as SafariVideoElement | null;
+    const documentApi = document.fullscreenEnabled || (document as Document & { webkitFullscreenEnabled?: boolean }).webkitFullscreenEnabled;
+    const needsNativeFullscreen = !documentApi && presentation?.webkitEnterFullscreen;
+    const needsRotatedFloat = Boolean(rotation && presentation && supportsPictureInPicture(presentation));
+    if (!source || !presentation || (!needsNativeFullscreen && !needsRotatedFloat)) return;
+    const prepare = () => {
+      if (document.visibilityState === "hidden" || source.readyState < 2 || !source.videoWidth || !source.srcObject) return;
+      if (presentationStreamRef.current?.isActive()) return;
+      if (fullscreenModeRef.current === "none") {
+        try { startPresentation(true); } catch { /* Fullscreen keeps a retry path. */ }
+      }
+    };
+    source.addEventListener("loadeddata", prepare);
+    source.addEventListener("playing", prepare);
+    document.addEventListener("visibilitychange", prepare);
+    prepare();
+    return () => {
+      source.removeEventListener("loadeddata", prepare);
+      source.removeEventListener("playing", prepare);
+      document.removeEventListener("visibilitychange", prepare);
+    };
+  }, [rotation, startPresentation]);
 
   useEffect(() => {
     const video = videoRef.current as SafariVideoElement | null;
     const presentation =
       presentationVideoRef.current as SafariVideoElement | null;
     const stage = frameRef.current?.closest<HTMLElement>(".match-stage");
+    const finishRequest = () => {
+      window.clearTimeout(fullscreenTimeoutRef.current);
+      fullscreenPendingRef.current = false;
+      setFullscreenPending(false);
+      setFullscreenNotice("");
+    };
     const changed = () => {
-      const active =
-        document.fullscreenElement ||
-        (
-          document as Document & {
-            webkitFullscreenElement?: Element | null;
-          }
-        ).webkitFullscreenElement;
-      if (
-        !active &&
-        !presentation?.webkitDisplayingFullscreen &&
-        !stage?.classList.contains("is-web-fullscreen")
-      ) {
+      if (documentFullscreenElement() === stage) {
+        finishRequest();
+        setFullscreenMode("document");
+      } else if (!presentation?.webkitDisplayingFullscreen) {
+        const wasFullscreen = fullscreenModeRef.current !== "none";
         setFullscreenMode("none");
+        if (wasFullscreen) { finishRequest(); fullscreenButtonRef.current?.focus({ preventScroll: true }); }
       }
     };
-    const beganVideoFullscreen = () => setFullscreenMode("presentation");
-    const endedVideoFullscreen = () => {
-      setFullscreenMode("none");
+    const beganVideoFullscreen = () => { finishRequest(); setFullscreenMode("presentation"); };
+    const presentationIsFloating = () =>
+      document.pictureInPictureElement === presentation ||
+      presentation?.webkitPresentationMode === "picture-in-picture";
+    const presentationIsFullscreen = () => Boolean(
+      presentation?.webkitDisplayingFullscreen ||
+      presentation?.webkitPresentationMode === "fullscreen",
+    );
+    const releaseInlinePresentation = () => {
+      if (presentationIsFloating() || presentationIsFullscreen()) return;
       stopPresentation();
       void resumeVideo();
+    };
+    const endedVideoFullscreen = () => {
+      finishRequest();
+      setFullscreenMode("none");
+      // Safari can leave fullscreen by moving the same video into PiP. Do
+      // not stop the captured track while the OS player still owns it.
+      if (presentationIsFloating()) {
+        floatingRef.current = true;
+        setFloating(true);
+        return;
+      }
+      releaseInlinePresentation();
+      fullscreenButtonRef.current?.focus({ preventScroll: true });
+      // Re-prime a single frame for the next explicit fullscreen tap.
+      try { startPresentation(true); } catch { /* Retry is still available. */ }
     };
     const enteredPictureInPicture = () => setFloating(true);
     const leftPictureInPicture = () => {
+      floatingRef.current = false;
       setFloating(false);
-      stopPresentation();
-      void resumeVideo();
+      if (presentationIsFullscreen()) {
+        finishRequest();
+        setFullscreenMode("presentation");
+        return;
+      }
+      releaseInlinePresentation();
     };
-    const presentationModeChanged = () =>
-      setFloating(
-        video?.webkitPresentationMode === "picture-in-picture" ||
-          presentation?.webkitPresentationMode === "picture-in-picture",
-      );
+    const presentationModeChanged = () => {
+      const floatingNow = video?.webkitPresentationMode === "picture-in-picture" || presentation?.webkitPresentationMode === "picture-in-picture";
+      const wasFloating = floatingRef.current;
+      floatingRef.current = floatingNow;
+      setFloating(floatingNow);
+      if (presentationIsFullscreen()) {
+        finishRequest();
+        setFullscreenMode("presentation");
+      } else if (wasFloating && !floatingNow) {
+        releaseInlinePresentation();
+      }
+    };
     const updatePictureInPictureAvailability = () =>
       setPictureInPictureAvailable(
         Boolean(
@@ -651,17 +739,8 @@ function CloudflareVideo({
               : supportsPictureInPicture(video)),
         ),
       );
-    const escape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      if (stage?.classList.contains("is-web-fullscreen")) {
-        stage.classList.remove("is-web-fullscreen");
-        document.body.classList.remove("fanview-fullscreen");
-        setFullscreenMode("none");
-      }
-    };
     document.addEventListener("fullscreenchange", changed);
     document.addEventListener("webkitfullscreenchange", changed);
-    document.addEventListener("keydown", escape);
     video?.addEventListener("loadedmetadata", updatePictureInPictureAvailability);
     presentation?.addEventListener(
       "webkitbeginfullscreen",
@@ -693,7 +772,6 @@ function CloudflareVideo({
     return () => {
       document.removeEventListener("fullscreenchange", changed);
       document.removeEventListener("webkitfullscreenchange", changed);
-      document.removeEventListener("keydown", escape);
       video?.removeEventListener(
         "loadedmetadata",
         updatePictureInPictureAvailability,
@@ -730,11 +808,10 @@ function CloudflareVideo({
         "webkitpresentationmodechanged",
         presentationModeChanged,
       );
-      stage?.classList.remove("is-web-fullscreen");
-      document.body.classList.remove("fanview-fullscreen");
+      window.clearTimeout(fullscreenTimeoutRef.current);
       stopPresentation();
     };
-  }, [resumeVideo, stopPresentation]);
+  }, [resumeVideo, startPresentation, stopPresentation]);
 
   const toggleMute = async () => {
     const video = videoRef.current;
@@ -745,85 +822,109 @@ function CloudflareVideo({
     const attempt = ++playbackAttemptRef.current;
     const isCurrent = () => videoRef.current === video && video.srcObject === source && playbackAttemptRef.current === attempt;
     const nextMuted = !muted;
-    video.muted = nextMuted;
+    const presenting = presentationStreamRef.current?.isActive() === true;
+    video.muted = presenting ? true : nextMuted;
     video.volume = 1;
-    if (presentation?.srcObject) {
+    if (presenting && presentation?.srcObject) {
       presentation.muted = nextMuted;
       presentation.volume = 1;
     }
     setMuted(nextMuted);
     if (nextMuted) return;
     try {
-      await video.play();
+      await (presenting && presentation ? presentation : video).play();
       if (!isCurrent()) return;
       setMuted(false);
     } catch {
       if (!isCurrent()) return;
       video.muted = true;
+      if (presentation) presentation.muted = true;
       setMuted(true);
     }
   };
 
-  const toggleFullscreen = async () => {
-    const frame = frameRef.current;
-    const stage = frame?.closest<HTMLElement>(".match-stage");
-    const presentation =
-      presentationVideoRef.current as SafariVideoElement | null;
-    if (!frame || !stage || !presentation) return;
-    if (fullscreen) {
-      if (stage.classList.contains("is-web-fullscreen")) {
-        stage.classList.remove("is-web-fullscreen");
-        document.body.classList.remove("fanview-fullscreen");
-      } else if (
-        presentation.webkitDisplayingFullscreen &&
-        presentation.webkitExitFullscreen
-      ) {
-        presentation.webkitExitFullscreen();
-      } else if (document.fullscreenElement && document.exitFullscreen) {
-        await document.exitFullscreen().catch(() => undefined);
-      } else {
-        const webkitExit = (
-          document as Document & { webkitExitFullscreen?: () => void }
-        ).webkitExitFullscreen;
-        webkitExit?.call(document);
+  const toggleFullscreen = () => {
+    const stage = frameRef.current?.closest<HTMLElement>(".match-stage");
+    const presentation = presentationVideoRef.current as SafariVideoElement | null;
+    if (!stage || !presentation || fullscreenPendingRef.current) return;
+    setFullscreenNotice("");
+    const fail = (message = "Full screen couldn’t open. Try again.", keepPreparation = false) => {
+      window.clearTimeout(fullscreenTimeoutRef.current);
+      fullscreenPendingRef.current = false;
+      setFullscreenPending(false);
+      setFullscreenNotice(message);
+      if (!keepPreparation && fullscreenModeRef.current === "none" && !presentation.webkitDisplayingFullscreen) {
+        stopPresentation();
+        // A rejected request must not leave a compositor or a muted source running.
+        if (presentation.webkitEnterFullscreen && videoRef.current?.srcObject) {
+          try { startPresentation(true); } catch { /* The next tap can retry. */ }
+        }
       }
-      setFullscreenMode("none");
-      stopPresentation();
-      void resumeVideo();
-      return;
-    }
-    const stageMode = await enterStageFullscreen(stage);
-    if (stageMode) {
-      setFullscreenMode(stageMode);
-      return;
-    }
-    const stream = startPresentation();
-    if (
-      stream &&
-      stream.video.webkitEnterFullscreen &&
-      stream.video.webkitSupportsFullscreen !== false
-    ) {
-      try {
-        stream.video.webkitEnterFullscreen();
-        window.setTimeout(() => {
-          if (stream.video.webkitDisplayingFullscreen) {
-            setFullscreenMode("presentation");
-            return;
+    };
+    const pending = () => {
+      fullscreenPendingRef.current = true;
+      setFullscreenPending(true);
+      fullscreenTimeoutRef.current = window.setTimeout(() => {
+        const active = documentFullscreenElement() === stage || Boolean(presentation.webkitDisplayingFullscreen);
+        if (active !== fullscreen) {
+          fullscreenPendingRef.current = false; setFullscreenPending(false);
+          setFullscreenMode(active ? (documentFullscreenElement() === stage ? "document" : "presentation") : "none");
+          if (!active) {
+            stopPresentation();
+            void resumeVideo();
+            fullscreenButtonRef.current?.focus({ preventScroll: true });
           }
-          if (fullscreenModeRef.current !== "none") return;
-          stream.cleanup();
-          stage.classList.add("is-web-fullscreen");
-          document.body.classList.add("fanview-fullscreen");
-          setFullscreenMode("css");
-        }, 300);
-        return;
-      } catch {
-        stream.cleanup();
-      }
+          return;
+        }
+        fail(fullscreen ? "Full screen couldn’t close. Try again." : undefined);
+      }, 1_500);
+    };
+    if (fullscreen) {
+      pending();
+      try {
+        if (presentation.webkitDisplayingFullscreen && presentation.webkitExitFullscreen) {
+          presentation.webkitExitFullscreen();
+        } else if (document.fullscreenElement === stage && document.exitFullscreen) {
+          void document.exitFullscreen().catch(() => fail("Full screen couldn’t close. Try again."));
+        } else {
+          const exit = (document as Document & { webkitExitFullscreen?: () => void }).webkitExitFullscreen;
+          if (exit) exit.call(document); else fail("Full screen couldn’t close. Try again.");
+        }
+      } catch { fail("Full screen couldn’t close. Try again."); }
+      return;
     }
-    stage.classList.add("is-web-fullscreen");
-    document.body.classList.add("fanview-fullscreen");
-    setFullscreenMode("css");
+    // iPhone requires a metadata-ready video and a direct user gesture. Do not
+    // await a rejected element request before invoking its native video API.
+    const elementFullscreenEnabled = document.fullscreenEnabled ||
+      (document as Document & { webkitFullscreenEnabled?: boolean }).webkitFullscreenEnabled;
+    if (!elementFullscreenEnabled && presentation.webkitEnterFullscreen) {
+      let stream: PresentationStream | null = null;
+      try { stream = startPresentation(true); } catch { fail(); return; }
+      if (!stream) {
+        fail("Full screen isn’t supported in this browser.", true); return;
+      }
+      if (stream.video.readyState < 1) {
+        fail("Video is getting ready. Try Full screen again.", true); return;
+      }
+      if (stream.video.webkitSupportsFullscreen === false) {
+        fail("Full screen isn’t supported in this browser.", true); return;
+      }
+      pending();
+      try {
+        stream.activate();
+        stream.video.webkitEnterFullscreen?.();
+      } catch { fail(); stopPresentation(); }
+      return;
+    }
+    pending();
+    try {
+      if (stage.requestFullscreen) {
+        void stage.requestFullscreen().catch(() => fail());
+      } else {
+        const request = (stage as HTMLElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen;
+        if (request) request.call(stage); else fail("Full screen isn’t supported in this browser.");
+      }
+    } catch { fail(); }
   };
 
   const toggleFloatingVideo = async () => {
@@ -839,16 +940,23 @@ function CloudflareVideo({
         const target = active
           ? (presentationVideoRef.current as SafariVideoElement)
           : source;
-        setFloating(await togglePictureInPicture(target));
-        stopPresentation();
+        const remainsFloating = await togglePictureInPicture(target);
+        setFloating(remainsFloating);
+        if (!remainsFloating) stopPresentation();
         return;
       }
-      const target = rotation ? startPresentation()?.video : source;
+      const prepared = rotation ? startPresentation(true) : null;
+      const target = rotation ? prepared?.video : source;
       if (!target) return;
+      if (target.readyState < 2) {
+        setFullscreenNotice("Video is getting ready. Try Float again.");
+        return;
+      }
+      prepared?.activate();
       if (target === source && source.srcObject instanceof MediaStream) {
-        source.muted = source.srcObject.getAudioTracks().length === 0;
+        // Moving video into PiP must not opt a muted viewer into audio.
+        source.muted = mutedRef.current;
         source.volume = 1;
-        setMuted(source.muted);
         void source.play().catch(() => undefined);
       }
       setFloating(await togglePictureInPicture(target));
@@ -869,7 +977,7 @@ function CloudflareVideo({
         className="live-media__video"
         controls={false}
         data-rotation={rotation}
-        muted={muted}
+        muted={muted || presentationActive}
         onPause={() => setPlaybackPaused(true)}
         onPlaying={() => setPlaybackPaused(false)}
         playsInline
@@ -898,6 +1006,7 @@ function CloudflareVideo({
         </button>
       ) : null}
       {status && !(playbackPaused && needsPlaybackGesture) ? <div className="live-media__status">{status}</div> : null}
+      {fullscreenNotice ? <div className="live-media__fullscreen-notice" role="status">{fullscreenNotice}</div> : null}
       <div className="media-controls" aria-label="Video controls">
         <button
           aria-label={muted ? "Turn on live audio" : "Mute live audio"}
@@ -941,6 +1050,8 @@ function CloudflareVideo({
           aria-label={fullscreen ? "Exit full screen" : "Enter full screen"}
           aria-pressed={fullscreen}
           className="media-control media-control--fullscreen"
+          aria-busy={fullscreenPending}
+          ref={fullscreenButtonRef}
           onClick={() => void toggleFullscreen()}
           type="button"
         >
