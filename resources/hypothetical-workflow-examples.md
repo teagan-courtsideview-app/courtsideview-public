@@ -48,6 +48,8 @@ It is not a claim of account-free access, guaranteed connectivity, a live camera
 
 Sources: https://www.courtsideviewapp.com/volleyball-score-keeper ; https://apps.apple.com/us/app/courtsideview/id6766532771
 
+**Current access, November 12, 2026.** Viewers with a valid FanView link and internet can follow in a browser without an account or app. Hosts sign in to publish or broadcast. Source: https://play.google.com/store/apps/details?id=app.courtsideview.android&hl=en_US
+
 ## Example C: player-stat tracking
 
 Hypothetical role: an adult recording player actions during a match.

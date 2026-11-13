@@ -7,9 +7,9 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://www.courtsideviewapp.com";
 
-const HOME_TITLE = "CourtsideView | Volleyball Match Day in One App";
-const HOME_DESCRIPTION = "CourtsideView is a volleyball score keeper and player stats app for live scores, rotations, rosters, and FanView updates on iPhone, iPad, and Android.";
-const SOCIAL_DESCRIPTION = "Score the match, track rotations and player stats, and share live FanView updates with the whole volleyball family.";
+const HOME_TITLE = "CourtsideView | Volleyball Scores, Stats & Live Streaming";
+const HOME_DESCRIPTION = "Score volleyball, track player stats and rotations, and livestream for free with FanView. Download CourtsideView for iPhone, iPad, and Android.";
+const SOCIAL_DESCRIPTION = "Keep score, track volleyball player stats, and stream the match live for free with FanView. Fans watch in a browser without an app or account.";
 const SOCIAL_IMAGE = `${ORIGIN}/assets/website-20261023/social-preview.jpg`;
 const APPLE_BANNER = `app-id=6766532771, app-argument=${ORIGIN}/`;
 const APP_STORE_URL = "https://apps.apple.com/us/app/courtsideview/id6766532771";
@@ -32,6 +32,7 @@ const ROUTES = [
   "/press-release-courtsideview-volleyball-app-launch",
   "/privacy",
   "/support",
+  "/resources/volleyball-match-day-workflows.html",
 ];
 
 const ROUTE_FILES = new Map([
@@ -51,11 +52,12 @@ const ROUTE_FILES = new Map([
   ["/press-release-courtsideview-volleyball-app-launch", "press-release-courtsideview-volleyball-app-launch.html"],
   ["/privacy", "privacy.html"],
   ["/support", "support.html"],
+  ["/resources/volleyball-match-day-workflows.html", "resources/volleyball-match-day-workflows.html"],
 ]);
 
 const FAQ_QUESTIONS = [
   "What is the CourtsideView app?",
-  "Do fans need to install an app?",
+  "Do fans need an app or account to watch FanView?",
   "What is the difference between live scores and live video?",
   "How long does a FanView link work?",
   "What does CourtsideView cost?",
@@ -451,7 +453,7 @@ const sitemapEntries = [...sitemap.matchAll(/<url>\s*([\s\S]*?)<\/url>/gi)].map(
 }));
 const expectedCanonicalUrls = new Set(ROUTES.map((route) => route === "/" ? `${ORIGIN}/` : `${ORIGIN}${route}`));
 const actualCanonicalUrls = new Set(sitemapEntries.map(({ loc }) => loc));
-if (sitemapEntries.length !== 16) fail(`sitemap.xml must contain exactly 16 URL entries (found ${sitemapEntries.length})`);
+if (sitemapEntries.length !== ROUTES.length) fail(`sitemap.xml must contain exactly ${ROUTES.length} URL entries (found ${sitemapEntries.length})`);
 const missingSitemapUrls = pathSetDifference(expectedCanonicalUrls, actualCanonicalUrls);
 const unexpectedSitemapUrls = pathSetDifference(actualCanonicalUrls, expectedCanonicalUrls);
 if (missingSitemapUrls.length || unexpectedSitemapUrls.length) {
@@ -461,7 +463,7 @@ const rootSitemapEntries = sitemapEntries.filter(({ loc }) => loc === `${ORIGIN}
 if (rootSitemapEntries.length !== 1) {
   fail(`sitemap must contain the homepage exactly once (found ${rootSitemapEntries.length})`);
 } else {
-  expectExact(rootSitemapEntries[0].lastmod, "2026-10-21", "homepage sitemap lastmod");
+  expectExact(rootSitemapEntries[0].lastmod, "2026-11-12", "homepage sitemap lastmod");
 }
 
 for (const [route, sourceFile] of ROUTE_FILES) {
@@ -512,5 +514,5 @@ if (failures.length) {
   for (const message of [...new Set(failures)]) console.error(`- ${message}`);
   process.exitCode = 1;
 } else {
-  console.log(`PASS homepage release gate: metadata, 1 H1, 4 schemas/FAQs, 15 internal routes, ${localFiles.size} local assets, 16 sitemap URLs/source files, robots, and Vercel routing.`);
+  console.log(`PASS homepage release gate: metadata, 1 H1, 4 schemas/FAQs, ${ROUTES.length} public routes, ${localFiles.size} local assets, ${sitemapEntries.length} sitemap URLs/source files, robots, and Vercel routing.`);
 }

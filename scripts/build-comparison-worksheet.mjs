@@ -8,8 +8,8 @@ const baseDir = path.dirname(fileURLToPath(import.meta.url));
 const outDir = process.argv[2] || path.join(os.tmpdir(), 'courtsideview-worksheet-build');
 await fs.mkdir(outDir, { recursive: true });
 
-const reviewed = new Date('2026-10-26T12:00:00Z');
-const facts = JSON.parse(await fs.readFile(path.join(baseDir, 'matchday-comparison-facts.json'), 'utf8')).facts.map(f => [f.product,f.topic,f.summary,f.limit,f.url]);
+const factRegister = JSON.parse(await fs.readFile(path.join(baseDir, 'matchday-comparison-facts.json'), 'utf8'));
+const { facts } = factRegister;
 
 const criteria = [
   'Score entry', 'Player statistics', 'Family follow-along', 'Video needs',
@@ -84,13 +84,13 @@ source.getRange('A2').values = [['Documented product facts']];
 source.getRange('A2').format.font = { name: 'Arial', size: 16, bold: true, color: green };
 source.getRange('A2:G2').format.rowHeight = 30;
 source.getRange('A2:G2').format.borders = { bottom: { style: 'thin', color: '#B5C8BE' } };
-source.getRange('A3').values = [['Reviewed October 26, 2026. Published by CourtsideView, one of the products compared.']];
+source.getRange('A3').values = [['Review dates are shown by fact. Published by CourtsideView, one of the products compared.']];
 source.getRange('A4').values = [['Documentation review; no measured performance winner. Prices, access and features can change.']];
 source.getRange('A3:A4').format.font = { name: 'Arial', size: 11, color: muted };
 source.getRange('A6:G6').values = [['Product', 'Topic', 'Documentation summary', 'Important limit', null, 'Primary source', 'Reviewed']];
 source.getRange('A6:D6').format = { fill: green, font: { name: 'Arial', size: 11, bold: true, color: '#FFFFFF' }, horizontalAlignment: 'center', wrapText: true, rowHeight: 30, borders: { insideVertical: { style: 'thin', color: '#FFFFFF' } } };
 source.getRange('F6:G6').format = { fill: green, font: { name: 'Arial', size: 11, bold: true, color: '#FFFFFF' }, horizontalAlignment: 'center', wrapText: true, rowHeight: 30, borders: { insideVertical: { style: 'thin', color: '#FFFFFF' } } };
-source.getRange('A7:G30').values = facts.map(([product,topic,summary,limit,url]) => [product,topic,summary,limit,null,url,reviewed]);
+source.getRange('A7:G30').values = facts.map(({product, topic, summary, limit, url, reviewed}) => [product, topic, summary, limit, null, url, new Date(reviewed + 'T12:00:00Z')]);
 source.getRange('A7:G30').format.rowHeight = 74;
 source.getRange('A7:D30').format.wrapText = true;
 source.getRange('F7:F30').format.wrapText = true;
@@ -172,7 +172,7 @@ await xlsx.save(xlsxPath);
 const csvEscape=v=>`"${String(v??'').replaceAll('"','""')}"`;
 const csvRows=[['Criterion','Importance (0-5)',...products.map(p=>`${p} rating (0-5)`),'Your notes'],...criteria.map(c=>[c,'','','','','',''])];
 await fs.writeFile(path.join(outDir,'volleyball-app-comparison-worksheet.csv'),'\uFEFF'+csvRows.map(r=>r.map(csvEscape).join(',')).join('\r\n')+'\r\n');
-await fs.writeFile(path.join(outDir,'comparison-facts.json'),JSON.stringify({reviewed:'2026-10-26',publisher:'CourtsideView',basis:'Documentation review; no hands-on performance benchmark',facts:facts.map(([product,topic,summary,limit,url])=>({product,topic,summary,limit,url,reviewed:'2026-10-26'}))},null,2));
+await fs.writeFile(path.join(outDir,'comparison-facts.json'),JSON.stringify(factRegister,null,2));
 const reopened=await SpreadsheetFile.importXlsx(await FileBlob.load(xlsxPath));
 const persistedMain=reopened.worksheets.getItem('Your comparison');
 const persistedScore=persistedMain.getRange('C6:F6').values;

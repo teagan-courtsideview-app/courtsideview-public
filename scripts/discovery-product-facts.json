@@ -1,16 +1,16 @@
 {
-  "reviewed": "2026-10-26",
+  "reviewed": "2026-11-12",
   "owner": "CourtsideView editorial team",
   "devices": "Available for iPhone, iPad and Android. Check the linked store for your device’s current compatibility.",
-  "price": "Free to download. Check current store availability and purchase terms; free download does not establish that every feature is always free.",
-  "accounts": "Local Scorekeeper scoring can start without an account. Courtside player tracking and other connected features require registration. FanView viewers and broadcasters need a registered account.",
-  "sharing": "FanView opens in a browser without installing CourtsideView. Publishing and receiving live updates require internet. Live video is optional and needs someone broadcasting.",
+  "price": "CourtsideView is free to download. Local Scorekeeper is free to use. FanView is free to broadcast and watch live.",
+  "accounts": "Start local Scorekeeper without an account. Create a free account for Courtside player tracking and to publish live scores or broadcast with FanView.",
+  "sharing": "Fans with a valid FanView link and internet can follow the live score and watch any active broadcast in a browser without an account or app. Sharing scores and starting video are separate actions.",
   "expiry": "The same FanView link stays with the game and expires 15 minutes after the game concludes. It is not a permanent replay archive.",
   "official": "For official scorer duties, use the system and training your event requires. A family scoring app does not automatically replace the event’s official scoresheet.",
   "sourceNotes": [
+    {"projectRecord": "docs/llm-optimization-brain/SEARCH-POSITIONING-2026-11-12.md", "supports": "The product owner confirmed no charge to broadcast or watch live on November 12, 2026."},
     {"url": "https://apps.apple.com/us/app/courtsideview/id6766532771", "supports": "Platforms, score-only matches without rosters, named stat actions, link lifetime, free download. Recording/storage claim omitted pending separate reconciliation."},
-    {"url": "https://play.google.com/store/apps/details?id=app.courtsideview.android", "supports": "Android destination; no new compatibility or pricing claim beyond current published baseline."},
-    {"projectRecord": "docs/design-brain/BRAIN.md", "supports": "October 21 controlling account policy: guest Scorekeeper only; FanView viewing and broadcasting require registration."},
+    {"url": "https://play.google.com/store/apps/details?id=app.courtsideview.android&hl=en_US", "supports": "Android availability, free guest Scorekeeper, registered Courtside and FanView broadcasting, and guest browser viewing with a valid link. Public listing checked November 12, 2026."},
     {"projectRecord": "docs/llm-optimization-brain/WORKFLOW-STUDY-PROTOCOL-2026-10-26.md", "supports": "Use fictional examples; no participant findings exist."}
   ]
 }

@@ -12,10 +12,12 @@ const publishedDate = "2026-06-24";
 const sourceCatalog = {
   courtsideview: { label: "CourtsideView", url: `${site}/` },
   scoreSimple: { label: "Volleyball Score Simple — developer App Store listing", url: "https://apps.apple.com/us/app/volleyball-score-simple/id1448289374", reviewNote: "Selected scoring and sync features checked October 26, 2026; no hands-on test or current rating/compatibility claim." },
-  varsityScore: { label: "Varsity Score — official features", url: "https://www.varsityscoreapp.com/features", reviewNote: "Selected score-overlay and recording features checked October 26, 2026; no hands-on test or comparative quality claim." },
+  varsityScore: { label: "Varsity Score — official features", url: "https://www.varsityscoreapp.com/features", reviewNote: "Score overlays, live streaming, recording, and browser viewing checked November 12, 2026. No hands-on testing." },
   gamechangerVolleyball: { label: "GameChanger Volleyball", url: "https://gc.com/volleyball" },
   gamechangerHelp: { label: "GameChanger volleyball scorekeeping help", url: "https://help.gc.com/hc/en-us/articles/30561565980173-Basic-Volleyball-Scorekeeping" },
   gamechangerTerms: { label: "GameChanger terms", url: "https://gc.com/terms" },
+  gamechangerWebViewing: { label: "GameChanger browser viewing and shared links", url: "https://help.gc.com/hc/en-us/articles/4946527969549-Watching-Live-Streams-on-the-Web", reviewNote: "Browser viewing, shared links, and audience settings checked November 12, 2026." },
+  gamechangerReplay: { label: "GameChanger full-event video access", url: "https://help.gc.com/hc/en-us/articles/360057075012-Full-Event-Videos", reviewNote: "Staff and non-staff replay access checked November 12, 2026." },
   solostats: { label: "SoloStats", url: "https://www.solostatslive.com/" },
   solostatsProducts: { label: "SoloStats product family", url: "https://www.solostatslive.com/products" },
   solostatsPricing: { label: "SoloStats pricing", url: "https://www.solostatslive.com/pricing" },
@@ -31,7 +33,10 @@ const sourceCatalog = {
   sportsengineAes: { label: "SportsEngine AES", url: "https://www.sportsengine.com/aes/" },
   leagueappsVolleyball: { label: "LeagueApps volleyball club software", url: "https://leagueapps.com/sport/volleyball/" },
   aes: { label: "Advanced Event Systems", url: "https://www.advancedeventsystems.com/" },
-  stattogether: { label: "Stat Together", url: "https://stattogether.com/" }
+  stattogether: { label: "Stat Together", url: "https://stattogether.com/" },
+  stattogetherStreaming: { label: "Stat Together streaming", url: "https://stattogether.com/streaming", reviewNote: "Separate iOS streaming app, scoreboard overlays, and team-site viewing checked November 12, 2026. No hands-on testing." },
+  solostatsLive: { label: "SoloStats Live — developer Google Play listing", url: "https://play.google.com/store/apps/details?id=com.rotate123.solostatslive", reviewNote: "Live stat capture and subscription-based stat sharing checked November 12, 2026." },
+  solostats123: { label: "SoloStats123 — developer Google Play listing", url: "https://play.google.com/store/apps/details?id=com.rotate123.solostats123", reviewNote: "Supported player stats and rotation tracking checked November 12, 2026." }
 };
 
 // Only these exact primary pages were readable during the October 21 desk review.
@@ -39,6 +44,12 @@ for (const key of ["courtsideview", "gamechangerVolleyball", "solostats", "istat
   sourceCatalog[key].reviewNote = "Selected product description checked October 21, 2026; pricing and complete feature coverage not audited.";
 }
 sourceCatalog.courtsideview.url = `${site}/courtsideview-app`;
+sourceCatalog.courtsideview.reviewNote = "Scorekeeper, Courtside player stats, and FanView access reviewed November 12, 2026.";
+sourceCatalog.gamechangerVolleyball.reviewNote = "Volleyball scoring, stats, streaming and free live viewing checked November 12, 2026.";
+sourceCatalog.gamechangerHelp.reviewNote = "Volleyball scoring and player attribution checked November 12, 2026.";
+sourceCatalog.solostatsProducts.reviewNote = "Stat capture, reporting, and fan stats products checked November 12, 2026.";
+sourceCatalog.solostatsPricing.reviewNote = "Free stat capture and paid reporting tiers checked November 12, 2026.";
+sourceCatalog.stattogether.reviewNote = "Collaborative stat entry and the separate streaming app checked November 12, 2026.";
 for (const key of ["sportsengineVolleyball", "sportsengineAes"]) {
   sourceCatalog[key].reviewNote = "Access returned HTTP 403 on October 21, 2026; current product details not reverified.";
 }
@@ -57,19 +68,19 @@ const guideLinks = [
 
 const appRows = {
   scoring: [
-    ["CourtsideView Scorekeeper", "Family match scoring with optional connected workflows", "Points, sets and timeouts without building a roster. Courtside is a separate player-tracking workflow; FanView adds family sharing.", "Local Scorekeeper can start without an account. Player tracking and FanView require registration; live sharing needs internet."],
+    ["CourtsideView Scorekeeper", "Free local scoring, with live sharing available", "Keep points, sets, timeouts, and the serving team without building a roster. Courtside adds player stats, and FanView shares live scores and optional video.", "Scorekeeper works without an account. Create an account to track players or publish FanView. Viewers need a valid link and internet."],
     ["Volleyball Score Simple", "A focused scoreboard", "Its developer lists point entry, Undo, serving indication, timeouts, side changes and syncing to other devices or its web app.", "Check the exact sync, device and match settings you need. Documentation review only; no hands-on comparison."],
-    ["Varsity Score", "Recording or streaming with a score overlay", "Its official features describe set-based overlays, score-only mode and local recording on iPhone and iPad.", "Choose around recording and viewing requirements. Verify current device and streaming options; no comparative video-quality test."],
-    ["GameChanger", "Broad youth-sports ecosystem with volleyball support", "Volleyball scoring, live streaming, team scheduling, communication, and multi-sport familiarity.", "Confirm which viewing and video features are included in your plan."],
+    ["Varsity Score", "Recording or streaming with a score overlay", "Its official features describe score-only mode, set-based video overlays, and live streaming from iPhone or iPad. Fans can watch in a browser.", "Check device compatibility and recording needs before choosing."],
+    ["GameChanger", "Scoring and video alongside team communication", "Volleyball scoring, player attribution, live streaming, schedules, and team messaging.", "GameChanger lists free volleyball live viewing. Audience settings control access, and full-game replay can require a subscription or Team Pass."],
     ["VolleyStation VS Score", "Tournament and event digital scoring fit", "Digital scorekeeping, event data sharing, and a clear push to replace paper score sheets.", "When a tournament, region, or club is already using the VolleyStation workflow."],
     ["VolleyWrite", "Scorer-table digital scoresheet style", "Rules-aware scoring support for scorers who want help avoiding common scoresheet mistakes.", "More formal scoring-table feel than parent follow-along app."],
     ["SoloStats", "When scorekeeping is tied to coach stat work", "Score tracking plus multiple stat-taking options in a coach-oriented stat platform.", "Stats depth may be more than a parent scorekeeper needs."]
   ],
   stats: [
-    ["CourtsideView", "Family-readable stats plus live match context", "Player stats, rotations, rosters, score, and FanView all stay tied to the same match story.", "Not trying to replace deep coach analytics suites for every program."],
-    ["SoloStats", "Coach-first stat tracking family", "Button-based, voice, and live stat workflows with reporting options for coaches and clubs.", "Designed primarily around stat takers and coaching analysis."],
+    ["CourtsideView", "Player stats alongside the match score", "Record kills, digs, blocks, aces, assists, and errors by player, with rotations and on-court positions. Share the score and optional live video through FanView.", "A person at the match records the stats. The FanView link is for watching the match and following live scores and activity."],
+    ["SoloStats", "Stat capture, reports, and season analysis", "Choose from multiple stat capture apps. SoloStats Live supports live score and stat sharing, and the SoloStats Video product links stats to video timestamps.", "The developer lists separate subscription features for live stat sharing and advanced reports. Check the exact app and plan."],
     ["iStatVball", "Advanced volleyball stat analysis option", "Advanced stats, RallyFlow, legacy stat recording, box scores, shot charts and trend graphs.", "More analytical depth and setup than many parents or casual scorekeepers need."],
-    ["Stat Together", "Collaborative coach stat workflow", "Positioned for coaches who want stats, live streaming, and collaboration.", "Less parent-first than sideline score-sharing tools."],
+    ["Stat Together", "Multiple people recording stats at once", "Stat Together documents collaborative stats and shot charts. Its iOS streaming companion can display score and lineup overlays from the stats app.", "Check the separate streaming app and current team terms."],
     ["GameChanger", "Multi-sport team app with stats context", "Useful when a team already wants GameChanger for communication, schedule, streaming, and scoring.", "GameChanger documents volleyball scoring and stats; compare the exact metrics you need."],
     ["VolleyStation", "Event-data bridge from scoring to partners", "Score data can support coaches, parents, and event partners in a tournament context.", "Most compelling when the event workflow uses VolleyStation."]
   ],
@@ -78,18 +89,19 @@ const appRows = {
     ["LeagueApps", "Club growth and registration stack", "LeagueApps documents volleyball club management, registration, payments, scheduling and communications.", "For administrators, less focused on live match scorekeeping."],
     ["TeamSnap", "Parent-friendly team management layer", "Registration, payments, schedules, communication, parent app, live streaming, and team organization.", "Not volleyball-specific scoring in the same focused way as match-day apps."],
     ["SportsEngine AES", "Event-selected system", "Use the system named in your event instructions.", "Its product page could not be reverified; confirm schedules, access and services with the organizer."],
-    ["GameChanger", "Multi-sport team app for clubs already standardized on it", "GameChanger documents volleyball scoring, stats, streaming and team communication.", "Check team adoption and the subscription needed for your viewing workflow."],
+    ["GameChanger", "Multi-sport team app for clubs already standardized on it", "GameChanger documents volleyball scoring, stats, streaming and team communication.", "Volleyball live viewing is free within the team’s audience settings. Check replay access separately."],
     ["CourtsideView", "Sideline scoring companion for clubs", "Clubs can pair admin platforms with family-first match scoring, FanView, Courtside mode, Big Mode, rosters, and player stats.", "Not a replacement for registration, payments, or compliance systems."]
   ],
   parents: [
-    ["CourtsideView", "Parents who want the live volleyball story", "Fast Scorekeeper, Courtside mode, FanView links, Big Mode scoreboard, rosters, rotations, and player stats in one volleyball-first app.", "Someone still needs to score or publish the FanView link."],
-    ["GameChanger", "When the team already lives in GameChanger", "Schedules, communication, streaming, and volleyball scoring in a familiar youth sports app.", "Confirm account and viewing requirements before sharing with family."],
+    ["CourtsideView", "Live volleyball scores and video for family", "Keep score or track player stats at the match. Family can follow the score and optional video through a valid FanView link, without installing the app or signing up.", "Someone at the match keeps score, shares the link, and starts video if needed."],
+    ["GameChanger", "When the team already uses GameChanger", "Schedules, communication, volleyball scoring, and free live volleyball viewing within the team’s audience settings.", "Check whether the stream is open to anyone or restricted to confirmed members. Full-game replay has separate access rules."],
     ["TeamSnap", "Schedules, chat, and parent logistics", "Strong parent experience around team communication, schedules, live streaming, highlights, and drills.", "Not primarily a volleyball scorekeeping app."],
     ["SportsEngine", "Club-connected parent accounts", "Follow your club’s account and app instructions; services were not reverified here.", "Depends on whether the club uses SportsEngine."],
     ["VolleyStation", "When the tournament uses VS Score", "Useful for parents when the event publishes scores and data through that tournament system.", "Not usually the parent-chosen app."]
   ],
   study: [
-    ["Family-first match day", "CourtsideView", "Designed around Scorekeeper, Courtside mode, rosters, player context, FanView, Big Mode, and sideline readability."],
+    ["Family match day", "CourtsideView", "Keep score and track volleyball player stats. Share live scores and optional video through a browser link."],
+    ["Live video with a scoreboard", "CourtsideView, GameChanger, Varsity Score, or Stat Together", "Compare how each handles score overlays, who can open a shared link, which devices can stream, and who can watch a replay."],
     ["Broad multi-sport team hub", "GameChanger or TeamSnap", "Strong when teams want one broader app for schedules, communication, streaming, and team administration."],
     ["Coach stat depth", "SoloStats or iStatVball", "When the buyer is a coach or stat taker who wants deeper reporting and analysis."],
     ["Club administration", "LeagueApps or your existing club system", "LeagueApps documents registration, payments and scheduling; confirm your club’s requirements."],
@@ -100,25 +112,26 @@ const appRows = {
 
 const pages = [
   {
-    modifiedDate: "2026-10-21",
-    modifiedDateHuman: "October 21, 2026",
+    modifiedDate: "2026-11-12",
+    modifiedDateHuman: "November 12, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "volleyball-apps.html",
     slug: "/volleyball-apps",
     title: "Volleyball App Comparison Guide 2026 | CourtsideView",
-    meta: "Compare volleyball apps for scoring, stats, clubs, parents, tournaments, and live score sharing in this 2026 guide.",
+    meta: "Compare volleyball apps for scorekeeping, player stats, and live streaming, plus tools for clubs, parents, and tournaments.",
     ogTitle: "Volleyball App Comparison Guide 2026",
-    ogDescription: "Compare volleyball scorekeeping, stat tracking, club, parent, and tournament apps.",
+    ogDescription: "Compare volleyball apps for scorekeeping, player stats, live streaming, clubs, and tournaments.",
     eyebrow: "Volleyball app guide",
     h1: "Volleyball App Comparison Guide for 2026",
-    intro: "The best volleyball app depends on the job. A parent trying to share live scores needs a different tool than a club director handling registration or a coach building a season stat report. Start here to compare those tasks, then use the focused guides below.",
+    intro: "CourtsideView, GameChanger, and Stat Together combine volleyball scoring or stats with live video. Compare how each records the match, shows the score on a stream, and gives family access. Use the focused guides below to compare standalone scoreboards, coaching reports, and club software.",
     panelTitle: "Quick answer",
     panelBullets: [
-      "Use CourtsideView when the job is live volleyball scoring, player context, FanView sharing, and family follow-along.",
+      "Use CourtsideView to keep score, track player stats, and stream live for free with one FanView link.",
       "Use SoloStats or iStatVball when the main job is deep coach-facing stat analysis.",
       "Use SportsEngine, LeagueApps, TeamSnap, or AES when the job is club operations, registration, events, or broad team management."
     ],
     guideCards: guideLinks.filter((link) => link.href !== "/volleyball-apps"),
+    streamingLink: "See how FanView shares live scores and video",
     tableTitle: "Choose by the problem you are solving",
     tableIntro: "This is the decision framework we use across the guide cluster. It keeps the recommendations clear, honest, and easy to compare at a glance.",
     tableHeaders: ["Use case", "Starting point", "Why"],
@@ -140,14 +153,14 @@ const pages = [
     ],
     faq: [
       ["What is the best volleyball app overall?", "There is no single best app for every volleyball job. CourtsideView is an option for family-first live scoring and FanView sharing, while tools like SoloStats, iStatVball, TeamSnap, SportsEngine, LeagueApps, AES, and VolleyStation solve different coaching, club, and event problems."],
-      ["Why build separate volleyball app guides?", "Each volleyball buyer is solving a different problem. A club software page should not be forced to answer the same question as a parent live-score page."],
+      ["Which volleyball apps combine scoring, player stats, and live streaming?", "CourtsideView has Scorekeeper for team scores, Courtside for player stats, and FanView for live scores and optional video. GameChanger combines volleyball scoring, stats, streaming, and team communication. Stat Together connects collaborative stat entry to a separate streaming app with scoreboard overlays."],
       ["Are these paid rankings?", "These are CourtsideView-authored comparisons, not independent rankings. Our product is included, and the sources and limits of this desk review are disclosed below."]
     ],
-    sources: ["gamechangerVolleyball", "solostats", "volleywrite", "volleystationScore", "istatvball", "teamsnap", "sportsengineVolleyball", "leagueappsVolleyball", "aes"]
+    sources: ["gamechangerVolleyball", "gamechangerWebViewing", "varsityScore", "stattogether", "stattogetherStreaming", "solostats", "volleywrite", "volleystationScore", "istatvball", "teamsnap", "sportsengineVolleyball", "leagueappsVolleyball", "aes"]
   },
   {
-    modifiedDate: "2026-10-26",
-    modifiedDateHuman: "October 26, 2026",
+    modifiedDate: "2026-11-12",
+    modifiedDateHuman: "November 12, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "best-volleyball-scorekeeping-apps-2026.html",
     slug: "/best-volleyball-scorekeeping-apps-2026",
@@ -157,7 +170,7 @@ const pages = [
     ogDescription: "A practical, source-backed guide to volleyball scorekeeping apps for families, teams, and tournaments.",
     eyebrow: "Scorekeeping apps",
     h1: "Best Volleyball Scorekeeping Apps in 2026",
-    intro: "For family scorekeeping, consider CourtsideView for volleyball scores and FanView sharing, or GameChanger for scoring alongside team communication and streaming. For an official scorer table, first ask which digital scoresheet system the event accepts.",
+    intro: "CourtsideView Scorekeeper keeps points, sets, and timeouts for free without a roster or account. Add Courtside for player stats and FanView to share live scores or stream video. This guide compares other scoreboards and streaming options. At an official scorer table, use the digital scoresheet your event accepts.",
     panelTitle: "Quick answer",
     panelBullets: [
       "For volleyball families: CourtsideView.",
@@ -190,20 +203,20 @@ const pages = [
         title: "Why CourtsideView is our family-first pick.",
         body: [
           "CourtsideView was built around the sideline version of volleyball: parents asking for the score, athletes needing their stats to mean something, and families trying to follow from somewhere else.",
-          "FanView is the difference-maker. The scorekeeper can publish a live link so supporters can follow the score and match context from a browser. Courtside mode gives parents and athletes another way to track the match from the player-context side, while rosters keep the app useful as a team grows."
+          "The scorekeeper can share live scores or broadcast for free with FanView after creating a free account. Family can follow a valid link in a browser without an account or app download. Courtside mode records individual player actions when you want more detail than the team score."
         ]
       }
     ],
     faq: [
-      ["What is the best volleyball scorekeeping app for parents?", "CourtsideView is an option when parents want live scorekeeping, FanView sharing, rosters, rotations, and player stats in one volleyball-first workflow."],
+      ["Is there a free volleyball scorekeeping app that works offline?", "Yes. CourtsideView Scorekeeper can track points, sets, timeouts, and the serving team offline without signing up. Publishing live scores or video for remote viewers requires an internet connection and a free CourtsideView account."],
       ["What is the simplest volleyball scorekeeping app?", "For a focused scoreboard, compare Volleyball Score Simple with CourtsideView Scorekeeper. CourtsideView adds separate player-tracking and FanView workflows when needed. The simplest choice depends on your setup and sharing requirements; neither was timed in this review."],
       ["What is the best volleyball scorekeeping app for tournaments?", "VS Score and VolleyWrite document digital scoring workflows. Ask your event which system and rules it accepts before using either as an official scoresheet."]
     ],
-    sources: ["scoreSimple", "varsityScore", "gamechangerVolleyball", "gamechangerHelp", "solostats", "volleywrite", "volleystationScore"]
+    sources: ["scoreSimple", "varsityScore", "gamechangerVolleyball", "gamechangerHelp", "gamechangerReplay", "solostats", "volleywrite", "volleystationScore"]
   },
   {
-    modifiedDate: "2026-10-21",
-    modifiedDateHuman: "October 21, 2026",
+    modifiedDate: "2026-11-12",
+    modifiedDateHuman: "November 12, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "best-volleyball-stat-tracking-apps-2026.html",
     slug: "/best-volleyball-stat-tracking-apps-2026",
@@ -213,7 +226,7 @@ const pages = [
     ogDescription: "Compare volleyball stat apps for coaches, families, and player development.",
     eyebrow: "Stat tracking apps",
     h1: "Best Volleyball Stat Tracking Apps in 2026",
-    intro: "A volleyball stat app should answer more than who won the set. Coaches want tendencies. Players want credit for work that does not always show up in the final score. Families want the story of the match without needing a spreadsheet.",
+    intro: "A volleyball player stats app lets you record actions such as kills, digs, assists, blocks, aces, and errors by athlete as the match happens. Compare which apps track rotations and on-court positions, which produce coaching reports, and which let family follow the live score or video.",
     panelTitle: "Quick answer",
     panelBullets: [
       "For family-readable stat context: CourtsideView.",
@@ -243,14 +256,14 @@ const pages = [
     ],
     faq: [
       ["What is the best volleyball stat app for coaches?", "SoloStats and iStatVball are strong coach-first options. SoloStats emphasizes simple stat-taking options and reports, while iStatVball emphasizes advanced stats, charts, and team-season analysis."],
-      ["What is the best volleyball stat app for parents?", "Consider CourtsideView when parents want stats tied to live scoring, rotations, rosters, and FanView sharing instead of a full analytics suite."],
+      ["Which app tracks kills, digs, assists, and volleyball rotations?", "CourtsideView’s Courtside mode records kills, digs, assists, blocks, aces, and errors by player alongside the score and rotations. SoloStats123 also records those actions and rotations. Compare who will enter stats and what you need to review after the match."],
       ["Should every team use a deep stat app?", "No. A team should choose the detail it can record consistently. Deep stat apps are most useful when someone is committed to recording accurate touches and reviewing them later."]
     ],
-    sources: ["solostats", "solostatsProducts", "solostatsPricing", "istatvball", "istatvballPurchase", "stattogether", "gamechangerVolleyball", "volleystationScore"]
+    sources: ["solostats", "solostatsProducts", "solostatsPricing", "solostatsLive", "solostats123", "istatvball", "istatvballPurchase", "stattogether", "stattogetherStreaming", "gamechangerVolleyball", "volleystationScore"]
   },
   {
-    modifiedDate: "2026-10-21",
-    modifiedDateHuman: "October 21, 2026",
+    modifiedDate: "2026-11-12",
+    modifiedDateHuman: "November 12, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "best-apps-for-volleyball-clubs.html",
     slug: "/best-apps-for-volleyball-clubs",
@@ -279,7 +292,7 @@ const pages = [
         title: "Separate club operations from match-day scoring.",
         body: [
           "Club directors need registrations, waivers, payments, schedules, rosters, websites, tournament entries, and communication. Scorekeepers need something much narrower: get the match right, keep the score visible, and share context with families.",
-          "CourtsideView offers a match-day layer for scoring, player stats, rosters and FanView sharing. Keep registration and payments in your club administration system. Confirm any needed data transfer with both providers; using two products does not imply an integration."
+          "CourtsideView covers scoring, player stats, rosters, and FanView live scores or video. Choose who will score and who will start the camera before first serve. Keep registration and payments in your club administration system and check any needed data transfer with both providers."
         ],
         cards: [
           ["Club admin", "Registration, payments, waivers, schedules, reports, rosters, websites."],
@@ -296,18 +309,19 @@ const pages = [
     sources: ["sportsengineVolleyball", "sportsengineApp", "leagueappsVolleyball", "teamsnap", "teamsnapParents", "sportsengineAes", "aes", "gamechangerVolleyball"]
   },
   {
-    modifiedDate: "2026-10-26",
-    modifiedDateHuman: "October 26, 2026",
+    modifiedDate: "2026-11-12",
+    modifiedDateHuman: "November 12, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "best-apps-for-volleyball-parents.html",
     slug: "/best-apps-for-volleyball-parents",
     title: "2027 Volleyball Parent Match-Day Guide | CourtsideView",
-    meta: "Prepare for the 2027 volleyball season with a parent match-day checklist, scorekeeping plan, family sharing steps and app-selection guide.",
+    meta: "Plan volleyball match day: keep score, share a live stream, and help family watch in a browser without installing an app.",
     ogTitle: "2027 Volleyball Parent Match-Day Guide",
-    ogDescription: "Prepare for tournament day with a 2027 checklist for schedules, scoring, devices and family updates.",
+    ogDescription: "Prepare for tournament day with a checklist for schedules, scoring, live streaming, and browser viewing.",
     eyebrow: "Parent app guide",
     h1: "Get ready for the 2027 volleyball season",
-    intro: "Plan the schedule, choose your scorer and help family follow from home. Start with the 2027 match-day checklist, then compare tools for the jobs your team needs.",
+    intro: "Choose who will keep score, who will start the live stream, and where family should watch. A valid CourtsideView FanView link opens live scores and optional video in a browser without an account or app download. Use the checklist below to plan your volleyball tournament day.",
+    streamingLink: "See how to stream a match for family",
     panelTitle: "Quick answer",
     panelBullets: [
       "For live volleyball score and family follow-along: CourtsideView.",
@@ -337,27 +351,27 @@ const pages = [
     ],
     faq: [
       ["What is the best volleyball app for parents at tournaments?", "Consider CourtsideView when parents need live match scoring, a visible scoreboard, and FanView sharing. TeamSnap, SportsEngine, AES, and GameChanger can be useful depending on what the team or tournament uses for schedules and communication."],
-      ["Can family follow CourtsideView without installing the app?", "Yes. FanView lets family follow live scores and match activity in a browser without installing CourtsideView. Viewing and broadcasting require registered accounts. Live sharing needs internet, and video needs someone broadcasting."],
+      ["Can family follow CourtsideView without installing the app?", "Yes. Open a valid FanView link in a browser with internet access. Viewers can follow live scores and match activity without signing up or installing the app. Video appears if the broadcaster goes live."],
       ["What if I only want to track score for myself?", "Use CourtsideView Scorekeeper. It is fast enough for simple point-by-point scoring, but you are not boxed into a score-only tool if your team later wants rosters, Courtside mode, player stats, FanView sharing."]
     ],
-    sources: ["gamechangerVolleyball", "teamsnap", "teamsnapParents", "sportsengineApp", "sportsengineAes"]
+    sources: ["gamechangerVolleyball", "gamechangerWebViewing", "gamechangerReplay", "teamsnap", "teamsnapParents", "sportsengineApp", "sportsengineAes"]
   },
   {
-    modifiedDate: "2026-10-26",
-    modifiedDateHuman: "October 26, 2026",
+    modifiedDate: "2026-11-12",
+    modifiedDateHuman: "November 12, 2026",
     sourceReviewDate: "October 21, 2026",
     file: "volleyball-app-comparison-study.html",
     slug: "/volleyball-app-comparison-study",
     title: "Volleyball App Comparison Study 2026 | CourtsideView",
-    meta: "A structured volleyball app comparison study across scoring, stats, club operations, tournaments, and parent follow-along.",
+    meta: "Compare volleyball apps by use case: scoring, player stats, live streaming, club operations, tournaments, and family viewing.",
     ogTitle: "Volleyball App Comparison Study 2026",
     ogDescription: "A category-by-category study of volleyball app choices for families, coaches, clubs, and tournament operators.",
     eyebrow: "Comparison study",
     h1: "Volleyball App Comparison Study for 2026",
-    intro: "Most volleyball app comparisons flatten the category into one list. That is not how volleyball works. The right app depends on who is holding the phone and what job they need done in the next five minutes.",
+    intro: "Compare volleyball apps by who keeps score, who records player stats, and how families watch the match. Use this source-based comparison to check live video, score overlays, browser access, and replay terms alongside coaching and club tools.",
     panelTitle: "Study summary",
     panelBullets: [
-      "For family match day, compare CourtsideView scoring and FanView with the tools your team already uses.",
+      "For family match day, compare CourtsideView scoring, player stats, and FanView live video with the tools your team already uses.",
       "SoloStats and iStatVball document coach-oriented statistics and reporting.",
       "SportsEngine, LeagueApps, TeamSnap, and AES belong in club, parent-logistics, and event operations lanes.",
       "VS Score and VolleyWrite document digital scoring workflows; confirm acceptance with the event."
@@ -394,7 +408,7 @@ const pages = [
       ["Why not rank every app from one to ten?", "A single numerical ranking would be less honest. A parent, club director, tournament operator, and varsity coach are solving different problems."],
       ["How often should this comparison be updated?", "Review it at least every season, and any time major app features, pricing, or tournament workflows change."]
     ],
-    sources: ["gamechangerVolleyball", "solostats", "istatvball", "volleywrite", "volleystationScore", "teamsnap", "sportsengineVolleyball", "leagueappsVolleyball", "sportsengineAes", "aes"]
+    sources: ["gamechangerVolleyball", "gamechangerWebViewing", "gamechangerReplay", "varsityScore", "stattogetherStreaming", "solostats", "istatvball", "volleywrite", "volleystationScore", "teamsnap", "sportsengineVolleyball", "leagueappsVolleyball", "sportsengineAes", "aes"]
   }
 ];
 
@@ -404,7 +418,7 @@ const practicalQuestions = [
   ["Can I use a parent scoring app as the official scoresheet?", "Ask the referee or event organizer first. A family scoreboard is not automatically an approved official scoresheet. Test corrections, timeouts and set changes with your scorer before match day."],
   ["What should a new volleyball stat taker record first?", "Agree on a small set of actions with the coach and use consistent definitions. Reconcile the score after each set. Add detail only when the stat taker can keep up without guessing missed touches."],
   ["What should a club check before adding another app?", "Name the owner for registration, scheduling, rosters and scoring. Check permissions, subscription costs, exports and support with each provider. Do not assume two tools share data just because the club uses both."],
-  ["How can grandparents follow a volleyball match?", "Ask the scorekeeper for the FanView link and open it in a browser with an internet connection. Someone at the match must keep the score current. Live scores do not guarantee live video; video depends on a broadcaster going live."],
+  ["How can grandparents follow a volleyball match?", "Ask the scorekeeper for the FanView link and open it in a browser with an internet connection. A valid link needs no account or app download. Someone at the match keeps the score current and chooses whether to start live video."],
   ["Were these apps tested under the same match conditions?", "No. This comparison summarizes selected official product descriptions. It does not establish speed, reliability, ease of use or a universal winner. Trial the shortlisted tools with your own scorer, devices and venue connection."]
 ];
 for (const [index, page] of pages.entries()) {
@@ -633,7 +647,7 @@ function renderPage(page) {
                 <div>
                     <h1 id="hero-title">${esc(page.h1)}</h1>
                     <p class="hero-copy">${esc(page.intro)}</p>
-                    <div class="hero-actions">
+                    ${page.streamingLink ? `<p><a href="/courtsideview-app#fanview-streaming">${esc(page.streamingLink)}</a></p>\n                    ` : ""}<div class="hero-actions">
                         <a class="primary-button" href="/download">Download CourtsideView</a>
                         <a class="secondary-button" href="/volleyball-apps">Browse all guides</a>
                     </div>
@@ -708,7 +722,7 @@ function renderPage(page) {
                 <div class="container-wide download-box">
                     <div>
                         <h2>Try the volleyball-first match-day app.</h2>
-                        <p>Use CourtsideView for live scoring, player stats, rotations, big scoreboard mode, and FanView sharing built around the family volleyball weekend.</p>
+                        <p>Keep volleyball score, track player stats and rotations, and stream matches live for free with FanView.</p>
                     </div>
                     <div class="store-badges" aria-label="Download CourtsideView">
                         <a href="https://apps.apple.com/us/app/courtsideview/id6766532771" aria-label="Download CourtsideView on the App Store">

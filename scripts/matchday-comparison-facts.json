@@ -23,33 +23,33 @@
       "product": "CourtsideView",
       "topic": "Player statistics",
       "summary": "Player statistics, rotations and rosters are documented features.",
-      "limit": "Registration is required for features beyond guest Scorekeeper.",
-      "url": "https://www.courtsideviewapp.com/courtsideview-app",
-      "reviewed": "2026-10-26"
+      "limit": "Sign in to use Courtside player tracking.",
+      "url": "https://apps.apple.com/us/app/courtsideview/id6766532771",
+      "reviewed": "2026-11-12"
     },
     {
       "product": "CourtsideView",
       "topic": "Video and following",
-      "summary": "FanView shares live scores, match activity and optional live video. Fans can view in a browser without installing the app.",
-      "limit": "Registered accounts are required for FanView viewing and broadcasting. Live sharing needs internet.",
-      "url": "https://www.courtsideviewapp.com/privacy",
-      "reviewed": "2026-10-26"
+      "summary": "FanView shares live scores, match activity, and optional live video. Fans with a valid link can follow in a browser without an account or app.",
+      "limit": "The host signs in to publish or broadcast. Viewers and hosts need internet for live updates.",
+      "url": "https://play.google.com/store/apps/details?id=app.courtsideview.android&hl=en_US",
+      "reviewed": "2026-11-12"
     },
     {
       "product": "CourtsideView",
       "topic": "Access and devices",
-      "summary": "Downloads for iPhone, iPad and Android. Guest use is limited to Scorekeeper.",
-      "limit": "Other features require registration. Check current store compatibility for the device you plan to use.",
-      "url": "https://www.courtsideviewapp.com/download",
-      "reviewed": "2026-10-26"
+      "summary": "Downloads for iPhone, iPad, and Android. Local Scorekeeper works without an account.",
+      "limit": "Courtside player tracking and FanView publishing require an account. Check store compatibility for your device.",
+      "url": "https://www.courtsideviewapp.com/courtsideview-app#product-facts",
+      "reviewed": "2026-11-12"
     },
     {
       "product": "CourtsideView",
       "topic": "Cost boundary",
-      "summary": "Free to download.",
-      "limit": "Free download does not establish that every feature is always free. Check current feature access and store terms.",
+      "summary": "Free to download. Local Scorekeeper is free to use.",
+      "limit": "Check the app stores for current regional availability and terms.",
       "url": "https://apps.apple.com/us/app/courtsideview/id6766532771",
-      "reviewed": "2026-10-26"
+      "reviewed": "2026-11-12"
     },
     {
       "product": "GameChanger",

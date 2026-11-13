@@ -1,13 +1,13 @@
 # Your 2027 volleyball match-day checklist
 
-Prepared October 26, 2026 for the coming season. Confirm event requirements.
+Prepared October 26, 2026 for the coming season. FanView access updated November 12, 2026. Confirm event requirements.
 
 ### Before the season starts
 
 - **Find the team’s source for schedules.** Ask your coach or team manager where court assignments, arrival times, work-team duties and last-minute changes will appear. Save that destination on every attending adult’s phone.
 - **Choose the scoring job.** Decide whether you want a family scoreboard, player-level stats or the event’s official scorekeeping record. Ask the event what system and training it requires for official duties.
 - **Choose one person to keep the family score.** Agree who will start each match and who can take over if that person needs to leave. A live score is useful only when someone keeps it current.
-- **Prepare supporters at home.** Confirm whether they want score updates, live video or both. Send account instructions before tournament morning and test the browser link together.
+- **Prepare supporters at home.** Confirm whether they want score updates, live video or both. Send the FanView link before the match starts and test it together in a browser. Viewers can follow a valid link without an account or app.
 - **Practise once.** Try a short practice match so the scorer can find point entry, correction, timeout and end-set actions. Check that team names are easy to distinguish on the screen.
 
 ### The night before
@@ -36,6 +36,6 @@ Confirm the final result before ending the match. Tell supporters that play has 
 
 Official scorer duties follow the event-approved system and training.
 
-CourtsideView: guest Scorekeeper is available without registration. Other features, including FanView viewing and broadcasting, require a registered account. Browser viewers need no app installation. Live sharing needs internet; video needs a broadcaster. FanView links expire 15 minutes after game conclusion.
+Use local Scorekeeper without an account. Sign in to publish or broadcast with FanView. Supporters with a valid link and internet can follow in a browser without an account or app. Video appears when someone starts a broadcast. FanView links expire 15 minutes after the game concludes.
 
 Full guide: https://www.courtsideviewapp.com/best-apps-for-volleyball-parents#2027-season-checklist
